@@ -1,0 +1,15 @@
+﻿<UserControl x:Class="UI.Views.Tabs.EquipmentTree.EquipmentrTreeView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:UI.Views.Tabs.EquipmentTree"
+             mc:Ignorable="d"
+             xmlns:prism="http://prismlibrary.com/"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:behavior="clr-namespace:Core.Behaviors.SyncfusionTreeView;assembly=Core">
+    <Grid>
+        
+    </Grid>
+</UserControl>

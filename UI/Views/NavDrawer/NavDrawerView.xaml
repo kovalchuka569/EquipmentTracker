@@ -1,0 +1,137 @@
+﻿<UserControl x:Class="UI.Views.NavDrawer.NavDrawerView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:UI.Views.NavDrawer"
+             mc:Ignorable="d"
+             xmlns:sf="http://schemas.syncfusion.com/wpf"
+             xmlns:prism="http://prismlibrary.com/"
+             prism:ViewModelLocator.AutoWireViewModel="True">
+    
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Syncfusion.Themes.Windows11Light.WPF;component/SfNavigationDrawer/PrimarySfNavigationDrawer.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+        <Grid>
+        <sf:SfNavigationDrawer x:Name="navDrawer"
+                               DisplayMode="Expanded" 
+                               Style="{StaticResource SyncfusionPrimarySfNavigationDrawerStyle}">
+            <sf:SfNavigationDrawer.ToggleButtonContentTemplate>
+                <DataTemplate>
+                    <Label HorizontalAlignment="Center" VerticalAlignment="Center"
+                           Content="Odyssey" Foreground="White" FontFamily="pack://application:,,,/Fonts/#Tylaco" FontSize="25" Margin="0,0,30,0"/>
+                </DataTemplate>
+            </sf:SfNavigationDrawer.ToggleButtonContentTemplate>
+
+            <sf:SfNavigationDrawer.Items>
+                
+                <sf:NavigationItem ItemType="Separator"/>
+                
+                <sf:NavigationItem Header="Виробниче обладнання" FontSize="14" FontWeight="DemiBold"
+                                   Command="{Binding ShowTabCommand}" CommandParameter="Виробниче обладнання"
+                                   Style="{StaticResource SyncfusionPrimaryDefaultNavigationItemStyle}"
+                                   Cursor="Hand" Height="40">
+                    <sf:NavigationItem.Icon>
+                        <Image Source="pack://application:,,,/Views/NavDrawer/Assets/prod_equipment.png" Width="25" Height="25"/>
+                    </sf:NavigationItem.Icon>
+                </sf:NavigationItem>
+                
+                <sf:NavigationItem ItemType="Separator"/>
+                
+                <sf:NavigationItem Header="Інструменти" FontSize="14" FontWeight="DemiBold"
+                                   Command="{Binding ShowTabCommand}" CommandParameter="Інструменти"
+                                   Style="{StaticResource SyncfusionPrimaryDefaultNavigationItemStyle}"
+                                   Cursor="Hand" Height="40">
+                    <sf:NavigationItem.Icon>
+                        <Image Source="pack://application:,,,/Views/NavDrawer/Assets/tools.png" Width="25" Height="25"/>
+                    </sf:NavigationItem.Icon>
+                </sf:NavigationItem>
+                
+                <sf:NavigationItem ItemType="Separator"/>
+                
+                <sf:NavigationItem Header="Меблі" FontSize="14" FontWeight="DemiBold"
+                                   Command="{Binding ShowTabCommand}" CommandParameter="Меблі"
+                                   Style="{StaticResource SyncfusionPrimaryDefaultNavigationItemStyle}"
+                                   Cursor="Hand" Height="40">
+                    <sf:NavigationItem.Icon>
+                        <Image Source="pack://application:,,,/Views/NavDrawer/Assets/furniture.png" Width="25" Height="25"/>
+                    </sf:NavigationItem.Icon>
+                </sf:NavigationItem>
+                
+                <sf:NavigationItem ItemType="Separator"/>
+                
+                <sf:NavigationItem Header="Офісна техніка" FontSize="14" FontWeight="DemiBold"
+                                   Command="{Binding ShowTabCommand}" CommandParameter="Офісна техніка"
+                                   Style="{StaticResource SyncfusionPrimaryDefaultNavigationItemStyle}"
+                                   Cursor="Hand" Height="40">
+                    <sf:NavigationItem.Icon>
+                        <Image Source="pack://application:,,,/Views/NavDrawer/Assets/office_technique.png" Width="25" Height="25"/>
+                    </sf:NavigationItem.Icon>
+                </sf:NavigationItem>
+                
+                <sf:NavigationItem ItemType="Separator"/>
+                
+                <sf:NavigationItem Header="Розхідні матеріали" FontSize="14" FontWeight="DemiBold"
+                                   Command="{Binding ShowTabCommand}" CommandParameter="Розхідні матеріали"
+                                   Style="{StaticResource SyncfusionPrimaryDefaultNavigationItemStyle}"
+                                   Cursor="Hand" Height="40">
+                    <sf:NavigationItem.Icon>
+                        <Image Source="pack://application:,,,/Views/NavDrawer/Assets/consumables.png" Width="25" Height="25"/>
+                    </sf:NavigationItem.Icon>
+                </sf:NavigationItem>
+                
+                <sf:NavigationItem ItemType="Separator"/>
+                
+                <sf:NavigationItem Header="Облік" FontSize="14" FontWeight="DemiBold"
+                                   Command="{Binding ShowTabCommand}"  CommandParameter="Облік"
+                                   Style="{StaticResource SyncfusionPrimaryDefaultNavigationItemStyle}"
+                                   Cursor="Hand" Height="40">
+                    <sf:NavigationItem.Icon>
+                        <Image Source="pack://application:,,,/Views/NavDrawer/Assets/accounting.png" Width="25" Height="25"/>
+                    </sf:NavigationItem.Icon>
+                </sf:NavigationItem>
+                
+                <sf:NavigationItem ItemType="Separator"/>
+                
+            </sf:SfNavigationDrawer.Items>
+            
+            
+            <sf:SfNavigationDrawer.FooterItems>
+                
+                <sf:NavigationItem ItemType="Separator"/>
+                
+                <sf:NavigationItem Header="Календар" FontSize="14" FontWeight="DemiBold"
+                                   Command="{Binding ShowTabCommand}" CommandParameter="Календар"
+                                   Style="{StaticResource SyncfusionPrimaryDefaultNavigationItemStyle}"
+                                   Cursor="Hand" Height="40">
+                    <sf:NavigationItem.Icon>
+                        <Image Source="pack://application:,,,/Views/NavDrawer/Assets/scheduler.png" Width="25" Height="25"/>
+                    </sf:NavigationItem.Icon>
+                </sf:NavigationItem>
+                
+                <sf:NavigationItem ItemType="Separator" />
+                
+                <sf:NavigationItem Header="Налаштування" FontSize="14" FontWeight="DemiBold"
+                                   Command="{Binding ShowTabCommand}" CommandParameter="Налаштування"
+                                   Style="{StaticResource SyncfusionPrimaryDefaultNavigationItemStyle}"
+                                   Cursor="Hand" Margin="0,0,0,10" >
+                    <sf:NavigationItem.Icon>
+                        <Image Source="pack://application:,,,/Views/NavDrawer/Assets/settings.png" Width="25" Height="25"/>
+                    </sf:NavigationItem.Icon>
+                </sf:NavigationItem>
+                
+            </sf:SfNavigationDrawer.FooterItems>
+
+            <sf:SfNavigationDrawer.ContentView>
+                    <ContentControl x:Name="cc" prism:RegionManager.RegionName="ContentRegion"/>
+            </sf:SfNavigationDrawer.ContentView>
+
+        </sf:SfNavigationDrawer>
+        
+       
+    </Grid>
+</UserControl>

@@ -1,0 +1,57 @@
+﻿<Window x:Class="UI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="UI"
+        xmlns:prism="http://prismlibrary.com/"
+        prism:ViewModelLocator.AutoWireViewModel = "True"
+        mc:Ignorable="d"
+        Title="Equipment Tracker"
+        xmlns:bi="clr-namespace:UI.Views.Notifications.BusyIndicator"
+
+        xmlns:syncfusionskin="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF"
+        syncfusionskin:SfSkinManager.Theme="{syncfusionskin:SkinManagerExtension ThemeName=Windows11Light}"
+        WindowStartupLocation="CenterScreen" WindowState="Maximized">
+  
+    <!--On default view-->
+    <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+        <Grid>
+        <Grid.Effect>
+            <BlurEffect Radius="0"/>
+        </Grid.Effect>
+            
+            <!--Main Region-->
+        <ContentControl prism:RegionManager.RegionName="MainRegion"/>
+        
+            <!--Blur effect when busy indicator-->
+        <Grid.Style>
+            <Style TargetType="Grid">
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding ElementName=BusyIndicator, Path=DataContext.IsBusy}" Value="True">
+                        <DataTrigger.EnterActions>
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <DoubleAnimation Storyboard.TargetProperty="Effect.(BlurEffect.Radius)"
+                                                     From="0" To="10" Duration="0:0:0.5"/>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </DataTrigger.EnterActions>
+                        <DataTrigger.ExitActions>
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <DoubleAnimation Storyboard.TargetProperty="Effect.(BlurEffect.Radius)"
+                                                     From="10" To="0" Duration="0:0:0.5"/>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </DataTrigger.ExitActions>
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+        </Grid.Style>
+        </Grid>
+        
+        <!--Busy indicator-->
+        <bi:BusyIndicatorView x:Name="BusyIndicator"/>        
+    </Grid>
+</Window>

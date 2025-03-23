@@ -1,0 +1,115 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net9.0-windows</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <UseWPF>true</UseWPF>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <None Remove="Fonts\password.ttf" />
+      <None Remove="Views\Auth\Assets\hide_pass.png" />
+      <None Remove="Views\Auth\Assets\hint_pass.png" />
+      <None Remove="Views\Auth\Assets\hint_user.png" />
+      <None Remove="Views\Auth\Assets\show_pass.png" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.2" />
+      <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
+      <PackageReference Include="Notification.Wpf" Version="8.0.0" />
+      <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
+      <PackageReference Include="Ookii.Dialogs.Wpf" Version="5.0.1" />
+      <PackageReference Include="Prism.Unity" Version="9.0.537" />
+      <PackageReference Include="Prism.Wpf" Version="9.0.537" />
+      <PackageReference Include="Syncfusion.Licensing" Version="28.2.12" />
+      <PackageReference Include="Syncfusion.SfSkinManager.WPF" Version="28.2.11" />
+      <PackageReference Include="Syncfusion.Shared.WPF" Version="28.2.12" />
+      <PackageReference Include="Syncfusion.Themes.Windows11Dark.WPF" Version="28.2.11" />
+      <PackageReference Include="Syncfusion.Themes.Windows11Light.WPF" Version="28.2.11" />
+      <PackageReference Include="Syncfusion.Tools.WPF" Version="28.2.12" />
+      <PackageReference Include="Syncfusion.UI.WPF.NET" Version="28.2.11" />
+      <PackageReference Include="Unity.Container" Version="5.11.11" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Core\Core.csproj" />
+      <ProjectReference Include="..\Data\Data.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Resource Include="Fonts\password.ttf" />
+      <Resource Include="Views\Auth\Assets\hide_pass.png" />
+      <Resource Include="Views\Auth\Assets\hint_pass.png" />
+      <Resource Include="Views\Auth\Assets\hint_user.png" />
+      <Resource Include="Views\Auth\Assets\show_pass.png" />
+      <None Remove="Views\NavDrawer\Assets\prod_equipment.png" />
+      <Resource Include="Views\NavDrawer\Assets\prod_equipment.png" />
+      <None Remove="Views\Auth\Assets\log_in.png" />
+      <None Remove="Views\Tabs\ProductionEquipmentTree\Assets\folder.png" />
+      <Resource Include="Views\Tabs\ProductionEquipmentTree\Assets\folder.png" />
+      <None Remove="Views\Tabs\ProductionEquipmentTree\Assets\file.png" />
+      <Resource Include="Views\Tabs\ProductionEquipmentTree\Assets\file.png" />
+      <None Remove="Fonts\Tylaco.ttf" />
+      <Resource Include="Fonts\Tylaco.ttf" />
+      <None Remove="Views\Tabs\ProductionEquipmentTree\Assets\spreadsheet.png" />
+      <Resource Include="Views\Tabs\ProductionEquipmentTree\Assets\spreadsheet.png" />
+      <None Remove="Views\NavDrawer\Assets\furniture.png" />
+      <Resource Include="Views\NavDrawer\Assets\furniture.png" />
+      <None Remove="Views\NavDrawer\Assets\tools.png" />
+      <Resource Include="Views\NavDrawer\Assets\tools.png" />
+      <None Remove="Views\NavDrawer\Assets\icons8-mouse-48.png" />
+      <Resource Include="Views\NavDrawer\Assets\office_technique.png" />
+      <None Remove="Views\NavDrawer\Assets\accounting.png" />
+      <Resource Include="Views\NavDrawer\Assets\accounting.png" />
+      <None Remove="Views\NavDrawer\Assets\consumables.png" />
+      <Resource Include="Views\NavDrawer\Assets\consumables.png" />
+      <None Remove="Views\NavDrawer\Assets\settings.png" />
+      <Resource Include="Views\NavDrawer\Assets\settings.png" />
+      <None Remove="Views\NavDrawer\Assets\scheduler.png" />
+      <Resource Include="Views\NavDrawer\Assets\scheduler.png" />
+      <None Remove="Views\Tabs\ProductionEquipmentTree\Assets\opened_folder.png" />
+      <Resource Include="Views\Tabs\ProductionEquipmentTree\Assets\opened_folder.png" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="Properties\Settings.Designer.cs">
+        <DesignTimeSharedInput>True</DesignTimeSharedInput>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>Settings.settings</DependentUpon>
+      </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Update="Properties\Settings.settings">
+        <Generator>SettingsSingleFileGenerator</Generator>
+        <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+      </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Reference Include="Syncfusion.Themes.Windows11Light.WPF">
+        <HintPath>C:\Users\Artem\Desktop\Новая папка (2)\bin\Release\net9.0-windows\Syncfusion.Themes.Windows11Light.WPF.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Page Update="Views\DataGrid\DataGridView.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Views\Notifications\BusyIndicator\BusyIndicatorView.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Views\Notifications\NotifyIcon\" />
+    </ItemGroup>
+
+</Project>

@@ -1,0 +1,16 @@
+D:\EquipmentTracker\Core\bin\Debug\net9.0-windows\Core.deps.json
+D:\EquipmentTracker\Core\bin\Debug\net9.0-windows\Core.dll
+D:\EquipmentTracker\Core\bin\Debug\net9.0-windows\Core.pdb
+D:\EquipmentTracker\Core\bin\Debug\net9.0-windows\Data.dll
+D:\EquipmentTracker\Core\bin\Debug\net9.0-windows\Data.pdb
+D:\EquipmentTracker\Core\bin\Debug\net9.0-windows\Data.dll.config
+D:\EquipmentTracker\Core\obj\Debug\net9.0-windows\Core.csproj.AssemblyReference.cache
+D:\EquipmentTracker\Core\obj\Debug\net9.0-windows\Core.GeneratedMSBuildEditorConfig.editorconfig
+D:\EquipmentTracker\Core\obj\Debug\net9.0-windows\Core.AssemblyInfoInputs.cache
+D:\EquipmentTracker\Core\obj\Debug\net9.0-windows\Core.AssemblyInfo.cs
+D:\EquipmentTracker\Core\obj\Debug\net9.0-windows\Core.csproj.CoreCompileInputs.cache
+D:\EquipmentTracker\Core\obj\Debug\net9.0-windows\Core.csproj.Up2Date
+D:\EquipmentTracker\Core\obj\Debug\net9.0-windows\Core.dll
+D:\EquipmentTracker\Core\obj\Debug\net9.0-windows\refint\Core.dll
+D:\EquipmentTracker\Core\obj\Debug\net9.0-windows\Core.pdb
+D:\EquipmentTracker\Core\obj\Debug\net9.0-windows\ref\Core.dll
