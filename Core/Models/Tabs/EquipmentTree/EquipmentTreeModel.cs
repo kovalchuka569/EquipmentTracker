@@ -1,132 +1,36 @@
-﻿
+﻿using System.Windows.Forms;
 
-using System.Collections.ObjectModel;
-using System.Windows.Forms;
-using Core.Services.Log;
-using Core.Services.Notifications;
 using Microsoft.EntityFrameworkCore;
+
+using Core.Services.Log;
 using Data.AppDbContext;
 using Data.Entities;
-using Syncfusion.UI.Xaml.TreeView;
-using Syncfusion.UI.Xaml.TreeView.Engine;
 
-using Ookii.Dialogs.Wpf;
-using TaskDialog = Ookii.Dialogs.Wpf.TaskDialog;
-using TaskDialogButton = Ookii.Dialogs.Wpf.TaskDialogButton;
 
 namespace Core.Models.Tabs.ProductionEquipmentTree;
 
 public class EquipmentTreeModel
 {
-    public ObservableCollection<Folder> Folders { get; set; }
     public Folder SelectedFolder { get; set; }
 
     private readonly AppDbContext _context;
-    private SfTreeView _treeView;
     private LogService _logService;
 
     private string _originalCategoryName;
     private int? _originalCategoryId;
 
-    private readonly BusyIndicatorService _busyIndicatorService;
-
-    public EquipmentTreeModel(AppDbContext context, BusyIndicatorService busyIndicatorService, LogService logService)
+    public EquipmentTreeModel(AppDbContext context, LogService logService)
     {
         _context = context;
-        _busyIndicatorService = busyIndicatorService;
         _logService = logService;
     }
 
-    public void LoadData()
-    {
-        var expandedNodes = SaveExpandedNodes();
-        var categories = _context.CategoriesProductionEquipment
+    public List<CategoryProductionEquipment> GetCategories()
+    { 
+        return _context.CategoriesProductionEquipment
             .AsNoTracking()
             .ToList();
-
-        Folders = new ObservableCollection<Folder>();
-
-        Folders = new ObservableCollection<Folder>(BuildFolderHierarchy(categories, null));
-
-        RestoreExpandedNodes(expandedNodes);
     }
-
-    #region Folder hierarchy builder
-
-    private IEnumerable<Folder> BuildFolderHierarchy(List<CategoryProductionEquipment> categories, int? parentId)
-    {
-        return categories
-            .Where(c => c.ParentId == parentId)
-            .OrderBy(c => c.CategoryName,
-                Comparer<string>.Create((a, b) =>
-                    string.Compare(a, b, StringComparison.CurrentCultureIgnoreCase))) //Sorting
-            .Select(c => new Folder
-            {
-                Id = c.Id,
-                FileName = c.CategoryName,
-                SubFolders = BuildFolderHierarchy(categories, c.Id).ToList()
-            });
-    }
-
-    #endregion
-
-    #region Managing node states
-
-    //Save expanded nodes
-    private List<string> SaveExpandedNodes()
-    {
-        var expanded = new List<string>();
-        if (_treeView != null)
-        {
-            foreach (var node in _treeView.Nodes)
-            {
-                CollectExpandedNodes(node, expanded);
-            }
-        }
-
-        return expanded;
-    }
-
-    //Collect expanded nodes
-    private void CollectExpandedNodes(TreeViewNode node, List<string> expanded)
-    {
-        if (node.IsExpanded && node.Content is Folder folder)
-        {
-            expanded.Add(folder.FileName);
-        }
-
-        foreach (var childNodes in node.ChildNodes)
-        {
-            CollectExpandedNodes(childNodes, expanded);
-        }
-    }
-
-    //Restore expanded nodes
-    private void RestoreExpandedNodes(List<string> expandedNodes)
-    {
-        if (_treeView != null)
-        {
-            foreach (var node in _treeView.Nodes)
-            {
-                RestoreNodeState(node, expandedNodes);
-            }
-        }
-    }
-
-    private void RestoreNodeState(TreeViewNode node, List<string> expandedNodes)
-    {
-        if (node.Content is Folder folder && expandedNodes.Contains(folder.FileName))
-        {
-            node.IsExpanded = true;
-        }
-
-        foreach (var childNode in node.ChildNodes)
-        {
-            RestoreNodeState(childNode, expandedNodes);
-        }
-    }
-
-    #endregion
 
     #region Get Unique Category Name
 
@@ -178,7 +82,6 @@ public class EquipmentTreeModel
             _context.SaveChanges();
             _logService.AddLog($"Створено нову категорію: {uniqueCategoryName}");
             message = $"Створено категорію: {uniqueCategoryName}";
-            LoadData();
             SelectedFolder = null;
             return true;
         }
@@ -221,12 +124,9 @@ public class EquipmentTreeModel
             return false;
         }
     }
-
-
     #endregion
 
-    #region On Delete
-
+    #region Deleting tree items
     public bool Deleting(int categoryId, out string message)
     {
         try
@@ -246,7 +146,6 @@ public class EquipmentTreeModel
             _context.SaveChanges();
             _logService.AddLog($"Видалено категорію {categoryToDelete.CategoryName}, Id: {categoryToDelete.Id}");
             message = $"Категорія '{categoryToDelete.CategoryName}' успішно видалена.";
-            LoadData();
             return true;
         }
         catch (Exception e)
@@ -278,6 +177,7 @@ public class EquipmentTreeModel
             SendKeys.SendWait("{F2}");
     }
     #endregion
+    
     #region Editing tree items
     #region Begin editing
     public bool BeginEditing(Folder editedItem)
@@ -291,7 +191,7 @@ public class EquipmentTreeModel
         return false;
     }
     #endregion
-    #region ExecuteItemEndEdit
+    #region End editing
     public bool EndEditing(Folder editedItem, out string message)
     {
         try

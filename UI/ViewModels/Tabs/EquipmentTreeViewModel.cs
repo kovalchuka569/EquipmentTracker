@@ -1,21 +1,16 @@
 ﻿using System.Collections.ObjectModel;
-using System.Windows.Controls;
-using System.Windows.Forms;
-using System.Windows.Input;
-using Microsoft.EntityFrameworkCore;
-using Data.AppDbContext;
-using Data.Entities;
 
 using Syncfusion.UI.Xaml.TreeView;
 using Syncfusion.UI.Xaml.TreeView.Engine;
 
-using Core.Models.Tabs.ProductionEquipmentTree;
-using Core.Services.Log;
-using Core.Services.Notifications;
 using Notification.Wpf;
 using Ookii.Dialogs.Wpf;
 using TaskDialog = Ookii.Dialogs.Wpf.TaskDialog;
 using TaskDialogButton = Ookii.Dialogs.Wpf.TaskDialogButton;
+
+using Data.Entities;
+using Core.Models.Tabs.ProductionEquipmentTree;
+using Core.Services.Notifications;
 
 using DelegateCommand = Prism.Commands.DelegateCommand;
 
@@ -26,16 +21,12 @@ namespace UI.ViewModels.Tabs;
 public class EquipmentTreeViewModel : BindableBase
 {
     #region Properties
-    private readonly AppDbContext _context;
     private readonly IEventAggregator _eventAggregator;
     private readonly BusyIndicatorService _busyIndicatorService;
-    private readonly LogService _logService;
     private readonly NotificationManager _notificationManager;
     private ObservableCollection<Folder> _folders;
     
-    private string _originalCategoryName;
     private EquipmentTreeModel _model;
-    private int? _originalCategoryId;
     private SfTreeView treeView;
     private Folder _selectedFolder;
     #endregion
@@ -95,7 +86,7 @@ public class EquipmentTreeViewModel : BindableBase
     
     
     #region Initialization
-    public EquipmentTreeViewModel(AppDbContext context, IEventAggregator eventAggregator, BusyIndicatorService busyIndicatorService, EquipmentTreeModel model, LogService logService, NotificationManager notificationManager, SfTreeView _treeView)
+    public EquipmentTreeViewModel(IEventAggregator eventAggregator, BusyIndicatorService busyIndicatorService, EquipmentTreeModel model, NotificationManager notificationManager, SfTreeView _treeView)
     {
         AddCategoryCommand = new DelegateCommand(OnCreate);
         AddSubCategoryCommand = new DelegateCommand<object>(OnCreateSubCategory);
@@ -105,11 +96,9 @@ public class EquipmentTreeViewModel : BindableBase
 
         
         
-        _context = context;
         _eventAggregator = eventAggregator;
         _busyIndicatorService = busyIndicatorService;
         _model = model;
-        _logService = logService;
         _notificationManager = notificationManager;
         
         LoadData();
@@ -133,10 +122,8 @@ public class EquipmentTreeViewModel : BindableBase
     private void LoadData()
     {
         var expandedNodes = SaveExpandedNodes();
-        
-        var categories = _context.CategoriesProductionEquipment
-            .AsNoTracking()
-            .ToList();
+
+        var categories = _model.GetCategories();
 
        Folders = new ObservableCollection<Folder>(BuildFolderHierarchy(categories, null));
        
@@ -216,38 +203,7 @@ public class EquipmentTreeViewModel : BindableBase
     }
     #endregion
     
-    
-    
-    #region Get Unique Category Name
-    //For creatings category
-    private string GetUniqueCategoryName(string baseName, int? parentId = null)
-    {
-        string newName = baseName;
-        int counter = 1;
-        
-        while (_context.CategoriesProductionEquipment.Any(c => c.CategoryName == newName && c.ParentId == parentId))
-        {
-            newName = $"{baseName} ({counter})";
-            counter++;
-        }
-        return newName;
-    }
-    //For editings
-    private string GetUniqueCategoryName(string baseName, string originalName, int? parentId = null)
-    {
-        string newName = baseName;
-        int counter = 1;
-
-        while (_context.CategoriesProductionEquipment.Any(c => c.CategoryName == newName && c.CategoryName != originalName && c.ParentId == parentId))
-        {
-            newName = $"{baseName} ({counter})";
-            counter++;
-        }
-        return newName;
-    }
-    #endregion
-    
-    #region CreateCategory (creation and editing at once)
+    #region CreateCategory
     private void OnCreate()
     {
         string message;
@@ -255,6 +211,7 @@ public class EquipmentTreeViewModel : BindableBase
         if (isCreated)
         {
             LoadData();
+            treeView.SelectedItem = null;
             _notificationManager.Show("", message, NotificationType.Information);
         }
         else
@@ -286,6 +243,7 @@ private void StopBlurBackground()
         if (isCreated)
         {
             LoadData();
+            treeView.SelectedItem = null;
             _notificationManager.Show("", message, NotificationType.Information);
         }
         else
@@ -293,7 +251,7 @@ private void StopBlurBackground()
             _notificationManager.Show("", message, NotificationType.Information);
         }
     }
-#endregion
+    #endregion
 
     #region On Delete
     private void OnDelete(object item)
@@ -320,8 +278,8 @@ private void StopBlurBackground()
                 
                 if (isDeleted)
                 {
-                    treeView.SelectedItem = null;
                     LoadData();
+                    treeView.SelectedItem = null;
                     _notificationManager.Show("", message, NotificationType.Information);
                 }
             }
@@ -360,7 +318,7 @@ private void StopBlurBackground()
        if (_model.EndEditing(editedItem, out message))
        {
            LoadData();
-           SelectedFolder = null;
+           treeView.SelectedItem = null;
            _notificationManager.Show("", message, NotificationType.Information);
        }
        else
