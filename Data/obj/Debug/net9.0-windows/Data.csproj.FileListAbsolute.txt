@@ -11,3 +11,4 @@ D:\EquipmentTracker\Data\obj\Debug\net9.0-windows\Data.dll
 D:\EquipmentTracker\Data\obj\Debug\net9.0-windows\refint\Data.dll
 D:\EquipmentTracker\Data\obj\Debug\net9.0-windows\Data.pdb
 D:\EquipmentTracker\Data\obj\Debug\net9.0-windows\ref\Data.dll
+D:\EquipmentTracker\Data\obj\Debug\net9.0-windows\Data.sourcelink.json
