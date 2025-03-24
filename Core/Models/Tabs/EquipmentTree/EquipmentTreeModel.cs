@@ -279,31 +279,74 @@ public class EquipmentTreeModel
     }
     #endregion
     #region Editing tree items
-    #region ExecuteItemBeginEdit
-
+    #region Begin editing
+    public bool BeginEditing(Folder editedItem)
+    {
+        if (editedItem != null)
+        {
+            _originalCategoryName = editedItem.FileName;
+            _originalCategoryId = editedItem.Id;
+            return true;
+        }
+        return false;
+    }
     #endregion
     #region ExecuteItemEndEdit
-    public bool UpdateCategoryName(int categoryId, string newFileName, out string message)
+    public bool EndEditing(Folder editedItem, out string message)
     {
-        var categoryToUpdate = _context.CategoriesProductionEquipment.FirstOrDefault(c => c.Id == categoryId);
-
-        if (categoryToUpdate == null)
+        try
         {
-            message = "Категорія не знайдена.";
+            if (editedItem == null)
+            {
+                message = "Помилка: не вибрано об'єкт для редагування";
+                return false;
+            }
+
+            var categoryToUpdate =
+                _context.CategoriesProductionEquipment.FirstOrDefault(c => c.Id == _originalCategoryId);
+            if (categoryToUpdate == null)
+            {
+                message = "Помилка: не знайдено категорію";
+                return false;
+            }
+
+            bool isSubCategory = categoryToUpdate.ParentId != null;
+
+            if (editedItem.FileName != _originalCategoryName)
+            {
+                string oldName = _originalCategoryName;
+                string newName = editedItem.FileName;
+                
+                var uniqueCategoryName = GetUniqueCategoryName(newName, _originalCategoryName,
+                    categoryToUpdate.ParentId);
+                categoryToUpdate.CategoryName = uniqueCategoryName;
+                editedItem.FileName = uniqueCategoryName;
+                
+                _context.SaveChanges();
+                if (isSubCategory)
+                {
+                    message = $"Підкатегорію перейменовано: '{oldName}' \u2794 '{uniqueCategoryName}'";
+                }
+                else
+                {
+                    message = $"Категорію перейменовано: '{oldName}' \u2794 '{uniqueCategoryName}'";
+                }
+                _logService.AddLog(message);
+                return true;
+            }
+            message = "Назва не змінилась";
             return false;
         }
-
-        // categoryToUpdate.CategoryName - старое название из БД
-        // newFileName - введённое пользователем название
-       // string finalName = (categoryToUpdate.CategoryName == newFileName)
-            //? GetUniqueCategoryName(newFileName, categoryToUpdate.ParentId)
-           // : newFileName;
-
-       // categoryToUpdate.CategoryName = finalName;
-        _context.SaveChanges();
-
-        message = "Категорію оновлено.";
-        return true;    
+        catch (Exception e)
+        {
+            message = $"Помилка: {e.Message}";
+            return false;
+        }
+        finally
+        {
+            _originalCategoryName = null;
+            _originalCategoryId = null;
+        }
     }
     #endregion
     #endregion

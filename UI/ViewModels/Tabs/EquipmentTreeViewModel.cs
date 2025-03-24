@@ -346,38 +346,27 @@ private void StopBlurBackground()
         var editedItem = e.Node.Content as Folder;
         if (editedItem != null)
         {
-            _originalCategoryName = editedItem.FileName;
-            _originalCategoryId = editedItem.Id;
+            _model.BeginEditing(editedItem);
         }
     }
     #endregion
     #region ExecuteItemEndEdit
     private void ExecuteItemEndEdit(TreeViewItemEndEditEventArgs e)
     {
-        try
-        {
-            if (e.Node.Content is Folder editedItem)
-            {
-                bool isUpdated = _model.UpdateCategoryName(editedItem.Id, editedItem.FileName, out string message);
-                if (isUpdated)
-                {
-                    _notificationManager.Show("", message, NotificationType.Information);
-                }
-                else
-                {
-                    _notificationManager.Show("", message, NotificationType.Information);
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            _notificationManager.Show("", ex.Message, NotificationType.Error);
-        }
-        finally
-        {
-            _originalCategoryName = null;
-            _originalCategoryId = null;
-        }
+       var editedItem = e.Node.Content as Folder;
+       if (editedItem == null)return;
+       
+       string message;
+       if (_model.EndEditing(editedItem, out message))
+       {
+           LoadData();
+           SelectedFolder = null;
+           _notificationManager.Show("", message, NotificationType.Information);
+       }
+       else
+       {
+           _notificationManager.Show("", message, NotificationType.Error);
+       }
 
     }
     #endregion
