@@ -1,9 +1,8 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows;
-using Prism.Navigation.Regions;
-using Syncfusion.UI.Xaml.Diagram.Stencil;
-using Syncfusion.Windows.Controls.Navigation;
+
 using Syncfusion.Windows.Tools.Controls;
+
 using UI.Views.Tabs.Accounting;
 using UI.Views.Tabs.Consumables;
 using UI.Views.Tabs.Furniture;
@@ -13,9 +12,13 @@ using UI.Views.Tabs.Scheduler;
 using UI.Views.Tabs.Settings;
 using UI.Views.Tabs.ToolsTree;
 
+using TabItemExt = Syncfusion.Windows.Tools.Controls.TabItemExt;
+
 public class TabControlExtRegionAdapter : RegionAdapterBase<TabControlExt>
 {
+    #region Initialize
     private readonly ObservableCollection<TabItemExt> _tabItems = new ObservableCollection<TabItemExt>();
+    #endregion
 
     public TabControlExtRegionAdapter(IRegionBehaviorFactory regionBehaviorFactory)
         : base(regionBehaviorFactory)
@@ -25,23 +28,38 @@ public class TabControlExtRegionAdapter : RegionAdapterBase<TabControlExt>
 
     protected override void Adapt(IRegion region, TabControlExt regionTarget)
     {
-        Console.WriteLine($"Adapt called. Tab count: {regionTarget.Items.Count}, Visible: {regionTarget.Visibility}");
+        //Hide default context menu, because it's in English
+        regionTarget.DefaultContextMenuItemVisibility = Visibility.Collapsed;
+        
+        //Enabling custom context menu with Localization
+        regionTarget.IsCustomTabItemContextMenuEnabled = true;
+        
+        //Get TabControlExt items source from collection _tabItems
+        regionTarget.ItemsSource = _tabItems;
+        
+        // Handling changes to the presented collection (add/remove)
         region.Views.CollectionChanged += (s, e) =>
         {
             if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
             {
                 foreach (var view in e.NewItems)
                 {
+                    
+                    // Custom context menu items
+                    var customContextMenuItems = new ObservableCollection<object>();
+                    
                     var tabItem = new TabItemExt
                     {
                         Header = GetHeaderFromView(view),
                         Content = view,
+                        ContextMenuItems = customContextMenuItems
                     };
                     
+                    //Adding custom context menu items
+                    AddCustomContextMenuItems(tabItem, region, customContextMenuItems);
                     
-                    regionTarget.Items.Add(tabItem);
+                    _tabItems.Add(tabItem);
                     regionTarget.Visibility = Visibility.Visible;
-                    Console.WriteLine($"Add tab: {tabItem.Header}, Tab count: {regionTarget.Items.Count}, Visible: {regionTarget.Visibility}");
                 }
             }
             else if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Remove)
@@ -51,14 +69,13 @@ public class TabControlExtRegionAdapter : RegionAdapterBase<TabControlExt>
                     var itemToRemove = regionTarget.Items.Cast<TabItemExt>().FirstOrDefault(t => t.Content == view);
                     if (itemToRemove != null)
                     {
-                        regionTarget.Items.Remove(itemToRemove);
-                        Console.WriteLine($"Removed tab: {itemToRemove.Header}, Tab count: {regionTarget.Items.Count}, Visible: {regionTarget.Visibility}");
-
+                        _tabItems.Remove(itemToRemove);
                     }
                 }
             }
         };
 
+        // Processing active views
         region.ActiveViews.CollectionChanged += (s, e) =>
         {
             if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
@@ -69,13 +86,51 @@ public class TabControlExtRegionAdapter : RegionAdapterBase<TabControlExt>
                     if (tabItem != null)
                     {
                         regionTarget.SelectedItem = tabItem;
-                        Console.WriteLine($"Activated tab: {tabItem.Header}, Tab count: {regionTarget.Items.Count}, Visible: {regionTarget.Visibility}");
                     }
                 }
             }
         };
+        
+         void AddCustomContextMenuItems(TabItemExt tabItem, IRegion region, ObservableCollection<object> contextMenuItems)
+        {
+            // Close tab
+            CustomMenuItem closeItem = new CustomMenuItem { Header = "Закрити" };
+            closeItem.Click += (s, args) =>
+            {
+                region.Remove(tabItem.Content);
+                _tabItems.Remove(tabItem);
+            };
+            contextMenuItems.Add(closeItem);
+
+            // Close all tabs
+            CustomMenuItem closeAllItem = new CustomMenuItem { Header = "Закрити всі" };
+            closeAllItem.Click += (s, args) =>
+            {
+                var itemsToRemove = _tabItems.ToList();
+                foreach (var item in itemsToRemove)
+                {
+                    region.Remove(item.Content);
+                    _tabItems.Remove(item);
+                }
+            };
+            contextMenuItems.Add(closeAllItem);
+
+            // Close all tabs but this
+            CustomMenuItem closeOthersItem = new CustomMenuItem { Header = "Закрити усе, крім цієї" };
+            closeOthersItem.Click += (s, args) =>
+            {
+                var itemsToRemove = _tabItems.Where(t => t != tabItem).ToList();
+                foreach (var item in itemsToRemove)
+                {
+                    region.Remove(item.Content);
+                    _tabItems.Remove(item);
+                }
+            };
+            contextMenuItems.Add(closeOthersItem);
+        }
     }
     
+    //Get header from view
     private string GetHeaderFromView(object view)
     {
         return view switch
