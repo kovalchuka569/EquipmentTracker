@@ -127,7 +127,7 @@
             </sf:SfNavigationDrawer.FooterItems>
 
             <sf:SfNavigationDrawer.ContentView>
-                    <ContentControl x:Name="cc" prism:RegionManager.RegionName="ContentRegion"/>
+                    <ContentControl Margin="0,1,0,0" x:Name="cc" prism:RegionManager.RegionName="ContentRegion"/>
             </sf:SfNavigationDrawer.ContentView>
 
         </sf:SfNavigationDrawer>

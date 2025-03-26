@@ -53,8 +53,6 @@ public class TabControlViewModel : NotificationObject, INavigationAware
         TabItems = new ObservableCollection<TabControlModel>();
 
         _eventAggregator.GetEvent<Core.Events.TabControl.OpenTabEvent>().Subscribe(OpenNewTab);
-        
-        Console.WriteLine($"TabControlRegion exists at construction: {_regionManager.Regions.ContainsRegionWithName("TabContentRegion")}");
     }
 
     private void OpenNewTab(string tabHeader)
@@ -65,7 +63,6 @@ public class TabControlViewModel : NotificationObject, INavigationAware
     public void OnNavigatedTo(NavigationContext navigationContext)
     {
         var selectedTab = navigationContext.Parameters["SelectedTab"] as string;
-        Console.WriteLine($"OnNavigatedTo called with SelectedTab: {selectedTab}");
         if (!string.IsNullOrEmpty(selectedTab))
         {
             NavigateToTab(selectedTab, GetViewName(selectedTab));
@@ -78,10 +75,7 @@ public class TabControlViewModel : NotificationObject, INavigationAware
         {
             { "MenuType", header }
         };
-        _regionManager.RequestNavigate("TabControlRegion", viewName, result =>
-        {
-            Console.WriteLine($"Navigation to {viewName}: Succeed={result.Success}, Error={result.Exception?.Message}");
-        }, parameters);
+        _regionManager.RequestNavigate("TabControlRegion", viewName, parameters);
     }
     
     private string GetViewName(string header)

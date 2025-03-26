@@ -30,6 +30,7 @@ public class TabControlExtRegionAdapter : RegionAdapterBase<TabControlExt>
     {
         //Hide default context menu, because it's in English
         regionTarget.DefaultContextMenuItemVisibility = Visibility.Collapsed;
+        regionTarget.CloseButtonType = CloseButtonType.Extended;
         
         //Enabling custom context menu with Localization
         regionTarget.IsCustomTabItemContextMenuEnabled = true;
@@ -128,6 +129,14 @@ public class TabControlExtRegionAdapter : RegionAdapterBase<TabControlExt>
             };
             contextMenuItems.Add(closeOthersItem);
         }
+         
+         //Event handling for CloseButtonType.Extended;
+        regionTarget.TabClosed += (s, e) =>
+        {
+            var closingTab = e.TargetTabItem;
+                region.Remove(closingTab.Content);
+                _tabItems.Remove(closingTab);
+        };
     }
     
     //Get header from view
