@@ -11,23 +11,5 @@
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors">
     
     
-    <Grid>
-        <sf:TabControlExt Name="tabControlExt" 
-                          ItemsSource="{Binding TabItems}" SelectedItem="{Binding SelectedTabItem, Mode=TwoWay}"
-                          AllowDragDrop="False" TabItemHeaderStyle="Underline" Margin="0,1,0,0"
-                          ShowTabListContextMenu="False" CloseMode="Delete">
-            <sf:TabControlExt.ItemTemplate>
-                <DataTemplate>
-                    <sf:TabItemExt Header="{Binding Header}">
-                    </sf:TabItemExt>
-                </DataTemplate>
-            </sf:TabControlExt.ItemTemplate>
-
-            <sf:TabControlExt.ContentTemplate>
-                <DataTemplate>
-                    <ContentPresenter Content="{Binding Content}"/>
-                </DataTemplate>
-            </sf:TabControlExt.ContentTemplate>
-        </sf:TabControlExt>
-    </Grid>
+    <sf:TabControlExt prism:RegionManager.RegionName="TabControlRegion"/>
 </UserControl>
