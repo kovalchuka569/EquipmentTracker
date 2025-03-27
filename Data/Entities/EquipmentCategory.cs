@@ -1,6 +1,6 @@
 ﻿namespace Data.Entities;
 
-public class CategoryFurniture : EquipmentCategory
+public interface EquipmentCategory
 {
     public int Id { get; set; }
     public string CategoryName { get; set; }

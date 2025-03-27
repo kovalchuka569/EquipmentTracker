@@ -1,4 +1,4 @@
-﻿using Core.Services.TreeView;
+﻿
 using Prism.Ioc;
 using Prism.Modularity;
 using Syncfusion.UI.Xaml.Diagram;
@@ -8,14 +8,15 @@ using UI.ViewModels.Tabs;
 using UI.ViewModels.TabControl;
 using UI.Views.Tabs.Accounting;
 using UI.Views.Tabs.Consumables;
-using UI.Views.Tabs.Furniture;
-using UI.Views.Tabs.OfficeTechnique;
-using UI.Views.Tabs.ProductionEquipmentTree;
+using UI.Views.Tabs.EquipmentTree;
 using UI.Views.Tabs.Scheduler;
 using UI.Views.Tabs.Settings;
-using UI.Views.Tabs.ToolsTree;
-using UI.Views.TabControl;
 using Prism.Navigation.Regions;
+using UI.Views.Tabs.EquipmentTree;
+using System.ComponentModel;
+using FurnitureTreeView = UI.Views.Tabs.EquipmentTree.FurnitureTreeView;
+using OfficeTechniqueTreeView = UI.Views.Tabs.EquipmentTree.OfficeTechniqueTreeView;
+using ToolsTreeView = UI.Views.Tabs.EquipmentTree.ToolsTreeView;
 
 namespace UI.Views.TabControl;
 
@@ -37,9 +38,13 @@ public class TabControlModule : IModule
 
     public void RegisterTypes(IContainerRegistry containerRegistry)
     {
-        containerRegistry.RegisterForNavigation<TabControlView, TabControlViewModel>();
+        containerRegistry.RegisterForNavigation<TabControlView>();
         
         containerRegistry.RegisterForNavigation<EquipmentTreeView, EquipmentTreeViewModel>();
+        containerRegistry.RegisterForNavigation<FurnitureTreeView, EquipmentTreeViewModel>();
+        containerRegistry.RegisterForNavigation<OfficeTechniqueTreeView, EquipmentTreeViewModel>();
+        containerRegistry.RegisterForNavigation<ToolsTreeView, EquipmentTreeViewModel>();
+
         containerRegistry.RegisterForNavigation<SchedulerView>();
         containerRegistry.RegisterForNavigation<SettingsView>();
         containerRegistry.RegisterForNavigation<ConsumablesView>();
@@ -47,7 +52,6 @@ public class TabControlModule : IModule
         containerRegistry.RegisterForNavigation<FurnitureTreeView>();
         containerRegistry.RegisterForNavigation<OfficeTechniqueTreeView>();
         containerRegistry.RegisterForNavigation<ToolsTreeView>();
-        
-        containerRegistry.RegisterSingleton<ITreeViewService, TreeViewService>();
+
     }
 }

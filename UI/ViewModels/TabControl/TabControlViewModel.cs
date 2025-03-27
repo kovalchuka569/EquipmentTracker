@@ -1,19 +1,16 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows.Forms;
 using Core.Models.TabControl;
-using Core.Services.TreeView; // Добавь это для IRegionManager
+
 using Syncfusion.Lic.util.encoders;
 using Syncfusion.PMML;
 using Syncfusion.Windows.Shared;
 using UI.Views.Grids;
 using UI.Views.Tabs.Accounting;
 using UI.Views.Tabs.Consumables;
-using UI.Views.Tabs.Furniture;
-using UI.Views.Tabs.OfficeTechnique;
-using UI.Views.Tabs.ProductionEquipmentTree;
+using UI.Views.Tabs.EquipmentTree;
 using UI.Views.Tabs.Scheduler;
 using UI.Views.Tabs.Settings;
-using UI.Views.Tabs.ToolsTree;
 using Header = Syncfusion.UI.Xaml.Diagram.Stencil.Header;
 using UserControl = System.Windows.Controls.UserControl;
 

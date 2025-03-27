@@ -5,7 +5,7 @@ using Prism.Ioc;
 using Prism.Mvvm;
 using UI.ViewModels.TabControl;
 using UI.Views.TabControl;
-using UI.Views.Tabs.ProductionEquipmentTree;
+using UI.Views.Tabs.EquipmentTree;
 
 namespace UI.ViewModels.NavDrawer
 {

@@ -49,13 +49,10 @@
       <Resource Include="Views\NavDrawer\Assets\prod_equipment.png" />
       <None Remove="Views\Auth\Assets\log_in.png" />
       <None Remove="Views\Tabs\ProductionEquipmentTree\Assets\folder.png" />
-      <Resource Include="Views\Tabs\ProductionEquipmentTree\Assets\folder.png" />
       <None Remove="Views\Tabs\ProductionEquipmentTree\Assets\file.png" />
-      <Resource Include="Views\Tabs\ProductionEquipmentTree\Assets\file.png" />
       <None Remove="Fonts\Tylaco.ttf" />
       <Resource Include="Fonts\Tylaco.ttf" />
       <None Remove="Views\Tabs\ProductionEquipmentTree\Assets\spreadsheet.png" />
-      <Resource Include="Views\Tabs\ProductionEquipmentTree\Assets\spreadsheet.png" />
       <None Remove="Views\NavDrawer\Assets\furniture.png" />
       <Resource Include="Views\NavDrawer\Assets\furniture.png" />
       <None Remove="Views\NavDrawer\Assets\tools.png" />
@@ -71,7 +68,10 @@
       <None Remove="Views\NavDrawer\Assets\scheduler.png" />
       <Resource Include="Views\NavDrawer\Assets\scheduler.png" />
       <None Remove="Views\Tabs\ProductionEquipmentTree\Assets\opened_folder.png" />
-      <Resource Include="Views\Tabs\ProductionEquipmentTree\Assets\opened_folder.png" />
+      <Resource Include="Views\Tabs\EquipmentTree\Assets\file.png" />
+      <Resource Include="Views\Tabs\EquipmentTree\Assets\folder.png" />
+      <Resource Include="Views\Tabs\EquipmentTree\Assets\opened_folder.png" />
+      <Resource Include="Views\Tabs\EquipmentTree\Assets\spreadsheet.png" />
     </ItemGroup>
 
     <ItemGroup>
@@ -102,6 +102,16 @@
         <SubType>Designer</SubType>
       </Page>
       <Page Update="Views\Notifications\BusyIndicator\BusyIndicatorView.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Views\Tabs\EquipmentTree\EquipmentTreeView.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Views\Tabs\EquipmentTree\OfficeTechniqueTreeView.xaml">
         <Generator>MSBuild:Compile</Generator>
         <XamlRuntime>Wpf</XamlRuntime>
         <SubType>Designer</SubType>

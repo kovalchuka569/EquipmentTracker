@@ -2,15 +2,11 @@
 using System.Windows;
 
 using Syncfusion.Windows.Tools.Controls;
-
 using UI.Views.Tabs.Accounting;
 using UI.Views.Tabs.Consumables;
-using UI.Views.Tabs.Furniture;
-using UI.Views.Tabs.OfficeTechnique;
-using UI.Views.Tabs.ProductionEquipmentTree;
+using UI.Views.Tabs.EquipmentTree;
 using UI.Views.Tabs.Scheduler;
 using UI.Views.Tabs.Settings;
-using UI.Views.Tabs.ToolsTree;
 
 using TabItemExt = Syncfusion.Windows.Tools.Controls.TabItemExt;
 
@@ -48,17 +44,16 @@ public class TabControlExtRegionAdapter : RegionAdapterBase<TabControlExt>
                     
                     // Custom context menu items
                     var customContextMenuItems = new ObservableCollection<object>();
-                    
+                    var viewModel = (view as FrameworkElement)?.DataContext;
                     var tabItem = new TabItemExt
                     {
-                        Header = GetHeaderFromView(view),
+                        ContextMenuItems = customContextMenuItems,
                         Content = view,
-                        ContextMenuItems = customContextMenuItems
+                        Header = GetHeaderFromView(view),
                     };
                     
                     //Adding custom context menu items
                     AddCustomContextMenuItems(tabItem, region, customContextMenuItems);
-                    
                     _tabItems.Add(tabItem);
                     regionTarget.Visibility = Visibility.Visible;
                 }
@@ -144,17 +139,18 @@ public class TabControlExtRegionAdapter : RegionAdapterBase<TabControlExt>
     {
         return view switch
         {
-            EquipmentTreeView => "Виробниче обладнання",
-            ToolsTreeView => "Інструменти",
-            FurnitureTreeView => "Меблі",
-            OfficeTechniqueTreeView => "Офісна техніка",
-            ConsumablesView => "Розхідні матеріали",
-            AccountingView => "Облік",
-            SchedulerView => "Календар",
-            SettingsView => "Налаштування",
+           EquipmentTreeView => "Виробниче обладнання",
+           ToolsTreeView => "Інструменти",
+           FurnitureTreeView => "Меблі",
+           OfficeTechniqueTreeView => "Офісна техніка",
+           ConsumablesView => "Розхідні матеріали",
+           AccountingView => "Облік",
+           SchedulerView => "Календар",
+           SettingsView => "Налаштування",
             _ => view.GetType().Name
         };
     }
+    
 
     protected override IRegion CreateRegion()
     {

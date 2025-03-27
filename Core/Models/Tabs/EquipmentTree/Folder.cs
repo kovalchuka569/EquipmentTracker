@@ -1,29 +1,75 @@
-﻿namespace Core.Models.Tabs.ProductionEquipmentTree;
+﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
-public class Folder
+namespace Core.Models.Tabs.ProductionEquipmentTree;
+
+public class Folder : INotifyPropertyChanged
 {
-    public int Id { get; set; }
-    public string FileName { get; set; }
-    public bool IsExpanded { get; set; }
-    private string _imageIcon { get; set; }
-    public List<Folder> SubFolders { get; set; }
+    private int _id;
+    private string _fileName;
+    private bool _isExpanded;
+    private string _imageIcon;
+    private ObservableCollection<Folder> _subFolders;
+    
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    public int Id
+    {
+        get => _id;
+        set
+        {
+            _id = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public string FileName
+    {
+        get => _fileName;
+        set
+        {
+            _fileName = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public bool IsExpanded
+    {
+        get => _isExpanded;
+        set
+        {
+            _isExpanded = value;
+            OnPropertyChanged();
+        }
+    }
 
     public string ImageIcon
     {
         get => _imageIcon;
         set => _imageIcon = value;
     }
-    
-    
+
+    public ObservableCollection<Folder> SubFolders
+    {
+        get => _subFolders;
+        set
+        {
+            _subFolders = value;
+            OnPropertyChanged();
+        }
+    }
+
+
     public Folder()
     {
-        SubFolders = new List<Folder>();
+        SubFolders = new ObservableCollection<Folder>();
         ImageIcon = "Assets/folder.png";
         IsExpanded = false;
     }
 
-    public void UpdateIcon()
+    protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
     {
-        ImageIcon = IsExpanded ? "Assets/folder.png" : "Assets/opened_folder.png";
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

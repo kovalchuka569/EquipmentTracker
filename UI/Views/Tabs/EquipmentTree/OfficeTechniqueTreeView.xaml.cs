@@ -1,6 +1,6 @@
 ﻿using System.Windows.Controls;
 
-namespace UI.Views.Tabs.OfficeTechnique;
+namespace UI.Views.Tabs.EquipmentTree;
 
 public partial class OfficeTechniqueTreeView : UserControl
 {

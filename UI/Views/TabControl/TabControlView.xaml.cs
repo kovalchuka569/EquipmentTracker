@@ -4,7 +4,7 @@ namespace UI.Views.TabControl;
 
 public partial class TabControlView : UserControl
 {
-    public TabControlView(RegionManager regionManager)
+    public TabControlView()
     {
         InitializeComponent();
     }

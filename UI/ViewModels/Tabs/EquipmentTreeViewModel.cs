@@ -11,24 +11,22 @@ using TaskDialogButton = Ookii.Dialogs.Wpf.TaskDialogButton;
 using Data.Entities;
 using Core.Models.Tabs.ProductionEquipmentTree;
 using Core.Services.Notifications;
-
+using Syncfusion.Linq;
 using DelegateCommand = Prism.Commands.DelegateCommand;
-
-
+using UI.Views.Tabs.EquipmentTree;
 
 namespace UI.ViewModels.Tabs;
 
-public class EquipmentTreeViewModel : BindableBase
+public class EquipmentTreeViewModel : BindableBase, INavigationAware
 {
     #region Properties
     private readonly IEventAggregator _eventAggregator;
-    private readonly BusyIndicatorService _busyIndicatorService;
     private readonly NotificationManager _notificationManager;
-    private ObservableCollection<Folder> _folders;
     
     private EquipmentTreeModel _model;
     private SfTreeView treeView;
-    private Folder _selectedFolder;
+
+    private string _editedName;
     #endregion
 
     
@@ -36,9 +34,6 @@ public class EquipmentTreeViewModel : BindableBase
     #region Commands
     public DelegateCommand<object> OpenFileCommand { get; }
     public DelegateCommand AddCategoryCommand { get; }
-    public DelegateCommand<object> AddSubCategoryCommand { get; }
-    public DelegateCommand<object> DeleteCommand { get; }
-    public DelegateCommand<object> ClearSelectionCommand { get; }
     public DelegateCommand EditCommand { get; }
     private DelegateCommand<TreeViewItemBeginEditEventArgs> _itemBeginEditCommand;
     private DelegateCommand<TreeViewItemEndEditEventArgs> _itemEndEditCommand;
@@ -53,19 +48,18 @@ public class EquipmentTreeViewModel : BindableBase
     
 
     #region Services
-    public bool CanAddSubCategory => SelectedFolder != null;
-    public bool CanEdit => SelectedFolder != null;
-    public bool CanDeleteCategory => SelectedFolder != null;
+
+    private ObservableCollection<Folder> _folders;
+    private Folder _selectedFolder;
+
     public ObservableCollection<Folder> Folders
     {
         get => _folders;
-        set => SetProperty(ref _folders, value);
-    }
-
-    public SfTreeView TreeView
-    {
-        get => treeView;
-        set => SetProperty(ref treeView, value);
+        set
+        {
+            _folders = value;
+            RaisePropertyChanged();
+        }
     }
 
     public Folder SelectedFolder
@@ -73,35 +67,30 @@ public class EquipmentTreeViewModel : BindableBase
         get => _selectedFolder;
         set
         {
-            if (SetProperty(ref _selectedFolder, value))
-            {
-                RaisePropertyChanged(nameof(CanAddSubCategory));
-                RaisePropertyChanged(nameof(CanEdit));
-                RaisePropertyChanged(nameof(CanDeleteCategory));
-            }
+            _selectedFolder = value;
+            RaisePropertyChanged();
         }
     }
+    
+
     #endregion
     
     
     
     #region Initialization
-    public EquipmentTreeViewModel(IEventAggregator eventAggregator, BusyIndicatorService busyIndicatorService, EquipmentTreeModel model, NotificationManager notificationManager, SfTreeView _treeView)
+    public EquipmentTreeViewModel(IEventAggregator eventAggregator, EquipmentTreeModel model, NotificationManager notificationManager)
     {
-        AddCategoryCommand = new DelegateCommand(OnCreate);
-        AddSubCategoryCommand = new DelegateCommand<object>(OnCreateSubCategory);
+        AddCategoryCommand = new DelegateCommand(async () => await OnCreateFolderAsync());
         OpenFileCommand = new DelegateCommand<object>(OpenFile);
-        DeleteCommand = new DelegateCommand<object>(OnDelete);
         EditCommand = new DelegateCommand(OnEdit);
 
         
         
         _eventAggregator = eventAggregator;
-        _busyIndicatorService = busyIndicatorService;
         _model = model;
         _notificationManager = notificationManager;
         
-        LoadData();
+        Folders = new ObservableCollection<Folder>();
     }
     #endregion
     
@@ -117,179 +106,73 @@ public class EquipmentTreeViewModel : BindableBase
         }
     }
     #endregion
-    
-    #region LoadData
-    private void LoadData()
-    {
-        var expandedNodes = SaveExpandedNodes();
 
-        var categories = _model.GetCategories();
-
-       Folders = new ObservableCollection<Folder>(BuildFolderHierarchy(categories, null));
-       
-       RestoreExpandedNodes(expandedNodes);
-    }
-    #endregion
-    
-    
-    
-    #region BuildForHierarchy
-    private IEnumerable<Folder> BuildFolderHierarchy(List<CategoryProductionEquipment> categories, int? parentId)
+    #region Load categories
+   private ObservableCollection<Folder> LoadCategoriesIntoFolders()
     {
-        return categories
-            .Where(c => c.ParentId == parentId)
-            .OrderBy(c => c.CategoryName,
-                Comparer<string>.Create((a, b) =>
-                    string.Compare(a, b, StringComparison.CurrentCultureIgnoreCase))) // Sorting
-            .Select(c => new Folder
-            {
-                Id = c.Id,
-                FileName = c.CategoryName,
-                SubFolders = BuildFolderHierarchy(categories, c.Id).ToList(),
-            });
-    }
-    #endregion
-    
-    #region SaveExpandedNodes
-    private List<string> SaveExpandedNodes()
+    try
     {
-        var expanded = new List<string>();
-        if (treeView != null)
+        List<EquipmentCategory> categories = _model.GetCategories();
+        
+        var folders = categories.Select(c => new Folder
         {
-            foreach (var node in treeView.Nodes)
-            {
-                CollectExpandedNodes(node, expanded);
-            }
-        }
-        return expanded;
-    }
+            Id = c.Id,
+            FileName = c.CategoryName
+        }).ToList();
+        var parentIdMap = categories.ToDictionary(c => c.Id, c => c.ParentId);
+        var lookup = folders.ToLookup(f => parentIdMap[f.Id]);
 
-    private void CollectExpandedNodes(TreeViewNode node, List<string> expanded)
-    {
-        if (node.IsExpanded && node.Content is Folder folder)
+        foreach (var folder in folders)
         {
-            expanded.Add(folder.FileName);
+            folder.SubFolders = new ObservableCollection<Folder>(lookup[folder.Id]);
         }
 
-        foreach (var childNodes in node.ChildNodes)
-        {
-            CollectExpandedNodes(childNodes, expanded);
-        }
+        var result = new ObservableCollection<Folder>(folders.Where(f => parentIdMap[f.Id] == null));
+        
+        return result;
     }
-#endregion
-    #region RestoreExpandedNodes
-    private void RestoreExpandedNodes(List<string> expandedNodes)
+    catch (Exception ex)
     {
-        if (treeView != null)
-        {
-            foreach (var node in treeView.Nodes)
-            {
-                RestoreNodeState(node, expandedNodes);
-            }
-        }
+        Console.WriteLine(ex);
+        return new ObservableCollection<Folder>();
     }
-
-    private void RestoreNodeState(TreeViewNode node, List<string> expandedNodes)
-    {
-        if (node.Content is Folder folder && expandedNodes.Contains(folder.FileName))
-        {
-            node.IsExpanded = true;
-        }
-
-        foreach (var childNode in node.ChildNodes)
-        {
-            RestoreNodeState(childNode, expandedNodes);
-        }
     }
-    #endregion
+   #endregion
+   
+   
     
     #region CreateCategory
-    private void OnCreate()
+    private async Task OnCreateFolderAsync()
     {
-        string message;
-        bool isCreated = _model.Creating(out message);
-        if (isCreated)
+        string name = "Нова категорія";
+        try
         {
-            LoadData();
-            treeView.SelectedItem = null;
-            _notificationManager.Show("", message, NotificationType.Information);
-        }
-        else
-        {
-            _notificationManager.Show("", message, NotificationType.Information);
-        }
-    }
-    
-#endregion
-#region Blur
-private void BlurBackground()
-{
-    _busyIndicatorService.StartBusy();
-    _busyIndicatorService.HiddenBusyIndicator();
-    _busyIndicatorService.EmptyMessage();
-}
-private void StopBlurBackground()
-{
-    _busyIndicatorService.StopBusy();
-}
-#endregion
-
-    #region On create sub category
-    private void OnCreateSubCategory(object item)
-    {
-        string message;
-        bool isCreated = _model.CreatingSubCategory(item, out message);
-        
-        if (isCreated)
-        {
-            LoadData();
-            treeView.SelectedItem = null;
-            _notificationManager.Show("", message, NotificationType.Information);
-        }
-        else
-        {
-            _notificationManager.Show("", message, NotificationType.Information);
-        }
-    }
-    #endregion
-
-    #region On Delete
-    private void OnDelete(object item)
-    {
-        if (item is Folder folderToDelete)
-        {
-            BlurBackground();
-
-            var dialog = new TaskDialog
+            int? parentId = SelectedFolder?.Id;
+            var newCategory = _model.CreateCategory(name, parentId);
+            
+            var newFolder = new Folder
             {
-                WindowTitle = "Підтвердження",
-                MainInstruction = "Ви впевнені, що хочете видалити цю категорію?",
-                Content = folderToDelete.FileName,
-                Buttons = { new TaskDialogButton(ButtonType.Yes), new TaskDialogButton(ButtonType.No) }
+                Id = newCategory.Id,
+                FileName = newCategory.CategoryName
             };
             
-            var result = dialog.Show();
-            StopBlurBackground();
-
-            if (result.ButtonType == ButtonType.Yes)
+            if (SelectedFolder != null)
             {
-                string message;
-                bool isDeleted = _model.Deleting(folderToDelete.Id, out message);
-                
-                if (isDeleted)
-                {
-                    LoadData();
-                    treeView.SelectedItem = null;
-                    _notificationManager.Show("", message, NotificationType.Information);
-                }
+                SelectedFolder.SubFolders.Add(newFolder);
             }
+            else
+            {
+                Folders.Add(newFolder);
+            }
+            _notificationManager.Show("",$"Створено нову категорію: '{newCategory.CategoryName}'", NotificationType.Information);
         }
-        else
+        catch (Exception e)
         {
-            _notificationManager.Show("", "Не вибрано категорію", NotificationType.Information);
+            _notificationManager.Show("", $"Помилка додавання в ObservableCollection: {e.Message}");
         }
     }
     #endregion
+
     #region OnEdit
     private void OnEdit()
     {
@@ -304,29 +187,60 @@ private void StopBlurBackground()
         var editedItem = e.Node.Content as Folder;
         if (editedItem != null)
         {
-            _model.BeginEditing(editedItem);
+            _editedName = editedItem.FileName;
         }
     }
     #endregion
     #region ExecuteItemEndEdit
-    private void ExecuteItemEndEdit(TreeViewItemEndEditEventArgs e)
+    private void ExecuteItemEndEdit(TreeViewItemEndEditEventArgs treeViewItemEndEditEventArgs)
     {
-       var editedItem = e.Node.Content as Folder;
-       if (editedItem == null)return;
-       
-       string message;
-       if (_model.EndEditing(editedItem, out message))
+        string newName = SelectedFolder?.FileName;
+
+       if (SelectedFolder == null)
        {
-           LoadData();
-           treeView.SelectedItem = null;
-           _notificationManager.Show("", message, NotificationType.Information);
-       }
-       else
-       {
-           _notificationManager.Show("", message, NotificationType.Error);
+           _notificationManager.Show("", "Виберіть категорію для редагування", NotificationType.Error);
+           return;
        }
 
+       if (_editedName == newName)
+       {
+           _notificationManager.Show("", "Назва не змінилась", NotificationType.Information);
+           return;
+       }
+
+       try
+       {
+            var existingCategories = _model.GetCategories().FirstOrDefault(c => c.Id == SelectedFolder.Id);
+            int? parentId = existingCategories?.ParentId;
+
+            var updatedCategory = _model.EditCategory(SelectedFolder.Id, newName, parentId);
+            
+            SelectedFolder.FileName = updatedCategory.CategoryName;
+            
+            _notificationManager.Show("", $"Оновлено категорію: '{updatedCategory.CategoryName}'", NotificationType.Information);
+       }
+       catch (Exception e)
+       {
+           _notificationManager.Show("", $"Помилка оновлення категорії: {e.Message}");
+       }
     }
+
     #endregion
     #endregion
+
+    public void OnNavigatedTo(NavigationContext navigationContext)
+    {
+        if (navigationContext.Parameters.ContainsKey("MenuType"))
+        {
+            _model.SetMenuType(navigationContext.Parameters.GetValue<string>("MenuType"));
+        }
+
+        Folders = LoadCategoriesIntoFolders();
+    }
+
+    public bool IsNavigationTarget(NavigationContext navigationContext) => true;
+
+    public void OnNavigatedFrom(NavigationContext navigationContext)
+    {
+    }
 }

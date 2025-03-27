@@ -2,9 +2,9 @@
 
 namespace UI.Views.Tabs.EquipmentTree;
 
-public partial class EquipmentrTreeView : UserControl
+public partial class ToolsTreeView : UserControl
 {
-    public EquipmentrTreeView()
+    public ToolsTreeView()
     {
         InitializeComponent();
     }
