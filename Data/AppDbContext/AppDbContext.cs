@@ -39,6 +39,8 @@ namespace Data.AppDbContext
         public DbSet<CategoryOfficeTechnique> CategoriesOfficeTechnique { get; set; }
         public DbSet<CategoryTool> CategoriesTool { get; set; }
         
+        public DbSet<FileEntity>Files { get; set; }
+        
         public DbSet<Log> Logs { get; set; }
         
         

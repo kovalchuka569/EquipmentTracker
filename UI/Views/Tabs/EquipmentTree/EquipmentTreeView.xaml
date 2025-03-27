@@ -46,7 +46,8 @@
             
             
             <sf:SfTreeView.HierarchyPropertyDescriptors>
-                <sf:HierarchyPropertyDescriptor ChildPropertyName="SubFolders" TargetType="{x:Type models:Folder}"/></sf:SfTreeView.HierarchyPropertyDescriptors>
+                <sf:HierarchyPropertyDescriptor ChildPropertyName="Items" TargetType="{x:Type models:Folder}"/>
+            </sf:SfTreeView.HierarchyPropertyDescriptors>
             
             
             
@@ -71,6 +72,7 @@
                                    Grid.Column="1"
                                    Padding="5 5"
                                    Text="{Binding FileName, UpdateSourceTrigger=PropertyChanged}">
+                            
                             <TextBlock.InputBindings>
                                 <MouseBinding Gesture="LeftDoubleClick" Command="{Binding OpenFileCommand}"/>
                             </TextBlock.InputBindings>
@@ -93,9 +95,14 @@
             
                 <sf:SfTreeView.ContextMenu>
                     <ContextMenu>
-                        <MenuItem Header="Створити нову категорію" 
-                                  Command="{Binding AddCategoryCommand}"
-                                  Visibility="Visible"/>
+                        <MenuItem Header="Створити">
+                            <MenuItem Header="Створити нову категорію"
+                                      Command="{Binding AddCategoryCommand}"
+                                      Visibility="Visible"/>
+                            <MenuItem Header="Створити таблицю"
+                                      Command="{Binding AddFileCommand}"
+                                      Visibility="Visible"/>
+                        </MenuItem>
                         
                         <MenuItem Header="Редагувати"
                                   Command="{Binding EditCommand}"

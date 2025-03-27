@@ -46,6 +46,11 @@ public class EquipmentTreeModel
         };
     }
 
+    public List<FileEntity> GetFiles()
+    {
+        return _context.Files.AsNoTracking().ToList();
+    }
+
     public EquipmentCategory CreateCategory(string name, int? parentId = null)
     {
         //Get existing categories for make unique name
@@ -255,5 +260,23 @@ public class EquipmentTreeModel
         return categoryToEdit;
     }
     #endregion
+    #endregion
+
+    #region Adding file
+
+    public FileEntity CreateNewFile(int categoryId, string categoryType, string fileName)
+    {
+        var newFile = new FileEntity
+        {
+            FileName = fileName,
+            CategoryType = categoryType,
+            CategoryId = categoryId
+        };
+        _context.Files.Add(newFile);
+        _context.SaveChanges();
+        return newFile;
+    } 
+    
+
     #endregion
 }

@@ -11,8 +11,9 @@ public class Folder : INotifyPropertyChanged
     private bool _isExpanded;
     private string _imageIcon;
     private ObservableCollection<Folder> _subFolders;
+    private ObservableCollection<File> _files;
     
-    public event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     public int Id
     {
@@ -49,24 +50,32 @@ public class Folder : INotifyPropertyChanged
         get => _imageIcon;
         set => _imageIcon = value;
     }
+    public IEnumerable<object> Items => SubFolders.Cast<object>().Concat(Files);
+    public ObservableCollection<Folder> SubFolders{ get; set; } = new();
 
-    public ObservableCollection<Folder> SubFolders
+    public ObservableCollection<File> Files{ get; set; } = new();
+
+    public void AddFile(File file)
     {
-        get => _subFolders;
-        set
-        {
-            _subFolders = value;
-            OnPropertyChanged();
-        }
+        Files.Add(file);
+        OnPropertyChanged(nameof(Items));
     }
+    public void AddFolder (Folder folder)
+    {
+        SubFolders.Add(folder);
+        OnPropertyChanged(nameof(Items));
+    }
+
 
 
     public Folder()
     {
-        SubFolders = new ObservableCollection<Folder>();
-        ImageIcon = "Assets/folder.png";
-        IsExpanded = false;
+        _subFolders = new ObservableCollection<Folder>();
+        _files = new ObservableCollection<File>();
+        _imageIcon = "Assets/folder.png";
+        _isExpanded = false;
     }
+
 
     protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
     {
