@@ -194,7 +194,41 @@ public class EquipmentTreeModel
         }
     }
     #endregion
-    
+
+    public bool CheckChilds(int folderId)
+    {
+        switch (_currentMenuType)
+        {
+            case "Виробниче обладнання":
+                return _context.CategoriesProductionEquipment.Any(x => x.ParentId == folderId);
+            case "Меблі":
+                return _context.CategoriesFurniture.Any(x => x.ParentId == folderId);
+            case "Інструменти":
+                return _context.CategoriesTool.Any(x => x.ParentId == folderId);
+            case "Офісна техніка":
+                return _context.CategoriesOfficeTechnique.Any(x => x.ParentId == folderId);
+                default:
+                    return false;
+        }
+    }
+
+    public void SetFinal(int categoryId)
+    {
+        dynamic entity = _currentMenuType switch
+        {
+            "Виробниче обладнання" => _context.CategoriesProductionEquipment.FirstOrDefault(c => c.Id == categoryId),
+            "Меблі" => _context.CategoriesFurniture.FirstOrDefault(c => c.Id == categoryId),
+            "Інструменти" => _context.CategoriesTool.FirstOrDefault(c => c.Id == categoryId),
+            "Офісна техніка" => _context.CategoriesOfficeTechnique.FirstOrDefault(c => c.Id == categoryId)
+        };
+
+        if (entity != null)
+        {
+            entity.IsFinal = true;
+            _context.SaveChanges();
+        }
+    }
+
     #region F2 imitation for editing
     public void F2Imitation()
     {

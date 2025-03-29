@@ -27,6 +27,8 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware
     private EquipmentTreeModel _model;
     private SfTreeView treeView;
 
+
+    private string _menuType;
     private string _editedName;
     #endregion
 
@@ -52,7 +54,9 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware
     #region Services
 
     private ObservableCollection<Folder> _folders;
+    private ObservableCollection<File> _files;
     private Folder _selectedFolder;
+    private File _selectedFile;
 
     public ObservableCollection<Folder> Folders
     {
@@ -60,6 +64,16 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware
         set
         {
             _folders = value;
+            RaisePropertyChanged();
+        }
+    }
+
+    public ObservableCollection<File> Files
+    {
+        get => _files;
+        set
+        {
+            _files = value;
             RaisePropertyChanged();
         }
     }
@@ -73,6 +87,22 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware
             RaisePropertyChanged();
         }
     }
+
+    public File SelectedFile
+    {
+        get => _selectedFile;
+        set
+        {
+            _selectedFile = value;
+            RaisePropertyChanged();
+        }
+    }
+
+    public string MenuType
+    {
+        get => _menuType;
+        set => _menuType = value;
+    }
     
 
     #endregion
@@ -85,6 +115,7 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware
         AddCategoryCommand = new DelegateCommand(async () => await OnCreateFolderAsync());
         EditCommand = new DelegateCommand(OnEdit);
         AddFileCommand = new DelegateCommand(async () => await OnCreateFileAsync());
+        OpenFileCommand = new DelegateCommand<object>(OnOpenFile);
 
         
         
@@ -93,14 +124,12 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware
         _notificationManager = notificationManager;
         
         Folders = new ObservableCollection<Folder>();
+        Files = new ObservableCollection<File>();
     }
     #endregion
     
-    
-    
-
-    #region Load categories
-   private ObservableCollection<Folder> LoadCategoriesIntoFolders()
+    #region LoadTree
+   private ObservableCollection<Folder> LoadTree()
     {
     try
     {
@@ -134,7 +163,6 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware
             
         }
         var result = new ObservableCollection<Folder>(folders.Where(f => parentIdMap[f.Id] == null));
-        
         return result;
     }
     
@@ -146,54 +174,43 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware
     }
    #endregion
 
+   #region OnCreateFile
    private async Task OnCreateFileAsync()
    {
-        Console.WriteLine("OnCreateFileAsync started.");
-
-        int categoryId = SelectedFolder.Id;
-       string categoryType = "test";
+       int categoryId = SelectedFolder.Id;
+       string categoryType = MenuType;
        string fileName = SelectedFolder.FileName;
-        Console.WriteLine($"Parameters - CategoryId: {categoryId}, CategoryType: {categoryType}, FileName: {fileName}");
 
+       bool haveChilds = _model.CheckChilds(categoryId);
 
-        try
-        {
-            Console.WriteLine("Attempting to create new file entity.");
-
-            var newFileEntity = _model.CreateNewFile(categoryId, categoryType, fileName);
-
-            Console.WriteLine($"New file entity created with Id: {newFileEntity.Id}, FileName: {newFileEntity.FileName}");
-
-            var newFile = new File
-          {
-            Id = newFileEntity.Id,
-            FileName = newFileEntity.FileName,
-            FolderId = SelectedFolder.Id
-          };
-          
-          int before = SelectedFolder.Files.Count;
-            Console.WriteLine($"Files count before addition: {before}");
-
-            SelectedFolder.AddFile(newFile);
-
-          int after = SelectedFolder.Files.Count;
-            Console.WriteLine($"Files count after addition: {after}");
-
-            Console.WriteLine($"New file added to folder {SelectedFolder.FileName}. FileName: {newFile.FileName}, FileId: {newFile.Id}");
-
-        }
-        catch (Exception e)
+       if (haveChilds)
        {
-            Console.WriteLine($"Error occurred: {e.Message}");
-
-            _notificationManager.Show("", $"Ошибка: {e.Message}", NotificationType.Error);
+           _notificationManager.Show("", "Для створення таблиці, будь-ласка, виберіть кінцеву папку", NotificationType.Error);
        }
-        Console.WriteLine("OnCreateFileAsync ended.");
-
+       else
+       {
+           _model.SetFinal(categoryId);
+           try
+           {
+               var newFileEntity = _model.CreateNewFile(categoryId, categoryType, fileName);
+               var newFile = new File
+               {
+                   Id = newFileEntity.Id,
+                   FileName = newFileEntity.FileName,
+                   FolderId = SelectedFolder.Id
+               };
+            
+               SelectedFolder.AddFile(newFile);
+           }
+           catch (Exception e)
+           {
+               _notificationManager.Show("", $"Ошибка: {e.Message}", NotificationType.Error);
+           }
+       }
     }
-
-
-    #region CreateCategory
+   #endregion
+   
+    #region OnCreateCategory
     private async Task OnCreateFolderAsync()
     {
         string name = "Нова категорія";
@@ -280,14 +297,27 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware
     #endregion
     #endregion
 
+    #region OnOpenFile
+    private void OnOpenFile(object obj)
+    {
+        if (obj is File file)
+        {
+            Console.WriteLine($"File: {file.FileName}");
+        }
+    }
+    
+
+    #endregion
+
     public void OnNavigatedTo(NavigationContext navigationContext)
     {
         if (navigationContext.Parameters.ContainsKey("MenuType"))
         {
-            _model.SetMenuType(navigationContext.Parameters.GetValue<string>("MenuType"));
+            string key = navigationContext.Parameters.GetValue<string>("MenuType");
+            _model.SetMenuType(key);
+            MenuType = key;
         }
-
-        Folders = LoadCategoriesIntoFolders();
+        Folders = LoadTree();
     }
 
     public bool IsNavigationTarget(NavigationContext navigationContext) => true;

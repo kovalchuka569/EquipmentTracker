@@ -37,7 +37,6 @@
             
             <i:Interaction.Triggers>
                 
-                
                 <i:EventTrigger EventName="ItemDoubleTapped">
                     <prism:InvokeCommandAction Command="{Binding OpenFileCommand}" CommandParameter="{Binding SelectedItem, ElementName=treeView}" />
                 </i:EventTrigger>
