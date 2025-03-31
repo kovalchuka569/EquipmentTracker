@@ -2,9 +2,9 @@
 
 namespace UI.Views.Grids;
 
-public partial class ProductionEquipmentGridView : UserControl
+public partial class DataGrid : UserControl
 {
-    public ProductionEquipmentGridView()
+    public DataGrid()
     {
         InitializeComponent();
     }

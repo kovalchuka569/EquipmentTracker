@@ -2,9 +2,9 @@
 
 namespace UI.Views.Tabs.EquipmentTree.ColumnSelector;
 
-public partial class ColumnSelector : UserControl
+public partial class ColumnSelectorView : UserControl
 {
-    public ColumnSelector()
+    public ColumnSelectorView()
     {
         InitializeComponent();
     }
