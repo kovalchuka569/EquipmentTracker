@@ -68,10 +68,12 @@
       <None Remove="Views\NavDrawer\Assets\scheduler.png" />
       <Resource Include="Views\NavDrawer\Assets\scheduler.png" />
       <None Remove="Views\Tabs\ProductionEquipmentTree\Assets\opened_folder.png" />
-      <Resource Include="Views\Tabs\EquipmentTree\Assets\file.png" />
       <Resource Include="Views\Tabs\EquipmentTree\Assets\folder.png" />
       <Resource Include="Views\Tabs\EquipmentTree\Assets\opened_folder.png" />
-      <Resource Include="Views\Tabs\EquipmentTree\Assets\spreadsheet.png" />
+      <None Remove="Views\Tabs\EquipmentTree\Assets\spreadsheet.png" />
+      <None Remove="Views\Tabs\EquipmentTree\Assets\file.png" />
+      <None Remove="Views\Tabs\EquipmentTree\Assets\icons8-file-50.png" />
+      <Resource Include="Views\Tabs\EquipmentTree\Assets\file.png" />
     </ItemGroup>
 
     <ItemGroup>

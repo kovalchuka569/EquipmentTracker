@@ -45,7 +45,7 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware
         _itemBeginEditCommand ??= new DelegateCommand<TreeViewItemBeginEditEventArgs>(ExecuteItemBeginEdit);
 
     public DelegateCommand<TreeViewItemEndEditEventArgs> ItemEndEditCommand =>
-        _itemEndEditCommand ??= new DelegateCommand<TreeViewItemEndEditEventArgs>(ExecuteItemEndEdit);
+        _itemEndEditCommand ??= new DelegateCommand<TreeViewItemEndEditEventArgs>(async (args) => await ExecuteItemEndEditAsync());
     
     #endregion 
     
@@ -129,12 +129,12 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware
     #endregion
     
     #region LoadTree
-   private ObservableCollection<Folder> LoadTree()
+   private async Task <ObservableCollection<Folder>> LoadTreeAsync()
     {
     try
     {
-        List<EquipmentCategory> categories = _model.GetCategories();
-        List<FileEntity> files = _model.GetFiles();
+        List<EquipmentCategory> categories = await _model.GetCategoriesAsync();
+        List<FileEntity> files = await _model.GetFilesAsync();
         
         var folders = categories.Select(c => new Folder
         {
@@ -177,35 +177,47 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware
    #region OnCreateFile
    private async Task OnCreateFileAsync()
    {
-       int categoryId = SelectedFolder.Id;
-       string categoryType = MenuType;
-       string fileName = SelectedFolder.FileName;
-
-       bool haveChilds = _model.CheckChilds(categoryId);
-
-       if (haveChilds)
+       if (SelectedFolder != null)
        {
-           _notificationManager.Show("", "Для створення таблиці, будь-ласка, виберіть кінцеву папку", NotificationType.Error);
+           int categoryId = SelectedFolder.Id;
+           string categoryType = MenuType;
+           string fileName = SelectedFolder.FileName;
+
+           bool haveChilds = await _model.CheckChildsAsync(categoryId);
+           bool IsFinal = await _model.CheckFinal(categoryId);
+    
+           if (haveChilds)
+           {
+               _notificationManager.Show("", "Для створення таблиці, будь-ласка, виберіть кінцеву папку", NotificationType.Error);
+           }
+           else if (IsFinal)
+           {
+               _notificationManager.Show("", "В цій папці вже створено таблиці", NotificationType.Error);
+           }
+           else
+           {
+               await _model.SetFinalAsync(categoryId);
+               try
+               {
+                   var newFileEntity = await _model.CreateNewFileAsync(categoryId, categoryType, fileName);
+                   var newFile = new File
+                   {
+                       Id = newFileEntity.Id,
+                       FileName = newFileEntity.FileName,
+                       FolderId = SelectedFolder.Id
+                   };
+            
+                   SelectedFolder.AddFile(newFile);
+               }
+               catch (Exception e)
+               {
+                   _notificationManager.Show("", $"Ошибка: {e.Message}", NotificationType.Error);
+               }
+           }
        }
        else
        {
-           _model.SetFinal(categoryId);
-           try
-           {
-               var newFileEntity = _model.CreateNewFile(categoryId, categoryType, fileName);
-               var newFile = new File
-               {
-                   Id = newFileEntity.Id,
-                   FileName = newFileEntity.FileName,
-                   FolderId = SelectedFolder.Id
-               };
-            
-               SelectedFolder.AddFile(newFile);
-           }
-           catch (Exception e)
-           {
-               _notificationManager.Show("", $"Ошибка: {e.Message}", NotificationType.Error);
-           }
+           _notificationManager.Show("", "Для створення таблиці, будь-ласка, виберіть кінцеву папку", NotificationType.Error);
        }
     }
    #endregion
@@ -217,7 +229,7 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware
         try
         {
             int? parentId = SelectedFolder?.Id;
-            var newCategory = _model.CreateCategory(name, parentId);
+            var newCategory = await _model.CreateCategoryAsync(name, parentId);
             
             var newFolder = new Folder
             {
@@ -261,7 +273,7 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware
     }
     #endregion
     #region ExecuteItemEndEdit
-    private void ExecuteItemEndEdit(TreeViewItemEndEditEventArgs treeViewItemEndEditEventArgs)
+    private async Task ExecuteItemEndEditAsync()
     {
         string newName = SelectedFolder?.FileName;
 
@@ -279,10 +291,10 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware
 
        try
        {
-            var existingCategories = _model.GetCategories().FirstOrDefault(c => c.Id == SelectedFolder.Id);
+            var existingCategories = (await _model.GetCategoriesAsync()).FirstOrDefault(c => c.Id == SelectedFolder.Id);
             int? parentId = existingCategories?.ParentId;
 
-            var updatedCategory = _model.EditCategory(SelectedFolder.Id, newName, parentId);
+            var updatedCategory = await _model.EditCategoryAsync(SelectedFolder.Id, newName, parentId);
             
             SelectedFolder.FileName = updatedCategory.CategoryName;
             
@@ -317,7 +329,11 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware
             _model.SetMenuType(key);
             MenuType = key;
         }
-        Folders = LoadTree();
+
+        Task.Run(async () =>
+        {
+            Folders = await LoadTreeAsync();
+        });
     }
 
     public bool IsNavigationTarget(NavigationContext navigationContext) => true;

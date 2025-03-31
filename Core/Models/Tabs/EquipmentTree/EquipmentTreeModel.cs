@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Windows.Forms;
 
 using Microsoft.EntityFrameworkCore;
@@ -7,6 +8,7 @@ using Core.Services.Log;
 using Data.AppDbContext;
 using Data.Entities;
 using Syncfusion.Data.Extensions;
+using Syncfusion.PMML;
 
 
 namespace Core.Models.Tabs.ProductionEquipmentTree;
@@ -23,82 +25,99 @@ public class EquipmentTreeModel
 
     private string _currentMenuType;
 
-    public void SetMenuType(string menuType)
-    {
-        _currentMenuType = menuType;
-    }
+    private readonly Dictionary<string, IQueryable<EquipmentCategory>> _categorySets;
 
     public EquipmentTreeModel(AppDbContext context, LogService logService)
     {
         _context = context;
         _logService = logService;
-    }
 
-    public List<EquipmentCategory> GetCategories()
-    { 
-        return _currentMenuType switch
+        _categorySets = new Dictionary<string, IQueryable<EquipmentCategory>>
         {
-            "Виробниче обладнання" => _context.CategoriesProductionEquipment.AsNoTracking().ToList<EquipmentCategory>(),
-            "Інструменти" => _context.CategoriesTool.AsNoTracking().ToList<EquipmentCategory>(),
-            "Меблі" => _context.CategoriesFurniture.AsNoTracking().ToList<EquipmentCategory>(),
-            "Офісна техніка" => _context.CategoriesOfficeTechnique.AsNoTracking().ToList<EquipmentCategory>(),
-            _ => new List<EquipmentCategory>()
+            {"Виробниче обладнання", _context.CategoriesProductionEquipment},
+            { "Інструменти", _context.CategoriesTool },
+            { "Меблі", _context.CategoriesFurniture },
+            { "Офісна техніка", _context.CategoriesOfficeTechnique }
         };
     }
+    
+    #region SetMenuType
+    public void SetMenuType(string menuType) => _currentMenuType = menuType; //Gets menu category
+    #endregion
 
-    public List<FileEntity> GetFiles()
+    #region SetCategory
+    private IQueryable<EquipmentCategory> GetCategorySet()
     {
-        return _context.Files.AsNoTracking().ToList();
-    }
 
-    public EquipmentCategory CreateCategory(string name, int? parentId = null)
-    {
-        //Get existing categories for make unique name
-        List<EquipmentCategory> existingCategories = GetCategories();
-        
-        string uniqueName = name;
-        int counter = 1;
-        //If the names are the same, we make them unique
-        while (existingCategories.Any(c => c.CategoryName == uniqueName))
+        if (!_categorySets.TryGetValue(_currentMenuType, out var set))
         {
-            uniqueName = $"{name} ({counter})";
-            counter++;
+            Console.WriteLine($"Ошибка: {_currentMenuType} не найден в _categorySets!");
+            throw new ArgumentException($"Невідомий тип меню: {_currentMenuType}");
+        }
+
+        if (set == null)
+        {
+            Console.WriteLine($"Ошибка: Коллекция для {_currentMenuType} равна null!");
+            throw new Exception($"Коллекция для {_currentMenuType} равна null!");
         }
         
-        //Creating new object
+        return set;
+    }
+    #endregion
+
+    #region GetCategories from db
+    public async Task<List<EquipmentCategory>> GetCategoriesAsync()
+    {
+        var categorySet = GetCategorySet();
+    
+        var categories = await categorySet.AsNoTracking().ToListAsync();
+    
+        return categories;
+    }
+    #endregion
+    
+    #region GetFiles from db
+    public async Task<List<FileEntity>> GetFilesAsync() =>
+    await _context.Files.AsNoTracking().ToListAsync();
+    #endregion
+    
+
+    public async Task<EquipmentCategory> CreateCategoryAsync(string name, int? parentId = null)
+    {
+        Console.WriteLine("var categories = await GetCategoriesAsync();");
+        var categories = await GetCategoriesAsync();
+        Console.WriteLine(categories);
+        var uniqueName = GenerateUniqueName(name, categories);
+        Console.WriteLine("GenerateUniqueName");
+
         EquipmentCategory newCategory = _currentMenuType switch
         {
             "Виробниче обладнання" => new CategoryProductionEquipment { CategoryName = uniqueName, ParentId = parentId },
-            "Інструменти" => new CategoryTool() { CategoryName = uniqueName, ParentId = parentId },
-            "Меблі" => new CategoryFurniture() { CategoryName = uniqueName, ParentId = parentId },
-            "Офісна техніка" => new CategoryOfficeTechnique() { CategoryName = uniqueName, ParentId = parentId },
-            _ => throw new ArgumentException($"Невідомий тип меню: {_currentMenuType}")
+            "Інструменти" => new CategoryTool { CategoryName = uniqueName, ParentId = parentId },
+            "Меблі" => new CategoryFurniture { CategoryName = uniqueName, ParentId = parentId },
+            "Офісна техніка" => new CategoryOfficeTechnique { CategoryName = uniqueName, ParentId = parentId },
+            _ => throw new ArgumentException("Невідомий тип меню")
         };
-        
-        //Add new object to database
-        switch (_currentMenuType)
+
+        try
         {
-            case "Виробниче обладнання":
-                _context.CategoriesProductionEquipment.Add((CategoryProductionEquipment)newCategory);
-                break;
-            case "Інструменти":
-                _context.CategoriesTool.Add((CategoryTool)newCategory);
-                break;
-            case "Меблі":
-                _context.CategoriesFurniture.Add((CategoryFurniture)newCategory);
-                break;
-            case "Офісна техніка":
-                _context.CategoriesOfficeTechnique.Add((CategoryOfficeTechnique)newCategory);
-                break;
+            await _context.AddAsync(newCategory);
+            Console.WriteLine($"Сохранение категории {newCategory.CategoryName}");
+            await _context.SaveChangesAsync();
+            Console.WriteLine($"Категория {newCategory.CategoryName} сохранена!");
+
         }
-        _context.SaveChanges();
-        
-        //Return new object for update Observable Collection (UI) in ViewModel
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+
         return newCategory;
     }
     
-    #region Deleting 
-    public bool Deleting(int categoryId, out string message)
+    #region Deleting (no using now)
+    /*public bool Deleting(int categoryId, out string message)
     {
         try
         {
@@ -192,48 +211,36 @@ public class EquipmentTreeModel
             message = $"Помилка видалення: {e.Message}";
             return false;
         }
+    }*/
+    #endregion
+
+    #region CheckChilds
+    public async Task<bool> CheckChildsAsync (int folderId) =>
+        await GetCategorySet().AnyAsync(c => c.ParentId == folderId); 
+    #endregion
+
+    public async Task<bool> CheckFinal(int folderId)
+    {
+        var folder = await GetCategorySet().FirstOrDefaultAsync(c => c.Id == folderId);
+        
+        return folder.IsFinal;
+    }
+
+    #region SetFinal
+    public async Task SetFinalAsync(int categoryId)
+    {
+        var category = await GetCategorySet().FirstOrDefaultAsync(c => c.Id == categoryId);
+
+        if (category != null)
+        {
+            category.IsFinal = true;
+            await _context.SaveChangesAsync();
+        }
     }
     #endregion
 
-    public bool CheckChilds(int folderId)
-    {
-        switch (_currentMenuType)
-        {
-            case "Виробниче обладнання":
-                return _context.CategoriesProductionEquipment.Any(x => x.ParentId == folderId);
-            case "Меблі":
-                return _context.CategoriesFurniture.Any(x => x.ParentId == folderId);
-            case "Інструменти":
-                return _context.CategoriesTool.Any(x => x.ParentId == folderId);
-            case "Офісна техніка":
-                return _context.CategoriesOfficeTechnique.Any(x => x.ParentId == folderId);
-                default:
-                    return false;
-        }
-    }
-
-    public void SetFinal(int categoryId)
-    {
-        dynamic entity = _currentMenuType switch
-        {
-            "Виробниче обладнання" => _context.CategoriesProductionEquipment.FirstOrDefault(c => c.Id == categoryId),
-            "Меблі" => _context.CategoriesFurniture.FirstOrDefault(c => c.Id == categoryId),
-            "Інструменти" => _context.CategoriesTool.FirstOrDefault(c => c.Id == categoryId),
-            "Офісна техніка" => _context.CategoriesOfficeTechnique.FirstOrDefault(c => c.Id == categoryId)
-        };
-
-        if (entity != null)
-        {
-            entity.IsFinal = true;
-            _context.SaveChanges();
-        }
-    }
-
     #region F2 imitation for editing
-    public void F2Imitation()
-    {
-            SendKeys.SendWait("{F2}");
-    }
+    public void F2Imitation() => SendKeys.SendWait("{F2}");
     #endregion
     
     #region Editing tree items
@@ -248,57 +255,22 @@ public class EquipmentTreeModel
     }
     #endregion
     #region End editing
-    public EquipmentCategory EditCategory (int categoryId, string name, int? parentId = null)
+    public async Task <EquipmentCategory> EditCategoryAsync (int categoryId, string name, int? parentId = null)
     {
-
-        EquipmentCategory categoryToEdit = null;
-
-        switch (_currentMenuType)
-        {
-            case "Виробниче обладнання":
-                categoryToEdit = _context.CategoriesProductionEquipment.FirstOrDefault(c => c.Id == categoryId)!;
-                break;
-            case "Інструменти":
-                categoryToEdit = _context.CategoriesTool.FirstOrDefault(c => c.Id == categoryId)!;
-                break;
-            case "Меблі":
-                categoryToEdit = _context.CategoriesFurniture.FirstOrDefault(c => c.Id == categoryId)!;
-                break;
-            case "Офісна техніка":
-                categoryToEdit = _context.CategoriesOfficeTechnique.FirstOrDefault(c => c.Id == categoryId)!;
-                break;
-            default:
-                throw new ArgumentException($"Невідомий тип меню: {_currentMenuType}");
-        }
-
-        if (categoryToEdit == null)
-        {
-            throw new ArgumentException($"Категорія з Id: {categoryId} не знайдена");
-        }
+        var category = await GetCategorySet().FirstOrDefaultAsync(c => c.Id == categoryId)
+            ?? throw new ArgumentException($"Категорія з ID: {categoryId} не знайдена");
         
-        //Get existing categories for make unique name
-        List<EquipmentCategory> existingCategories = GetCategories();
-        
-        string uniqueName = name;
-        int counter = 1;
-        //If the names are the same, we make them unique
-        while (existingCategories.Any(c => c.CategoryName == uniqueName))
-        {
-            uniqueName = $"{name} ({counter})";
-            counter++;
-        }
-        categoryToEdit.CategoryName = uniqueName;
-        categoryToEdit.ParentId = parentId;
-        
-        _context.SaveChanges();
-        return categoryToEdit;
+        category.CategoryName = GenerateUniqueName(name, await GetCategoriesAsync());
+        category.ParentId = parentId;
+        await _context.SaveChangesAsync();
+        return category;
     }
     #endregion
     #endregion
 
-    #region Adding file
+    #region CreateNewFile
 
-    public FileEntity CreateNewFile(int categoryId, string categoryType, string fileName)
+    public async Task <FileEntity> CreateNewFileAsync(int categoryId, string categoryType, string fileName)
     {
         var newFile = new FileEntity
         {
@@ -306,11 +278,27 @@ public class EquipmentTreeModel
             CategoryType = categoryType,
             CategoryId = categoryId
         };
-        _context.Files.Add(newFile);
-        _context.SaveChanges();
+        await _context.Files.AddAsync(newFile);
+        await _context.SaveChangesAsync();
         return newFile;
     } 
     
 
+    #endregion
+
+    #region GenerateUniqueName
+    private string GenerateUniqueName(string name, List<EquipmentCategory> categories)
+    {
+        var uniqueName = name;
+        int counter = 1;
+        while (categories.Any(c => c.CategoryName == uniqueName))
+        {
+            Console.WriteLine($"Проверка имени: {uniqueName}, найдено совпадение, counter = {counter}");
+            uniqueName = $"{name} ({counter})";
+            counter++;
+        }
+        Console.WriteLine($"Уникальное имя сгенерировано: {uniqueName}");
+        return uniqueName;
+    }
     #endregion
 }
