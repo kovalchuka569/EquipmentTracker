@@ -6,23 +6,53 @@
              mc:Ignorable="d"
              xmlns:sf="http://schemas.syncfusion.com/wpf"
              xmlns:prism="http://prismlibrary.com/"
+             xmlns:syncfusionskin="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF"
+             syncfusionskin:SfSkinManager.Theme="{syncfusionskin:SkinManagerExtension ThemeName=Windows11Light}"
              prism:ViewModelLocator.AutoWireViewModel="True">
     
-    <sf:TabControlExt 
-        TabItemHeaderStyle="Fill" 
-        prism:RegionManager.RegionName="TabControlRegion"
-        Margin="0"
-        Padding="0"
-        BorderThickness="0">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Syncfusion.Themes.Windows11Light.WPF;component/tabcontrolext/tabcontrolext.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
     
-        <!-- For tab content-->
-        <sf:TabControlExt.ContentTemplate>
-            <DataTemplate>
-                <ContentPresenter 
-                    Content="{Binding}" 
-                    Margin="0"/>
-            </DataTemplate>
-        </sf:TabControlExt.ContentTemplate>
-    </sf:TabControlExt>
-    
+    <Grid>
+        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height = "*"/>
+        </Grid.RowDefinitions>
+        
+        <sf:TabControlExt 
+            TabItemHeaderStyle="Fill" 
+            Margin="0"
+            Padding="0"
+            SelectedItem="{Binding SelectedTab, Mode=TwoWay}" ItemsSource="{Binding TabItems}"
+            BorderThickness="0">
+            
+            <sf:TabControlExt.ItemContainerStyle>
+                <Style TargetType="sf:TabItemExt" BasedOn="{StaticResource SyncfusionTabItemExtStyle}">
+                    <Setter Property="HeaderTemplate">
+                        <Setter.Value>
+                            <DataTemplate>
+                                <TextBlock Text = "{Binding Header, Mode=TwoWay}"/>
+                            </DataTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+                
+            </sf:TabControlExt.ItemContainerStyle>
+            
+            <sf:TabControlExt.ContentTemplate>
+                <DataTemplate>
+                </DataTemplate>
+            </sf:TabControlExt.ContentTemplate>
+            
+        </sf:TabControlExt>
+        
+        <ContentControl Grid.Row="1" prism:RegionManager.RegionName="TabContentRegion"
+                        prism:RegionManager.RegionContext="{Binding}"/>
+    </Grid>
 </UserControl>

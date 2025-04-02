@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Forms;
 using System.Windows.Threading;
+using Core.Events.TabControl;
 using Syncfusion.UI.Xaml.TreeView;
 using Syncfusion.UI.Xaml.TreeView.Engine;
 
@@ -352,7 +353,8 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware
     #region OnOpenFile
     private void OnOpenFile()
     {
-       
+        Console.WriteLine("OnOpenFile");
+        _eventAggregator.GetEvent<OpenDataGridEvent>().Publish(SelectedFile);
     }
 
     private void OnColumnSelectorVisibility(bool param)
@@ -367,9 +369,15 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware
     {
         if (navigationContext.Parameters.ContainsKey("MenuType"))
         {
-            string key = navigationContext.Parameters.GetValue<string>("MenuType");
+            var key = navigationContext.Parameters["MenuType"] as string;
+            Console.WriteLine("Key: " + key);
             _model.SetMenuType(key);
             MenuType = key;
+            Console.WriteLine("MenuType: " + MenuType);
+        }
+        else
+        {
+            Console.WriteLine("Ошибка: параметр 'MenuType' отсутствует!");
         }
 
         Task.Run(async () =>
@@ -377,6 +385,7 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware
             Folders = await LoadTreeAsync();
         });
     }
+    
 
     public bool IsNavigationTarget(NavigationContext navigationContext) => true;
 

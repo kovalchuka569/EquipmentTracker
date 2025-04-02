@@ -5,11 +5,8 @@ namespace Core.Models.TabControl;
 public class TabControlModel
 {
     public string Header { get; set; }
-    public UserControl Content { get; set; }
-
-    public TabControlModel()
-    {
-        
-    }
+    public string ViewName { get; set; }
+    public string TabKey { get; set; }
+    
     
 }

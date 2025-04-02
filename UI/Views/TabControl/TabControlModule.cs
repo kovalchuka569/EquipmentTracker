@@ -14,6 +14,7 @@ using UI.Views.Tabs.Settings;
 using Prism.Navigation.Regions;
 using UI.Views.Tabs.EquipmentTree;
 using System.ComponentModel;
+using UI.ViewModels.DataGrid;
 using UI.Views.Tabs.EquipmentTree.ColumnSelector;
 using FurnitureTreeView = UI.Views.Tabs.EquipmentTree.FurnitureTreeView;
 using OfficeTechniqueTreeView = UI.Views.Tabs.EquipmentTree.OfficeTechniqueTreeView;
@@ -46,6 +47,8 @@ public class TabControlModule : IModule
         containerRegistry.RegisterForNavigation<OfficeTechniqueTreeView, EquipmentTreeViewModel>();
         containerRegistry.RegisterForNavigation<ToolsTreeView, EquipmentTreeViewModel>();
         containerRegistry.RegisterForNavigation<ColumnSelectorView, ColumnSelectorViewModel>();
+        
+        containerRegistry.RegisterForNavigation<DataGridView, DataGridViewModel>();
 
         containerRegistry.RegisterForNavigation<SchedulerView>();
         containerRegistry.RegisterForNavigation<SettingsView>();

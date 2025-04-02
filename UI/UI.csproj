@@ -123,6 +123,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Folder Include="Views\Grids\" />
       <Folder Include="Views\Notifications\NotifyIcon\" />
     </ItemGroup>
 
