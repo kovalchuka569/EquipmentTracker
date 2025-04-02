@@ -15,6 +15,7 @@
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
     </UserControl.Resources>
     <Grid>
+        
         <sf:SfTreeView 
             x:Name="treeView"
             VerticalAlignment="Top" HorizontalAlignment="Left"
@@ -28,7 +29,7 @@
             AllowDeleting="True"
             SelectionMode="SingleDeselect"
             ItemsSource="{Binding Folders}"
-            SelectedItem="{Binding SelectedFolder, Mode=TwoWay}">
+            SelectedItem="{Binding SelectedItem, Mode=TwoWay}">
             
             <i:Interaction.Behaviors>
                 <behavior:SfTreeViewEditBehavior ItemBeginEditCommand="{Binding ItemBeginEditCommand}"
@@ -36,7 +37,6 @@
             </i:Interaction.Behaviors>
             
             <i:Interaction.Triggers>
-                
                 <i:EventTrigger EventName="ItemDoubleTapped">
                     <prism:InvokeCommandAction Command="{Binding OpenFileCommand}" CommandParameter="{Binding SelectedItem, ElementName=treeView}" />
                 </i:EventTrigger>
@@ -70,12 +70,7 @@
                                    FontSize="15"
                                    Grid.Column="1"
                                    Padding="5 5"
-                                   Text="{Binding FileName, UpdateSourceTrigger=PropertyChanged}">
-                            
-                            <TextBlock.InputBindings>
-                                <MouseBinding Gesture="LeftDoubleClick" Command="{Binding OpenFileCommand}"/>
-                            </TextBlock.InputBindings>
-                        </TextBlock>
+                                   Text="{Binding FileName, UpdateSourceTrigger=PropertyChanged}"/>
                         
                     </Grid>
                 </DataTemplate>
@@ -112,5 +107,14 @@
             
         </sf:SfTreeView>
         
+        <Grid Visibility="{Binding ColumnSelectorVisibility, Converter={StaticResource BoolToVisibilityConverter}}" Background="#80000000">
+        
+        
+        <ContentControl prism:RegionManager.RegionName="EquipmentTreeColumnSelectorRegion"
+                        VerticalAlignment="Center" HorizontalAlignment="Center"/>
+        
+        </Grid>
+        
     </Grid>
+    
 </UserControl>

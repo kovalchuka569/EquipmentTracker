@@ -8,6 +8,21 @@
              xmlns:prism="http://prismlibrary.com/"
              prism:ViewModelLocator.AutoWireViewModel="True">
     
-    <sf:TabControlExt TabItemHeaderStyle="Fill" prism:RegionManager.RegionName="TabControlRegion"/>
+    <sf:TabControlExt 
+        TabItemHeaderStyle="Fill" 
+        prism:RegionManager.RegionName="TabControlRegion"
+        Margin="0"
+        Padding="0"
+        BorderThickness="0">
+    
+        <!-- For tab content-->
+        <sf:TabControlExt.ContentTemplate>
+            <DataTemplate>
+                <ContentPresenter 
+                    Content="{Binding}" 
+                    Margin="0"/>
+            </DataTemplate>
+        </sf:TabControlExt.ContentTemplate>
+    </sf:TabControlExt>
     
 </UserControl>

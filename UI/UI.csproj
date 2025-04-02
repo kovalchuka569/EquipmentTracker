@@ -74,6 +74,8 @@
       <None Remove="Views\Tabs\EquipmentTree\Assets\file.png" />
       <None Remove="Views\Tabs\EquipmentTree\Assets\icons8-file-50.png" />
       <Resource Include="Views\Tabs\EquipmentTree\Assets\file.png" />
+      <None Remove="Views\Tabs\EquipmentTree\ColumnSelector\Assets\icons8-close-50.png" />
+      <Resource Include="Views\Tabs\EquipmentTree\ColumnSelector\Assets\close.png" />
     </ItemGroup>
 
     <ItemGroup>

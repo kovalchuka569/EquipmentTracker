@@ -26,6 +26,7 @@
 
     <Grid>
         <Grid VerticalAlignment="Center" HorizontalAlignment="Center">
+            
             <!--Marking-->
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>

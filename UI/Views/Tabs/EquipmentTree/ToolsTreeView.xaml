@@ -27,7 +27,7 @@
             AllowDeleting="True"
             SelectionMode="SingleDeselect"
             ItemsSource="{Binding Folders}"
-            SelectedItem="{Binding SelectedFolder, Mode=TwoWay}">
+            SelectedItem="{Binding SelectedItem, Mode=TwoWay}">
             
             <i:Interaction.Behaviors>
                 <behavior:SfTreeViewEditBehavior ItemBeginEditCommand="{Binding ItemBeginEditCommand}"
@@ -68,11 +68,7 @@
                                    FontSize="15"
                                    Grid.Column="1"
                                    Padding="5 5"
-                                   Text="{Binding FileName}">
-                            <TextBlock.InputBindings>
-                                <MouseBinding Gesture="LeftDoubleClick" Command="{Binding OpenFileCommand}"/>
-                            </TextBlock.InputBindings>
-                        </TextBlock>
+                                   Text="{Binding FileName}"/>
                         
                     </Grid>
                 </DataTemplate>
@@ -109,5 +105,11 @@
             
         </sf:SfTreeView>
         
+        <Grid Visibility="{Binding ColumnSelectorVisibility, Converter={StaticResource BoolToVisibilityConverter}}" Background="#80000000">
+            
+            <ContentControl prism:RegionManager.RegionName="ToolsTreeColumnSelectorRegion"
+                            VerticalAlignment="Center" HorizontalAlignment="Center"/>
+
+        </Grid>
     </Grid>
 </UserControl>

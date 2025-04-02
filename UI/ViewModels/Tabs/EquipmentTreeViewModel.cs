@@ -1,5 +1,8 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using System.Windows.Forms;
+using System.Windows.Threading;
 using Syncfusion.UI.Xaml.TreeView;
 using Syncfusion.UI.Xaml.TreeView.Engine;
 
@@ -15,6 +18,7 @@ using Syncfusion.Linq;
 using Syncfusion.UI.Xaml.Diagram;
 using DelegateCommand = Prism.Commands.DelegateCommand;
 using UI.Views.Tabs.EquipmentTree;
+using UI.Views.Tabs.EquipmentTree.ColumnSelector;
 
 namespace UI.ViewModels.Tabs;
 
@@ -23,9 +27,13 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware
     #region Properties
     private readonly IEventAggregator _eventAggregator;
     private readonly NotificationManager _notificationManager;
+    private readonly DialogService _dialogService;
+    private readonly IRegionManager _regionManager;
     
     private EquipmentTreeModel _model;
     private SfTreeView treeView;
+    
+    private bool _columnSelectorVisibility = false;
 
 
     private string _menuType;
@@ -35,10 +43,11 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware
     
     
     #region Commands
-    public DelegateCommand<object> OpenFileCommand { get; }
+    public DelegateCommand OpenFileCommand { get; }
     public DelegateCommand AddCategoryCommand { get; }
     public DelegateCommand AddFileCommand { get; }
     public DelegateCommand EditCommand { get; }
+    public DelegateCommand LoadedCommand { get; }
     private DelegateCommand<TreeViewItemBeginEditEventArgs> _itemBeginEditCommand;
     private DelegateCommand<TreeViewItemEndEditEventArgs> _itemEndEditCommand;
     public DelegateCommand<TreeViewItemBeginEditEventArgs> ItemBeginEditCommand =>
@@ -55,8 +64,13 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware
 
     private ObservableCollection<Folder> _folders;
     private ObservableCollection<File> _files;
-    private Folder _selectedFolder;
-    private File _selectedFile;
+    private object _selectedItem;
+    
+    public bool ColumnSelectorVisibility
+    {
+        get => _columnSelectorVisibility;
+        set => SetProperty(ref _columnSelectorVisibility, value);
+    }
 
     public ObservableCollection<Folder> Folders
     {
@@ -78,25 +92,14 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware
         }
     }
 
-    public Folder SelectedFolder
+    public object SelectedItem
     {
-        get => _selectedFolder;
-        set
-        {
-            _selectedFolder = value;
-            RaisePropertyChanged();
-        }
+        get => _selectedItem;
+        set => SetProperty(ref _selectedItem, value);
     }
 
-    public File SelectedFile
-    {
-        get => _selectedFile;
-        set
-        {
-            _selectedFile = value;
-            RaisePropertyChanged();
-        }
-    }
+    public File SelectedFile => SelectedItem as File;
+    public Folder SelectedFolder => SelectedItem as Folder;
 
     public string MenuType
     {
@@ -106,20 +109,22 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware
     
 
     #endregion
+
     
     
     
     #region Initialization
-    public EquipmentTreeViewModel(IEventAggregator eventAggregator, EquipmentTreeModel model, NotificationManager notificationManager)
+    public EquipmentTreeViewModel(IEventAggregator eventAggregator, EquipmentTreeModel model, NotificationManager notificationManager, IRegionManager regionManager)
     {
         AddCategoryCommand = new DelegateCommand(async () => await OnCreateFolderAsync());
         EditCommand = new DelegateCommand(OnEdit);
         AddFileCommand = new DelegateCommand(async () => await OnCreateFileAsync());
-        OpenFileCommand = new DelegateCommand<object>(OnOpenFile);
+        OpenFileCommand = new DelegateCommand(OnOpenFile);
 
         
-        
+        _regionManager = regionManager;
         _eventAggregator = eventAggregator;
+        _eventAggregator.GetEvent<ColumnSelectorVisibilityChangedEvent>().Subscribe(OnColumnSelectorVisibility);
         _model = model;
         _notificationManager = notificationManager;
         
@@ -196,22 +201,28 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware
            }
            else
            {
-               await _model.SetFinalAsync(categoryId);
-               try
+               var isConfirmed = await ShowColumnSelectorAsync(fileName);
+               if (isConfirmed)
                {
-                   var newFileEntity = await _model.CreateNewFileAsync(categoryId, categoryType, fileName);
-                   var newFile = new File
+                   await _model.SetFinalAsync(categoryId);
+                   try
                    {
-                       Id = newFileEntity.Id,
-                       FileName = newFileEntity.FileName,
-                       FolderId = SelectedFolder.Id
-                   };
-            
-                   SelectedFolder.AddFile(newFile);
-               }
-               catch (Exception e)
-               {
-                   _notificationManager.Show("", $"Ошибка: {e.Message}", NotificationType.Error);
+                       var newFileEntity = await _model.CreateNewFileAsync(categoryId, categoryType, fileName);
+                       var newFile = new File
+                       {
+                           Id = newFileEntity.Id,
+                           FileName = newFileEntity.FileName,
+                           FolderId = SelectedFolder.Id
+                       };
+                       SelectedFolder.AddFile(newFile);
+
+                       _notificationManager.Show("", $"Створено '{fileName}' - основна таблиця",
+                           NotificationType.Success);
+                   }
+                   catch (Exception e)
+                   {
+                       _notificationManager.Show("", $"Ошибка: {e.Message}", NotificationType.Error);
+                   }
                }
            }
        }
@@ -221,6 +232,35 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware
        }
     }
    #endregion
+
+   private Task<bool> ShowColumnSelectorAsync(string fileName)
+   {
+       var tcs = new TaskCompletionSource<bool>();
+
+       var parameters = new NavigationParameters
+       {
+           { "TableName", fileName },
+           { "Callback", new Action<bool>(confirmed => tcs.SetResult(confirmed)) }
+       };
+       switch (MenuType)
+       {
+           case "Виробниче обладнання":
+               Console.WriteLine(parameters);
+               _regionManager.RequestNavigate("EquipmentTreeColumnSelectorRegion", "ColumnSelectorView", parameters);
+               break;
+           case "Меблі":
+               _regionManager.RequestNavigate("FurnitureTreeColumnSelectorRegion", "ColumnSelectorView", parameters);
+               break;
+           case "Офісна техніка":
+               _regionManager.RequestNavigate("OfficeTechniqueTreeColumnSelectorRegion", "ColumnSelectorView", parameters);
+               break;
+           case "Інструменти":
+               _regionManager.RequestNavigate("ToolsTreeColumnSelectorRegion", "ColumnSelectorView", parameters);
+               break;
+       }
+       ColumnSelectorVisibility = true;
+       return tcs.Task;
+   }
    
     #region OnCreateCategory
     private async Task OnCreateFolderAsync()
@@ -310,12 +350,14 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware
     #endregion
 
     #region OnOpenFile
-    private void OnOpenFile(object obj)
+    private void OnOpenFile()
     {
-        if (obj is File file)
-        {
-            Console.WriteLine($"File: {file.FileName}");
-        }
+       
+    }
+
+    private void OnColumnSelectorVisibility(bool param)
+    {
+        ColumnSelectorVisibility = param;
     }
     
 

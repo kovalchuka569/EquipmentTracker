@@ -8,28 +8,59 @@
              mc:Ignorable="d"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:prism="http://prismlibrary.com/"
+             xmlns:syncfusionskin="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF"
+             syncfusionskin:SfSkinManager.Theme="{syncfusionskin:SkinManagerExtension ThemeName=Windows11Light}"
              prism:ViewModelLocator.AutoWireViewModel="True">
     
+    <!--Resources-->
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Syncfusion.Themes.Windows11Light.WPF;component/MSControl/GlyphButton.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
     
-    <Grid Width="300" Height="800" Background="White">
+    
+    <Grid Width="300" Height="800" Background="Transparent">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         
-        <TextBlock Grid.Row="0" 
+        <!-- Close column selector -->
+        <Button Style="{StaticResource WPFRoundedGlyphButtonStyle}"
+                Grid.Row="0"
+                Cursor="Hand"
+                Width="30" Height="30" VerticalAlignment="Bottom" HorizontalAlignment="Right">
+            <Image Source="Assets/close.png" 
+                   Width="20" Height="20"
+                   VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="Click">
+                    <i:InvokeCommandAction Command="{Binding CancelCommand}"/>
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+                
+        </Button>
+        
+        <TextBlock Grid.Row="1" 
                    Text="Вибір колонок" 
+                   Foreground="White"
                    FontSize="16" 
                    FontWeight="Bold" 
                    Margin="5,5,5,10" 
                    HorizontalAlignment="Center"/>
         
-        <Border Grid.Row="1" BorderThickness="1" BorderBrush="Gray" CornerRadius="5">
             <sf:CheckListBox
                 ItemsSource = "{Binding Columns}" SelectedItems = "{Binding SelectedColumns}"
                 DisplayMemberPath="ColumnName" Name="checkListBox"
-                IsSelectAllEnabled="False">
+                IsSelectAllEnabled="False"
+                Grid.Row="2"
+                BorderThickness="1" BorderBrush="LightGray"
+                Background="White">
                 
                 
                 <i:Interaction.Triggers>
@@ -39,9 +70,8 @@
                 </i:Interaction.Triggers>
                 
             </sf:CheckListBox>
-        </Border>
         
-        <Button Grid.Row="2" 
+        <Button Grid.Row="3" 
                 Content="Створити таблицю" 
                 Foreground="White" 
                 Background="Blue"
