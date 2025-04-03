@@ -7,6 +7,6 @@
              xmlns:sf="http://schemas.syncfusion.com/wpf"
              mc:Ignorable="d">
     <Grid>
-        <sf:SfDataGrid />
+        <Label Content="DataGrid" FontSize="50" VerticalAlignment="Center" HorizontalAlignment="Center"/>
     </Grid>
 </UserControl>

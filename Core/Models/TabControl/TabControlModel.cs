@@ -6,7 +6,9 @@ public class TabControlModel
 {
     public string Header { get; set; }
     public string ViewName { get; set; }
-    public string TabKey { get; set; }
-    
+}
+
+public class CreateTabFromFileEvent : PubSubEvent<TabControlModel>
+{
     
 }

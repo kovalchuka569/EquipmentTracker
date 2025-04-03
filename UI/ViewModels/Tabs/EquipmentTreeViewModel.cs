@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using System.Windows.Forms;
 using System.Windows.Threading;
 using Core.Events.TabControl;
+using Core.Models.TabControl;
 using Syncfusion.UI.Xaml.TreeView;
 using Syncfusion.UI.Xaml.TreeView.Engine;
 
@@ -115,7 +116,7 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware
     
     
     
-    #region Initialization
+    #region Constructor
     public EquipmentTreeViewModel(IEventAggregator eventAggregator, EquipmentTreeModel model, NotificationManager notificationManager, IRegionManager regionManager)
     {
         AddCategoryCommand = new DelegateCommand(async () => await OnCreateFolderAsync());
@@ -220,6 +221,7 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware
 
                        _notificationManager.Show("", $"Створено '{fileName}' - основна таблиця",
                            NotificationType.Success);
+                       _eventAggregator.GetEvent<CreateTabFromFileEvent>().Publish(new TabControlModel{ViewName = "DataGridView", Header = newFileEntity.FileName});
                    }
                    catch (Exception e)
                    {
@@ -354,8 +356,7 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware
     #region OnOpenFile
     private void OnOpenFile()
     {
-        Console.WriteLine("OnOpenFile");
-        _eventAggregator.GetEvent<OpenDataGridEvent>().Publish(SelectedFile);
+        _eventAggregator.GetEvent<CreateTabFromFileEvent>().Publish(new TabControlModel { ViewName = "DataGridView", Header = SelectedFile.FileName });
     }
 
     private void OnColumnSelectorVisibility(bool param)

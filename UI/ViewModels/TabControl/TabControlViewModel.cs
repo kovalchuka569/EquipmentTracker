@@ -100,7 +100,8 @@ public class TabControlViewModel : BindableBase, INavigationAware
         Console.WriteLine("ViewName: " + viewName);
         Console.WriteLine("MenuType:" + menuType);
         
-        CreatingTab(viewName, menuType);
+        CreatingTabFromNavDrawer(viewName, menuType);
+        _eventAggregator.GetEvent<CreateTabFromFileEvent>().Subscribe(OnCreateTabFromFile);
     }
     
     public void OnTabSelectionChanged(TabControlModel selectedTab)
@@ -129,7 +130,46 @@ public class TabControlViewModel : BindableBase, INavigationAware
         }
     }
 
-    private void CreatingTab(string viewName, string menuType)
+    private void OnCreateTabFromFile(TabControlModel message)
+    {
+        CreatingTabFromFile(message.ViewName, message.Header);
+    }
+
+    private void CreatingTabFromFile(string viewName, string tabHeader)
+    {
+        var existingTab = TabItems.FirstOrDefault(t => t.Header == tabHeader);
+        var parameters = new NavigationParameters
+        {
+            { "TestParameter", tabHeader },
+        };
+
+        if (existingTab != null)
+        {
+            SelectedTab = existingTab;
+            _regionManager.RequestNavigate("TabContentRegion", existingTab.ViewName, parameters);
+            return;
+        }
+        TabControlModel newTab = new TabControlModel
+        {
+            Header = tabHeader,
+            ViewName = viewName
+        };
+        _regionManager.RequestNavigate("TabContentRegion", viewName, result =>
+        {
+            if (result.Success)
+            {
+                Console.WriteLine("Навигация успешна: " + viewName);
+                TabItems.Add(newTab);
+                SelectedTab = newTab;
+            }
+            else
+            {
+                Console.WriteLine("Ошибка навигации: " + viewName);
+            }
+        }, parameters);
+    }
+
+    private void CreatingTabFromNavDrawer(string viewName, string menuType)
     {
         var existingTab = TabItems.FirstOrDefault(t => t.Header == menuType);
         
@@ -144,9 +184,6 @@ public class TabControlViewModel : BindableBase, INavigationAware
             _regionManager.RequestNavigate("TabContentRegion", existingTab.ViewName, parameters);
             return;
         }
-        
-        Console.WriteLine("Создание вкладки: " + viewName);
-        
             TabControlModel newTab = new TabControlModel
             {
                 Header = menuType,
