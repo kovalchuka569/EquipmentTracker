@@ -32,8 +32,6 @@
             CloseMode="Delete"
             EnableLabelEdit="False"
             CloseButtonType="Extended"
-            DefaultContextMenuItemVisibility="Hidden"
-            IsCustomTabItemContextMenuEnabled="True"
             SelectedItem="{Binding SelectedTab, Mode=TwoWay}" ItemsSource="{Binding TabItems}"
             BorderThickness="0">
             

@@ -5,20 +5,25 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Documents;
 using Syncfusion.PMML;
+using TableColumn = Data.Entities.TableColumn;
 
 namespace Data.AppDbContext
 {
     public class AppDbContext : DbContext
     {
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
+        {
+        }
+        
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            var dbHost = Properties.Settings.Default.DbHost;
-            var dbName = Properties.Settings.Default.DbName;
-            var dbUser = Properties.Settings.Default.DbUser;
-            var dbPassword = Properties.Settings.Default.DbPassword;
-            var connectionString = $"Host={dbHost};Database={dbName};Username={dbUser};Password={dbPassword}";
-            optionsBuilder.UseNpgsql(connectionString);
+        }
+        public override void Dispose()
+        {
+            Console.WriteLine("AppDbContext Disposed!");
+            base.Dispose();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -29,6 +34,8 @@ namespace Data.AppDbContext
                 entity.Property(e => e.Date).HasColumnType("date");
                 entity.Property(e => e.Time).HasColumnType("interval");
             });
+            modelBuilder.Entity<TableColumn>().HasNoKey().ToView(null);
+
         }
         
         public DbSet<User> Users { get; set; }

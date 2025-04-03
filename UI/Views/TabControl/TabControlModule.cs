@@ -14,6 +14,7 @@ using UI.Views.Tabs.Settings;
 using Prism.Navigation.Regions;
 using UI.Views.Tabs.EquipmentTree;
 using System.ComponentModel;
+using Core.Models.DataGrid;
 using UI.ViewModels.DataGrid;
 using UI.Views.Tabs.EquipmentTree.ColumnSelector;
 using FurnitureTreeView = UI.Views.Tabs.EquipmentTree.FurnitureTreeView;

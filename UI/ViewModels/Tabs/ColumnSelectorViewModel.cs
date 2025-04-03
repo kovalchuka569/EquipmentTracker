@@ -13,6 +13,7 @@ public class ColumnSelectorViewModel : BindableBase, INavigationAware
     private ObservableCollection<object> _selectedColumns;
     
     private EquipmentTreeViewModel _equipmentTreeViewModel;
+    private readonly AppDbContext _context;
     
     private Action<bool> _callback;
     
@@ -45,8 +46,9 @@ public class ColumnSelectorViewModel : BindableBase, INavigationAware
         view.GroupDescriptions.Add(new PropertyGroupDescription("Category"));
     }
 
-    public ColumnSelectorViewModel(IRegionManager regionManager, EquipmentTreeViewModel equipmentTreeViewModel, IEventAggregator eventAggregator)
+    public ColumnSelectorViewModel(IRegionManager regionManager, EquipmentTreeViewModel equipmentTreeViewModel, IEventAggregator eventAggregator, AppDbContext context)
     {
+        _context = context;
         _regionManager = regionManager;
         _equipmentTreeViewModel = equipmentTreeViewModel;
         _eventAggregator = eventAggregator;
@@ -66,9 +68,6 @@ public class ColumnSelectorViewModel : BindableBase, INavigationAware
             OnCancel();
             return;
         }
-
-        using (var context = new AppDbContext())
-        {
             var tableName = _tableName;
             
             var columns = SelectedColumns.Cast<Column>().Select(c => $"\"{c.ColumnName}\" {c.ColumnType}")
@@ -76,10 +75,9 @@ public class ColumnSelectorViewModel : BindableBase, INavigationAware
             
             Console.WriteLine(string.Join(", ", columns));
             
-            var createTableQuery = $"CREATE TABLE IF NOT EXISTS \"UserTables\".\"{tableName}\" ({string.Join(", ", columns)});";
-            context.Database.ExecuteSqlRaw(createTableQuery);
+            var createTableQuery = $"CREATE TABLE IF NOT EXISTS \"UserTables\".\"{tableName}\" (Id SERIAL PRIMARY KEY, {string.Join(", ", columns)});";
+            _context.Database.ExecuteSqlRaw(createTableQuery);
             OnConfirm();
-        }
     }
 
 

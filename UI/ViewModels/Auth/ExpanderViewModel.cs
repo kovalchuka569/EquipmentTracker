@@ -17,6 +17,8 @@ namespace UI.ViewModels.Auth
 
         private Brush _buttonSaveContentColor = Brushes.Black;
         private Brush _statusColor = Brushes.Gray;
+        
+        private readonly AppDbContext _context;
 
         public Brush StatusColor
         {
@@ -73,9 +75,10 @@ namespace UI.ViewModels.Auth
         #region Commands
         public DelegateCommand SaveCommand { get; private set; }
         #endregion
-        #region Initialization
-        public ExpanderViewModel()
+        #region Constructor
+        public ExpanderViewModel(AppDbContext context)
         {
+            _context = context;
             TestDbConnectionAsync();
             SaveCommand = new DelegateCommand(OnSave);
         }
@@ -96,12 +99,12 @@ namespace UI.ViewModels.Auth
         #region TestDbConnectionAsync
         private async Task TestDbConnectionAsync()
         {
-            using (var db = new AppDbContext())
+            using (var db = _context)
             try
                 {
                     bool canConnect = await Task.Run(() =>
                     {
-                        using (var db = new AppDbContext())
+                        using (var db = _context)
                         {
                             return db.Database.CanConnect();
                         }

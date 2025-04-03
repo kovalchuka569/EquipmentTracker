@@ -104,13 +104,6 @@ public class TabControlViewModel : BindableBase, INavigationAware
         _eventAggregator.GetEvent<CreateTabFromFileEvent>().Subscribe(OnCreateTabFromFile);
     }
     
-    public void OnTabSelectionChanged(TabControlModel selectedTab)
-    {
-        if (selectedTab == null)
-        {
-            _regionManager.Regions["TabContentRegion"].Context = null;
-        }
-    }
 
     private void NavigateToSelectedTab()
     {
@@ -140,33 +133,37 @@ public class TabControlViewModel : BindableBase, INavigationAware
         var existingTab = TabItems.FirstOrDefault(t => t.Header == tabHeader);
         var parameters = new NavigationParameters
         {
-            { "TestParameter", tabHeader },
+            { "TableName", tabHeader },
         };
 
         if (existingTab != null)
         {
+            Console.WriteLine("existing tab is already created");
             SelectedTab = existingTab;
-            _regionManager.RequestNavigate("TabContentRegion", existingTab.ViewName, parameters);
-            return;
+            _regionManager.RequestNavigate("TabContentRegion", viewName, parameters);
+            
         }
-        TabControlModel newTab = new TabControlModel
+        else
         {
-            Header = tabHeader,
-            ViewName = viewName
-        };
-        _regionManager.RequestNavigate("TabContentRegion", viewName, result =>
-        {
-            if (result.Success)
+            TabControlModel newTab = new TabControlModel
             {
-                Console.WriteLine("Навигация успешна: " + viewName);
-                TabItems.Add(newTab);
-                SelectedTab = newTab;
-            }
-            else
+                Header = tabHeader,
+                ViewName = viewName
+            };
+            _regionManager.RequestNavigate("TabContentRegion", viewName, result =>
             {
-                Console.WriteLine("Ошибка навигации: " + viewName);
-            }
-        }, parameters);
+                if (result.Success)
+                {
+                    Console.WriteLine("Навигация успешна: " + viewName);
+                    TabItems.Add(newTab);
+                    SelectedTab = newTab;
+                }
+                else
+                {
+                    Console.WriteLine("Ошибка навигации: " + viewName);
+                }
+            }, parameters);
+        }
     }
 
     private void CreatingTabFromNavDrawer(string viewName, string menuType)

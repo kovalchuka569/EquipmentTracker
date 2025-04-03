@@ -5,8 +5,18 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:UI.Views"
              xmlns:sf="http://schemas.syncfusion.com/wpf"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:syncfusionskin="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF"
+             syncfusionskin:SfSkinManager.Theme="{syncfusionskin:SkinManagerExtension ThemeName=Windows11Light}"
              mc:Ignorable="d">
     <Grid>
-        <Label Content="DataGrid" FontSize="50" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+
+        <sf:SfDataGrid
+            x:Name = "dataGrid"
+            AutoGenerateColumns="False" 
+            ItemsSource="{Binding TableData}"
+            Columns="{Binding Columns}"/>
+            
     </Grid>
 </UserControl>
