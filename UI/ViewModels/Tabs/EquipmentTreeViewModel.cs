@@ -30,6 +30,7 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware
     private readonly NotificationManager _notificationManager;
     private readonly DialogService _dialogService;
     private readonly IRegionManager _regionManager;
+
     
     private EquipmentTreeModel _model;
     private SfTreeView treeView;

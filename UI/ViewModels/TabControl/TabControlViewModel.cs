@@ -6,6 +6,7 @@ using Core.Models.Tabs.ProductionEquipmentTree;
 using Syncfusion.Lic.util.encoders;
 using Syncfusion.PMML;
 using Syncfusion.Windows.Shared;
+using Prism.Commands;
 using UI.ViewModels.DataGrid;
 using UI.Views.Tabs.Accounting;
 using UI.Views.Tabs.Consumables;
@@ -13,6 +14,7 @@ using UI.Views.Tabs.EquipmentTree;
 using UI.Views.Tabs.Scheduler;
 using UI.Views.Tabs.Settings;
 using DataGridView = UI.Views.DataGridView;
+using DelegateCommand = Syncfusion.Windows.Shared.DelegateCommand;
 using Header = Syncfusion.UI.Xaml.Diagram.Stencil.Header;
 using UserControl = System.Windows.Controls.UserControl;
 
@@ -41,27 +43,23 @@ public class TabControlViewModel : BindableBase, INavigationAware
         get => _selectedTab;
         set
         {
-            if (SetProperty(ref _selectedTab, value))
+            if (_selectedTab != value)
             {
-                OnTabSelectionChanged(value);
+                _selectedTab = value;
+                RaisePropertyChanged();
+                NavigateToSelectedTab();
             }
         }
     }
-
+    
     public TabControlViewModel(IEventAggregator eventAggregator, IRegionManager regionManager)
     {
         _eventAggregator = eventAggregator;
         _regionManager = regionManager;
         TabItems = new ObservableCollection<TabControlModel>();
-
-        _eventAggregator.GetEvent<OpenTabEvent>().Subscribe(OpenNewTab);
+        
     }
     
-
-    private void OpenNewTab(string tabHeader)
-    {
-        NavigateToTab(tabHeader, GetViewName(tabHeader));
-    }
 
     public void OnNavigatedTo(NavigationContext navigationContext)
     {
@@ -107,52 +105,67 @@ public class TabControlViewModel : BindableBase, INavigationAware
     
     public void OnTabSelectionChanged(TabControlModel selectedTab)
     {
-        
+        if (selectedTab == null)
+        {
+            _regionManager.Regions["TabContentRegion"].Context = null;
+        }
     }
 
-    private void NavigateToTab(string header, string viewName)
+    private void NavigateToSelectedTab()
     {
-        var parameters = new NavigationParameters
+        if (TabItems.Count == 0)
         {
-            { "SelectedTab", header }
-        };
-        Console.WriteLine("OnNavigatedTo: " + header);
+            _regionManager.RequestNavigate("TabContentRegion", "DefaultTabContentView");
+        }
+        
+        if (SelectedTab != null)
+        {
+            var parameters = new NavigationParameters
+            {
+                { "MenuType", SelectedTab.Header }
+            };
 
+            _regionManager.RequestNavigate("TabContentRegion", SelectedTab.ViewName, parameters);
+        }
     }
 
     private void CreatingTab(string viewName, string menuType)
     {
-        var parameters = new NavigationParameters();
-        parameters.Add("MenuType", menuType);
-        Console.WriteLine("Создание вкладки: " + viewName);
+        var existingTab = TabItems.FirstOrDefault(t => t.Header == menuType);
+        
+        var parameters = new NavigationParameters
+        {
+            { "MenuType", menuType }
+        };
 
-        var existingTab = TabItems.FirstOrDefault(t => t.ViewName == viewName);
         if (existingTab != null)
         {
             SelectedTab = existingTab;
+            _regionManager.RequestNavigate("TabContentRegion", existingTab.ViewName, parameters);
             return;
         }
-
-        TabControlModel newTab = new TabControlModel
-        {
-            Header = viewName,
-            ViewName = viewName
-        };
-
-        _regionManager.RequestNavigate("TabContentRegion", viewName, result =>
-        {
-            if (result.Success)
+        
+        Console.WriteLine("Создание вкладки: " + viewName);
+        
+            TabControlModel newTab = new TabControlModel
             {
-                Console.WriteLine("Навигация успешна: " + viewName);
-                TabItems.Add(newTab);
-                SelectedTab = newTab;
-            }
-            else
-            {
-                Console.WriteLine("Ошибка навигации: " + viewName);
-            }
-        }, parameters);
+                Header = menuType,
+                ViewName = viewName
+            };
 
+            _regionManager.RequestNavigate("TabContentRegion", viewName, result =>
+            {
+                if (result.Success)
+                {
+                    Console.WriteLine("Навигация успешна: " + viewName);
+                    TabItems.Add(newTab);
+                    SelectedTab = newTab;
+                }
+                else
+                {
+                    Console.WriteLine("Ошибка навигации: " + viewName);
+                }
+            }, parameters);
     }
     
     private string GetViewName(string header)

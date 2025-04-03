@@ -47,6 +47,7 @@ public class TabControlModule : IModule
         containerRegistry.RegisterForNavigation<OfficeTechniqueTreeView, EquipmentTreeViewModel>();
         containerRegistry.RegisterForNavigation<ToolsTreeView, EquipmentTreeViewModel>();
         containerRegistry.RegisterForNavigation<ColumnSelectorView, ColumnSelectorViewModel>();
+        containerRegistry.RegisterForNavigation<DefaultTabContentView>();
         
         containerRegistry.RegisterForNavigation<DataGridView, DataGridViewModel>();
 

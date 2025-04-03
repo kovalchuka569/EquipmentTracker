@@ -29,6 +29,11 @@
             TabItemHeaderStyle="Fill" 
             Margin="0"
             Padding="0"
+            CloseMode="Delete"
+            EnableLabelEdit="False"
+            CloseButtonType="Extended"
+            DefaultContextMenuItemVisibility="Hidden"
+            IsCustomTabItemContextMenuEnabled="True"
             SelectedItem="{Binding SelectedTab, Mode=TwoWay}" ItemsSource="{Binding TabItems}"
             BorderThickness="0">
             
@@ -41,6 +46,8 @@
                             </DataTemplate>
                         </Setter.Value>
                     </Setter>
+                    
+                    
                 </Style>
                 
             </sf:TabControlExt.ItemContainerStyle>
