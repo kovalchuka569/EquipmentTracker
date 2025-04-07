@@ -33,7 +33,6 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware
     private readonly IEventAggregator _eventAggregator;
     private readonly NotificationManager _notificationManager;
     private readonly DialogService _dialogService;
-    private readonly IRegionManager _regionManager;
     private readonly IRegionManagerService _regionManagerService;
     private IRegionManager _scopedRegionManager;
     private FrameworkElement _view;
@@ -58,7 +57,6 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware
     public DelegateCommand AddCategoryCommand { get; }
     public DelegateCommand AddFileCommand { get; }
     public DelegateCommand EditCommand { get; }
-    public DelegateCommand LoadedCommand { get; }
     private DelegateCommand<TreeViewItemBeginEditEventArgs> _itemBeginEditCommand;
     private DelegateCommand<TreeViewItemEndEditEventArgs> _itemEndEditCommand;
     public DelegateCommand<TreeViewItemBeginEditEventArgs> ItemBeginEditCommand =>
@@ -134,15 +132,13 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware
     
     
     #region Constructor
-    public EquipmentTreeViewModel(IEventAggregator eventAggregator, EquipmentTreeModel model, NotificationManager notificationManager, IRegionManager regionManager, IRegionManagerService regionManagerService)
+    public EquipmentTreeViewModel(IEventAggregator eventAggregator, EquipmentTreeModel model, NotificationManager notificationManager, IRegionManagerService regionManagerService)
     {
         AddCategoryCommand = new DelegateCommand(async () => await OnCreateFolderAsync());
         EditCommand = new DelegateCommand(OnEdit);
         AddFileCommand = new DelegateCommand(async () => await OnCreateFileAsync());
         OpenFileCommand = new DelegateCommand(OnOpenFile);
-
         
-        _regionManager = regionManager;
         _regionManagerService = regionManagerService;
         _eventAggregator = eventAggregator;
         _eventAggregator.GetEvent<ColumnSelectorVisibilityChangedEvent>().Subscribe(OnColumnSelectorVisibility);
@@ -187,6 +183,11 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware
             {
                 folder.Files = new ObservableCollection<File>(folderFiles);
             }
+            
+            foreach (var sub in folder.SubFolders)
+                folder.Items.Add(sub);
+            foreach (var file in folder.Files)
+                folder.Items.Add(file);
             
         }
         var result = new ObservableCollection<Folder>(folders.Where(f => parentIdMap[f.Id] == null));
@@ -339,6 +340,8 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware
         }
     }
     #endregion
+    
+
 
     #region OnEdit
     private void OnEdit()
