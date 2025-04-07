@@ -398,6 +398,7 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware
     #region OnOpenFile
     private void OnOpenFile()
     {
+        Console.WriteLine("OnOpenFile");
         _eventAggregator.GetEvent<OnOpenFileEvent>().Publish(SelectedFile.FileName);
     }
 

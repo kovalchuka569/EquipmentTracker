@@ -56,23 +56,23 @@ public class TabControlRegionAdapter : RegionAdapterBase<TabControlExt>
                                 Header = element.GetType().Name.Replace("View", "")
                             };
                             
-                            // If TabParameter is already set, use it for the title
-                            if (!string.IsNullOrEmpty(newVm.TabParameter))
+                            // If TabName is already set, use it for the title
+                            if (!string.IsNullOrEmpty(newVm.TabName))
                             {
-                                item.Header = newVm.TabParameter;
+                                item.Header = newVm.TabName;
                                 // Add to the parameter map
-                                _parameterToTabMap[newVm.TabParameter] = item;
-                                Console.WriteLine($"Using initial TabParameter: {newVm.TabParameter}");
+                                _parameterToTabMap[newVm.TabName] = item;
+                                Console.WriteLine($"Using initial TabName: {newVm.TabName}");
                             }
 
-                            // Subscribe to change of TabParameter property
+                            // Subscribe to change of TabName property
                             newVm.PropertyChanged += (sender, args) =>
                             {
-                                if (args.PropertyName == nameof(GenericTabViewModel.TabParameter) &&
-                                    !string.IsNullOrEmpty(newVm.TabParameter))
+                                if (args.PropertyName == nameof(GenericTabViewModel.TabName) &&
+                                    !string.IsNullOrEmpty(newVm.TabName))
                                 {
-                                    string parameter = newVm.TabParameter;
-                                    Console.WriteLine($"TabParameter changed to: {parameter}");
+                                    string parameter = newVm.TabName;
+                                    Console.WriteLine($"TabName changed to: {parameter}");
                                     
                                     // Check if there is already a tab with such a parameter in our map
                                     if (_parameterToTabMap.TryGetValue(parameter, out var existingTab) && 
@@ -128,11 +128,11 @@ public class TabControlRegionAdapter : RegionAdapterBase<TabControlExt>
                         if (tabItem != null)
                         {
                             // Remove from the parameter map
-                            if (element.DataContext is GenericTabViewModel vm && !string.IsNullOrEmpty(vm.TabParameter))
+                            if (element.DataContext is GenericTabViewModel vm && !string.IsNullOrEmpty(vm.TabName))
                             {
-                                if (_parameterToTabMap.TryGetValue(vm.TabParameter, out var mappedTab) && mappedTab == tabItem)
+                                if (_parameterToTabMap.TryGetValue(vm.TabName, out var mappedTab) && mappedTab == tabItem)
                                 {
-                                    _parameterToTabMap.Remove(vm.TabParameter);
+                                    _parameterToTabMap.Remove(vm.TabName);
                                 }
                             }
 
@@ -147,12 +147,12 @@ public class TabControlRegionAdapter : RegionAdapterBase<TabControlExt>
                 if (e.TargetTabItem?.Content is FrameworkElement content)
                 {
                     // Remove from the parameter map before removing from the region
-                    if (content.DataContext is GenericTabViewModel vm && !string.IsNullOrEmpty(vm.TabParameter))
+                    if (content.DataContext is GenericTabViewModel vm && !string.IsNullOrEmpty(vm.TabName))
                     {
-                        if (_parameterToTabMap.TryGetValue(vm.TabParameter, out var mappedTab) && 
+                        if (_parameterToTabMap.TryGetValue(vm.TabName, out var mappedTab) && 
                             mappedTab == e.TargetTabItem)
                         {
-                            _parameterToTabMap.Remove(vm.TabParameter);
+                            _parameterToTabMap.Remove(vm.TabName);
                         }
                     }
 

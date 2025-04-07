@@ -84,25 +84,19 @@ public class ColumnSelectorViewModel : BindableBase, INavigationAware
 
     public void OnNavigatedTo(NavigationContext navigationContext)
     {
-        Console.WriteLine("OnNavigatedTo called");
         if (navigationContext == null)
         {
-            Console.WriteLine("NavigationContext is null");
             return;
         }
 
         if (navigationContext.Parameters == null)
         {
-            Console.WriteLine("Navigation parameters are null");
             return;
         }
 
         _tableName = navigationContext.Parameters["TableName"] as string;
         _callback = navigationContext.Parameters["Callback"] as Action<bool>;
-
-        Console.WriteLine($"Received TableName: {_tableName}");
-        Console.WriteLine($"Received Callback: {_callback != null}");
-
+        
         if (!_isInitialized)
         {
             InitializeColumns();
@@ -151,19 +145,13 @@ public class ColumnSelectorViewModel : BindableBase, INavigationAware
 
     private void OnClose()
     {
-        var region = _regionManager.Regions["EquipmentTreeColumnSelectorRegion"];
-        if (region != null && region.ActiveViews.Any())
-        {
-            var view = region.ActiveViews.First();
-            region.Remove(view);
-        }
         _eventAggregator.GetEvent<ColumnSelectorVisibilityChangedEvent>().Publish(false);
+        SelectedColumns.Clear();
     }
 
     public bool IsNavigationTarget(NavigationContext navigationContext) => true;
 
     public void OnNavigatedFrom(NavigationContext navigationContext)
     {
-        Console.WriteLine("OnNavigatedFrom called");
     }
 }

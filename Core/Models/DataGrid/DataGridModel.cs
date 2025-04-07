@@ -28,6 +28,7 @@ public class DataGridModel
         if (string.IsNullOrWhiteSpace(tableName))
             throw new ArgumentException("Table name cannot be empty or null.", nameof(tableName));
         _currentTableName = tableName;
+        Console.WriteLine($"Current table name: {_currentTableName}");
     }
 
     public async Task<List<TableColumn>> GetColumnNamesAsync()

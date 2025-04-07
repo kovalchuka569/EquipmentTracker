@@ -26,16 +26,7 @@ public class DataGridViewModel : BindableBase, INavigationAware
         set => SetProperty(ref _columns, value);
     }
 
-    public string TableName
-    {
-        get => _tableName;
-        set
-        {
-            SetProperty(ref _tableName, value);
-            _model.SetTableName(value);
-            LoadDataAsync();
-        }
-    }
+
     
 
     public DataGridViewModel(DataGridModel model)
@@ -47,11 +38,6 @@ public class DataGridViewModel : BindableBase, INavigationAware
 
     private async Task LoadDataAsync()
     {
-        if (string.IsNullOrWhiteSpace(TableName))
-        {
-            Console.WriteLine("Table name is empty");
-            return;
-        }
         try
         {
             var data = await _model.GetTableDataAsync();
@@ -78,7 +64,10 @@ public class DataGridViewModel : BindableBase, INavigationAware
 
     public void OnNavigatedTo(NavigationContext navigationContext)
     {
-        
+        var tableName = navigationContext.Parameters["parameter"] as string;
+        Console.WriteLine("DataGrid, tablename: "+tableName);
+        _model.SetTableName(tableName);
+        LoadDataAsync();
     }
 
     public bool IsNavigationTarget(NavigationContext navigationContext) => true;

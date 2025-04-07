@@ -14,7 +14,6 @@ public class DataGridViewModelModelFactory : IDataGridViewModelFactory
     public DataGridViewModel Create(string tableName)
     {
         var vm = new DataGridViewModel(_model);
-        vm.TableName = tableName;
         return vm;
     }
 }

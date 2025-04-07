@@ -19,7 +19,7 @@ public class TabControlModule : IModule
         var regionManager = containerProvider.Resolve<IRegionManager>();
         regionManager.RegisterViewWithRegion("EquipmentTreeColumnSelectorRegion", typeof(EquipmentTreeView));
     }
-
+    
     public void RegisterTypes(IContainerRegistry containerRegistry)
     {
         // Tab control (user control)
@@ -45,10 +45,10 @@ public class TabControlModule : IModule
         containerRegistry.RegisterForNavigation<DataGridView, DataGridViewModel>();
         
         // Other tabs 
-        containerRegistry.RegisterForNavigation<SchedulerView>();
-        containerRegistry.RegisterForNavigation<SettingsView>();
-        containerRegistry.RegisterForNavigation<ConsumablesView>();
-        containerRegistry.RegisterForNavigation<AccountingView>();
+        containerRegistry.RegisterForNavigation<SchedulerView, SchedulerViewModel>();
+        containerRegistry.RegisterForNavigation<SettingsView, SettingsViewModel>();
+        containerRegistry.RegisterForNavigation<ConsumablesView, ConsumablesViewModel>();
+        containerRegistry.RegisterForNavigation<AccountingView, AccountingViewModel>();
 
         #endregion
     }

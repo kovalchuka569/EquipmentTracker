@@ -4,7 +4,7 @@ using Prism.Commands;
 using UI.ViewModels.DataGrid;
 using UI.ViewModels.Tabs;
 using Syncfusion.Windows.Tools.Controls;
-
+using UI.ViewModels.NavDrawer;
 using DelegateCommand = Prism.Commands.DelegateCommand;
 
 
@@ -14,22 +14,120 @@ public class TabControlViewModel : BindableBase, INavigationAware
 {
     
     private readonly IRegionManager _regionManager;
+    private readonly IEventAggregator _eventAggregator;
     private string _tabView;
         
     public Prism.Commands.DelegateCommand<object> CloseSelectedTabCommand { get; private set; }
     public DelegateCommand CloseAllTabsCommand { get; private set; }
     public Prism.Commands.DelegateCommand<object> CloseOtherTabsCommand { get; private set; }
    
-    public TabControlViewModel(IRegionManager regionManager)
+    public TabControlViewModel(IRegionManager regionManager, IEventAggregator eventAggregator)
     {
+        _eventAggregator = eventAggregator;
         _regionManager = regionManager;
         
         CloseSelectedTabCommand = new Prism.Commands.DelegateCommand<object>(CloseSelectedTab);
         CloseAllTabsCommand = new DelegateCommand(CloseAllTabs);
         CloseOtherTabsCommand = new Prism.Commands.DelegateCommand<object>(CloseOtherTabs);
+        
+        _eventAggregator.GetEvent<OnOpenFileEvent>().Subscribe(NavigateFromFile);
+        _eventAggregator.GetEvent<OpenEquipmentTreeTabEvent>().Subscribe(NavigateFromNavDrawer);
+        _eventAggregator.GetEvent<OpenOtherTabEvent>().Subscribe(NavigateFromOther);
+    }
+
+    private void NavigateFromOther(string tabName)
+    {
+        
+        Console.WriteLine($"Navigating to {tabName}");
+        if (string.IsNullOrEmpty(tabName)) 
+            return;
+
+        Console.WriteLine($"Navigate called with parameter: {tabName}");
+
+        // Get the region
+        var region = _regionManager.Regions["TabControlRegion"];
+        string tabType = "Other";
+    
+        // Create navigation parameters with tabName as a parameter
+        var parameters = new NavigationParameters
+        {
+            { "TabName", tabName },
+            { "TabType", tabType }
+        };
+
+        // Check if such a tab already exists
+        var existingView = region.Views
+            .OfType<FrameworkElement>()
+            .FirstOrDefault(v => {
+                if (v.DataContext is GenericTabViewModel vm)
+                {
+                    return vm.TabName == tabName;
+                }
+                return false;
+            });
+
+        if (existingView != null)
+        {
+            // Activate an existing view
+            region.Activate(existingView);
+        
+            // If the view is inside a TabItemExt, switch the tab
+            if (existingView.Parent is TabItemExt tabItem && tabItem.Parent is TabControlExt tabControl)
+            {
+                tabControl.SelectedItem = tabItem;
+            }
+            return;
+        }
+    
+        // If the view is not found, navigate to the GenericTabView with parameters
+        _regionManager.RequestNavigate("TabControlRegion", "GenericTabView", parameters);
     }
     
-     private void Navigate(string tabName)
+    private void NavigateFromFile(string tabName)
+    {
+        Console.WriteLine($"Navigating to {tabName}");
+        if (string.IsNullOrEmpty(tabName)) 
+            return;
+        Console.WriteLine($"Navigate called with parameter: {tabName}");
+        // Get the region
+        var region = _regionManager.Regions["TabControlRegion"];
+        string fileName = tabName;
+        string tabType = "File";
+        var parameters = new NavigationParameters
+        {
+            { "TabName", tabName},
+            { "FileName", fileName },
+            { "TabType", tabType }
+        };
+        // Check if such a tab already exists
+        var existingView = region.Views
+            .OfType<FrameworkElement>()
+            .FirstOrDefault(v => {
+                if (v.DataContext is GenericTabViewModel vm)
+                {
+                    return vm.TabName == tabName;
+                }
+                return false;
+            });
+
+        if (existingView != null)
+        {
+            // Activate an existing view
+            region.Activate(existingView);
+        
+            // If the view is inside a TabItemExt, switch the tab
+            if (existingView.Parent is TabItemExt tabItem && tabItem.Parent is TabControlExt tabControl)
+            {
+                tabControl.SelectedItem = tabItem;
+            }
+            return;
+        }
+
+        // If the view is not found, navigate to the GenericTabView with parameters
+        _regionManager.RequestNavigate("TabControlRegion", "GenericTabView", parameters);
+    }
+    
+     private void NavigateFromNavDrawer(string tabName)
         {
             Console.WriteLine($"Navigating to {tabName}");
             if (string.IsNullOrEmpty(tabName)) 
@@ -39,11 +137,13 @@ public class TabControlViewModel : BindableBase, INavigationAware
 
             // Get the region
             var region = _regionManager.Regions["TabControlRegion"];
+            string tabType = "EquipmentTree";
     
             // Create navigation parameters with tabName as a parameter
             var parameters = new NavigationParameters
             {
-                { "parameter", tabName }
+                { "TabName", tabName },
+                { "TabType", tabType }
             };
 
             // Check if such a tab already exists
@@ -52,7 +152,7 @@ public class TabControlViewModel : BindableBase, INavigationAware
                 .FirstOrDefault(v => {
                     if (v.DataContext is GenericTabViewModel vm)
                     {
-                        return vm.TabParameter == tabName;
+                        return vm.TabName == tabName;
                     }
                     return false;
                 });
@@ -137,9 +237,6 @@ public class TabControlViewModel : BindableBase, INavigationAware
 
     public void OnNavigatedTo(NavigationContext navigationContext)
     {
-        string parameter = navigationContext.Parameters["Parameter"] as string;
-        Console.WriteLine("parameter - "+ parameter);
-        Navigate(parameter);
     }
 
     public bool IsNavigationTarget(NavigationContext navigationContext)

@@ -5,16 +5,23 @@ namespace UI.ViewModels.TabControl;
 public class GenericTabViewModel: BindableBase, INavigationAware
 {
     private readonly IRegionManager _regionManager;
-    private string _tabParameter;
+    private string _tabName;
+    private string _tabType;
     private string _uniqueRegionName;
     
     // Static dictionary for tracking active tabs and their regions
     private static readonly Dictionary<string, TabInfo> TabToRegionMap = new Dictionary<string, TabInfo>();
     
-    public string TabParameter
+    public string TabName
     {
-        get => _tabParameter;
-        set => SetProperty(ref _tabParameter, value);
+        get => _tabName;
+        set => SetProperty(ref _tabName, value);
+    }
+
+    public string TabType
+    {
+        get => _tabType;
+        set => SetProperty(ref _tabType, value);
     }
     
     // The name of the region that will be used in XAML via binding
@@ -32,23 +39,26 @@ public class GenericTabViewModel: BindableBase, INavigationAware
     public void OnNavigatedTo(NavigationContext navigationContext)
     {
         // Get the parameter that will be used as the title and tab ID
-        TabParameter = navigationContext.Parameters.GetValue<string>("parameter");
-        Console.WriteLine($"GenericTabViewModel.OnNavigatedTo: Parameter = {TabParameter}");
+        TabName = navigationContext.Parameters.GetValue<string>("TabName");
+        TabType = navigationContext.Parameters.GetValue<string>("TabType");
+        
+        Console.WriteLine($"GenericTabViewModel.OnNavigatedTo: TabName = {TabName}");
+        Console.WriteLine($"GenericTabViewModel.OnNavigatedTo: TabType = {TabType}");
         
         //Always create a new unique region name when navigating
-        UniqueRegionName = $"TabContentRegion_{TabParameter}_{Guid.NewGuid().ToString("N")}";
+        UniqueRegionName = $"TabContentRegion_{TabName}_{Guid.NewGuid().ToString("N")}";
         
         // Saving information about the tab
-        TabToRegionMap[TabParameter] = new TabInfo 
+        TabToRegionMap[TabName] = new TabInfo 
         { 
             RegionName = UniqueRegionName,
             ViewModel = this
         };
         
-        Console.WriteLine($"Created new region: {UniqueRegionName} for tab {TabParameter}");
+        Console.WriteLine($"Created new region: {UniqueRegionName} for tab {TabName}");
         
         // Load the required view depending on the parameter
-        string? viewToLoad = DetermineViewToLoad(TabParameter);
+        string? viewToLoad = DetermineViewToLoad(TabType);
         if (!string.IsNullOrEmpty(viewToLoad))
         {
             // Wait until UniqueRegionName is bound to RegionManager.RegionName
@@ -64,7 +74,7 @@ public class GenericTabViewModel: BindableBase, INavigationAware
                         Console.WriteLine($"Loading view {viewToLoad} into region {UniqueRegionName}");
                         var parameters = new NavigationParameters
                         {
-                            { "parameter", TabParameter }
+                            { "parameter", TabName }
                         };
                         _regionManager.RequestNavigate(UniqueRegionName, viewToLoad, parameters);
                     }
@@ -81,20 +91,36 @@ public class GenericTabViewModel: BindableBase, INavigationAware
         }
     }
     
-    private string? DetermineViewToLoad(string parameter)
+    private string? DetermineViewToLoad(string tabType)
     {
-        return parameter switch
+        if (tabType == "File")
         {
-            "Виробниче обладнання" => "EquipmentTreeView",
-            "Інструменти" => "EquipmentTreeView",
-            "Меблі" => "EquipmentTreeView",
-            "Офісна техніка" => "EquipmentTreeView",
-            "Розхідні матеріали" => "ConsumablesView",
-            "Облік" => "AccountingView",
-            "Календар" => "SchedulerView",
-            "Налаштування" => "SettingsView",
-            _ => null // If the parameter does not match any of the known ones, return null
-        };
+            return "DataGridView";
+        }
+        if (tabType == "EquipmentTree")
+        {
+            return TabName switch
+            {
+                "Виробниче обладнання" => "EquipmentTreeView",
+                "Інструменти" => "EquipmentTreeView",
+                "Меблі" => "EquipmentTreeView",
+                "Офісна техніка" => "EquipmentTreeView",
+                _ => null
+            };
+        }
+
+        if (tabType == "Other")
+        {
+            return TabName switch
+            {
+                "Розхідні матеріали" => "ConsumablesView",
+                "Облік" => "AccountingView",
+                "Календар" => "SchedulerView",
+                "Налаштування" => "SettingsView",
+                _ =>"DefaultTabContentView"
+            };
+        }
+        return null;
     }
 
     public bool IsNavigationTarget(NavigationContext navigationContext)
@@ -105,7 +131,7 @@ public class GenericTabViewModel: BindableBase, INavigationAware
     public void OnNavigatedFrom(NavigationContext navigationContext)
     {
         // When navigating away from this view (closing a tab)
-        Console.WriteLine($"Navigated from tab {TabParameter} with region {UniqueRegionName}");
+        Console.WriteLine($"Navigated from tab {TabName} with region {UniqueRegionName}");
         
         try
         {
