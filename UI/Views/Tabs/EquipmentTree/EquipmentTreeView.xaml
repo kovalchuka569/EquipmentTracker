@@ -6,15 +6,16 @@
              xmlns:sf="http://schemas.syncfusion.com/wpf"
              xmlns:models="clr-namespace:Core.Models.Tabs.ProductionEquipmentTree;assembly=Core"  
              mc:Ignorable="d"
+             xmlns:viewModels="clr-namespace:UI.ViewModels.Tabs"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:behavior="clr-namespace:Core.Behaviors.SyncfusionTreeView;assembly=Core"
              xmlns:prism="http://prismlibrary.com/"
              xmlns:syncfusionskin="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF"
-             syncfusionskin:SfSkinManager.Theme="{syncfusionskin:SkinManagerExtension ThemeName=Windows11Light}"
-             prism:ViewModelLocator.AutoWireViewModel="True">
+             syncfusionskin:SfSkinManager.Theme="{syncfusionskin:SkinManagerExtension ThemeName=Windows11Light}">
     
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <x:Static x:Key="ColumnSelectorRegionNameSource" Member="viewModels:EquipmentTreeViewModel.ColumnSelectorRegionName" />
     </UserControl.Resources>
     <Grid>
         
@@ -108,7 +109,7 @@
         <Grid Visibility="{Binding ColumnSelectorVisibility, Converter={StaticResource BoolToVisibilityConverter}}" Background="#80000000">
         
         
-        <ContentControl prism:RegionManager.RegionName="EquipmentTreeColumnSelectorRegion"
+        <ContentControl prism:RegionManager.RegionName="{StaticResource ColumnSelectorRegionNameSource}"
                         VerticalAlignment="Center" HorizontalAlignment="Center"/>
         
         </Grid>

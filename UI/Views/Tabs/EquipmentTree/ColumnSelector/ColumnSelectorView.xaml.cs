@@ -1,11 +1,13 @@
 ﻿using System.Windows.Controls;
 
-namespace UI.Views.Tabs.EquipmentTree.ColumnSelector;
-
-public partial class ColumnSelectorView : UserControl
+namespace UI.Views.Tabs.EquipmentTree.ColumnSelector
 {
-    public ColumnSelectorView()
+    public partial class ColumnSelectorView : UserControl
     {
-        InitializeComponent();
+        public ColumnSelectorView()
+        {
+            InitializeComponent();
+            Console.WriteLine("ColumnSelectorView initialized");
+        }
     }
 }

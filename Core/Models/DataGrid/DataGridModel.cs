@@ -80,10 +80,10 @@ public class DataGridModel
         try
         {
             var connection = _context.Database.GetDbConnection() as NpgsqlConnection;
-            if (connection == null)
-                throw new InvalidOperationException("Database connection is not NpgsqlConnection.");
-
-            await connection.OpenAsync();
+            if (connection.State != ConnectionState.Open)
+            {
+                await _context.Database.OpenConnectionAsync();
+            }
             var command = new NpgsqlCommand($"SELECT * FROM \"UserTables\".\"{_currentTableName}\"", connection)
             {
                 CommandTimeout = 30

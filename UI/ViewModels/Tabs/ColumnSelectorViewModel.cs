@@ -48,6 +48,7 @@ public class ColumnSelectorViewModel : BindableBase, INavigationAware
 
     public ColumnSelectorViewModel(IRegionManager regionManager, EquipmentTreeViewModel equipmentTreeViewModel, IEventAggregator eventAggregator, AppDbContext context)
     {
+        Console.WriteLine("ColumnSelectorViewModel constructor");
         _context = context;
         _regionManager = regionManager;
         _equipmentTreeViewModel = equipmentTreeViewModel;
@@ -83,14 +84,34 @@ public class ColumnSelectorViewModel : BindableBase, INavigationAware
 
     public void OnNavigatedTo(NavigationContext navigationContext)
     {
-        if (navigationContext.Parameters.ContainsKey("TableName"))
+        Console.WriteLine("OnNavigatedTo called");
+        if (navigationContext == null)
         {
-            string tableName = navigationContext.Parameters.GetValue<string>("TableName");
-            _tableName = tableName;
+            Console.WriteLine("NavigationContext is null");
+            return;
         }
-        
-        _callback = navigationContext.Parameters.GetValue<Action<bool>>("Callback");
-        
+
+        if (navigationContext.Parameters == null)
+        {
+            Console.WriteLine("Navigation parameters are null");
+            return;
+        }
+
+        _tableName = navigationContext.Parameters["TableName"] as string;
+        _callback = navigationContext.Parameters["Callback"] as Action<bool>;
+
+        Console.WriteLine($"Received TableName: {_tableName}");
+        Console.WriteLine($"Received Callback: {_callback != null}");
+
+        if (!_isInitialized)
+        {
+            InitializeColumns();
+            _isInitialized = true;
+        }
+    }
+
+    private void InitializeColumns()
+    {
         Columns.Add(new Column{ColumnName = "Інвентарний номер", ColumnType = "TEXT", Category = "Основні характеристики"});
         Columns.Add(new Column{ColumnName = "Бренд", ColumnType = "VARCHAR(255)", Category = "Основні характеристики"});
         Columns.Add(new Column{ColumnName = "Модель", ColumnType = "VARCHAR(255)", Category = "Основні характеристики"});
@@ -114,7 +135,6 @@ public class ColumnSelectorViewModel : BindableBase, INavigationAware
         
         Columns.Add(new Column{ColumnName = "Нотатки", ColumnType = "TEXT", Category = "Інше"});
         Columns.Add(new Column{ColumnName = "Відповідальний", ColumnType = "TEXT", Category = "Інше"});
-        
     }
 
     private void OnConfirm()
@@ -131,7 +151,6 @@ public class ColumnSelectorViewModel : BindableBase, INavigationAware
 
     private void OnClose()
     {
-        
         var region = _regionManager.Regions["EquipmentTreeColumnSelectorRegion"];
         if (region != null && region.ActiveViews.Any())
         {
@@ -145,5 +164,6 @@ public class ColumnSelectorViewModel : BindableBase, INavigationAware
 
     public void OnNavigatedFrom(NavigationContext navigationContext)
     {
+        Console.WriteLine("OnNavigatedFrom called");
     }
 }

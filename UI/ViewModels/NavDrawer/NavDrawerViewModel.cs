@@ -12,20 +12,22 @@ namespace UI.ViewModels.NavDrawer
     public class NavDrawerViewModel : BindableBase
     {
         private readonly IRegionManager _regionManager;
+        
+        public DelegateCommand<string> NavigateToTabControlExt { get; }
 
         public NavDrawerViewModel(IRegionManager regionManager)
         {
             _regionManager = regionManager;
-            ShowTabCommand = new DelegateCommand<string>(ShowTab);
+            NavigateToTabControlExt = new DelegateCommand<string>(OnNavigateToTabControlExt);
         }
+        
 
-        public DelegateCommand<string> ShowTabCommand { get; }
-
-        private void ShowTab(string header)
+        private void OnNavigateToTabControlExt(string parameter)
         {
+            Console.WriteLine("ShowTab");
             var parameters = new NavigationParameters
             {
-                { "SelectedTab", header }
+                { "Parameter", parameter }
             };
             _regionManager.RequestNavigate("ContentRegion", "TabControlView", parameters);
         }

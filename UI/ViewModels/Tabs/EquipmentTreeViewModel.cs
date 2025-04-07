@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Threading;
 using Core.Events.TabControl;
@@ -16,11 +17,13 @@ using TaskDialogButton = Ookii.Dialogs.Wpf.TaskDialogButton;
 using Data.Entities;
 using Core.Models.Tabs.ProductionEquipmentTree;
 using Core.Services.Notifications;
+using Core.Services.TabControlExt;
 using Syncfusion.Linq;
 using Syncfusion.UI.Xaml.Diagram;
 using DelegateCommand = Prism.Commands.DelegateCommand;
 using UI.Views.Tabs.EquipmentTree;
 using UI.Views.Tabs.EquipmentTree.ColumnSelector;
+using Application = System.Windows.Application;
 
 namespace UI.ViewModels.Tabs;
 
@@ -31,6 +34,11 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware
     private readonly NotificationManager _notificationManager;
     private readonly DialogService _dialogService;
     private readonly IRegionManager _regionManager;
+    private readonly IRegionManagerService _regionManagerService;
+    private IRegionManager _scopedRegionManager;
+    private FrameworkElement _view;
+    private bool _isFirstRegionInitialized;
+    private bool _isSecondRegionInitialized;
 
     
     private EquipmentTreeModel _model;
@@ -43,7 +51,7 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware
     private string _editedName;
     #endregion
 
-    
+    public const string ColumnSelectorRegionName = "ColumnSelecorRegion";
     
     #region Commands
     public DelegateCommand OpenFileCommand { get; }
@@ -72,7 +80,13 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware
     public bool ColumnSelectorVisibility
     {
         get => _columnSelectorVisibility;
-        set => SetProperty(ref _columnSelectorVisibility, value);
+        set
+        {
+            if (SetProperty(ref _columnSelectorVisibility, value))
+            {
+                Console.WriteLine("ColumnSelectorVisibility changed");
+            }
+        }
     }
 
     public ObservableCollection<Folder> Folders
@@ -107,7 +121,10 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware
     public string MenuType
     {
         get => _menuType;
-        set => _menuType = value;
+        set
+        {
+            SetProperty(ref _menuType, value);
+        }
     }
     
 
@@ -117,7 +134,7 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware
     
     
     #region Constructor
-    public EquipmentTreeViewModel(IEventAggregator eventAggregator, EquipmentTreeModel model, NotificationManager notificationManager, IRegionManager regionManager)
+    public EquipmentTreeViewModel(IEventAggregator eventAggregator, EquipmentTreeModel model, NotificationManager notificationManager, IRegionManager regionManager, IRegionManagerService regionManagerService)
     {
         AddCategoryCommand = new DelegateCommand(async () => await OnCreateFolderAsync());
         EditCommand = new DelegateCommand(OnEdit);
@@ -126,6 +143,7 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware
 
         
         _regionManager = regionManager;
+        _regionManagerService = regionManagerService;
         _eventAggregator = eventAggregator;
         _eventAggregator.GetEvent<ColumnSelectorVisibilityChangedEvent>().Subscribe(OnColumnSelectorVisibility);
         _model = model;
@@ -133,6 +151,7 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware
         
         Folders = new ObservableCollection<Folder>();
         Files = new ObservableCollection<File>();
+        
     }
     #endregion
     
@@ -218,10 +237,11 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware
                            FolderId = SelectedFolder.Id
                        };
                        SelectedFolder.AddFile(newFile);
+                       
+                       _eventAggregator.GetEvent<OnOpenFileEvent>().Publish(newFileEntity.FileName);
 
                        _notificationManager.Show("", $"Створено '{fileName}' - основна таблиця",
                            NotificationType.Success);
-                       _eventAggregator.GetEvent<CreateTabFromFileEvent>().Publish(new TabControlModel{ViewName = "DataGridView", Header = newFileEntity.FileName});
                    }
                    catch (Exception e)
                    {
@@ -236,34 +256,56 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware
        }
     }
    #endregion
-
+   
    private Task<bool> ShowColumnSelectorAsync(string fileName)
    {
+       ColumnSelectorVisibility = true;
        var tcs = new TaskCompletionSource<bool>();
-
+       
        var parameters = new NavigationParameters
        {
            { "TableName", fileName },
            { "Callback", new Action<bool>(confirmed => tcs.SetResult(confirmed)) }
        };
-       switch (MenuType)
+       string navigatePath = "ColumnSelectorView";
+       
+       EnsureScopedRegionManagerExists();
+       
+       if (_scopedRegionManager != null)
        {
-           case "Виробниче обладнання":
-               Console.WriteLine(parameters);
-               _regionManager.RequestNavigate("EquipmentTreeColumnSelectorRegion", "ColumnSelectorView", parameters);
-               break;
-           case "Меблі":
-               _regionManager.RequestNavigate("FurnitureTreeColumnSelectorRegion", "ColumnSelectorView", parameters);
-               break;
-           case "Офісна техніка":
-               _regionManager.RequestNavigate("OfficeTechniqueTreeColumnSelectorRegion", "ColumnSelectorView", parameters);
-               break;
-           case "Інструменти":
-               _regionManager.RequestNavigate("ToolsTreeColumnSelectorRegion", "ColumnSelectorView", parameters);
-               break;
+           Console.WriteLine($"Tab1ViewModel navigating to {navigatePath} in region {ColumnSelectorRegionName}");
+                
+           try
+           {
+               // Checking if there is a region
+               if (!_scopedRegionManager.Regions.ContainsRegionWithName(ColumnSelectorRegionName))
+               {
+                   Console.WriteLine($"Region {ColumnSelectorRegionName} does not exist yet");
+                   return tcs.Task;
+               }
+                    
+               // Use scoped region manager for navigation
+               _scopedRegionManager.RequestNavigate(ColumnSelectorRegionName, navigatePath, parameters);
+               _isFirstRegionInitialized = true;
+           }
+           catch (Exception ex)
+           {
+               Console.WriteLine($"Error navigating to {navigatePath}: {ex.Message}");
+           }
        }
-       ColumnSelectorVisibility = true;
        return tcs.Task;
+   }
+   
+   private void EnsureScopedRegionManagerExists()
+   {
+       if (_scopedRegionManager == null && _view != null)
+       {
+           // Create a scoped region manager for this view
+           _scopedRegionManager = _regionManagerService.CreateRegionManagerScope(
+               _view, $"EquipmentTreeTabScope_{Guid.NewGuid()}");
+                    
+           Console.WriteLine($"Created scoped region manager for Equipment Tree Tab Scope");
+       }
    }
    
     #region OnCreateCategory
@@ -356,7 +398,7 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware
     #region OnOpenFile
     private void OnOpenFile()
     {
-        _eventAggregator.GetEvent<CreateTabFromFileEvent>().Publish(new TabControlModel { ViewName = "DataGridView", Header = SelectedFile.FileName });
+        _eventAggregator.GetEvent<OnOpenFileEvent>().Publish(SelectedFile.FileName);
     }
 
     private void OnColumnSelectorVisibility(bool param)
@@ -369,19 +411,26 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware
 
     public void OnNavigatedTo(NavigationContext navigationContext)
     {
-        if (navigationContext.Parameters.ContainsKey("MenuType"))
+        // Get the View that the ViewModel is bound to
+        var activeViews = navigationContext.NavigationService.Region.ActiveViews;
+        if (activeViews.Count() > 0)
         {
-            var key = navigationContext.Parameters["MenuType"] as string;
-            Console.WriteLine("Key: " + key);
-            _model.SetMenuType(key);
-            MenuType = key;
-            Console.WriteLine("MenuType: " + MenuType);
+            _view = activeViews.FirstOrDefault() as FrameworkElement;
+                
+            if (_view != null)
+            {
+                // Delay for view to fully load
+                Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    EnsureScopedRegionManagerExists();
+                }));
+            }
         }
-        else
-        {
-            Console.WriteLine("Ошибка: параметр 'MenuType' отсутствует!");
-        }
+        var parameters = navigationContext.Parameters["parameter"] as string;
 
+        _model.SetMenuType(parameters);
+        MenuType = parameters;
+        
         Task.Run(async () =>
         {
             Folders = await LoadTreeAsync();

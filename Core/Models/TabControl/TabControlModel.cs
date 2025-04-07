@@ -2,13 +2,28 @@
 
 namespace Core.Models.TabControl;
 
-public class TabControlModel
+public class TabControlModel : BindableBase
 {
-    public string Header { get; set; }
-    public string ViewName { get; set; }
-}
-
-public class CreateTabFromFileEvent : PubSubEvent<TabControlModel>
-{
+    private string _header;
+    public string Header
+    {
+        get => _header;
+        set => SetProperty(ref _header, value);
+    }
     
+    private object _content;
+
+    public object Content
+    {
+        get => _content;
+        set => SetProperty(ref _content, value);
+    }
+    
+    private string _parameter;
+
+    public string Parameter
+    {
+        get => _parameter;
+        set => SetProperty(ref _parameter, value);
+    }
 }

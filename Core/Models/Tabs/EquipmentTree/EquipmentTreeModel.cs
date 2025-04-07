@@ -24,6 +24,7 @@ public class EquipmentTreeModel
     private int? _originalCategoryId;
 
     private string _currentMenuType;
+    
 
     private readonly Dictionary<string, IQueryable<EquipmentCategory>> _categorySets;
 
@@ -222,8 +223,7 @@ public class EquipmentTreeModel
     public async Task<bool> CheckFinal(int folderId)
     {
         var folder = await GetCategorySet().FirstOrDefaultAsync(c => c.Id == folderId);
-        
-        return folder.IsFinal;
+        return folder != null && folder.IsFinal;
     }
 
     #region SetFinal

@@ -1,224 +1,153 @@
-﻿using System.Collections.ObjectModel;
-using System.Windows.Forms;
-using Core.Events.TabControl;
-using Core.Models.TabControl;
-using Core.Models.Tabs.ProductionEquipmentTree;
-using Syncfusion.Lic.util.encoders;
-using Syncfusion.PMML;
+﻿using System.Windows;
 using Syncfusion.Windows.Shared;
 using Prism.Commands;
 using UI.ViewModels.DataGrid;
-using UI.Views.Tabs.Accounting;
-using UI.Views.Tabs.Consumables;
-using UI.Views.Tabs.EquipmentTree;
-using UI.Views.Tabs.Scheduler;
-using UI.Views.Tabs.Settings;
-using DataGridView = UI.Views.DataGridView;
-using DelegateCommand = Syncfusion.Windows.Shared.DelegateCommand;
-using Header = Syncfusion.UI.Xaml.Diagram.Stencil.Header;
-using UserControl = System.Windows.Controls.UserControl;
+using UI.ViewModels.Tabs;
+using Syncfusion.Windows.Tools.Controls;
+
+using DelegateCommand = Prism.Commands.DelegateCommand;
+
 
 namespace UI.ViewModels.TabControl;
 
 public class TabControlViewModel : BindableBase, INavigationAware
 {
-    private ObservableCollection<TabControlModel> _tabItems;
-    private TabControlModel _selectedTabItem;
-    private readonly IEventAggregator _eventAggregator;
-    public TabControlModel SelectedTabItem
-    {
-        get => _selectedTabItem;
-        set
-        {
-            _selectedTabItem = value;
-            this.RaisePropertyChanged(nameof(SelectedTabItem));
-        }
-    }
     
     private readonly IRegionManager _regionManager;
-    public ObservableCollection<TabControlModel> TabItems { get; set; }
-    private TabControlModel _selectedTab;
-    public TabControlModel SelectedTab
+    private string _tabView;
+        
+    public Prism.Commands.DelegateCommand<object> CloseSelectedTabCommand { get; private set; }
+    public DelegateCommand CloseAllTabsCommand { get; private set; }
+    public Prism.Commands.DelegateCommand<object> CloseOtherTabsCommand { get; private set; }
+   
+    public TabControlViewModel(IRegionManager regionManager)
     {
-        get => _selectedTab;
-        set
+        _regionManager = regionManager;
+        
+        CloseSelectedTabCommand = new Prism.Commands.DelegateCommand<object>(CloseSelectedTab);
+        CloseAllTabsCommand = new DelegateCommand(CloseAllTabs);
+        CloseOtherTabsCommand = new Prism.Commands.DelegateCommand<object>(CloseOtherTabs);
+    }
+    
+     private void Navigate(string tabName)
         {
-            if (_selectedTab != value)
+            Console.WriteLine($"Navigating to {tabName}");
+            if (string.IsNullOrEmpty(tabName)) 
+                return;
+
+            Console.WriteLine($"Navigate called with parameter: {tabName}");
+
+            // Get the region
+            var region = _regionManager.Regions["TabControlRegion"];
+    
+            // Create navigation parameters with tabName as a parameter
+            var parameters = new NavigationParameters
             {
-                _selectedTab = value;
-                RaisePropertyChanged();
-                NavigateToSelectedTab();
+                { "parameter", tabName }
+            };
+
+            // Check if such a tab already exists
+            var existingView = region.Views
+                .OfType<FrameworkElement>()
+                .FirstOrDefault(v => {
+                    if (v.DataContext is GenericTabViewModel vm)
+                    {
+                        return vm.TabParameter == tabName;
+                    }
+                    return false;
+                });
+
+            if (existingView != null)
+            {
+                // Activate an existing view
+                region.Activate(existingView);
+        
+                // If the view is inside a TabItemExt, switch the tab
+                if (existingView.Parent is TabItemExt tabItem && tabItem.Parent is TabControlExt tabControl)
+                {
+                    tabControl.SelectedItem = tabItem;
+                }
+                return;
+            }
+
+            // If the view is not found, navigate to the GenericTabView with parameters
+            _regionManager.RequestNavigate("TabControlRegion", "GenericTabView", parameters);
+        }
+
+        private void CloseSelectedTab(object parameter)
+        {
+            Console.WriteLine("CloseSelectedTab called");
+            Console.WriteLine($"Parameter type: {parameter?.GetType().Name}");
+            
+            var region = _regionManager.Regions["TabControlRegion"];
+            Console.WriteLine($"Region found: {region != null}");
+
+            if (parameter is TabItemExt tabItem)
+            {
+                Console.WriteLine($"TabItemExt content type: {tabItem.Content?.GetType().Name}");
+                if (tabItem.Content is FrameworkElement content)
+                {
+                    Console.WriteLine("Removing content from region");
+                    region.Remove(content);
+                }
             }
         }
-    }
-    
-    public TabControlViewModel(IEventAggregator eventAggregator, IRegionManager regionManager)
-    {
-        _eventAggregator = eventAggregator;
-        _regionManager = regionManager;
-        TabItems = new ObservableCollection<TabControlModel>();
-        
-    }
-    
+
+        private void CloseAllTabs()
+        {
+            Console.WriteLine("CloseAllTabs called");
+            var region = _regionManager.Regions["TabControlRegion"];
+            Console.WriteLine($"Region found: {region != null}");
+            
+            var views = region.Views.ToList();
+            Console.WriteLine($"Views count: {views.Count}");
+            foreach (var view in views)
+            {
+                Console.WriteLine("Removing view from region");
+                region.Remove(view);
+            }
+        }
+
+        private void CloseOtherTabs(object parameter)
+        {
+            Console.WriteLine("CloseOtherTabs called");
+            Console.WriteLine($"Parameter type: {parameter?.GetType().Name}");
+            
+            var region = _regionManager.Regions["TabControlRegion"];
+            Console.WriteLine($"Region found: {region != null}");
+
+            if (parameter is TabItemExt tabItem && tabItem.Content is FrameworkElement selectedContent)
+            {
+                Console.WriteLine($"TabItemExt content type: {tabItem.Content.GetType().Name}");
+                
+                var viewsToRemove = region.Views.Cast<FrameworkElement>()
+                    .Where(v => v != selectedContent)
+                    .ToList();
+                Console.WriteLine($"Views to remove count: {viewsToRemove.Count}");
+
+                foreach (var viewToRemove in viewsToRemove)
+                {
+                    Console.WriteLine("Removing view from region");
+                    region.Remove(viewToRemove);
+                }
+            }
+        }
+
+
 
     public void OnNavigatedTo(NavigationContext navigationContext)
     {
-        var menuType = navigationContext.Parameters["SelectedTab"] as string;
-
-        var parameters = new NavigationParameters
-        {
-            { "MenuType", menuType },
-        };
-        string viewName = string.Empty;
-        switch (menuType)
-        {
-            case "Виробниче обладнання":
-                viewName = "EquipmentTreeView";
-                break;
-            case "Інструменти":
-                viewName = "EquipmentTreeView";
-                break;
-            case "Меблі":
-                viewName = "EquipmentTreeView";
-                break;
-            case "Офісна техніка":
-                viewName = "EquipmentTreeView";
-                break;
-            case "Розхідні матеріали":
-                viewName = "ConsumablesView";
-                break;
-            case "Облік":
-                viewName = "AccountingView";
-                break;
-            case "Календар":
-                viewName = "SchedulerView";
-                break;
-            case "Налаштування":
-                viewName = "SettingsView";
-                break;
-        }
-        Console.WriteLine("ViewName: " + viewName);
-        Console.WriteLine("MenuType:" + menuType);
-        
-        CreatingTabFromNavDrawer(viewName, menuType);
-        _eventAggregator.GetEvent<CreateTabFromFileEvent>().Subscribe(OnCreateTabFromFile);
+        string parameter = navigationContext.Parameters["Parameter"] as string;
+        Console.WriteLine("parameter - "+ parameter);
+        Navigate(parameter);
     }
-    
 
-    private void NavigateToSelectedTab()
+    public bool IsNavigationTarget(NavigationContext navigationContext)
     {
-        if (TabItems.Count == 0)
-        {
-            _regionManager.RequestNavigate("TabContentRegion", "DefaultTabContentView");
-        }
-        
-        if (SelectedTab != null)
-        {
-            var parameters = new NavigationParameters
-            {
-                { "MenuType", SelectedTab.Header }
-            };
-
-            _regionManager.RequestNavigate("TabContentRegion", SelectedTab.ViewName, parameters);
-        }
+        return true;
     }
 
-    private void OnCreateTabFromFile(TabControlModel message)
+    public void OnNavigatedFrom(NavigationContext navigationContext)
     {
-        CreatingTabFromFile(message.ViewName, message.Header);
     }
-
-    private void CreatingTabFromFile(string viewName, string tabHeader)
-    {
-        var existingTab = TabItems.FirstOrDefault(t => t.Header == tabHeader);
-        var parameters = new NavigationParameters
-        {
-            { "TableName", tabHeader },
-        };
-
-        if (existingTab != null)
-        {
-            Console.WriteLine("existing tab is already created");
-            SelectedTab = existingTab;
-            _regionManager.RequestNavigate("TabContentRegion", viewName, parameters);
-            
-        }
-        else
-        {
-            TabControlModel newTab = new TabControlModel
-            {
-                Header = tabHeader,
-                ViewName = viewName
-            };
-            _regionManager.RequestNavigate("TabContentRegion", viewName, result =>
-            {
-                if (result.Success)
-                {
-                    Console.WriteLine("Навигация успешна: " + viewName);
-                    TabItems.Add(newTab);
-                    SelectedTab = newTab;
-                }
-                else
-                {
-                    Console.WriteLine("Ошибка навигации: " + viewName);
-                }
-            }, parameters);
-        }
-    }
-
-    private void CreatingTabFromNavDrawer(string viewName, string menuType)
-    {
-        var existingTab = TabItems.FirstOrDefault(t => t.Header == menuType);
-        
-        var parameters = new NavigationParameters
-        {
-            { "MenuType", menuType }
-        };
-
-        if (existingTab != null)
-        {
-            SelectedTab = existingTab;
-            _regionManager.RequestNavigate("TabContentRegion", existingTab.ViewName, parameters);
-            return;
-        }
-            TabControlModel newTab = new TabControlModel
-            {
-                Header = menuType,
-                ViewName = viewName
-            };
-
-            _regionManager.RequestNavigate("TabContentRegion", viewName, result =>
-            {
-                if (result.Success)
-                {
-                    Console.WriteLine("Навигация успешна: " + viewName);
-                    TabItems.Add(newTab);
-                    SelectedTab = newTab;
-                }
-                else
-                {
-                    Console.WriteLine("Ошибка навигации: " + viewName);
-                }
-            }, parameters);
-    }
-    
-    private string GetViewName(string header)
-    {
-        return header switch
-        {
-            "Виробниче обладнання" => nameof(EquipmentTreeView),
-            "Інструменти" => nameof(ToolsTreeView),
-            "Меблі" => nameof(FurnitureTreeView),
-            "Офісна техніка" => nameof(OfficeTechniqueTreeView),
-            "Розхідні матеріали" => nameof(ConsumablesView),
-            "Облік" => nameof(AccountingView),
-            "Календар" => nameof(SchedulerView),
-            "Налаштування" => nameof(SettingsView),
-            _ => throw new ArgumentException($"Unknown tab header: {header}")
-        };
-    }
-    
-
-    public bool IsNavigationTarget(NavigationContext navigationContext) => true;
-    public void OnNavigatedFrom(NavigationContext navigationContext) { }
 }

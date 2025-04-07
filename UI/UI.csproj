@@ -115,7 +115,7 @@
         <XamlRuntime>Wpf</XamlRuntime>
         <SubType>Designer</SubType>
       </Page>
-      <Page Update="Views\Tabs\EquipmentTree\OfficeTechniqueTreeView.xaml">
+      <Page Update="Views\Tabs\EquipmentTree\ColumnSelector\ColumnSelectorView.xaml">
         <Generator>MSBuild:Compile</Generator>
         <XamlRuntime>Wpf</XamlRuntime>
         <SubType>Designer</SubType>

@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d"
              xmlns:sf="http://schemas.syncfusion.com/wpf"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:prism="http://prismlibrary.com/"
              xmlns:syncfusionskin="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF"
              syncfusionskin:SfSkinManager.Theme="{syncfusionskin:SkinManagerExtension ThemeName=Windows11Light}"
@@ -20,44 +21,34 @@
     
     <Grid>
         
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height = "*"/>
-        </Grid.RowDefinitions>
-        
         <sf:TabControlExt 
-            TabItemHeaderStyle="Fill" 
-            Margin="0"
-            Padding="0"
-            CloseMode="Delete"
-            EnableLabelEdit="False"
-            CloseButtonType="Extended"
-            SelectedItem="{Binding SelectedTab, Mode=TwoWay}" ItemsSource="{Binding TabItems}"
-            BorderThickness="0">
+            x:Name="TabControl"
+            prism:RegionManager.RegionName="TabControlRegion"
+            CloseButtonType="Individual"
+            TabItemHeaderStyle="Fill"
+            DefaultContextMenuItemVisibility="Collapsed"
+            IsCustomTabItemContextMenuEnabled="True"
+            AllowDragDrop="False">
             
             <sf:TabControlExt.ItemContainerStyle>
                 <Style TargetType="sf:TabItemExt" BasedOn="{StaticResource SyncfusionTabItemExtStyle}">
-                    <Setter Property="HeaderTemplate">
+                    <Setter Property="ContextMenu">
                         <Setter.Value>
-                            <DataTemplate>
-                                <TextBlock Text = "{Binding Header, Mode=TwoWay}"/>
-                            </DataTemplate>
+                            <ContextMenu>
+                                <MenuItem Header="Закрити" 
+                                          Command="{Binding CloseSelectedTabCommand}"
+                                          CommandParameter="{Binding PlacementTarget, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
+                                <MenuItem Header="Закрити всі" 
+                                          Command="{Binding CloseAllTabsCommand}"/>
+                                <MenuItem Header="Закрити всі крім цієї" 
+                                          Command="{Binding CloseOtherTabsCommand}"
+                                          CommandParameter="{Binding PlacementTarget, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
+                            </ContextMenu>
                         </Setter.Value>
                     </Setter>
-                    
-                    
                 </Style>
-                
             </sf:TabControlExt.ItemContainerStyle>
-            
-            <sf:TabControlExt.ContentTemplate>
-                <DataTemplate>
-                </DataTemplate>
-            </sf:TabControlExt.ContentTemplate>
-            
         </sf:TabControlExt>
         
-        <ContentControl Grid.Row="1" prism:RegionManager.RegionName="TabContentRegion"
-                        prism:RegionManager.RegionContext="{Binding}"/>
     </Grid>
 </UserControl>

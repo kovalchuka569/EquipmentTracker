@@ -32,7 +32,7 @@
                 <sf:NavigationItem ItemType="Separator"/>
                 
                 <sf:NavigationItem Header="Виробниче обладнання" FontSize="14" FontWeight="DemiBold"
-                                   Command="{Binding ShowTabCommand}" CommandParameter="Виробниче обладнання"
+                                   Command="{Binding NavigateToTabControlExt}" CommandParameter="Виробниче обладнання"
                                    Style="{StaticResource SyncfusionPrimaryDefaultNavigationItemStyle}"
                                    Cursor="Hand" Height="40">
                     <sf:NavigationItem.Icon>
@@ -43,7 +43,7 @@
                 <sf:NavigationItem ItemType="Separator"/>
                 
                 <sf:NavigationItem Header="Інструменти" FontSize="14" FontWeight="DemiBold"
-                                   Command="{Binding ShowTabCommand}" CommandParameter="Інструменти"
+                                   Command="{Binding NavigateToTabControlExt}" CommandParameter="Інструменти"
                                    Style="{StaticResource SyncfusionPrimaryDefaultNavigationItemStyle}"
                                    Cursor="Hand" Height="40">
                     <sf:NavigationItem.Icon>
@@ -54,7 +54,7 @@
                 <sf:NavigationItem ItemType="Separator"/>
                 
                 <sf:NavigationItem Header="Меблі" FontSize="14" FontWeight="DemiBold"
-                                   Command="{Binding ShowTabCommand}" CommandParameter="Меблі"
+                                   Command="{Binding NavigateToTabControlExt}" CommandParameter="Меблі"
                                    Style="{StaticResource SyncfusionPrimaryDefaultNavigationItemStyle}"
                                    Cursor="Hand" Height="40">
                     <sf:NavigationItem.Icon>
@@ -65,7 +65,7 @@
                 <sf:NavigationItem ItemType="Separator"/>
                 
                 <sf:NavigationItem Header="Офісна техніка" FontSize="14" FontWeight="DemiBold"
-                                   Command="{Binding ShowTabCommand}" CommandParameter="Офісна техніка"
+                                   Command="{Binding NavigateToTabControlExt}" CommandParameter="Офісна техніка"
                                    Style="{StaticResource SyncfusionPrimaryDefaultNavigationItemStyle}"
                                    Cursor="Hand" Height="40">
                     <sf:NavigationItem.Icon>
@@ -76,7 +76,7 @@
                 <sf:NavigationItem ItemType="Separator"/>
                 
                 <sf:NavigationItem Header="Розхідні матеріали" FontSize="14" FontWeight="DemiBold"
-                                   Command="{Binding ShowTabCommand}" CommandParameter="Розхідні матеріали"
+                                   Command="{Binding NavigateToTabControlExt}" CommandParameter="Розхідні матеріали"
                                    Style="{StaticResource SyncfusionPrimaryDefaultNavigationItemStyle}"
                                    Cursor="Hand" Height="40">
                     <sf:NavigationItem.Icon>
@@ -87,7 +87,7 @@
                 <sf:NavigationItem ItemType="Separator"/>
                 
                 <sf:NavigationItem Header="Облік" FontSize="14" FontWeight="DemiBold"
-                                   Command="{Binding ShowTabCommand}"  CommandParameter="Облік"
+                                   Command="{Binding NavigateToTabControlExt}"  CommandParameter="Облік"
                                    Style="{StaticResource SyncfusionPrimaryDefaultNavigationItemStyle}"
                                    Cursor="Hand" Height="40">
                     <sf:NavigationItem.Icon>
@@ -105,7 +105,7 @@
                 <sf:NavigationItem ItemType="Separator"/>
                 
                 <sf:NavigationItem Header="Календар" FontSize="14" FontWeight="DemiBold"
-                                   Command="{Binding ShowTabCommand}" CommandParameter="Календар"
+                                   Command="{Binding NavigateToTabControlExt}" CommandParameter="Календар"
                                    Style="{StaticResource SyncfusionPrimaryDefaultNavigationItemStyle}"
                                    Cursor="Hand" Height="40">
                     <sf:NavigationItem.Icon>
@@ -116,7 +116,7 @@
                 <sf:NavigationItem ItemType="Separator" />
                 
                 <sf:NavigationItem Header="Налаштування" FontSize="14" FontWeight="DemiBold"
-                                   Command="{Binding ShowTabCommand}" CommandParameter="Налаштування"
+                                   Command="{Binding NavigateToTabControlExt}" CommandParameter="Налаштування"
                                    Style="{StaticResource SyncfusionPrimaryDefaultNavigationItemStyle}"
                                    Cursor="Hand" Margin="0,0,0,10" >
                     <sf:NavigationItem.Icon>
