@@ -1,13 +1,15 @@
 ﻿using Data.AppDbContext;
 using Microsoft.EntityFrameworkCore;
+using DbContext = Data.AppDbContext.DbContext;
+
 namespace Core.Services.Log;
 
 
 public class LogService 
 {
-    private readonly AppDbContext _context;
+    private readonly DbContext _context;
 
-    public LogService(AppDbContext context)
+    public LogService(DbContext context)
     {
         _context = context;
     }

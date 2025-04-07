@@ -23,7 +23,7 @@
             <sf:SfNavigationDrawer.ToggleButtonContentTemplate>
                 <DataTemplate>
                     <Label HorizontalAlignment="Center" VerticalAlignment="Center"
-                           Content="Odyssey" Foreground="White" FontFamily="pack://application:,,,/Fonts/#Tylaco" FontSize="25" Margin="0,0,30,0"/>
+                           Content="Odyssey" Foreground="White" FontFamily="pack://application:,,,/Resources/Fonts/#Tylaco" FontSize="25" Margin="0,0,30,0"/>
                 </DataTemplate>
             </sf:SfNavigationDrawer.ToggleButtonContentTemplate>
 

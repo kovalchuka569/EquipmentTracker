@@ -11,19 +11,20 @@ using TableColumn = Data.Entities.TableColumn;
 
 namespace Data.AppDbContext
 {
-    public class AppDbContext : DbContext
+    public class DbContext : Microsoft.EntityFrameworkCore.DbContext
     {
-        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
+        public DbContext(DbContextOptions<DbContext> options) : base(options)
         {
+            Console.WriteLine("AppDbContext Created!");
         }
         
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
         }
-        public override void Dispose()
+        
+        ~DbContext()
         {
-            Console.WriteLine("AppDbContext Disposed!");
-            base.Dispose();
+            Console.WriteLine("AppDbContext Finalized!");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

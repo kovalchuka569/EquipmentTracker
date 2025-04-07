@@ -7,17 +7,18 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Npgsql;
 using Syncfusion.UI.Xaml.Schedule;
+using DbContext = Data.AppDbContext.DbContext;
 using TableColumn = Data.Entities.TableColumn;
 
 namespace Core.Models.DataGrid;
 
 public class DataGridModel
 {
-    private readonly AppDbContext _context;
+    private readonly DbContext _context;
 
     private string _currentTableName;
 
-    public DataGridModel(AppDbContext context)
+    public DataGridModel(DbContext context)
     {
         Console.WriteLine("DataGridModel constructor");
         _context = context;

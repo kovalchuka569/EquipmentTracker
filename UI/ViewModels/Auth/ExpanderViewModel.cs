@@ -2,6 +2,7 @@
 using System.Windows;
 using Data.Properties;
 using Data.AppDbContext;
+using Notification.Wpf;
 
 namespace UI.ViewModels.Auth
 {
@@ -18,7 +19,8 @@ namespace UI.ViewModels.Auth
         private Brush _buttonSaveContentColor = Brushes.Black;
         private Brush _statusColor = Brushes.Gray;
         
-        private readonly AppDbContext _context;
+        private readonly DbContext _context;
+        private readonly NotificationManager _notificationManager;
 
         public Brush StatusColor
         {
@@ -76,9 +78,10 @@ namespace UI.ViewModels.Auth
         public DelegateCommand SaveCommand { get; private set; }
         #endregion
         #region Constructor
-        public ExpanderViewModel(AppDbContext context)
+        public ExpanderViewModel(DbContext context, NotificationManager notificationManager)
         {
             _context = context;
+            _notificationManager = notificationManager;
             TestDbConnectionAsync();
             SaveCommand = new DelegateCommand(OnSave);
         }
@@ -99,23 +102,17 @@ namespace UI.ViewModels.Auth
         #region TestDbConnectionAsync
         private async Task TestDbConnectionAsync()
         {
-            using (var db = _context)
             try
-                {
-                    bool canConnect = await Task.Run(() =>
-                    {
-                        using (var db = _context)
-                        {
-                            return db.Database.CanConnect();
-                        }
-                    });
-                    StatusColor = canConnect ? Brushes.Lime : Brushes.Red;
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Помилка з'єднання: {ex.Message}");
-                    StatusColor = Brushes.Red;
-                }
+            {
+                bool canConnect = await Task.Run(() => _context.Database.CanConnect());
+                StatusColor = canConnect ? Brushes.Lime : Brushes.Red;
+                _notificationManager.Show("", "З'єднання з базою даних встановлено", NotificationType.Information);
+            }
+            catch (Exception ex)
+            {
+                _notificationManager.Show("", $"Помилка з'єднання: {ex.Message}", NotificationType.Error);
+                StatusColor = Brushes.Red;
+            }
         }
         #endregion
         #region UpdateButtonSave

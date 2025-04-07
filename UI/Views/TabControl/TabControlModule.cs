@@ -1,14 +1,12 @@
 ﻿using UI.ViewModels.Tabs;
 using UI.ViewModels.TabControl;
-using UI.Views.Tabs.Accounting;
-using UI.Views.Tabs.Consumables;
 using UI.Views.Tabs.EquipmentTree;
-using UI.Views.Tabs.Scheduler;
-using UI.Views.Tabs.Settings;
 using UI.ViewModels.DataGrid;
 using UI.Views.Tabs.EquipmentTree.ColumnSelector;
 
 using Core.Services.TabControlExt;
+using UI.Interfaces.Factory;
+using UI.Views.NavDrawer.NavDrawerItems;
 
 namespace UI.Views.TabControl;
 
@@ -34,7 +32,7 @@ public class TabControlModule : IModule
         #region Tabs
         
         // Equipment tree
-        containerRegistry.RegisterSingleton<IEquipmentTreeViewModelFactory, EquipmentTreeViewModelFactory>(); // Factory
+        containerRegistry.RegisterSingleton<IEquipmentTreeViewModelFactory, IEquipmentTreeViewModelFactory>(); // Factory
         containerRegistry.RegisterForNavigation<EquipmentTreeView, EquipmentTreeViewModel>();
         
         // Column selector in Equipment tree

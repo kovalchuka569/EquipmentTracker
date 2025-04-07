@@ -10,16 +10,14 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace UI.Views.Auth
+namespace UI.Views.Authorization
 {
-    /// <summary>
-    /// Логика взаимодействия для AuthorizationView.xaml
-    /// </summary>
-    public partial class AuthorizationView : UserControl
+    public partial class ExpanderView : UserControl
     {
-        public AuthorizationView()
+        public ExpanderView()
         {
             InitializeComponent();
         }

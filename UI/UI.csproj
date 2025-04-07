@@ -40,18 +40,18 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Resource Include="Fonts\password.ttf" />
-      <Resource Include="Views\Auth\Assets\hide_pass.png" />
-      <Resource Include="Views\Auth\Assets\hint_pass.png" />
-      <Resource Include="Views\Auth\Assets\hint_user.png" />
-      <Resource Include="Views\Auth\Assets\show_pass.png" />
+      <Resource Include="Resources\Assets\hide_pass.png" />
+      <Resource Include="Resources\Assets\hint_pass.png" />
+      <Resource Include="Resources\Assets\hint_user.png" />
       <None Remove="Views\NavDrawer\Assets\prod_equipment.png" />
+      <Resource Include="Resources\Assets\show_pass.png" />
+      <Resource Include="Resources\Fonts\password.ttf" />
+      <Resource Include="Resources\Fonts\Tylaco.ttf" />
       <Resource Include="Views\NavDrawer\Assets\prod_equipment.png" />
       <None Remove="Views\Auth\Assets\log_in.png" />
       <None Remove="Views\Tabs\ProductionEquipmentTree\Assets\folder.png" />
       <None Remove="Views\Tabs\ProductionEquipmentTree\Assets\file.png" />
       <None Remove="Fonts\Tylaco.ttf" />
-      <Resource Include="Fonts\Tylaco.ttf" />
       <None Remove="Views\Tabs\ProductionEquipmentTree\Assets\spreadsheet.png" />
       <None Remove="Views\NavDrawer\Assets\furniture.png" />
       <Resource Include="Views\NavDrawer\Assets\furniture.png" />
@@ -83,6 +83,9 @@
         <DesignTimeSharedInput>True</DesignTimeSharedInput>
         <AutoGen>True</AutoGen>
         <DependentUpon>Settings.settings</DependentUpon>
+      </Compile>
+      <Compile Update="Views\Authorization\AuthorizationView.xaml.cs">
+        <SubType>Code</SubType>
       </Compile>
     </ItemGroup>
 
@@ -116,6 +119,31 @@
         <SubType>Designer</SubType>
       </Page>
       <Page Update="Views\Tabs\EquipmentTree\ColumnSelector\ColumnSelectorView.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Views\Authorization\AuthorizationView.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Views\NavDrawer\NavDrawerItems\AccountingView.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Views\NavDrawer\NavDrawerItems\ConsumablesView.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Views\NavDrawer\NavDrawerItems\SchedulerView.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Views\NavDrawer\NavDrawerItems\SettingsView.xaml">
         <Generator>MSBuild:Compile</Generator>
         <XamlRuntime>Wpf</XamlRuntime>
         <SubType>Designer</SubType>

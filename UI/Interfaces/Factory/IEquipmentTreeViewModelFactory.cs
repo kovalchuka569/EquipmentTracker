@@ -1,4 +1,6 @@
-﻿namespace UI.ViewModels.Tabs;
+﻿using UI.ViewModels.Tabs;
+
+namespace UI.Interfaces.Factory;
 
 public interface IEquipmentTreeViewModelFactory
 {

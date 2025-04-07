@@ -4,6 +4,7 @@ using System.Windows.Data;
 using Core.Models.Tabs.ProductionEquipmentTree;
 using Data.AppDbContext;
 using Microsoft.EntityFrameworkCore;
+using DbContext = Data.AppDbContext.DbContext;
 
 namespace UI.ViewModels.Tabs;
 
@@ -13,7 +14,7 @@ public class ColumnSelectorViewModel : BindableBase, INavigationAware
     private ObservableCollection<object> _selectedColumns;
     
     private EquipmentTreeViewModel _equipmentTreeViewModel;
-    private readonly AppDbContext _context;
+    private readonly DbContext _context;
     
     private Action<bool> _callback;
     
@@ -46,7 +47,7 @@ public class ColumnSelectorViewModel : BindableBase, INavigationAware
         view.GroupDescriptions.Add(new PropertyGroupDescription("Category"));
     }
 
-    public ColumnSelectorViewModel(IRegionManager regionManager, EquipmentTreeViewModel equipmentTreeViewModel, IEventAggregator eventAggregator, AppDbContext context)
+    public ColumnSelectorViewModel(IRegionManager regionManager, EquipmentTreeViewModel equipmentTreeViewModel, IEventAggregator eventAggregator, DbContext context)
     {
         Console.WriteLine("ColumnSelectorViewModel constructor");
         _context = context;

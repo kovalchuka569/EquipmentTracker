@@ -1,8 +1,10 @@
-﻿using Core.Models.Tabs.ProductionEquipmentTree;
+﻿using Core.Models.EquipmentTree;
 using Core.Services.TabControlExt;
 using Notification.Wpf;
+using UI.Interfaces.Factory;
+using UI.ViewModels.Tabs;
 
-namespace UI.ViewModels.Tabs;
+namespace UI.Services.Factory;
 
 /// <summary>
 /// Factory responsible for creating instances of <see cref="EquipmentTreeViewModel"/>.

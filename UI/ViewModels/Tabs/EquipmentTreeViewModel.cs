@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Threading;
 using Core.Events.TabControl;
+using Core.Models.EquipmentTree;
 using Core.Models.TabControl;
 using Syncfusion.UI.Xaml.TreeView;
 using Syncfusion.UI.Xaml.TreeView.Engine;
