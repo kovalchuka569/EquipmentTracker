@@ -1,12 +1,7 @@
 ﻿using System.Data;
 using System.Dynamic;
-using System.Windows.Documents;
-using Data.AppDbContext;
-using Data.Entities;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Npgsql;
-using Syncfusion.UI.Xaml.Schedule;
 using DbContext = Data.AppDbContext.DbContext;
 using TableColumn = Data.Entities.TableColumn;
 
@@ -43,11 +38,9 @@ public class DataGridModel
         {
             var connection = _context.Database.GetDbConnection();
             Console.WriteLine("Before OpenAsync: " + connection.State);
-
-            // Убираем вручную открытие соединения
+            
             if (connection.State != ConnectionState.Open)
             {
-                // Доверяемся DbContext для управления соединением
                 await _context.Database.OpenConnectionAsync();
                 Console.WriteLine("After OpenAsync: " + connection.State);
             }

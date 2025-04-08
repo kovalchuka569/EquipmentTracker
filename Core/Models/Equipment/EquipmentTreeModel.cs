@@ -144,7 +144,6 @@ public class EquipmentTreeModel
     #endregion
     
     #region Editing tree items
-    #region End editing
     public async Task <EquipmentCategory> EditCategoryAsync (int categoryId, string name, int? parentId = null)
     {
         var category = await GetCategorySet().FirstOrDefaultAsync(c => c.Id == categoryId)
@@ -156,10 +155,8 @@ public class EquipmentTreeModel
         return category;
     }
     #endregion
-    #endregion
 
     #region CreateNewFile
-
     public async Task <FileEntity> CreateNewFileAsync(int categoryId, string categoryType, string fileName)
     {
         var newFile = new FileEntity

@@ -1,16 +1,12 @@
-﻿using System.Windows;
-using System.Windows.Controls;
-using Core.Models.TabControl;
-using Syncfusion.Windows.Tools.Controls;
-using UI.ViewModels.TabControl;
-using UI.ViewModels.Tabs;
+﻿using System.Windows.Controls;
 
-namespace UI.Views.TabControl;
-
-public partial class TabControlView : UserControl
+namespace UI.Views.TabControl
 {
-    public TabControlView()
+    public partial class TabControlView : UserControl
     {
-        InitializeComponent();
+        public TabControlView()
+        {
+            InitializeComponent();
+        }
     }
 }

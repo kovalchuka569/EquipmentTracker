@@ -1,32 +1,21 @@
 ﻿using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using System.Windows;
-using System.Windows.Forms;
-using System.Windows.Threading;
-using Core.Events.TabControl;
+using Core.Events;
+using Core.Events.EquipmentTree;
 using Core.Models.EquipmentTree;
-using Core.Models.TabControl;
+using Core.Models.Tabs.EquipmentTree;
 using Syncfusion.UI.Xaml.TreeView;
-using Syncfusion.UI.Xaml.TreeView.Engine;
+
 
 using Notification.Wpf;
-using Ookii.Dialogs.Wpf;
-using TaskDialog = Ookii.Dialogs.Wpf.TaskDialog;
-using TaskDialogButton = Ookii.Dialogs.Wpf.TaskDialogButton;
 
 using Data.Entities;
-using Core.Models.Tabs.ProductionEquipmentTree;
-using Core.Services.Notifications;
 using Core.Services.TabControlExt;
-using Syncfusion.Linq;
-using Syncfusion.UI.Xaml.Diagram;
+
 using DelegateCommand = Prism.Commands.DelegateCommand;
-using UI.Views.Tabs.EquipmentTree;
-using UI.Views.Tabs.EquipmentTree.ColumnSelector;
 using Application = System.Windows.Application;
 
-namespace UI.ViewModels.Tabs;
+namespace UI.ViewModels.EquipmentTree;
 
 public class EquipmentTreeViewModel : BindableBase, INavigationAware
 {
@@ -155,51 +144,59 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware
     #region LoadTree
    private async Task <ObservableCollection<Folder>> LoadTreeAsync()
     {
-    try
-    {
-        List<EquipmentCategory> categories = await _model.GetCategoriesAsync();
-        List<FileEntity> files = await _model.GetFilesAsync();
-        
-        var folders = categories.Select(c => new Folder
+        try
         {
-            Id = c.Id,
-            FileName = c.CategoryName,
-        }).ToList();
-        
-        var filesDisct = files.GroupBy(f => f.CategoryId).ToDictionary(g => g.Key, g => g.Select(f => new File
-        {
-            Id = f.Id,
-            FileName = f.FileName,
-            FolderId = f.CategoryId,
-        }).ToList());
-        
-        var parentIdMap = categories.ToDictionary(c => c.Id, c => c.ParentId);
-        var lookup = folders.ToLookup(f => parentIdMap[f.Id]);
+            _eventAggregator.GetEvent<BusyIndicatorEvent>().Publish(true);
 
-        foreach (var folder in folders)
-        {
-            folder.SubFolders = new ObservableCollection<Folder>(lookup[folder.Id]);
+            List<EquipmentCategory> categories = await _model.GetCategoriesAsync();
+            List<FileEntity> files = await _model.GetFilesAsync();
 
-            if (filesDisct.TryGetValue(folder.Id, out var folderFiles))
+            var folders = categories.Select(c => new Folder
             {
-                folder.Files = new ObservableCollection<File>(folderFiles);
+                Id = c.Id,
+                FileName = c.CategoryName,
+            }).ToList();
+
+            var filesDisct = files.GroupBy(f => f.CategoryId).ToDictionary(g => g.Key, g => g.Select(f => new File
+            {
+                Id = f.Id,
+                FileName = f.FileName,
+                FolderId = f.CategoryId,
+            }).ToList());
+
+            var parentIdMap = categories.ToDictionary(c => c.Id, c => c.ParentId);
+            var lookup = folders.ToLookup(f => parentIdMap[f.Id]);
+
+            foreach (var folder in folders)
+            {
+                folder.SubFolders = new ObservableCollection<Folder>(lookup[folder.Id]);
+
+                if (filesDisct.TryGetValue(folder.Id, out var folderFiles))
+                {
+                    folder.Files = new ObservableCollection<File>(folderFiles);
+                }
+
+                foreach (var sub in folder.SubFolders)
+                    folder.Items.Add(sub);
+                foreach (var file in folder.Files)
+                    folder.Items.Add(file);
+
             }
-            
-            foreach (var sub in folder.SubFolders)
-                folder.Items.Add(sub);
-            foreach (var file in folder.Files)
-                folder.Items.Add(file);
-            
+
+            var result = new ObservableCollection<Folder>(folders.Where(f => parentIdMap[f.Id] == null));
+            return result;
         }
-        var result = new ObservableCollection<Folder>(folders.Where(f => parentIdMap[f.Id] == null));
-        return result;
-    }
-    
-    catch (Exception ex)
-    {
-        Console.WriteLine(ex);
-        return new ObservableCollection<Folder>();
-    }
+
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            _eventAggregator.GetEvent<BusyIndicatorEvent>().Publish(false);
+            return new ObservableCollection<Folder>();
+        }
+        finally
+        {
+            _eventAggregator.GetEvent<BusyIndicatorEvent>().Publish(false);
+        }
     }
    #endregion
 

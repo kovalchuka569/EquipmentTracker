@@ -1,12 +1,14 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Data;
+using Core.Events.EquipmentTree;
 using Core.Models.Tabs.ProductionEquipmentTree;
 using Data.AppDbContext;
 using Microsoft.EntityFrameworkCore;
+using UI.ViewModels.Tabs;
 using DbContext = Data.AppDbContext.DbContext;
 
-namespace UI.ViewModels.Tabs;
+namespace UI.ViewModels.EquipmentTree;
 
 public class ColumnSelectorViewModel : BindableBase, INavigationAware
 {

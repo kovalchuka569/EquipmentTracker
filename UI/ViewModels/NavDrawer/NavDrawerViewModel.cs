@@ -1,11 +1,5 @@
-﻿using System.Windows;
-using System.Windows.Controls;
-using Prism.Commands;
-using Prism.Ioc;
-using Prism.Mvvm;
-using UI.ViewModels.TabControl;
-using UI.Views.TabControl;
-using UI.Views.Tabs.EquipmentTree;
+﻿using Core.Events.NavDrawer;
+
 
 namespace UI.ViewModels.NavDrawer
 {

@@ -1,14 +1,18 @@
 ﻿using UI.ViewModels.Tabs;
 using UI.ViewModels.TabControl;
-using UI.Views.Tabs.EquipmentTree;
+using UI.Views.NavDrawer.NavDrawerItems.EquipmentTree;
 using UI.ViewModels.DataGrid;
-using UI.Views.Tabs.EquipmentTree.ColumnSelector;
+using UI.Views.NavDrawer.NavDrawerItems.EquipmentTree.ColumnSelector;
 
 using Core.Services.TabControlExt;
 using UI.Interfaces.Factory;
+using UI.Services.Factory;
+using UI.ViewModels.EquipmentTree;
+using UI.Views;
 using UI.Views.NavDrawer.NavDrawerItems;
+using UI.Views.TabControl;
 
-namespace UI.Views.TabControl;
+namespace UI.Modules;
 
 public class TabControlModule : IModule
 {

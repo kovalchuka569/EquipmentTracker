@@ -1,8 +1,7 @@
-﻿using Core.Models.Tabs.ProductionEquipmentTree;
+﻿using Core.Models.Tabs.EquipmentTree;
+using Core.Models.Tabs.ProductionEquipmentTree;
 
-namespace Core.Events.TabControl;
-
-public class OpenDataGridEvent : PubSubEvent<File>
+namespace Core.Events.TabControl
 {
-    
+    public class OpenDataGridEvent : PubSubEvent<File> { }
 }

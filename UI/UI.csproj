@@ -68,14 +68,14 @@
       <None Remove="Views\NavDrawer\Assets\scheduler.png" />
       <Resource Include="Views\NavDrawer\Assets\scheduler.png" />
       <None Remove="Views\Tabs\ProductionEquipmentTree\Assets\opened_folder.png" />
-      <Resource Include="Views\Tabs\EquipmentTree\Assets\folder.png" />
-      <Resource Include="Views\Tabs\EquipmentTree\Assets\opened_folder.png" />
       <None Remove="Views\Tabs\EquipmentTree\Assets\spreadsheet.png" />
       <None Remove="Views\Tabs\EquipmentTree\Assets\file.png" />
       <None Remove="Views\Tabs\EquipmentTree\Assets\icons8-file-50.png" />
-      <Resource Include="Views\Tabs\EquipmentTree\Assets\file.png" />
       <None Remove="Views\Tabs\EquipmentTree\ColumnSelector\Assets\icons8-close-50.png" />
-      <Resource Include="Views\Tabs\EquipmentTree\ColumnSelector\Assets\close.png" />
+      <Resource Include="Views\NavDrawer\NavDrawerItems\EquipmentTree\Assets\file.png" />
+      <Resource Include="Views\NavDrawer\NavDrawerItems\EquipmentTree\Assets\folder.png" />
+      <Resource Include="Views\NavDrawer\NavDrawerItems\EquipmentTree\Assets\opened_folder.png" />
+      <Resource Include="Views\NavDrawer\NavDrawerItems\EquipmentTree\ColumnSelector\Assets\close.png" />
     </ItemGroup>
 
     <ItemGroup>
@@ -148,11 +148,18 @@
         <XamlRuntime>Wpf</XamlRuntime>
         <SubType>Designer</SubType>
       </Page>
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Views\Grids\" />
-      <Folder Include="Views\Notifications\NotifyIcon\" />
+      <Page Update="Views\EquipmentTree\EquipmentTreeView.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </Page>
+      <Page Update="Views\EquipmentTree\ColumnSelector\ColumnSelectorView.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </Page>
+      <Page Update="Views\NavDrawer\NavDrawerItems\EquipmentTree\EquipmentTreeView.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </Page>
+      <Page Update="Views\NavDrawer\NavDrawerItems\EquipmentTree\ColumnSelector\ColumnSelectorView.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </Page>
     </ItemGroup>
 
 </Project>

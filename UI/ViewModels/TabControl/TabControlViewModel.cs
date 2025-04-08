@@ -1,4 +1,6 @@
 ﻿using System.Windows;
+using Core.Events.EquipmentTree;
+using Core.Events.NavDrawer;
 using Syncfusion.Windows.Shared;
 using Prism.Commands;
 using UI.ViewModels.DataGrid;

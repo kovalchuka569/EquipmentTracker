@@ -3,11 +3,20 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:local="clr-namespace:UI.Views.TabControl"
              mc:Ignorable="d"
              xmlns:prism="http://prismlibrary.com/"
+             xmlns:bi="clr-namespace:Syncfusion.Windows.Controls.Notification;assembly=Syncfusion.SfBusyIndicator.WPF"
              prism:ViewModelLocator.AutoWireViewModel="True">
+    
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+    </UserControl.Resources>
     <Grid>
         <ContentControl prism:RegionManager.RegionName="{Binding UniqueRegionName}" />
+        
+            <Grid Background="#80000000" Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibilityConverter},
+             Mode=OneWay, UpdateSourceTrigger=PropertyChanged}">
+                <bi:SfBusyIndicator IsBusy="True" AnimationType="Cupertino" AnimationSpeed="1" ViewboxWidth="30" ViewboxHeight="30" Foreground="White"/>
+            </Grid>
     </Grid>
 </UserControl>

@@ -1,13 +1,18 @@
 ﻿using System.Windows;
+using Core.Events;
 
 namespace UI.ViewModels.TabControl;
 
-public class GenericTabViewModel: BindableBase, INavigationAware
+public class GenericTabViewModel: BindableBase, INavigationAware, IDisposable
 {
+    private readonly IEventAggregator _eventAggregator;
+    private readonly SubscriptionToken _busyIndicatorToken;
     private readonly IRegionManager _regionManager;
     private string _tabName;
     private string _tabType;
     private string _uniqueRegionName;
+    private bool _isBusy;
+    
     
     // Static dictionary for tracking active tabs and their regions
     private static readonly Dictionary<string, TabInfo> TabToRegionMap = new Dictionary<string, TabInfo>();
@@ -31,9 +36,19 @@ public class GenericTabViewModel: BindableBase, INavigationAware
         private set => SetProperty(ref _uniqueRegionName, value);
     }
 
-    public GenericTabViewModel(IRegionManager regionManager)
+    // Grid visibility of busy indicator
+    public bool IsBusy
+    {
+        get => _isBusy;
+        set => SetProperty(ref _isBusy, value);
+    }
+    
+    public GenericTabViewModel(IRegionManager regionManager, IEventAggregator eventAggregator)
     {
         _regionManager = regionManager;
+        _eventAggregator = eventAggregator;
+
+        _busyIndicatorToken = _eventAggregator.GetEvent<BusyIndicatorEvent>().Subscribe(OnBusyIndicatorChanged);
     }
 
     public void OnNavigatedTo(NavigationContext navigationContext)
@@ -123,6 +138,14 @@ public class GenericTabViewModel: BindableBase, INavigationAware
         return null;
     }
 
+    /// <summary>
+    /// Receives from eventAgregattor the command when to show BusyIndicator
+    /// </summary>
+    private void OnBusyIndicatorChanged(bool isBusy)
+    {
+        IsBusy = isBusy;
+    }
+    
     public bool IsNavigationTarget(NavigationContext navigationContext)
     {
         return false;
@@ -151,5 +174,10 @@ public class GenericTabViewModel: BindableBase, INavigationAware
     {
         public string RegionName { get; set; }
         public GenericTabViewModel ViewModel { get; set; }
+    }
+
+    public void Dispose()
+    {
+        _eventAggregator.GetEvent<BusyIndicatorEvent>().Unsubscribe(_busyIndicatorToken);
     }
 }

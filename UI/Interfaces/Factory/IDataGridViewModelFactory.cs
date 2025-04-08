@@ -1,4 +1,6 @@
-﻿namespace UI.ViewModels.DataGrid;
+﻿using UI.ViewModels.DataGrid;
+
+namespace UI.Interfaces.Factory;
 
 public interface IDataGridViewModelFactory
 {

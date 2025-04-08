@@ -4,7 +4,7 @@ using Core.Services.Notifications;
 using Microsoft.EntityFrameworkCore;
 using DbContext = Data.AppDbContext.DbContext;
 
-namespace UI.ViewModels
+namespace UI.ViewModels.Auth
 {
     /// <summary>
     /// ViewModel responsible for handling user authentication and managing the login process.

@@ -1,8 +1,8 @@
 ﻿using System.Windows.Media;
-using System.Windows;
 using Data.Properties;
-using Data.AppDbContext;
+using Microsoft.EntityFrameworkCore;
 using Notification.Wpf;
+using DbContext = Data.AppDbContext.DbContext;
 
 namespace UI.ViewModels.Auth
 {
@@ -74,18 +74,21 @@ namespace UI.ViewModels.Auth
             }
         }
         #endregion
+        
         #region Commands
         public DelegateCommand SaveCommand { get; private set; }
         #endregion
+        
         #region Constructor
         public ExpanderViewModel(DbContext context, NotificationManager notificationManager)
         {
             _context = context;
             _notificationManager = notificationManager;
-            TestDbConnectionAsync();
+            TestDbConnectionAsync(DbHost, DbName, DbUser, DbPassword);
             SaveCommand = new DelegateCommand(OnSave);
         }
         #endregion
+        
         #region OnSave
         private void OnSave()
         {
@@ -94,19 +97,35 @@ namespace UI.ViewModels.Auth
             Settings.Default.DbUser = DbUser;
             Settings.Default.DbPassword = DbPassword;
             Settings.Default.Save();
-            TestDbConnectionAsync();
+            TestDbConnectionAsync(DbHost, DbName, DbUser, DbPassword);
             ButtonSaveLabel = "Збережено ✓";
             ButtonSaveContentColor = Brushes.Green;
         }
         #endregion
+        
         #region TestDbConnectionAsync
-        private async Task TestDbConnectionAsync()
+        private async Task TestDbConnectionAsync(string DbHost, string DbName, string DbUser, string DbPassword)
         {
             try
             {
-                bool canConnect = await Task.Run(() => _context.Database.CanConnect());
+                string testConnectionString = $"Host={DbHost};Database={DbName};Username={DbUser};Password={DbPassword};";
+                
+                var optionsBuilder = new DbContextOptionsBuilder<DbContext>();
+                optionsBuilder.UseNpgsql(testConnectionString); 
+                bool canConnect = await Task.Run(() => 
+                {
+                    using (var testContext = new DbContext(optionsBuilder.Options))
+                    {
+                        return testContext.Database.CanConnect();
+                    }
+                });
                 StatusColor = canConnect ? Brushes.Lime : Brushes.Red;
-                _notificationManager.Show("", "З'єднання з базою даних встановлено", NotificationType.Information);
+                
+                if (canConnect)
+                    _notificationManager.Show("", "З'єднання з базою даних встановлено", NotificationType.Information);
+                if(canConnect == false)
+                    _notificationManager.Show("", "Немає з'єднання з базою даних", NotificationType.Error);
+                
             }
             catch (Exception ex)
             {
@@ -115,6 +134,7 @@ namespace UI.ViewModels.Auth
             }
         }
         #endregion
+        
         #region UpdateButtonSave
         private void UpdateButtonSave()
         {

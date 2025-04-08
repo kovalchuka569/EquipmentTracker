@@ -1,4 +1,5 @@
-﻿using UI.ViewModels.Tabs;
+﻿using UI.ViewModels.EquipmentTree;
+using UI.ViewModels.Tabs;
 
 namespace UI.Interfaces.Factory;
 

@@ -23,6 +23,7 @@
         
         <sf:TabControlExt 
             x:Name="TabControl"
+            Padding="0"
             prism:RegionManager.RegionName="TabControlRegion"
             CloseButtonType="Individual"
             TabItemHeaderStyle="Fill"

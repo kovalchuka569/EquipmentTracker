@@ -2,6 +2,7 @@
 using Core.Services.TabControlExt;
 using Notification.Wpf;
 using UI.Interfaces.Factory;
+using UI.ViewModels.EquipmentTree;
 using UI.ViewModels.Tabs;
 
 namespace UI.Services.Factory;

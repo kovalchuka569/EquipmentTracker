@@ -1,6 +1,7 @@
 ﻿using Core.Models.Auth;
 using Core.Services.Auth;
 using Data.Repositories;
+using UI.ViewModels;
 using UI.ViewModels.Auth;
 using UI.ViewModels.NavDrawer;
 using UI.Views.Authorization;

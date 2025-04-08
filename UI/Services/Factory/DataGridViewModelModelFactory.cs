@@ -1,6 +1,8 @@
 ﻿using Core.Models.DataGrid;
+using UI.Interfaces.Factory;
+using UI.ViewModels.DataGrid;
 
-namespace UI.ViewModels.DataGrid;
+namespace UI.Services.Factory;
 
 public class DataGridViewModelModelFactory : IDataGridViewModelFactory
 {
