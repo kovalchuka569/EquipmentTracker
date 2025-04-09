@@ -37,6 +37,10 @@
                        VerticalAlignment="Center"
                        Background="Transparent"/>
             </Grid>
+            
+            <Button Width="35" Background="Transparent" BorderThickness="0" Margin="10,0,0,0">
+                <Image Source="about.png" Width="16" Height="16" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            </Button>
         </local:VersionTemplate>
     </sf:ChromelessWindow.Resources>
   

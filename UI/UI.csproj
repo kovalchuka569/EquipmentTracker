@@ -79,6 +79,8 @@
       <None Remove="icons8-gears-50.png" />
       <Resource Include="app_ico.png" />
       <None Remove="Views\NavDrawer\NavDrawerItems\EquipmentTree\Assets\icons8-error-50.png" />
+      <None Remove="about.png" />
+      <Resource Include="about.png" />
     </ItemGroup>
 
     <ItemGroup>
