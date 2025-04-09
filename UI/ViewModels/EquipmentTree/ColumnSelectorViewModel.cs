@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using System.Windows.Data;
 using Core.Events.EquipmentTree;
-using Core.Models.Tabs.ProductionEquipmentTree;
+using Core.Models.Tabs.EquipmentTree;
 using Data.AppDbContext;
 using Microsoft.EntityFrameworkCore;
 using UI.ViewModels.Tabs;
@@ -13,9 +13,10 @@ namespace UI.ViewModels.EquipmentTree;
 public class ColumnSelectorViewModel : BindableBase, INavigationAware
 {
     private ObservableCollection<Column> _columns;
+    private ObservableCollection<Column> _defaultServicesColumns;
+    private ObservableCollection<Column> _defaultRepairsColumns;
     private ObservableCollection<object> _selectedColumns;
     
-    private EquipmentTreeViewModel _equipmentTreeViewModel;
     private readonly DbContext _context;
     
     private Action<bool> _callback;
@@ -32,6 +33,16 @@ public class ColumnSelectorViewModel : BindableBase, INavigationAware
         set => SetProperty(ref _columns, value);
     }
 
+    public ObservableCollection<Column> DefaultServicesColumns
+    {
+        get => _defaultServicesColumns;
+        set => SetProperty(ref _defaultServicesColumns, value);
+    }
+    public ObservableCollection<Column> DefaultRepairsColumns
+    {
+        get => _defaultRepairsColumns;
+        set => SetProperty(ref _defaultRepairsColumns, value);
+    }
     public ObservableCollection<object> SelectedColumns
     {
         get => _selectedColumns;
@@ -49,12 +60,10 @@ public class ColumnSelectorViewModel : BindableBase, INavigationAware
         view.GroupDescriptions.Add(new PropertyGroupDescription("Category"));
     }
 
-    public ColumnSelectorViewModel(IRegionManager regionManager, EquipmentTreeViewModel equipmentTreeViewModel, IEventAggregator eventAggregator, DbContext context)
+    public ColumnSelectorViewModel(IRegionManager regionManager, IEventAggregator eventAggregator, DbContext context)
     {
-        Console.WriteLine("ColumnSelectorViewModel constructor");
         _context = context;
         _regionManager = regionManager;
-        _equipmentTreeViewModel = equipmentTreeViewModel;
         _eventAggregator = eventAggregator;
         
         LoadedCommand = new DelegateCommand<object>(OnLoaded);
@@ -79,7 +88,8 @@ public class ColumnSelectorViewModel : BindableBase, INavigationAware
             
             Console.WriteLine(string.Join(", ", columns));
             
-            var createTableQuery = $"CREATE TABLE IF NOT EXISTS \"UserTables\".\"{tableName}\" (Id SERIAL PRIMARY KEY, {string.Join(", ", columns)});";
+            var createTableQuery = 
+                $"CREATE TABLE IF NOT EXISTS \"UserTables\".\"{tableName}\" (Id SERIAL PRIMARY KEY, {string.Join(", ", columns)});";
             _context.Database.ExecuteSqlRaw(createTableQuery);
             OnConfirm();
     }
@@ -106,7 +116,7 @@ public class ColumnSelectorViewModel : BindableBase, INavigationAware
             _isInitialized = true;
         }
     }
-
+    
     private void InitializeColumns()
     {
         Columns.Add(new Column{ColumnName = "Інвентарний номер", ColumnType = "TEXT", Category = "Основні характеристики"});

@@ -11,14 +11,43 @@
              xmlns:behavior="clr-namespace:Core.Behaviors.SyncfusionTreeView;assembly=Core"
              xmlns:prism="http://prismlibrary.com/"
              xmlns:syncfusionskin="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF"
-             syncfusionskin:SfSkinManager.Theme="{syncfusionskin:SkinManagerExtension ThemeName=Windows11Light}">
+             syncfusionskin:SfSkinManager.Theme="{syncfusionskin:SkinManagerExtension ThemeName=Windows11Dark}">
     
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <x:Static x:Key="ColumnSelectorRegionNameSource" Member="viewModels:EquipmentTreeViewModel.ColumnSelectorRegionName" />
+        
+        <Style x:Key="BlurOnColumnSelectorStyle" TargetType="Grid">
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <BlurEffect Radius="0"/>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding ColumnSelectorVisibility}" Value="True">
+                    <DataTrigger.EnterActions>
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimation Storyboard.TargetProperty="Effect.Radius"
+                                                 From="0" To="10" Duration="0:0:0.3"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </DataTrigger.EnterActions>
+                    <DataTrigger.ExitActions>
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimation Storyboard.TargetProperty="Effect.Radius"
+                                                 From="10" To="0" Duration="0:0:0.3"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </DataTrigger.ExitActions>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        
     </UserControl.Resources>
     <Grid>
-        
+        <Grid x:Name="MainGrid" Style="{StaticResource BlurOnColumnSelectorStyle}">
         <sf:SfTreeView 
             x:Name="treeView"
             VerticalAlignment="Top" HorizontalAlignment="Left"
@@ -63,6 +92,7 @@
                             Source="{Binding ImageIcon}" />
                         
                         <TextBlock VerticalAlignment="Center"
+                                   Foreground="White"
                                    FontSize="15"
                                    Grid.Column="1"
                                    Padding="5 5"
@@ -105,15 +135,28 @@
                 </sf:SfTreeView.ContextMenu>
             
         </sf:SfTreeView>
+        </Grid>
         
-        <Grid Visibility="{Binding ColumnSelectorVisibility, Converter={StaticResource BoolToVisibilityConverter}}" Background="#80000000">
+        <Grid x:Name="ColumnSelectorOverlay" Background="#80000000" Visibility="{Binding ColumnSelectorVisibility, Converter={StaticResource BoolToVisibilityConverter}}" Opacity="0">
         
+            <Grid.Triggers>
+                <EventTrigger RoutedEvent="Grid.Loaded">
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                             To="1" Duration="0:0:0.3"
+                                             AutoReverse="False" FillBehavior="HoldEnd"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger>
+            </Grid.Triggers>
         
-        <ContentControl prism:RegionManager.RegionName="{StaticResource ColumnSelectorRegionNameSource}"
-                        VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            <ContentControl prism:RegionManager.RegionName="{StaticResource ColumnSelectorRegionNameSource}"
+                            VerticalAlignment="Center" HorizontalAlignment="Center"/>
         
         </Grid>
         
     </Grid>
+    
     
 </UserControl>

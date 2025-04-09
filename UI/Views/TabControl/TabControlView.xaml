@@ -8,13 +8,13 @@
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:prism="http://prismlibrary.com/"
              xmlns:syncfusionskin="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF"
-             syncfusionskin:SfSkinManager.Theme="{syncfusionskin:SkinManagerExtension ThemeName=Windows11Light}"
+             syncfusionskin:SfSkinManager.Theme="{syncfusionskin:SkinManagerExtension ThemeName=Windows11Dark}"
              prism:ViewModelLocator.AutoWireViewModel="True">
     
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/Syncfusion.Themes.Windows11Light.WPF;component/tabcontrolext/tabcontrolext.xaml"/>
+                <ResourceDictionary Source="/Syncfusion.Themes.Windows11Dark.WPF;component/tabcontrolext/tabcontrolext.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
@@ -25,11 +25,12 @@
             x:Name="TabControl"
             Padding="0"
             prism:RegionManager.RegionName="TabControlRegion"
-            CloseButtonType="Individual"
-            TabItemHeaderStyle="Fill"
+            CloseButtonType="IndividualOnMouseOver"
+            TabItemHeaderStyle="Curve"
+            EnableLabelEdit="False"
             DefaultContextMenuItemVisibility="Collapsed"
             IsCustomTabItemContextMenuEnabled="True"
-            AllowDragDrop="False">
+            AllowDragDrop="True">
             
             <sf:TabControlExt.ItemContainerStyle>
                 <Style TargetType="sf:TabItemExt" BasedOn="{StaticResource SyncfusionTabItemExtStyle}">

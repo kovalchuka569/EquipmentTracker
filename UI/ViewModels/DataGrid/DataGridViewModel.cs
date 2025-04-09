@@ -1,8 +1,5 @@
 ﻿using System.Collections.ObjectModel;
 using Core.Models.DataGrid;
-using Core.Models.Tabs.ProductionEquipmentTree;
-using Data.Entities;
-using Syncfusion.DocIO.DLS;
 using Syncfusion.UI.Xaml.Grid;
 
 namespace UI.ViewModels.DataGrid;

@@ -1,5 +1,4 @@
 ﻿using Core.Models.Tabs.EquipmentTree;
-using Core.Models.Tabs.ProductionEquipmentTree;
 
 namespace Core.Events.TabControl
 {

@@ -1,4 +1,4 @@
-﻿namespace Core.Models.Tabs.ProductionEquipmentTree
+﻿namespace Core.Models.Tabs.EquipmentTree
 {
     public class Column : BindableBase
     {

@@ -4,19 +4,36 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:UI.Views"
-             xmlns:sf="http://schemas.syncfusion.com/wpf"
+             xmlns:sf="clr-namespace:Syncfusion.UI.Xaml.Grid;assembly=Syncfusion.SfGrid.WPF"
+
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:prism="http://prismlibrary.com/"
              xmlns:syncfusionskin="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF"
-             syncfusionskin:SfSkinManager.Theme="{syncfusionskin:SkinManagerExtension ThemeName=Windows11Light}"
+             syncfusionskin:SfSkinManager.Theme="{syncfusionskin:SkinManagerExtension ThemeName=Windows11Dark}"
              mc:Ignorable="d">
+    
+    
     <Grid>
-
+        
         <sf:SfDataGrid
             x:Name = "dataGrid"
-            AutoGenerateColumns="False" 
             ItemsSource="{Binding TableData}"
-            Columns="{Binding Columns}"/>
+            Columns="{Binding Columns}"
+            LiveDataUpdateMode="AllowDataShaping"
+            AddNewRowPosition="Top"
+            AllowFiltering="True"
+            AllowDeleting="True"
+            AllowGrouping="True"
+            AllowDraggingColumns="True"
+            AllowEditing="True"
+            ShowBusyIndicator="True"
+            ShowGroupDropArea="True"
+            ShowColumnWhenGrouped="True"
+            IsGroupDropAreaExpanded="False"
+            FilterRowPosition="Top"
+            GridLinesVisibility="Both"
+            HeaderLinesVisibility="Both"
+            AddNewRowText="Додати новий запис"/>
             
     </Grid>
 </UserControl>

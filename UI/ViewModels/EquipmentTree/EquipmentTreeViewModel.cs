@@ -1,5 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using Core.Events;
 using Core.Events.EquipmentTree;
 using Core.Models.EquipmentTree;
@@ -11,7 +13,7 @@ using Notification.Wpf;
 
 using Data.Entities;
 using Core.Services.TabControlExt;
-
+using Notification.Wpf.Classes;
 using DelegateCommand = Prism.Commands.DelegateCommand;
 using Application = System.Windows.Application;
 
@@ -146,8 +148,6 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware
     {
         try
         {
-            _eventAggregator.GetEvent<BusyIndicatorEvent>().Publish(true);
-
             List<EquipmentCategory> categories = await _model.GetCategoriesAsync();
             List<FileEntity> files = await _model.GetFilesAsync();
 
@@ -190,12 +190,8 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware
         catch (Exception ex)
         {
             Console.WriteLine(ex);
-            _eventAggregator.GetEvent<BusyIndicatorEvent>().Publish(false);
+            _notificationManager.Show("", $"Помилка загрузки папок: {ex.Message}");
             return new ObservableCollection<Folder>();
-        }
-        finally
-        {
-            _eventAggregator.GetEvent<BusyIndicatorEvent>().Publish(false);
         }
     }
    #endregion
@@ -244,7 +240,7 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware
                    }
                    catch (Exception e)
                    {
-                       _notificationManager.Show("", $"Ошибка: {e.Message}", NotificationType.Error);
+                       _notificationManager.Show("", $"Помилка: {e.Message}", NotificationType.Error);
                    }
                }
            }
@@ -435,7 +431,11 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware
         
         Task.Run(async () =>
         {
+            _eventAggregator.GetEvent<BusyIndicatorEvent>().Publish(true);
+            await Task.Delay(300);
             Folders = await LoadTreeAsync();
+            await Task.Delay(300);
+            _eventAggregator.GetEvent<BusyIndicatorEvent>().Publish(false);
         });
     }
     

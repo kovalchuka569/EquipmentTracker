@@ -1,7 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Windows.Forms;
-using Core.Models.Tabs.ProductionEquipmentTree;
 using Microsoft.EntityFrameworkCore;
 
 using Core.Services.Log;
@@ -83,11 +82,8 @@ public class EquipmentTreeModel
 
     public async Task<EquipmentCategory> CreateCategoryAsync(string name, int? parentId = null)
     {
-        Console.WriteLine("var categories = await GetCategoriesAsync();");
         var categories = await GetCategoriesAsync();
-        Console.WriteLine(categories);
         var uniqueName = GenerateUniqueName(name, categories);
-        Console.WriteLine("GenerateUniqueName");
 
         EquipmentCategory newCategory = _currentMenuType switch
         {
@@ -101,10 +97,7 @@ public class EquipmentTreeModel
         try
         {
             await _context.AddAsync(newCategory);
-            Console.WriteLine($"Сохранение категории {newCategory.CategoryName}");
             await _context.SaveChangesAsync();
-            Console.WriteLine($"Категория {newCategory.CategoryName} сохранена!");
-
         }
         catch (Exception e)
         {
@@ -180,11 +173,11 @@ public class EquipmentTreeModel
         int counter = 1;
         while (categories.Any(c => c.CategoryName == uniqueName))
         {
-            Console.WriteLine($"Проверка имени: {uniqueName}, найдено совпадение, counter = {counter}");
+            Console.WriteLine($"Checking name: {uniqueName}, match found, counter = {counter}");
             uniqueName = $"{name} ({counter})";
             counter++;
         }
-        Console.WriteLine($"Уникальное имя сгенерировано: {uniqueName}");
+        Console.WriteLine($"Unique name generated: {uniqueName}");
         return uniqueName;
     }
     #endregion

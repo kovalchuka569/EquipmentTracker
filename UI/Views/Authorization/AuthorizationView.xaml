@@ -6,7 +6,9 @@
              mc:Ignorable="d"             
              xmlns:sf="http://schemas.syncfusion.com/wpf"
              xmlns:prism="http://prismlibrary.com/"
-             xmlns:i="http://schemas.microsoft.com/xaml/behaviors">
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:syncfusionskin="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF"
+             syncfusionskin:SfSkinManager.Theme="{syncfusionskin:SkinManagerExtension ThemeName=Windows11Dark}">
     <!--Loading UI-->
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Loaded">
@@ -18,7 +20,7 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/Syncfusion.Themes.Windows11Light.WPF;component/MSControl/GlyphButton.xaml"/>
+                <ResourceDictionary Source="/Syncfusion.Themes.Windows11Dark.WPF;component/MSControl/GlyphButton.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>

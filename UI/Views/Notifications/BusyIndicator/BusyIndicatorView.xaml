@@ -16,7 +16,7 @@
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center"
                                         Header="{Binding Message}"
-                                        Foreground="Black"
+                                        Foreground="White"
                                         Visibility="{Binding VisibilityIndicator}"/>
             
         <Grid.Style>
