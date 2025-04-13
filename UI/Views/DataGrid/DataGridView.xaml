@@ -5,35 +5,68 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:UI.Views"
              xmlns:sf="clr-namespace:Syncfusion.UI.Xaml.Grid;assembly=Syncfusion.SfGrid.WPF"
-
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:prism="http://prismlibrary.com/"
              xmlns:syncfusionskin="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF"
              syncfusionskin:SfSkinManager.Theme="{syncfusionskin:SkinManagerExtension ThemeName=Windows11Dark}"
              mc:Ignorable="d">
     
-    
     <Grid>
-        
-        <sf:SfDataGrid
-            x:Name = "dataGrid"
-            ItemsSource="{Binding TableData}"
-            Columns="{Binding Columns}"
-            LiveDataUpdateMode="AllowDataShaping"
+        <sf:SfDataGrid x:Name="SfDataGrid"
+            ItemsSource="{Binding Items}"
+            SelectedItem="{Binding SelectedItem}"
+            NavigationMode="Cell"
             AddNewRowPosition="Top"
-            AllowFiltering="True"
-            AllowDeleting="True"
-            AllowGrouping="True"
-            AllowDraggingColumns="True"
-            AllowEditing="True"
-            ShowBusyIndicator="True"
+            AddNewRowText="Натисніть для додавання запису"
+            GroupDropAreaText="Перетягніть для групування"
             ShowGroupDropArea="True"
-            ShowColumnWhenGrouped="True"
-            IsGroupDropAreaExpanded="False"
-            FilterRowPosition="Top"
-            GridLinesVisibility="Both"
-            HeaderLinesVisibility="Both"
-            AddNewRowText="Додати новий запис"/>
+            AllowGrouping="True"
+            NewItemPlaceholderPosition="AtBeginning"
+            LostFocusBehavior="Default"
+            AutoGenerateColumns="True"
+            AllowEditing="True"
+            AllowSorting="True"
+            AllowFiltering="True"
+            NotifyEventsToParentDataGrid="False"
+            AllowResizingColumns="True"
+            ShowBusyIndicator="True"
+            EnableDataVirtualization="False"
+            GridLinesVisibility="Both">
             
+            <sf:SfDataGrid.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Видалити запис" Command="{Binding DeleteRecordCommand}"/>
+                </ContextMenu>
+            </sf:SfDataGrid.ContextMenu>
+            
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="AutoGeneratingColumn">
+                    <i:InvokeCommandAction Command="{Binding AutoGeneratingColumnCommand}" 
+                                          PassEventArgsToCommand="True"/>
+                </i:EventTrigger>
+                
+                <i:EventTrigger EventName="RowValidated">
+                    <i:InvokeCommandAction Command="{Binding RowValidatedCommand}"
+                                           PassEventArgsToCommand="True"/>
+                </i:EventTrigger>
+                
+                <i:EventTrigger EventName="CurrentCellBeginEdit">
+                    <i:InvokeCommandAction Command="{Binding CellBeginEditCommand}"
+                                           PassEventArgsToCommand="True"/>
+                </i:EventTrigger>
+                
+                <i:EventTrigger EventName="CurrentCellEndEdit">
+                    <i:InvokeCommandAction Command="{Binding CurrentCellEndEditCommand}"
+                                           PassEventArgsToCommand="True"/>
+                </i:EventTrigger>
+                
+                <i:EventTrigger EventName="Loaded">
+                    <i:InvokeCommandAction Command="{Binding SfDataGridLoadedCommand}"
+                                           CommandParameter="{Binding ElementName=SfDataGrid}"/>
+                </i:EventTrigger>
+                
+            </i:Interaction.Triggers>
+            
+        </sf:SfDataGrid>
     </Grid>
 </UserControl>

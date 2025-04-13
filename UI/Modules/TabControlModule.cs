@@ -1,4 +1,5 @@
-﻿using UI.ViewModels.Tabs;
+﻿using Core.Models.DataGrid;
+using UI.ViewModels.Tabs;
 using UI.ViewModels.TabControl;
 using UI.Views.NavDrawer.NavDrawerItems.EquipmentTree;
 using UI.ViewModels.DataGrid;
@@ -43,7 +44,8 @@ public class TabControlModule : IModule
         containerRegistry.RegisterForNavigation<ColumnSelectorView, ColumnSelectorViewModel>();
         
         // Data grid
-        containerRegistry.RegisterSingleton<IDataGridViewModelFactory, DataGridViewModelModelFactory>(); // Factory
+        containerRegistry.Register<IDataGridViewModelFactory, DataGridViewModelModelFactory>(); // Factory
+        containerRegistry.Register<DataGridModel>();
         containerRegistry.RegisterForNavigation<DataGridView, DataGridViewModel>();
         
         // Other tabs 

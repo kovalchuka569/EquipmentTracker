@@ -6,16 +6,24 @@ namespace UI.Services.Factory;
 
 public class DataGridViewModelModelFactory : IDataGridViewModelFactory
 {
-    private readonly DataGridModel _model;
+    private readonly IContainerProvider _containerProvider;
+    private readonly Dictionary<string, DataGridViewModel> _viewModels = new Dictionary<string, DataGridViewModel>();
 
-    public DataGridViewModelModelFactory(DataGridModel model)
+    public DataGridViewModelModelFactory(IContainerProvider containerProvider)
     {
-        _model = model;
+        _containerProvider = containerProvider;
+        Console.WriteLine($"Создан DataGridViewModelFactory: {GetHashCode()}");
     }
 
     public DataGridViewModel Create(string tableName)
     {
-        var vm = new DataGridViewModel(_model);
-        return vm;
+        Console.WriteLine("Создание нового DataGridViewModel");
+        if (_viewModels.TryGetValue(tableName, out var existingViewModel))
+        {
+            return existingViewModel;
+        }
+        var newViewModel = _containerProvider.Resolve<DataGridViewModel>();
+        _viewModels[tableName] = newViewModel;
+        return newViewModel;
     }
 }

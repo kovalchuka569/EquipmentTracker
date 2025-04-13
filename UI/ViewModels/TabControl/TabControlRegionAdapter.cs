@@ -20,14 +20,9 @@ public class TabControlRegionAdapter : RegionAdapterBase<TabControlExt>
             // Prevent content from reloading when switching tabs
             _tabControl.SelectionChanged += (sender, e) =>
             {
-                // When switching tabs, save the UI state
-                if (e.RemovedItems.Count > 0 && e.RemovedItems[0] is TabItemExt oldTab)
-                {
-                    // ...
-                }
-                
                 if (e.AddedItems.Count > 0 && e.AddedItems[0] is TabItemExt newTab)
                 {
+                    Console.WriteLine($"Активирована вкладка: {newTab.Header}");
                     // Activate the view in the region
                     if (newTab.Content is FrameworkElement content)
                     {

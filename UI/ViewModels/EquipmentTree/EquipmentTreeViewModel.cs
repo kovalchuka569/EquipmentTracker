@@ -59,7 +59,6 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware
     
     #endregion 
     
-    
 
     #region Services
 
@@ -119,8 +118,6 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware
     
 
     #endregion
-
-    
     
     
     #region Constructor
@@ -334,8 +331,6 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware
         }
     }
     #endregion
-    
-
 
     #region OnEdit
     private void OnEdit()

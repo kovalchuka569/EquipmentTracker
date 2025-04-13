@@ -165,6 +165,11 @@
       <Page Update="Views\NavDrawer\NavDrawerItems\EquipmentTree\ColumnSelector\ColumnSelectorView.xaml">
         <Generator>MSBuild:Compile</Generator>
       </Page>
+      <Page Update="Views\DataGrid\ConfirmationView.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
     </ItemGroup>
 
 </Project>
