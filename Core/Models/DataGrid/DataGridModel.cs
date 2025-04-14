@@ -78,6 +78,11 @@ public class DataGridModel
             // Log exception
             throw;
         }
+        finally
+        {
+            if (connection.State == ConnectionState.Open)
+                await connection.CloseAsync();
+        }
         
         return data;
     }
@@ -88,25 +93,23 @@ public class DataGridModel
         {
             return null;
         }
-        var connection = _context.Database.GetDbConnection() as NpgsqlConnection;
+        using var connection = new NpgsqlConnection(_context.Database.GetConnectionString());       
         try
         {
-            if (connection.State != ConnectionState.Open)
-            {
-                await _context.Database.OpenConnectionAsync();
-            }
+            await connection.OpenAsync();
+
             values.Remove("id");
             if (values.Count == 0)
             {
                 return null;
             }
-            
+
             var columnTypes = await GetColumnTypesAsync(tableName);
 
             var columns = new List<string>();
             var paramPlaceholders = new List<string>();
             var parameters = new List<NpgsqlParameter>();
-            
+
             int paramIndex = 0;
             foreach (var kvp in values)
             {
@@ -114,7 +117,7 @@ public class DataGridModel
                 {
                     columns.Add($"\"{kvp.Key}\"");
                     paramPlaceholders.Add($"@p{paramIndex}");
-                
+
                     // Convert value to the appropriate type based on the column data type
                     object convertedValue = ConvertValueToColumnType(kvp.Value, dataType);
                     parameters.Add(new NpgsqlParameter($"@p{paramIndex}", convertedValue ?? DBNull.Value)
@@ -122,10 +125,11 @@ public class DataGridModel
                         // Explicitly set NpgsqlDbType if necessary
                         NpgsqlDbType = GetNpgsqlDbType(dataType)
                     });
-                
+
                     paramIndex++;
                 }
             }
+
             string sql = $"INSERT INTO \"UserTables\".\"{tableName}\" ({string.Join(", ", columns)}) VALUES ({string.Join(", ", paramPlaceholders)}) RETURNING \"id\"";
 
             using (var cmd = new NpgsqlCommand(sql, connection))
@@ -134,6 +138,7 @@ public class DataGridModel
                 {
                     cmd.Parameters.Add(param);
                 }
+
                 return await cmd.ExecuteScalarAsync();
             }
         }
@@ -142,13 +147,19 @@ public class DataGridModel
             Console.WriteLine(e);
             throw;
         }
+        finally
+        {
+            if (connection.State == ConnectionState.Open)
+                await connection.CloseAsync();
+        }
     }
 
     public async Task DeleteRecordAsync(string tableName, object id)
     {
+        var connection = _context.Database.GetDbConnection() as NpgsqlConnection;
+
         try
-        {
-            var connection = _context.Database.GetDbConnection() as NpgsqlConnection;
+        { 
             if (connection.State != ConnectionState.Open)
             {
                 await _context.Database.OpenConnectionAsync();
@@ -164,13 +175,17 @@ public class DataGridModel
             Console.WriteLine(e);
             throw;
         }
+        finally
+        {
+                await connection.CloseAsync();
+        }
     }
 
    public async Task UpdateRecordAsync(string tableName, object id, Dictionary<string, object> values)
     {
+        var connection = _context.Database.GetDbConnection() as NpgsqlConnection;
         try
-        {
-            var connection = _context.Database.GetDbConnection() as NpgsqlConnection;
+        { 
             if (connection.State != ConnectionState.Open)
             {
                 await _context.Database.OpenConnectionAsync();
@@ -229,6 +244,11 @@ public class DataGridModel
             Console.WriteLine($"Database error: {ex.Message}, SqlState: {ex.SqlState}");
             throw;
         }
+        finally
+        {
+            if (connection.State == ConnectionState.Open)
+                await connection.CloseAsync();
+        }
 }
 
     public async Task<Dictionary<string, string>> GetColumnTypesAsync(string tableName)
@@ -241,7 +261,9 @@ public class DataGridModel
             {
                 await _context.Database.OpenConnectionAsync();
             }
-            string sql = @"SELECT column_name, data_type FROM information_schema.columns WHERE table_schema = 'UserTables' AND table_name = @tableName";
+
+            string sql =
+                @"SELECT column_name, data_type FROM information_schema.columns WHERE table_schema = 'UserTables' AND table_name = @tableName";
             using (var cmd = new NpgsqlCommand(sql, connection))
             {
                 cmd.Parameters.Add(new NpgsqlParameter("tableName", tableName));
@@ -260,6 +282,11 @@ public class DataGridModel
         {
             Console.WriteLine(e);
             throw;
+        }
+        finally
+        {
+            if (connection.State == ConnectionState.Open)
+                await connection.CloseAsync();
         }
         return columnTypes;
     }

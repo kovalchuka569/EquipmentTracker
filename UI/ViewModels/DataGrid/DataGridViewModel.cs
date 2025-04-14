@@ -16,12 +16,16 @@ using Prism.Common;
 using Syncfusion.UI.Xaml.Grid.Helpers;
 using Syncfusion.Windows.Controls.Cells;
 using Syncfusion.Windows.Controls.Grid;
+using UI.Services.Logging;
 using RowColumnIndex = Syncfusion.UI.Xaml.Grid.ScrollAxis.RowColumnIndex;
 
 namespace UI.ViewModels.DataGrid;
 
 public class DataGridViewModel : BindableBase, INavigationAware
 {
+    
+    private readonly IAppLogger<DataGridViewModel> _logger;
+    
     private readonly DataGridModel _model;
     private string _currentTableName;
     private ObservableCollection<ExpandoObject> _data;
@@ -79,11 +83,13 @@ public class DataGridViewModel : BindableBase, INavigationAware
     /// Initializes a new instance of DataGridViewModel
     /// </summary>
     /// <param name="model">The DataGridModel to use for data operations</param>
-    public DataGridViewModel(DataGridModel model)
+    public DataGridViewModel(DataGridModel model, IAppLogger<DataGridViewModel> logger)
     {
         _model = model;
+        _logger = logger;
         _data = new ObservableCollection<ExpandoObject>();
-        Console.WriteLine($"Создан новый ViewModel: {_guid}");
+        
+        _logger.LogInformation("DataGrid model loaded");
     }
     
 
@@ -146,12 +152,18 @@ public class DataGridViewModel : BindableBase, INavigationAware
         var columnIndex = args.RowColumnIndex.ColumnIndex;
         var mappingName = _sfDataGrid.Columns[columnIndex].MappingName;
         var rowData = _sfDataGrid.GetRecordAtRowIndex(rowIndex) as IDictionary<string, object>;
-
-        if (rowData == null || !rowData.ContainsKey("id"))
+        Console.WriteLine(!rowData.ContainsKey("id"));
+        if (rowData == null)
         {
-            Console.WriteLine("Введено пустое значение или не сущесвует id");
+            Console.WriteLine("Введено пустое значение в ячейку");
+        }
+
+        if (!rowData.ContainsKey("id"))
+        {
+            Console.WriteLine("Не найдено id записи, происходит добавление новой записи");
             return;
         }
+        
         var id = rowData["id"];
         var newValue = rowData[mappingName];
         
@@ -170,7 +182,7 @@ public class DataGridViewModel : BindableBase, INavigationAware
         Console.WriteLine("Строка свалидировалась из " + _guid);
     }
 
-    private void OnDataGridLoaded(SfDataGrid sfDataGrid)
+    private async void OnDataGridLoaded(SfDataGrid sfDataGrid)
     {
         _sfDataGrid = sfDataGrid;
     }
@@ -192,10 +204,7 @@ public class DataGridViewModel : BindableBase, INavigationAware
         
         Console.WriteLine($"OnNavigatedTo для ViewModel {GetHashCode()} с таблицей {_currentTableName}");
         
-        if (!string.IsNullOrEmpty(_currentTableName))
-        {
-            await LoadData();
-        }
+        await LoadData();
     }
     
     /// <summary>
@@ -208,10 +217,13 @@ public class DataGridViewModel : BindableBase, INavigationAware
         
         Items.Clear();
         var data = await _model.GetDataAsync(_currentTableName);
-        foreach (var item in data)
+        Application.Current.Dispatcher.Invoke(() =>
         {
-            Items.Add(item); 
-        }
+            foreach (var item in data)
+            {
+                Items.Add(item); 
+            }
+        });
         
         // Subscribe to collection events after loading data
         Items.CollectionChanged += Items_CollectionChanged;
