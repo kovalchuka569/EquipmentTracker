@@ -1,7 +1,7 @@
-﻿using System.ComponentModel;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Serilog;
-using UI.Services.Logging;
+using Common.Logging;
+using UI.ViewModels.DataGrid;
 
 namespace UI.Modules
 {

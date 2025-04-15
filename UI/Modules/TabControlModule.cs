@@ -1,4 +1,5 @@
 ﻿using Core.Models.DataGrid;
+using Core.Services.DataGrid;
 using UI.ViewModels.Tabs;
 using UI.ViewModels.TabControl;
 using UI.Views.NavDrawer.NavDrawerItems.EquipmentTree;
@@ -6,6 +7,7 @@ using UI.ViewModels.DataGrid;
 using UI.Views.NavDrawer.NavDrawerItems.EquipmentTree.ColumnSelector;
 
 using Core.Services.TabControlExt;
+using Data.Repositories.DataGrid;
 using UI.Interfaces.Factory;
 using UI.Services.Factory;
 using UI.ViewModels.EquipmentTree;
@@ -44,9 +46,11 @@ public class TabControlModule : IModule
         containerRegistry.RegisterForNavigation<ColumnSelectorView, ColumnSelectorViewModel>();
         
         // Data grid
-        containerRegistry.Register<IDataGridViewModelFactory, DataGridViewModelModelFactory>(); // Factory
-        containerRegistry.Register<DataGridModel>();
-        containerRegistry.RegisterForNavigation<DataGridView, DataGridViewModel>();
+        containerRegistry.RegisterForNavigation<DataGridView, DataGridViewModel>(); // View, ViewModel
+        containerRegistry.Register<IDataGridViewModelFactory, DataGridViewModelFactory>(); // Factory for ViewModel
+        containerRegistry.Register<IDataGridService, DataGridService>(); // Service for DataGrid
+        containerRegistry.Register<IDataGridColumnService, DataGridColumnService>(); // Service for columns SfDataGrid
+        containerRegistry.Register<IDataGridRepository, DataGridRepository>(); // Repository
         
         // Other tabs 
         containerRegistry.RegisterForNavigation<SchedulerView, SchedulerViewModel>();

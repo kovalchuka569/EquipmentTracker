@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 
-namespace UI.Services.Logging
+namespace Common.Logging
 {
     public class AppLogger<T> : IAppLogger<T>
     {
@@ -10,7 +10,7 @@ namespace UI.Services.Logging
         {
             _logger = logger;
         }
-
+        
         public void LogDebug(string message, params object[] args)
         {
             _logger.LogDebug(message, args);

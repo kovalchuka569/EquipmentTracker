@@ -1,23 +1,14 @@
 ﻿using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Dynamic;
-using System.Windows.Input;
-using Core.Models.DataGrid;
-using Prism.Commands;
-using Prism.Mvvm;
-using Prism.Navigation.Regions;
-using Syncfusion.UI.Xaml.Grid;
-using System.Data;
-using Npgsql;
-using System.Reflection;
-using System.Windows;
 using System.Windows.Controls;
-using Prism.Common;
+using Syncfusion.UI.Xaml.Grid;
 using Syncfusion.UI.Xaml.Grid.Helpers;
-using Syncfusion.Windows.Controls.Cells;
-using Syncfusion.Windows.Controls.Grid;
-using UI.Services.Logging;
-using RowColumnIndex = Syncfusion.UI.Xaml.Grid.ScrollAxis.RowColumnIndex;
+
+using Core.Services.DataGrid;
+using Core.Models.DataGrid;
+
+using Common.Logging;
 
 namespace UI.ViewModels.DataGrid;
 
@@ -25,27 +16,22 @@ public class DataGridViewModel : BindableBase, INavigationAware
 {
     
     private readonly IAppLogger<DataGridViewModel> _logger;
+    private readonly IDataGridService _dataGridService;
+    private readonly IDataGridColumnService _dataGridColumnService;
     
-    private readonly DataGridModel _model;
     private string _currentTableName;
     private ObservableCollection<ExpandoObject> _data;
+    private Dictionary<string, string> _columnTypes;
     private ExpandoObject _selectedItem;
     private string _guid = Guid.NewGuid().ToString();
     private SfDataGrid _sfDataGrid;
     
-    private DelegateCommand<object> _autoGeneratingColumnCommand;
     private DelegateCommand<CurrentCellBeginEditEventArgs> _cellBeginEditCommand;
     private AsyncDelegateCommand<CurrentCellEndEditEventArgs> _currentCellEndEditCommand;
     private DelegateCommand<RowValidatedEventArgs> _rowValidatedCommand;
     private DelegateCommand<SfDataGrid> _sfDataGridLoadedCommand;
     private DelegateCommand _deleteRecordCommand;
-
-
     
-
-    /// <summary>
-    /// Gets or sets the data items displayed in the DataGrid
-    /// </summary>
     public ObservableCollection<ExpandoObject> Items
     {
         get => _data;
@@ -58,225 +44,233 @@ public class DataGridViewModel : BindableBase, INavigationAware
         set => SetProperty(ref _selectedItem, value);
     }
     
-    
-    /// <summary>
-    /// Command that handles the AutoGeneratingColumn event
-    /// </summary>
-    public DelegateCommand<object> AutoGeneratingColumnCommand =>
-        _autoGeneratingColumnCommand ??= new Prism.Commands.DelegateCommand<object>(HandleAutoGeneratingColumn);
     public DelegateCommand<CurrentCellBeginEditEventArgs> CellBeginEditCommand =>
         _cellBeginEditCommand ??= new DelegateCommand<CurrentCellBeginEditEventArgs>(HandleCellBeginEdit);
 
     public AsyncDelegateCommand<CurrentCellEndEditEventArgs> CurrentCellEndEditCommand =>
         _currentCellEndEditCommand ??= new AsyncDelegateCommand<CurrentCellEndEditEventArgs>(HandleCurrentCellEndEdit);
     public DelegateCommand<RowValidatedEventArgs> RowValidatedCommand =>
-    _rowValidatedCommand??= new DelegateCommand<RowValidatedEventArgs>(HandleRowValidated1);
+    _rowValidatedCommand??= new DelegateCommand<RowValidatedEventArgs>(HandleRowValidated);
 
     public DelegateCommand<SfDataGrid> SfDataGridLoadedCommand =>
         _sfDataGridLoadedCommand ??= new DelegateCommand<SfDataGrid>(OnDataGridLoaded);
     public DelegateCommand DeleteRecordCommand =>
         _deleteRecordCommand ??= new DelegateCommand(OnDeleteRecord);
     
-
-
-    /// <summary>
-    /// Initializes a new instance of DataGridViewModel
-    /// </summary>
-    /// <param name="model">The DataGridModel to use for data operations</param>
-    public DataGridViewModel(DataGridModel model, IAppLogger<DataGridViewModel> logger)
+    
+    public DataGridViewModel(IAppLogger<DataGridViewModel> logger, IDataGridService dataGridService, IDataGridColumnService dataGridColumnService)
     {
-        _model = model;
         _logger = logger;
+        _dataGridService = dataGridService;
+        _dataGridColumnService = dataGridColumnService;
         _data = new ObservableCollection<ExpandoObject>();
         
-        _logger.LogInformation("DataGrid model loaded");
+        _logger.LogInformation("DataGridViewModel loaded");
     }
     
 
+    #region Items_CollectionChanged
     private async void Items_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
-        // Add new record in Data Base
-        if (e.Action == NotifyCollectionChangedAction.Add)
+        try
         {
-            foreach (var item in e.NewItems)
+            // Add new record
+            if (e.Action == NotifyCollectionChangedAction.Add)
             {
-                var record = item as IDictionary<string, object>;
-                if (record != null)
+                foreach (var item in e.NewItems)
                 {
-                    var dict = new Dictionary<string, object>();
-                    foreach (var prop in record)
+                    var record = item as IDictionary<string, object>;
+                    if (record != null)
                     {
-                       dict[prop.Key] = prop.Value; 
+                        _logger.LogInformation("Adding new record to table {TableName} (GUID: {Guid})", _currentTableName, _guid);
+                        var dict = new Dictionary<string, object>();
+                        foreach (var prop in record)
+                        {
+                            dict[prop.Key] = prop.Value;
+                        }
+                        var insertedId = await _dataGridService.InsertRecordAsync(_currentTableName, dict);
+                        if (insertedId != null)
+                        {
+                            record["id"] = insertedId;
+                            _logger.LogInformation("Added record with ID {Id} to table {TableName} (GUID: {Guid})", insertedId, _currentTableName, _guid);
+                        }
+                        else
+                        {
+                            _logger.LogWarning("Failed to retrieve ID for new record in table {TableName} (GUID: {Guid})", _currentTableName, _guid);
+                        }
                     }
-                    var insertedId = await _model.InsertRecordAsync(_currentTableName, dict);
-                    if (insertedId != null)
+                }
+            }
+            
+            // Delete record
+            else if (e.Action == NotifyCollectionChangedAction.Remove)
+            {
+                foreach (var item in e.OldItems)
+                {
+                    var record = item as IDictionary<string, object>;
+                    if (record != null && record.ContainsKey("id") && record["id"] != null)
                     {
-                        record["id"] = insertedId;
-                        Console.WriteLine("Added record, new ID: " + insertedId);
+                        var id = record["id"];
+                        _logger.LogInformation("Removing record with ID {Id} from table {TableName} (GUID: {Guid})", id, _currentTableName, _guid);
+                        await _dataGridService.DeleteRecordAsync(_currentTableName, id);
+                        _logger.LogInformation("Removed record with ID {Id} from table {TableName} (GUID: {Guid})", id, _currentTableName, _guid);
                     }
                 }
             }
         }
-        
-        // Delete record from Data Base
-        if (e.Action == NotifyCollectionChangedAction.Remove)
+        catch (Exception ex)
         {
-            foreach (var item in e.OldItems)
-            {
-                var record = item as IDictionary<string, object>;
-                if (record != null && record.ContainsKey("id") && record["id"] != null)
-                {
-                    var id = record["id"];
-                    await _model.DeleteRecordAsync(_currentTableName, id);
-                    Console.WriteLine($"Removed record: {id}");
-                }
-            }
+            _logger.LogError(ex, "Error during collection change for table {TableName} (GUID: {Guid})", _currentTableName, _guid);
+            throw;
         }
     }
+    #endregion
 
+    #region OnDeleteRecord
     private void OnDeleteRecord()
     {
-        if (SelectedItem != null)
+        try
         {
-            Items.Remove(SelectedItem);
+            if (SelectedItem != null)
+            {
+                _logger.LogInformation("Initiating delete of selected record in table {TableName} (GUID: {Guid})", _currentTableName, _guid);
+                Items.Remove(SelectedItem);
+                _logger.LogInformation("Selected record deleted from table {TableName} (GUID: {Guid})", _currentTableName, _guid);
+            }
+            else
+            {
+                _logger.LogWarning("No record selected for deletion in table {TableName} (GUID: {Guid})", _currentTableName, _guid);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error deleting record in table {TableName} (GUID: {Guid})", _currentTableName, _guid);
+            throw;
         }
     }
+    #endregion
     
+    #region HandleCellBeginEdit
     private void HandleCellBeginEdit(CurrentCellBeginEditEventArgs args)
     {
-        Console.WriteLine("Начинаем редактирование или добавление " + _guid);
+        _logger.LogInformation("Starting cell edit in table {TableName} (GUID: {Guid})", _currentTableName, _guid);
     }
+    #endregion
+    
+    #region HandleCurrentCellEndEdit
     private async Task HandleCurrentCellEndEdit(CurrentCellEndEditEventArgs args)
     {
-        var rowIndex = args.RowColumnIndex.RowIndex;
-        var columnIndex = args.RowColumnIndex.ColumnIndex;
-        var mappingName = _sfDataGrid.Columns[columnIndex].MappingName;
-        var rowData = _sfDataGrid.GetRecordAtRowIndex(rowIndex) as IDictionary<string, object>;
-        Console.WriteLine(!rowData.ContainsKey("id"));
-        if (rowData == null)
+        try
         {
-            Console.WriteLine("Введено пустое значение в ячейку");
-        }
+            var rowIndex = args.RowColumnIndex.RowIndex;
+            var columnIndex = args.RowColumnIndex.ColumnIndex;
+            var mappingName = _sfDataGrid.Columns[columnIndex].MappingName;
+            var rowData = _sfDataGrid.GetRecordAtRowIndex(rowIndex) as IDictionary<string, object>;
 
-        if (!rowData.ContainsKey("id"))
-        {
-            Console.WriteLine("Не найдено id записи, происходит добавление новой записи");
-            return;
-        }
-        
-        var id = rowData["id"];
-        var newValue = rowData[mappingName];
-        
-        Console.WriteLine($"Изменено поле: {mappingName}, новое значение: {newValue}, id: {id}");
-        Console.WriteLine("Заканчиваем редактирование " + _guid);
+            if (rowData == null)
+            {
+                _logger.LogWarning("No row data found for cell edit at row {RowIndex}, column {ColumnIndex} in table {TableName} (GUID: {Guid})",
+                    rowIndex, columnIndex, _currentTableName, _guid);
+                return;
+            }
 
-        var updateDic = new Dictionary<string, object>
+            if (!rowData.ContainsKey("id"))
+            {
+                _logger.LogInformation("No ID found, assuming new record creation in table {TableName} (GUID: {Guid})", _currentTableName, _guid);
+                return;
+            }
+
+            var id = rowData["id"];
+            var newValue = rowData[mappingName];
+            _logger.LogInformation("Updating field {FieldName} with value {NewValue} for record ID {Id} in table {TableName} (GUID: {Guid})",
+                mappingName, newValue, id, _currentTableName, _guid);
+
+            var updateDic = new Dictionary<string, object> { { mappingName, newValue } };
+            await _dataGridService.UpdateRecordAsync(_currentTableName, id, updateDic);
+            _logger.LogInformation("Successfully updated field {FieldName} for record ID {Id} in table {TableName} (GUID: {Guid})",
+                mappingName, id, _currentTableName, _guid);
+        }
+        catch (Exception ex)
         {
-            { mappingName, newValue }
-        };
-        await _model.UpdateRecordAsync(_currentTableName, id, updateDic);
+            _logger.LogError(ex, "Error updating cell in table {TableName} (GUID: {Guid})", _currentTableName, _guid);
+            throw;
+        }
     }
+    #endregion
 
-    private void HandleRowValidated1(RowValidatedEventArgs args)
+    #region HandleRowValidated
+    private void HandleRowValidated(RowValidatedEventArgs args)
     {
-        Console.WriteLine("Строка свалидировалась из " + _guid);
+        _logger.LogInformation("Row validated in table {TableName} (GUID: {Guid})", _currentTableName, _guid);
     }
+    #endregion
 
+    #region OnDataGridLoaded
     private async void OnDataGridLoaded(SfDataGrid sfDataGrid)
     {
         _sfDataGrid = sfDataGrid;
-    }
-    
+        _logger.LogInformation("DataGrid loaded for table {TableName} (GUID: {Guid})", _currentTableName, _guid);
 
-    private void HandleAddNewRowInitiating(AddNewRowInitiatingEventArgs e)
-    {
-        Console.WriteLine("HandleAddNewRowInitiating");
-    }
-    
-    /// <summary>
-    /// Called when navigated to this view, loads data from the specified table
-    /// </summary>
-    /// <param name="navigationContext">The navigation context</param>
-    public async void OnNavigatedTo(NavigationContext navigationContext)
-    {
-        string tableName = navigationContext.Parameters["parameter"] as string;
-        _currentTableName = tableName;
+        if (_columnTypes == null)
+        {
+            _columnTypes = await _dataGridColumnService.GetColumnTypesAsync(_currentTableName);
+        }
         
-        Console.WriteLine($"OnNavigatedTo для ViewModel {GetHashCode()} с таблицей {_currentTableName}");
+        _sfDataGrid.Columns.Clear();
+        foreach (var columnInfo in _columnTypes)
+        {
+            var column = _dataGridColumnService.CreateColumnFromDbType(columnInfo.Key, columnInfo.Value);
+            _sfDataGrid.Columns.Add(column);
+        }
         
         await LoadData();
     }
+    #endregion
     
-    /// <summary>
-    /// Loads data from the database for the current table
-    /// </summary>
+    #region LoadData
     private async Task LoadData()
     {
-        // Unsubscribe from collection event during loading
-        Items.CollectionChanged -= Items_CollectionChanged;
-        
-        Items.Clear();
-        var data = await _model.GetDataAsync(_currentTableName);
-        Application.Current.Dispatcher.Invoke(() =>
+        try
         {
+            _logger.LogInformation("Loading data for table {TableName}", _currentTableName);
+            Items.CollectionChanged -= Items_CollectionChanged;
+            Items.Clear();
+            var data = await _dataGridService.GetDataAsync(_currentTableName);
             foreach (var item in data)
             {
                 Items.Add(item); 
             }
-        });
-        
-        // Subscribe to collection events after loading data
-        Items.CollectionChanged += Items_CollectionChanged;
-    }
-    
-    /// <summary>
-    /// Handles the AutoGeneratingColumn event to customize columns
-    /// </summary>
-    /// <param name="param">Event arguments</param>
-    private void HandleAutoGeneratingColumn(object param)
-    {
-        // Get the column from event args using reflection
-        var columnProperty = param?.GetType().GetProperty("Column");
-        if (columnProperty != null)
+            Items.CollectionChanged += Items_CollectionChanged;
+            _logger.LogInformation("Successfully loaded {Count} records for table {TableName}", data.Count, _currentTableName);
+        }
+        catch (Exception e)
         {
-            var column = columnProperty.GetValue(param) as GridColumn;
-            if (column != null)
-            {
-                // Customize column properties
-                column.AllowEditing = true;
-                column.AllowFiltering = true;
-                column.AllowSorting = true;
-                column.AllowFocus = true;
-                
-                // Hide Id column
-                if (column.MappingName.Equals("Id", StringComparison.OrdinalIgnoreCase))
-                {
-                    // Set visibility to hide the column
-                    column.IsHidden = true;
-                    column.AllowEditing = false;
-                }
-                
-                // Set appropriate header text (can be customized as needed)
-                column.HeaderText = column.MappingName;
-            }
+            _logger.LogError(e, "Failed to load data for table {TableName}", _currentTableName);
+            throw;
         }
     }
-
-    /// <summary>
-    /// Determines if this instance is the navigation target
-    /// </summary>
-    /// <param name="navigationContext">The navigation context</param>
-    /// <returns>True if this is the navigation target</returns>
-    public bool IsNavigationTarget(NavigationContext navigationContext)
+    #endregion
+    
+    #region Navigation
+    public async void OnNavigatedTo(NavigationContext navigationContext)
     {
-        return false;
+        try
+        {
+            _currentTableName = navigationContext.Parameters["parameter"] as string;
+            _logger.LogInformation("Navigated to DataGridViewModel with table {TableName} (GUID: {Guid})", _currentTableName, _guid);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error during navigation to table {TableName} (GUID: {Guid})", _currentTableName, _guid);
+            throw;
+        }
     }
     
-    /// <summary>
-    /// Called when navigated from this view
-    /// </summary>
-    /// <param name="navigationContext">The navigation context</param>
+    public bool IsNavigationTarget(NavigationContext navigationContext) => false;
+
     public void OnNavigatedFrom(NavigationContext navigationContext)
     {
+        _logger.LogInformation("Navigated away from DataGridViewModel for table {TableName} (GUID: {Guid})", _currentTableName, _guid);
     }
+    #endregion
 }

@@ -1,4 +1,4 @@
-﻿namespace UI.Services.Logging
+﻿namespace Common.Logging
 {
     public interface IAppLogger<T>
     {
