@@ -33,16 +33,58 @@
             EnableDataVirtualization="False"
             GridLinesVisibility="Both">
             
-            <sf:SfDataGrid.ContextMenu>
+            <sf:SfDataGrid.DetailsViewDefinition>
+                <sf:GridViewDefinition RelationalColumn="SpareParts">
+                    
+                    
+                    
+                    <sf:GridViewDefinition.DataGrid>
+                        <sf:SfDataGrid x:Name="SpareParts" 
+                                       AddNewRowPosition="Top"
+                                       AddNewRowText="Натисніть для додавання нового запису"
+                                       GroupDropAreaText="Перетягніть для групування"
+                                       ShowGroupDropArea="True"
+                                       AllowGrouping="True"
+                                       NewItemPlaceholderPosition="AtBeginning"
+                                       LostFocusBehavior="Default"
+                                       AutoGenerateColumns="True"
+                                       AllowEditing="True"
+                                       AllowSorting="True"
+                                       AllowFiltering="True"
+                                       NavigationMode="Cell"
+                                       NotifyEventsToParentDataGrid="False"
+                                       AllowResizingColumns="True"
+                                       ShowBusyIndicator="True"
+                                       EnableDataVirtualization="False"
+                                       GridLinesVisibility="Both">
+                            
+                        </sf:SfDataGrid>
+                    </sf:GridViewDefinition.DataGrid>
+                </sf:GridViewDefinition>
+            </sf:SfDataGrid.DetailsViewDefinition>
+            
+                <sf:SfDataGrid.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Видалити запис" Command="{Binding DeleteRecordCommand}"/>
                 </ContextMenu>
             </sf:SfDataGrid.ContextMenu>
             
             <i:Interaction.Triggers>
+                
                 <i:EventTrigger EventName="AutoGeneratingColumn">
                     <i:InvokeCommandAction Command="{Binding AutoGeneratingColumnCommand}" 
                                           PassEventArgsToCommand="True"/>
+                </i:EventTrigger>
+                
+                <i:EventTrigger EventName="DetailsViewLoading">
+                    <i:InvokeCommandAction Command = "{Binding DetailsViewLoadingCommand}" 
+                                           PassEventArgsToCommand="True"
+                                           CommandParameter="{Binding ElementName=SpareParts}"/>
+                </i:EventTrigger>
+                
+                <i:EventTrigger EventName="DetailsViewExpanded">
+                    <i:InvokeCommandAction Command="{Binding DetailsViewExpandedCommand}" 
+                                           PassEventArgsToCommand="True"/>
                 </i:EventTrigger>
                 
                 <i:EventTrigger EventName="RowValidated">

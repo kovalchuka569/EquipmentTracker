@@ -49,8 +49,10 @@ public class TabControlModule : IModule
         containerRegistry.RegisterForNavigation<DataGridView, DataGridViewModel>(); // View, ViewModel
         containerRegistry.Register<IDataGridViewModelFactory, DataGridViewModelFactory>(); // Factory for ViewModel
         containerRegistry.Register<IDataGridService, DataGridService>(); // Service for DataGrid
+        containerRegistry.Register<ISparePartsService, SparePartsService>(); // Service for SpareParts
         containerRegistry.Register<IDataGridColumnService, DataGridColumnService>(); // Service for columns SfDataGrid
-        containerRegistry.Register<IDataGridRepository, DataGridRepository>(); // Repository
+        containerRegistry.Register<IDataGridRepository, DataGridRepository>(); // Repository for DataGrid
+        containerRegistry.Register<ISparePartsRepository, SparePartsRepository>(); // Repository for SpareParts
         
         // Other tabs 
         containerRegistry.RegisterForNavigation<SchedulerView, SchedulerViewModel>();

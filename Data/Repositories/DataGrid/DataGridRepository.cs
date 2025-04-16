@@ -25,18 +25,18 @@ namespace Data.Repositories.DataGrid
         public async Task<ObservableCollection<ExpandoObject>> GetDataAsync(string tableName)
         {
             var data = new ObservableCollection<ExpandoObject>();
-            var connection = _context.Database.GetDbConnection() as NpgsqlConnection;
-
             try
             {
                 _logger.LogInformation("Executing query to fetch data from table {TableName}", tableName);
-                if (connection.State != ConnectionState.Open)
-                {
-                    _logger.LogInformation("Database connection closed, opening");
-                    await _context.Database.OpenConnectionAsync();
-                }
 
                 string query = $"SELECT * FROM \"UserTables\".\"{tableName}\"";
+                var connection = _context.Database.GetDbConnection() as NpgsqlConnection;
+                
+                if (connection.State != ConnectionState.Open)
+                {
+                    await connection.OpenAsync();
+                }
+                
                 using var cmd = new NpgsqlCommand(query, connection);
                 using var reader = await cmd.ExecuteReaderAsync();
 
@@ -71,14 +71,6 @@ namespace Data.Repositories.DataGrid
             {
                 _logger.LogError(e, "Error fetching data from table {TableName}", tableName);
                 throw;
-            }
-            finally
-            {
-                if (connection.State == ConnectionState.Open)
-                {
-                    _logger.LogInformation("Finally closing database connection");
-                    await _context.Database.CloseConnectionAsync();
-                }
             }
         }
         #endregion
@@ -161,14 +153,6 @@ namespace Data.Repositories.DataGrid
                 _logger.LogError(e, "Unexpected error while inserting record into table {TableName}", tableName);
                 throw;
             }
-            finally
-            {
-                if (connection.State == ConnectionState.Open)
-                {
-                    _logger.LogInformation("Finally closing database connection");
-                    await _context.Database.CloseConnectionAsync();
-                }
-            }
         }
         #endregion
         
@@ -247,14 +231,6 @@ namespace Data.Repositories.DataGrid
             _logger.LogError(ex, "Unexpected error while updating record ID {Id} in table {TableName}", id, tableName);
             throw;
         }
-        finally
-        {
-            if (connection.State == ConnectionState.Open)
-            {
-                _logger.LogInformation("Finally closing database connection");
-                await _context.Database.CloseConnectionAsync();
-            }
-        }
         }
         #endregion
         
@@ -286,14 +262,6 @@ namespace Data.Repositories.DataGrid
             {
                 _logger.LogError(ex, "Unexpected error while deleting record ID {Id} from table {TableName}", id, tableName);
                 throw;
-            }
-            finally
-            {
-                if (connection.State == ConnectionState.Open)
-                {
-                    _logger.LogInformation("Finally closing database connection");
-                    await _context.Database.CloseConnectionAsync();
-                }
             }
         }
         #endregion

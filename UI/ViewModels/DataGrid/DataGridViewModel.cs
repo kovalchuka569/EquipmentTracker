@@ -18,24 +18,43 @@ public class DataGridViewModel : BindableBase, INavigationAware
     private readonly IAppLogger<DataGridViewModel> _logger;
     private readonly IDataGridService _dataGridService;
     private readonly IDataGridColumnService _dataGridColumnService;
+    private readonly ISparePartsService _sparePartsService;
     
     private string _currentTableName;
-    private ObservableCollection<ExpandoObject> _data;
+    private bool _isLoaded = false;
+    
+    private ObservableCollection<ExpandoObject> _items;
+    private ObservableCollection<ExpandoObject> _spareParts;
+    
     private Dictionary<string, string> _columnTypes;
+    private Dictionary<string, string> _columnTypesSpareParts;
+    
     private ExpandoObject _selectedItem;
     private string _guid = Guid.NewGuid().ToString();
+    
     private SfDataGrid _sfDataGrid;
+    private SfDataGrid _sparePartsDataGrid;
     
     private DelegateCommand<CurrentCellBeginEditEventArgs> _cellBeginEditCommand;
     private AsyncDelegateCommand<CurrentCellEndEditEventArgs> _currentCellEndEditCommand;
     private DelegateCommand<RowValidatedEventArgs> _rowValidatedCommand;
+    private DelegateCommand<SfDataGrid> _detailsViewLoadingCommand;
+    private DelegateCommand<GridDetailsViewExpandedEventArgs> _detailsViewExpandedCommand;
+    
     private DelegateCommand<SfDataGrid> _sfDataGridLoadedCommand;
+    private DelegateCommand<SfDataGrid> _sparePartsLoadedCommand;
+    
     private DelegateCommand _deleteRecordCommand;
     
     public ObservableCollection<ExpandoObject> Items
     {
-        get => _data;
-        set => SetProperty(ref _data, value);
+        get => _items;
+        set => SetProperty(ref _items, value);
+    }
+    public ObservableCollection<ExpandoObject> SpareParts
+    {
+        get => _spareParts;
+        set => SetProperty(ref _spareParts, value);
     }
 
     public ExpandoObject SelectedItem
@@ -52,18 +71,29 @@ public class DataGridViewModel : BindableBase, INavigationAware
     public DelegateCommand<RowValidatedEventArgs> RowValidatedCommand =>
     _rowValidatedCommand??= new DelegateCommand<RowValidatedEventArgs>(HandleRowValidated);
 
+    public DelegateCommand<SfDataGrid> DetailsViewLoadingCommand =>
+        _detailsViewLoadingCommand ??= new DelegateCommand<SfDataGrid>(OnDetailsViewLoading);
+
+    public DelegateCommand<GridDetailsViewExpandedEventArgs> DetailsViewExpandedCommand =>
+        _detailsViewExpandedCommand ??= new DelegateCommand<GridDetailsViewExpandedEventArgs>(OnDetailsViewExpanded);
+
     public DelegateCommand<SfDataGrid> SfDataGridLoadedCommand =>
         _sfDataGridLoadedCommand ??= new DelegateCommand<SfDataGrid>(OnDataGridLoaded);
+    
     public DelegateCommand DeleteRecordCommand =>
         _deleteRecordCommand ??= new DelegateCommand(OnDeleteRecord);
     
     
-    public DataGridViewModel(IAppLogger<DataGridViewModel> logger, IDataGridService dataGridService, IDataGridColumnService dataGridColumnService)
+    public DataGridViewModel(IAppLogger<DataGridViewModel> logger, 
+        IDataGridService dataGridService, 
+        IDataGridColumnService dataGridColumnService, 
+        ISparePartsService sparePartsService)
     {
         _logger = logger;
         _dataGridService = dataGridService;
         _dataGridColumnService = dataGridColumnService;
-        _data = new ObservableCollection<ExpandoObject>();
+        _sparePartsService = sparePartsService;
+        _items = new ObservableCollection<ExpandoObject>();
         
         _logger.LogInformation("DataGridViewModel loaded");
     }
@@ -205,49 +235,77 @@ public class DataGridViewModel : BindableBase, INavigationAware
     }
     #endregion
 
+    private async void OnDetailsViewLoading(SfDataGrid sfDataGrid)
+    { 
+        _sparePartsDataGrid = sfDataGrid;
+    }
+
     #region OnDataGridLoaded
     private async void OnDataGridLoaded(SfDataGrid sfDataGrid)
     {
-        _sfDataGrid = sfDataGrid;
-        _logger.LogInformation("DataGrid loaded for table {TableName} (GUID: {Guid})", _currentTableName, _guid);
+        if (_isLoaded == false)
+        {
+            _sfDataGrid = sfDataGrid;
+            _logger.LogInformation("DataGrid loaded for table {TableName} (GUID: {Guid})", _currentTableName, _guid);
 
-        if (_columnTypes == null)
-        {
-            _columnTypes = await _dataGridColumnService.GetColumnTypesAsync(_currentTableName);
-        }
+            if (_columnTypes == null)
+            {
+                _columnTypes = await _dataGridColumnService.GetColumnTypesAsync(_currentTableName);
+            }
         
-        _sfDataGrid.Columns.Clear();
-        foreach (var columnInfo in _columnTypes)
-        {
-            var column = _dataGridColumnService.CreateColumnFromDbType(columnInfo.Key, columnInfo.Value);
-            _sfDataGrid.Columns.Add(column);
-        }
+            _sfDataGrid.Columns.Clear();
+            foreach (var columnInfo in _columnTypes)
+            {
+                var column = _dataGridColumnService.CreateColumnFromDbType(columnInfo.Key, columnInfo.Value);
+                _sfDataGrid.Columns.Add(column);
+            }
         
-        await LoadData();
+            await LoadData();
+            
+            _isLoaded = true;
+        }
     }
     #endregion
     
     #region LoadData
     private async Task LoadData()
     {
-        try
-        {
-            _logger.LogInformation("Loading data for table {TableName}", _currentTableName);
-            Items.CollectionChanged -= Items_CollectionChanged;
-            Items.Clear();
-            var data = await _dataGridService.GetDataAsync(_currentTableName);
-            foreach (var item in data)
-            {
-                Items.Add(item); 
-            }
-            Items.CollectionChanged += Items_CollectionChanged;
-            _logger.LogInformation("Successfully loaded {Count} records for table {TableName}", data.Count, _currentTableName);
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e, "Failed to load data for table {TableName}", _currentTableName);
-            throw;
-        }
+      try
+      {
+          _logger.LogInformation("Loading data for table {TableName}", _currentTableName);
+          Items.CollectionChanged -= Items_CollectionChanged;
+          Items.Clear();
+          var data = await _dataGridService.GetDataAsync(_currentTableName);
+          string sparePartsTableName = $"{_currentTableName} запасні частини";
+          foreach (var item in data)
+          {
+              var dict = item as IDictionary<string, object>;
+              if (dict != null)
+              {
+                  var sparePartsData = await _sparePartsService.GetDataAsync(sparePartsTableName, dict["id"]);
+                  dict["SpareParts"] = new ObservableCollection<ExpandoObject>(sparePartsData);
+                  Console.WriteLine($"Loaded {sparePartsData.Count} spare parts for ID {dict["id"]}");
+                  foreach (var sparePart in sparePartsData)
+                  {
+                      var spareDict = sparePart as IDictionary<string, object>;
+                      Console.WriteLine("Spare parts properties:");
+                      foreach (var kvp in spareDict)
+                      {
+                          Console.WriteLine($"  {kvp.Key}: {kvp.Value}");
+                      }
+                  }
+              }
+              Items.Add(item);
+          }
+          Items.CollectionChanged += Items_CollectionChanged;
+          _logger.LogInformation("Successfully loaded {Count} records for table {TableName}", data.Count, _currentTableName);
+          _isLoaded = true;
+      }
+      catch (Exception e)
+      {
+          _logger.LogError(e, "Failed to load data for table {TableName}", _currentTableName);
+          throw;
+      }
     }
     #endregion
     
@@ -273,4 +331,42 @@ public class DataGridViewModel : BindableBase, INavigationAware
         _logger.LogInformation("Navigated away from DataGridViewModel for table {TableName} (GUID: {Guid})", _currentTableName, _guid);
     }
     #endregion
+    
+
+    private async Task LoadSparePartsData(object equipmentId)
+    {
+        try
+        {
+            _spareParts = new ObservableCollection<ExpandoObject>();
+            Console.WriteLine("LoadSparePartsData");
+            SpareParts.Clear();
+            Console.WriteLine("SparePartsClear");
+            string sparePartsTableName = $"{_currentTableName} запасні частини";
+            Console.WriteLine("SparePartsTableName: " + sparePartsTableName);
+            var data = await _sparePartsService.GetDataAsync(sparePartsTableName, equipmentId);
+            foreach (var item in data)
+            {
+                SpareParts.Add(item);
+                Console.WriteLine("Adding item to SpareParts");
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
+
+    private async void OnDetailsViewExpanded(GridDetailsViewExpandedEventArgs args)
+    {
+        string sparePartsTableName = $"{_currentTableName} запасні частини";
+       _columnTypesSpareParts = await _dataGridColumnService.GetColumnTypesAsync(sparePartsTableName);
+       _sparePartsDataGrid.Columns.Clear();
+       foreach (var columnInfo in _columnTypesSpareParts)
+       {
+           var column = _dataGridColumnService.CreateColumnFromDbType(columnInfo.Key, columnInfo.Value);
+           _sparePartsDataGrid.Columns.Add(column);
+           Console.WriteLine($"Loaded {columnInfo.Key}: {columnInfo.Value}");
+       }
+    }
 }
