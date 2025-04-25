@@ -45,7 +45,6 @@ namespace Data.Repositories.DataGrid
             var data = new ObservableCollection<ExpandoObject>();
             try
             {
-                _logger.LogInformation("Executing query to fetch data from table {TableName}", tableName);
 
                 await using var connection = await OpenNewConnectionAsync();
                 
@@ -95,7 +94,6 @@ namespace Data.Repositories.DataGrid
         {
             try
             {
-                _logger.LogInformation("Inserting record into table {TableName}", tableName);
                 
                 await using var connection = await OpenNewConnectionAsync();
 
@@ -172,7 +170,6 @@ namespace Data.Repositories.DataGrid
         {
             try
             {
-                _logger.LogInformation("Updating record with ID {Id} in table {TableName}", id, tableName);
                 await using var connection = await OpenNewConnectionAsync();
 
                 if (values == null || values.Count == 0)
@@ -249,7 +246,6 @@ namespace Data.Repositories.DataGrid
         {
             try
             {
-                _logger.LogInformation("Deleting record with ID {Id} from table {TableName}", id, tableName);
                 
                 await using var connection = await OpenNewConnectionAsync();
 

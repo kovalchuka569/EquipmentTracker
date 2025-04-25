@@ -52,7 +52,7 @@ namespace Core.Services.DataGrid
                             MappingName = columnName,
                             HeaderText = columnName,
                             NumberDecimalDigits = 0,
-                            TextAlignment = TextAlignment.Right
+                            TextAlignment = TextAlignment.Center
                         };
                         break;
                         
@@ -67,7 +67,7 @@ namespace Core.Services.DataGrid
                             MappingName = columnName,
                             HeaderText = columnName,
                             NumberDecimalDigits = 2,
-                            TextAlignment = TextAlignment.Right
+                            TextAlignment = TextAlignment.Center
                         };
                         break;
                         
@@ -77,6 +77,7 @@ namespace Core.Services.DataGrid
                             MappingName = columnName,
                             HeaderText = columnName,
                             Pattern = DateTimePattern.ShortDate,
+                            TextAlignment = TextAlignment.Center,
                             MaximumWidth = 120
                         };
                         break;
@@ -88,6 +89,7 @@ namespace Core.Services.DataGrid
                             MappingName = columnName,
                             HeaderText = columnName,
                             Pattern = DateTimePattern.CustomPattern,
+                            TextAlignment = TextAlignment.Center,
                             MaximumWidth = 150
                         };
                         break;
@@ -98,6 +100,7 @@ namespace Core.Services.DataGrid
                         {
                             MappingName = columnName,
                             HeaderText = columnName,
+                            TextAlignment = TextAlignment.Center,
                             Width = 80
                         };
                         break;
@@ -106,7 +109,8 @@ namespace Core.Services.DataGrid
                         column = new GridTextColumn
                         {
                             MappingName = columnName,
-                            HeaderText = columnName
+                            HeaderText = columnName,
+                            TextAlignment = TextAlignment.Center
                         };
                         break;
                 }
@@ -128,6 +132,7 @@ namespace Core.Services.DataGrid
                     {
                         MappingName = columnName,
                         HeaderText = columnName,
+                        TextAlignment = TextAlignment.Center,
                         ItemsSource = new ObservableCollection<string>
                         {
                             "шт",

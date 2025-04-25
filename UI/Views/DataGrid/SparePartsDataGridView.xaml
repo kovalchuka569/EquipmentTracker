@@ -53,6 +53,11 @@
                                    HeaderLinesVisibility="Horizontal"
                                    GridLinesVisibility="Horizontal">
                         
+                        <sf:SfDataGrid.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="Видалити запис" Command="{Binding DeleteRecordCommand}"/>
+                            </ContextMenu>
+                        </sf:SfDataGrid.ContextMenu>
                             
                         <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="Loaded">
@@ -60,6 +65,11 @@
                                         Command="{Binding SparePartsLoadedCommand}"
                                         CommandParameter="{Binding ElementName=SparePartsDataGrid}" />
                                 </i:EventTrigger>
+                            
+                            <i:EventTrigger EventName="CurrentCellEndEdit">
+                                <i:InvokeCommandAction Command="{Binding CurrentCellEndEditCommand}"
+                                                       PassEventArgsToCommand="True"/>
+                            </i:EventTrigger>
                             </i:Interaction.Triggers>
                     
                         </sf:SfDataGrid>

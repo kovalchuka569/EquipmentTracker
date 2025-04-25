@@ -92,23 +92,22 @@ public class ColumnSelectorViewModel : BindableBase, INavigationAware
                 "\"EquipmentId\" INTEGER",
                 "\"Назва\" VARCHAR",
                 "\"Кількість\" NUMERIC(10, 2)",
-                "\"Одиниця\" INTEGER",
+                "\"Одиниця\" VARCHAR(255)",
                 "\"Серійний номер\" TEXT",
                 "\"Дата постачання\" DATE",
                 "\"Постачальник\" TEXT",
-                "\"Ціна\" NUMERIC(10, 2)",
+                "\"Ціна (грн)\" NUMERIC(10, 2)",
                 "\"Примітки\" TEXT",
                 $"FOREIGN KEY (\"EquipmentId\") REFERENCES \"UserTables\".\"{tableName}\" (\"id\")"
             };
             
             Console.WriteLine(string.Join(", ", columns));
 
-            var createTableQuery =
+            var createTablesQuery =
                 $"CREATE TABLE IF NOT EXISTS \"UserTables\".\"{tableName}\" (Id SERIAL PRIMARY KEY, {string.Join(", ", columns)}); " +
                 $"CREATE TABLE IF NOT EXISTS \"UserTables\".\"{sparePartsTableName}\" (Id SERIAL PRIMARY KEY, {string.Join(", ", sparePartsColumns)})";
             
-            Console.WriteLine(createTableQuery);
-            _context.Database.ExecuteSqlRaw(createTableQuery);
+            _context.Database.ExecuteSqlRaw(createTablesQuery);
             OnConfirm();
     }
 
@@ -156,11 +155,11 @@ public class ColumnSelectorViewModel : BindableBase, INavigationAware
         Columns.Add(new Column{ColumnName = "Вода (л/год)", ColumnType = "DECIMAL(10,2)", Category = "Технічні характеристики"});
         Columns.Add(new Column{ColumnName = "Повітря (л/год)", ColumnType = "DECIMAL(10,2)", Category = "Технічні характеристики"});
         
-        Columns.Add(new Column{ColumnName = "Балансова вартість", ColumnType = "DECIMAL(10,2)", Category = "Фінансові характеристики"});
+        Columns.Add(new Column{ColumnName = "Балансова вартість (грн)", ColumnType = "DECIMAL(10,2)", Category = "Фінансові характеристики"});
         
         Columns.Add(new Column{ColumnName = "Нотатки", ColumnType = "TEXT", Category = "Інше"});
         Columns.Add(new Column{ColumnName = "Відповідальний", ColumnType = "TEXT", Category = "Інше"});
-        Columns.Add(new Column{ColumnName = "У використанні", ColumnType = "BOOLEAN", Category = "Інше"});
+        Columns.Add(new Column{ColumnName = "У використанні", ColumnType = "BOOLEAN DEFAULT TRUE", Category = "Інше"});
     }
 
     private void OnConfirm()

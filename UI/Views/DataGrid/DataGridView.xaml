@@ -77,7 +77,7 @@
                 </i:EventTrigger>
                 
                 <i:EventTrigger EventName="DetailsViewExpanding">
-                    <i:InvokeCommandAction Command="{Binding  DetailsViewLoadingCommand}"
+                    <i:InvokeCommandAction Command="{Binding  DetailsViewExpandingCommand}"
                                            PassEventArgsToCommand="True"/>
                 </i:EventTrigger>
                 
