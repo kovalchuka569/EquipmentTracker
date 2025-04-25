@@ -21,24 +21,36 @@ namespace Data.Repositories.DataGrid
             _logger = logger;
         }
         
+        private async Task<NpgsqlConnection> OpenNewConnectionAsync()
+        {
+            try
+            {
+                var connectionString = _context.Database.GetDbConnection().ConnectionString;
+                
+                var connection = new NpgsqlConnection(connectionString);
+                await connection.OpenAsync();
+        
+                return connection;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error opening database connection.");
+                throw;
+            }
+        }
+        
         public async Task<ObservableCollection<ExpandoObject>> GetDataAsync(string tableName, object equipmentId)
         {
             var data = new ObservableCollection<ExpandoObject>();
             Console.WriteLine("GetDataAsync from repository, tdable name: " + tableName);
-            
-             try
+            try
             {
                 _logger.LogInformation("Executing query to fetch data from table {TableName}", tableName);
+                await using var connection = await OpenNewConnectionAsync();
 
                 string query = $"SELECT * FROM \"UserTables\".\"{tableName}\" WHERE \"EquipmentId\" = @equipmentId";
-                var connection = _context.Database.GetDbConnection() as NpgsqlConnection;
-                
-                if (connection.State != ConnectionState.Open)
-                {
-                    await connection.OpenAsync();
-                }
-                
-                Console.WriteLine("SQL: "+query);
+
+                Console.WriteLine("SQL: " + query);
                 using var cmd = new NpgsqlCommand(query, connection);
                 cmd.Parameters.Add(new NpgsqlParameter("equipmentId", equipmentId));
                 using var reader = await cmd.ExecuteReaderAsync();
@@ -80,16 +92,11 @@ namespace Data.Repositories.DataGrid
         public async Task<Dictionary<string, string>> GetColumnTypesAsync(string tableName)
         {
             var columnTypes = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-            var connection = _context.Database.GetDbConnection() as NpgsqlConnection;
 
             try
             {
                 _logger.LogInformation("Fetching column types for table {TableName}", tableName);
-                if (connection.State != ConnectionState.Open)
-                {
-                    _logger.LogInformation("Database connection closed, opening");
-                    await _context.Database.OpenConnectionAsync();
-                }
+                await using var connection = await OpenNewConnectionAsync();
 
                 string sql = @"SELECT column_name, data_type 
                           FROM information_schema.columns 
@@ -106,12 +113,15 @@ namespace Data.Repositories.DataGrid
                     columnTypes[columnName] = dataType;
                 }
 
-                _logger.LogInformation("Retrieved {Count} column types for table {TableName}", columnTypes.Count, tableName);
+                _logger.LogInformation("Retrieved {Count} column types for table {TableName}", columnTypes.Count,
+                    tableName);
                 return columnTypes;
             }
             catch (NpgsqlException ex)
             {
-                _logger.LogError(ex, "Database error while fetching column types for table {TableName}. SqlState: {SqlState}", tableName, ex.SqlState);
+                _logger.LogError(ex,
+                    "Database error while fetching column types for table {TableName}. SqlState: {SqlState}", tableName,
+                    ex.SqlState);
                 throw;
             }
             catch (Exception ex)

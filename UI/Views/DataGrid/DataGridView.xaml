@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:local="clr-namespace:UI.Views"
+             xmlns:local="clr-namespace:UI.Views.DataGrid"
              xmlns:sf="clr-namespace:Syncfusion.UI.Xaml.Grid;assembly=Syncfusion.SfGrid.WPF"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:prism="http://prismlibrary.com/"
@@ -11,13 +11,23 @@
              syncfusionskin:SfSkinManager.Theme="{syncfusionskin:SkinManagerExtension ThemeName=Windows11Dark}"
              mc:Ignorable="d">
     
+    <UserControl.Resources>
+        <DataTemplate x:Key="SparePartsTemplate">
+            <local:SparePartsDataGridView/>
+        </DataTemplate>
+    </UserControl.Resources>
+    
     <Grid>
         <sf:SfDataGrid x:Name="SfDataGrid"
             ItemsSource="{Binding Items}"
             SelectedItem="{Binding SelectedItem}"
             NavigationMode="Cell"
             AddNewRowPosition="Top"
-            AddNewRowText="Натисніть для додавання запису"
+            VerticalContentAlignment="Center"
+            HorizontalContentAlignment="Center"
+            ColumnSizer="Auto"
+            ShowDetailsViewIndentCell="True"
+            AddNewRowText="Натисніть для додавання нового обладнання"
             GroupDropAreaText="Перетягніть для групування"
             ShowGroupDropArea="True"
             AllowGrouping="True"
@@ -28,64 +38,23 @@
             AllowSorting="True"
             AllowFiltering="True"
             NotifyEventsToParentDataGrid="False"
-            AllowResizingColumns="True"
+            AllowResizingColumns="False"
             ShowBusyIndicator="True"
-            EnableDataVirtualization="False"
-            GridLinesVisibility="Both">
+            EnableDataVirtualization="True"
+            GridLinesVisibility="Both"
+            HeaderLinesVisibility="Both">
             
             <sf:SfDataGrid.DetailsViewDefinition>
-                <sf:GridViewDefinition RelationalColumn="SpareParts">
-                    
-                    
-                    
-                    <sf:GridViewDefinition.DataGrid>
-                        <sf:SfDataGrid x:Name="SpareParts" 
-                                       AddNewRowPosition="Top"
-                                       AddNewRowText="Натисніть для додавання нового запису"
-                                       GroupDropAreaText="Перетягніть для групування"
-                                       ShowGroupDropArea="True"
-                                       AllowGrouping="True"
-                                       NewItemPlaceholderPosition="AtBeginning"
-                                       LostFocusBehavior="Default"
-                                       AutoGenerateColumns="True"
-                                       AllowEditing="True"
-                                       AllowSorting="True"
-                                       AllowFiltering="True"
-                                       NavigationMode="Cell"
-                                       NotifyEventsToParentDataGrid="False"
-                                       AllowResizingColumns="True"
-                                       ShowBusyIndicator="True"
-                                       EnableDataVirtualization="False"
-                                       GridLinesVisibility="Both">
-                            
-                        </sf:SfDataGrid>
-                    </sf:GridViewDefinition.DataGrid>
-                </sf:GridViewDefinition>
+                <sf:TemplateViewDefinition RowTemplate="{StaticResource SparePartsTemplate}"/>
             </sf:SfDataGrid.DetailsViewDefinition>
             
-                <sf:SfDataGrid.ContextMenu>
+            <sf:SfDataGrid.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Видалити запис" Command="{Binding DeleteRecordCommand}"/>
                 </ContextMenu>
             </sf:SfDataGrid.ContextMenu>
             
             <i:Interaction.Triggers>
-                
-                <i:EventTrigger EventName="AutoGeneratingColumn">
-                    <i:InvokeCommandAction Command="{Binding AutoGeneratingColumnCommand}" 
-                                          PassEventArgsToCommand="True"/>
-                </i:EventTrigger>
-                
-                <i:EventTrigger EventName="DetailsViewLoading">
-                    <i:InvokeCommandAction Command = "{Binding DetailsViewLoadingCommand}" 
-                                           PassEventArgsToCommand="True"
-                                           CommandParameter="{Binding ElementName=SpareParts}"/>
-                </i:EventTrigger>
-                
-                <i:EventTrigger EventName="DetailsViewExpanded">
-                    <i:InvokeCommandAction Command="{Binding DetailsViewExpandedCommand}" 
-                                           PassEventArgsToCommand="True"/>
-                </i:EventTrigger>
                 
                 <i:EventTrigger EventName="RowValidated">
                     <i:InvokeCommandAction Command="{Binding RowValidatedCommand}"
@@ -105,6 +74,11 @@
                 <i:EventTrigger EventName="Loaded">
                     <i:InvokeCommandAction Command="{Binding SfDataGridLoadedCommand}"
                                            CommandParameter="{Binding ElementName=SfDataGrid}"/>
+                </i:EventTrigger>
+                
+                <i:EventTrigger EventName="DetailsViewExpanding">
+                    <i:InvokeCommandAction Command="{Binding  DetailsViewLoadingCommand}"
+                                           PassEventArgsToCommand="True"/>
                 </i:EventTrigger>
                 
             </i:Interaction.Triggers>

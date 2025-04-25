@@ -12,6 +12,7 @@ using UI.Interfaces.Factory;
 using UI.Services.Factory;
 using UI.ViewModels.EquipmentTree;
 using UI.Views;
+using UI.Views.DataGrid;
 using UI.Views.NavDrawer.NavDrawerItems;
 using UI.Views.TabControl;
 

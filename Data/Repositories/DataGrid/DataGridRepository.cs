@@ -21,6 +21,24 @@ namespace Data.Repositories.DataGrid
             _logger = logger;
         }
         
+        private async Task<NpgsqlConnection> OpenNewConnectionAsync()
+        {
+            try
+            {
+                var connectionString = _context.Database.GetDbConnection().ConnectionString;
+                
+                var connection = new NpgsqlConnection(connectionString);
+                await connection.OpenAsync();
+        
+                return connection;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error opening database connection.");
+                throw;
+            }
+        }
+        
         #region GetDataAsync
         public async Task<ObservableCollection<ExpandoObject>> GetDataAsync(string tableName)
         {
@@ -29,14 +47,11 @@ namespace Data.Repositories.DataGrid
             {
                 _logger.LogInformation("Executing query to fetch data from table {TableName}", tableName);
 
+                await using var connection = await OpenNewConnectionAsync();
+                
                 string query = $"SELECT * FROM \"UserTables\".\"{tableName}\"";
-                var connection = _context.Database.GetDbConnection() as NpgsqlConnection;
                 
-                if (connection.State != ConnectionState.Open)
-                {
-                    await connection.OpenAsync();
-                }
-                
+
                 using var cmd = new NpgsqlCommand(query, connection);
                 using var reader = await cmd.ExecuteReaderAsync();
 
@@ -78,15 +93,11 @@ namespace Data.Repositories.DataGrid
         #region InsertRecordAsync
         public async Task<object> InsertRecordAsync(string tableName, Dictionary<string, object> values)
         {
-            var connection = _context.Database.GetDbConnection() as NpgsqlConnection;
             try
             {
                 _logger.LogInformation("Inserting record into table {TableName}", tableName);
-                if (connection.State != ConnectionState.Open)
-                {
-                    _logger.LogInformation("Database connection closed, opening");
-                    await _context.Database.OpenConnectionAsync();
-                }
+                
+                await using var connection = await OpenNewConnectionAsync();
 
                 if (values == null || values.Count == 0)
                 {
@@ -133,8 +144,7 @@ namespace Data.Repositories.DataGrid
                     return null;
                 }
 
-                string sql =
-                    $"INSERT INTO \"UserTables\".\"{tableName}\" ({string.Join(", ", columns)}) VALUES ({string.Join(", ", paramPlaceholders)}) RETURNING \"id\"";
+                string sql = $"INSERT INTO \"UserTables\".\"{tableName}\" ({string.Join(", ", columns)}) VALUES ({string.Join(", ", paramPlaceholders)}) RETURNING \"id\"";
                 using var cmd = new NpgsqlCommand(sql, connection);
                 cmd.Parameters.AddRange(parameters.ToArray());
 
@@ -144,7 +154,8 @@ namespace Data.Repositories.DataGrid
             }
             catch (NpgsqlException e)
             {
-                _logger.LogError(e, "Database error while inserting record into table {TableName}. SqlState: {SqlState}", tableName,
+                _logger.LogError(e,
+                    "Database error while inserting record into table {TableName}. SqlState: {SqlState}", tableName,
                     e.SqlState);
                 throw;
             }
@@ -159,93 +170,88 @@ namespace Data.Repositories.DataGrid
         #region UpdateRecordAsync
         public async Task UpdateRecordAsync(string tableName, object id, Dictionary<string, object> values)
         {
-            var connection = _context.Database.GetDbConnection() as NpgsqlConnection;
-        try
-        {
-            _logger.LogInformation("Updating record with ID {Id} in table {TableName}", id, tableName);
-            if (connection.State != ConnectionState.Open)
+            try
             {
-                _logger.LogInformation("Database connection closed, opening");
-                await _context.Database.OpenConnectionAsync();
-            }
+                _logger.LogInformation("Updating record with ID {Id} in table {TableName}", id, tableName);
+                await using var connection = await OpenNewConnectionAsync();
 
-            if (values == null || values.Count == 0)
-            {
-                _logger.LogWarning("No values provided for update of record ID {Id} in table {TableName}", id, tableName);
-                return;
-            }
-
-            var setClause = string.Join(", ", values.Keys.Select((k, i) => $"\"{k}\" = @p{i}"));
-            var sql = $"UPDATE \"UserTables\".\"{tableName}\" SET {setClause} WHERE id = @id";
-
-            using var cmd = new NpgsqlCommand(sql, connection);
-            int paramIndex = 0;
-            foreach (var kvp in values)
-            {
-                object paramValue = kvp.Value ?? DBNull.Value;
-                NpgsqlDbType? paramType = null;
-
-                if (paramValue != DBNull.Value)
+                if (values == null || values.Count == 0)
                 {
-                    if (kvp.Value is string stringValue)
+                    _logger.LogWarning("No values provided for update of record ID {Id} in table {TableName}", id,
+                        tableName);
+                    return;
+                }
+
+                var setClause = string.Join(", ", values.Keys.Select((k, i) => $"\"{k}\" = @p{i}"));
+                var sql = $"UPDATE \"UserTables\".\"{tableName}\" SET {setClause} WHERE id = @id";
+
+                using var cmd = new NpgsqlCommand(sql, connection);
+                int paramIndex = 0;
+                foreach (var kvp in values)
+                {
+                    object paramValue = kvp.Value ?? DBNull.Value;
+                    NpgsqlDbType? paramType = null;
+
+                    if (paramValue != DBNull.Value)
                     {
-                        if (decimal.TryParse(stringValue, out var numericValue))
+                        if (kvp.Value is string stringValue)
                         {
-                            paramValue = numericValue;
+                            if (decimal.TryParse(stringValue, out var numericValue))
+                            {
+                                paramValue = numericValue;
+                                paramType = NpgsqlDbType.Numeric;
+                            }
+                            else
+                            {
+                                paramType = NpgsqlDbType.Text;
+                            }
+                        }
+                        else if (kvp.Value is decimal or double or float or int or long)
+                        {
                             paramType = NpgsqlDbType.Numeric;
                         }
                         else
                         {
-                            paramType = NpgsqlDbType.Text;
+                            paramType = NpgsqlDbType.Unknown;
                         }
                     }
-                    else if (kvp.Value is decimal or double or float or int or long)
+
+                    var param = new NpgsqlParameter($"@p{paramIndex}", paramType ?? NpgsqlDbType.Unknown)
                     {
-                        paramType = NpgsqlDbType.Numeric;
-                    }
-                    else
-                    {
-                        paramType = NpgsqlDbType.Unknown;
-                    }
+                        Value = paramValue
+                    };
+                    cmd.Parameters.Add(param);
+                    paramIndex++;
                 }
 
-                var param = new NpgsqlParameter($"@p{paramIndex}", paramType ?? NpgsqlDbType.Unknown)
-                {
-                    Value = paramValue
-                };
-                cmd.Parameters.Add(param);
-                paramIndex++;
+                cmd.Parameters.AddWithValue("@id", id);
+                await cmd.ExecuteNonQueryAsync();
+                _logger.LogInformation("Successfully updated record with ID {Id} in table {TableName}", id, tableName);
             }
-
-            cmd.Parameters.AddWithValue("@id", id);
-            await cmd.ExecuteNonQueryAsync();
-            _logger.LogInformation("Successfully updated record with ID {Id} in table {TableName}", id, tableName);
-        }
-        catch (NpgsqlException ex)
-        {
-            _logger.LogError(ex, "Database error while updating record ID {Id} in table {TableName}. SqlState: {SqlState}", id, tableName, ex.SqlState);
-            throw;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Unexpected error while updating record ID {Id} in table {TableName}", id, tableName);
-            throw;
-        }
+            catch (NpgsqlException ex)
+            {
+                _logger.LogError(ex,
+                    "Database error while updating record ID {Id} in table {TableName}. SqlState: {SqlState}", id,
+                    tableName, ex.SqlState);
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error while updating record ID {Id} in table {TableName}", id,
+                    tableName);
+                throw;
+            }
         }
         #endregion
         
         #region DeleteRecordAsync
         public async Task DeleteRecordAsync(string tableName, object id)
         {
-            var connection = _context.Database.GetDbConnection() as NpgsqlConnection;
             try
             {
                 _logger.LogInformation("Deleting record with ID {Id} from table {TableName}", id, tableName);
-                if (connection.State != ConnectionState.Open)
-                {
-                    _logger.LogInformation("Database connection closed, opening");
-                    await _context.Database.OpenConnectionAsync();
-                }
+                
+                await using var connection = await OpenNewConnectionAsync();
 
                 var sql = $"DELETE FROM \"UserTables\".\"{tableName}\" WHERE \"id\" = @id";
                 using var cmd = new NpgsqlCommand(sql, connection);
@@ -270,16 +276,12 @@ namespace Data.Repositories.DataGrid
         public async Task<Dictionary<string, string>> GetColumnTypesAsync(string tableName)
         {
             var columnTypes = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-            var connection = _context.Database.GetDbConnection() as NpgsqlConnection;
-
+            
             try
             {
                 _logger.LogInformation("Fetching column types for table {TableName}", tableName);
-                if (connection.State != ConnectionState.Open)
-                {
-                    _logger.LogInformation("Database connection closed, opening");
-                    await _context.Database.OpenConnectionAsync();
-                }
+                
+                await using var connection = await OpenNewConnectionAsync();
 
                 string sql = @"SELECT column_name, data_type 
                           FROM information_schema.columns 
@@ -296,12 +298,15 @@ namespace Data.Repositories.DataGrid
                     columnTypes[columnName] = dataType;
                 }
 
-                _logger.LogInformation("Retrieved {Count} column types for table {TableName}", columnTypes.Count, tableName);
+                _logger.LogInformation("Retrieved {Count} column types for table {TableName}", columnTypes.Count,
+                    tableName);
                 return columnTypes;
             }
             catch (NpgsqlException ex)
             {
-                _logger.LogError(ex, "Database error while fetching column types for table {TableName}. SqlState: {SqlState}", tableName, ex.SqlState);
+                _logger.LogError(ex,
+                    "Database error while fetching column types for table {TableName}. SqlState: {SqlState}", tableName,
+                    ex.SqlState);
                 throw;
             }
             catch (Exception ex)

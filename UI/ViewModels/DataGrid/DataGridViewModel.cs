@@ -1,7 +1,11 @@
 ﻿using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Dynamic;
+using System.Runtime.CompilerServices;
+using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using Syncfusion.UI.Xaml.Grid;
 using Syncfusion.UI.Xaml.Grid.Helpers;
 
@@ -9,6 +13,9 @@ using Core.Services.DataGrid;
 using Core.Models.DataGrid;
 
 using Common.Logging;
+using Core.Events.DataGrid;
+using Prism.Common;
+using Syncfusion.Windows.Controls.Input;
 
 namespace UI.ViewModels.DataGrid;
 
@@ -16,20 +23,25 @@ public class DataGridViewModel : BindableBase, INavigationAware
 {
     
     private readonly IAppLogger<DataGridViewModel> _logger;
+    private readonly IEventAggregator _eventAggregator;
     private readonly IDataGridService _dataGridService;
     private readonly IDataGridColumnService _dataGridColumnService;
     private readonly ISparePartsService _sparePartsService;
     
     private string _currentTableName;
+    private string _currentSparePartsTableName;
     private bool _isLoaded = false;
+    private bool _isDataLoading = false;
     
     private ObservableCollection<ExpandoObject> _items;
+    private ExpandoObject _selectedItem;
+    
     private ObservableCollection<ExpandoObject> _spareParts;
+    private ExpandoObject _selectedSparePart;
     
     private Dictionary<string, string> _columnTypes;
     private Dictionary<string, string> _columnTypesSpareParts;
     
-    private ExpandoObject _selectedItem;
     private string _guid = Guid.NewGuid().ToString();
     
     private SfDataGrid _sfDataGrid;
@@ -38,11 +50,12 @@ public class DataGridViewModel : BindableBase, INavigationAware
     private DelegateCommand<CurrentCellBeginEditEventArgs> _cellBeginEditCommand;
     private AsyncDelegateCommand<CurrentCellEndEditEventArgs> _currentCellEndEditCommand;
     private DelegateCommand<RowValidatedEventArgs> _rowValidatedCommand;
-    private DelegateCommand<SfDataGrid> _detailsViewLoadingCommand;
+    private DelegateCommand<GridDetailsViewExpandingEventArgs> _detailsViewLoadingCommand;
     private DelegateCommand<GridDetailsViewExpandedEventArgs> _detailsViewExpandedCommand;
+    private DelegateCommand _testCommand;
     
     private DelegateCommand<SfDataGrid> _sfDataGridLoadedCommand;
-    private DelegateCommand<SfDataGrid> _sparePartsLoadedCommand;
+    private DelegateCommand<SfDataGrid> _sparePartsDataGridLoadedCommand;
     
     private DelegateCommand _deleteRecordCommand;
     
@@ -71,28 +84,36 @@ public class DataGridViewModel : BindableBase, INavigationAware
     public DelegateCommand<RowValidatedEventArgs> RowValidatedCommand =>
     _rowValidatedCommand??= new DelegateCommand<RowValidatedEventArgs>(HandleRowValidated);
 
-    public DelegateCommand<SfDataGrid> DetailsViewLoadingCommand =>
-        _detailsViewLoadingCommand ??= new DelegateCommand<SfDataGrid>(OnDetailsViewLoading);
+    public DelegateCommand<GridDetailsViewExpandingEventArgs> DetailsViewLoadingCommand =>
+        _detailsViewLoadingCommand ??= new DelegateCommand<GridDetailsViewExpandingEventArgs>(OnDetailsViewExpanding);
 
     public DelegateCommand<GridDetailsViewExpandedEventArgs> DetailsViewExpandedCommand =>
         _detailsViewExpandedCommand ??= new DelegateCommand<GridDetailsViewExpandedEventArgs>(OnDetailsViewExpanded);
 
     public DelegateCommand<SfDataGrid> SfDataGridLoadedCommand =>
         _sfDataGridLoadedCommand ??= new DelegateCommand<SfDataGrid>(OnDataGridLoaded);
+
+    public DelegateCommand<SfDataGrid> SparePartsDataGridLoadedCommand =>
+        _sparePartsDataGridLoadedCommand ??= new DelegateCommand<SfDataGrid>(OnSparePartsDataGridLoaded);
     
     public DelegateCommand DeleteRecordCommand =>
         _deleteRecordCommand ??= new DelegateCommand(OnDeleteRecord);
     
     
+    
     public DataGridViewModel(IAppLogger<DataGridViewModel> logger, 
         IDataGridService dataGridService, 
         IDataGridColumnService dataGridColumnService, 
-        ISparePartsService sparePartsService)
+        ISparePartsService sparePartsService,
+        IEventAggregator eventAggregator)
     {
+        Console.WriteLine("DataGridViewModel");
         _logger = logger;
         _dataGridService = dataGridService;
         _dataGridColumnService = dataGridColumnService;
         _sparePartsService = sparePartsService;
+        _eventAggregator = eventAggregator;
+        
         _items = new ObservableCollection<ExpandoObject>();
         
         _logger.LogInformation("DataGridViewModel loaded");
@@ -193,14 +214,17 @@ public class DataGridViewModel : BindableBase, INavigationAware
         try
         {
             var rowIndex = args.RowColumnIndex.RowIndex;
-            var columnIndex = args.RowColumnIndex.ColumnIndex;
-            var mappingName = _sfDataGrid.Columns[columnIndex].MappingName;
+            var currentColumn = _sfDataGrid.CurrentColumn;
+            var mappingName = currentColumn.MappingName;
+            
+            _logger.LogInformation("Edited column name: {MappingName}", mappingName);
+            
             var rowData = _sfDataGrid.GetRecordAtRowIndex(rowIndex) as IDictionary<string, object>;
 
             if (rowData == null)
             {
                 _logger.LogWarning("No row data found for cell edit at row {RowIndex}, column {ColumnIndex} in table {TableName} (GUID: {Guid})",
-                    rowIndex, columnIndex, _currentTableName, _guid);
+                    rowIndex, mappingName, _currentTableName, _guid);
                 return;
             }
 
@@ -235,11 +259,6 @@ public class DataGridViewModel : BindableBase, INavigationAware
     }
     #endregion
 
-    private async void OnDetailsViewLoading(SfDataGrid sfDataGrid)
-    { 
-        _sparePartsDataGrid = sfDataGrid;
-    }
-
     #region OnDataGridLoaded
     private async void OnDataGridLoaded(SfDataGrid sfDataGrid)
     {
@@ -270,44 +289,164 @@ public class DataGridViewModel : BindableBase, INavigationAware
     #region LoadData
     private async Task LoadData()
     {
-      try
-      {
-          _logger.LogInformation("Loading data for table {TableName}", _currentTableName);
-          Items.CollectionChanged -= Items_CollectionChanged;
-          Items.Clear();
-          var data = await _dataGridService.GetDataAsync(_currentTableName);
-          string sparePartsTableName = $"{_currentTableName} запасні частини";
-          foreach (var item in data)
-          {
-              var dict = item as IDictionary<string, object>;
-              if (dict != null)
-              {
-                  var sparePartsData = await _sparePartsService.GetDataAsync(sparePartsTableName, dict["id"]);
-                  dict["SpareParts"] = new ObservableCollection<ExpandoObject>(sparePartsData);
-                  Console.WriteLine($"Loaded {sparePartsData.Count} spare parts for ID {dict["id"]}");
-                  foreach (var sparePart in sparePartsData)
-                  {
-                      var spareDict = sparePart as IDictionary<string, object>;
-                      Console.WriteLine("Spare parts properties:");
-                      foreach (var kvp in spareDict)
-                      {
-                          Console.WriteLine($"  {kvp.Key}: {kvp.Value}");
-                      }
-                  }
-              }
-              Items.Add(item);
-          }
-          Items.CollectionChanged += Items_CollectionChanged;
-          _logger.LogInformation("Successfully loaded {Count} records for table {TableName}", data.Count, _currentTableName);
-          _isLoaded = true;
-      }
-      catch (Exception e)
-      {
-          _logger.LogError(e, "Failed to load data for table {TableName}", _currentTableName);
-          throw;
-      }
+        if(_isDataLoading) return;
+        try
+        {
+            _isDataLoading = true;
+            _logger.LogInformation("Loading data for table {TableName}", _currentTableName);
+            Items.CollectionChanged -= Items_CollectionChanged;
+            Items.Clear();
+            var data = await _dataGridService.GetDataAsync(_currentTableName);
+            foreach (var item in data)
+            {
+                Items.Add(item);
+            }
+
+            _logger.LogInformation("Successfully loaded {Count} records for table {TableName}", data.Count,
+                _currentTableName);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Failed to load data for table {TableName}", _currentTableName);
+            throw;
+        }
+        finally
+        {
+            Items.CollectionChanged += Items_CollectionChanged;
+            _isDataLoading = false;
+        }
     }
     #endregion
+    
+    // Load data when details view expanding
+    private void OnDetailsViewExpanding(GridDetailsViewExpandingEventArgs args)
+    {
+        Console.WriteLine("OnDetailsViewExpanding");
+
+        string currentSparePartsTableName = $"{_currentTableName} запасні частини";
+    
+        if (args.Record is ExpandoObject expando && expando is IDictionary<string, object> dictionary &&
+            dictionary.TryGetValue("id", out var idObj) && idObj is int id)
+        {
+
+            SparePartsData.EquipmentId = id;
+            SparePartsData.TableName = _currentTableName;
+            SparePartsData.SparePartsTableName = currentSparePartsTableName;
+            
+            Console.WriteLine($"Сохранено: ID={id}, TableName={_currentTableName}");
+        }
+    }
+    
+    // Assign columns to spare parts
+    private async void OnSparePartsDataGridLoaded(SfDataGrid sparePartsDataGrid)
+    {
+        try
+        {
+            Console.WriteLine("OnSparePartsDataGridLoaded начал выполнение");
+            Console.WriteLine($"sparePartsDataGrid.DataContext: {sparePartsDataGrid.DataContext}");
+            
+            // Запоминаем ссылку на grid для использования в других методах
+            _sparePartsDataGrid = sparePartsDataGrid;
+            
+            // Получаем RecordEntry и извлекаем из него оригинальную запись
+            if (sparePartsDataGrid.DataContext is Syncfusion.Data.RecordEntry recordEntry)
+            {
+                Console.WriteLine("DataContext это RecordEntry, получаем оригинальную запись");
+                
+                // Выводим все public-свойства RecordEntry
+                var recordEntryProperties = recordEntry.GetType().GetProperties();
+                Console.WriteLine($"RecordEntry имеет {recordEntryProperties.Length} свойств:");
+                foreach (var prop in recordEntryProperties)
+                {
+                    try
+                    {
+                        var value = prop.GetValue(recordEntry);
+                        Console.WriteLine($"  Свойство {prop.Name}: {value}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"  Ошибка чтения свойства {prop.Name}: {ex.Message}");
+                    }
+                }
+                
+                // Пытаемся использовать нетипизированный индексер для получения данных
+                try 
+                {
+                    // Используем рефлексию для получения индексера
+                    var itemProperty = recordEntry.GetType().GetProperty("Item");
+                    if (itemProperty != null)
+                    {
+                        Console.WriteLine("RecordEntry имеет индексер Item. Пытаемся получить SpareParts");
+                        // Получаем значение по ключу "SpareParts"
+                        var spareParts = itemProperty.GetValue(recordEntry, new object[] { "SpareParts" });
+                        
+                        if (spareParts != null)
+                        {
+                            Console.WriteLine($"Получено значение SpareParts: {spareParts}, тип: {spareParts.GetType().Name}");
+                            if (spareParts is ObservableCollection<ExpandoObject> collection)
+                            {
+                                sparePartsDataGrid.ItemsSource = collection;
+                                Console.WriteLine($"ItemsSource установлен из Item[SpareParts], количество: {collection.Count}");
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Ошибка при попытке получить данные через индексер: {ex.Message}");
+                }
+                
+                // Прямой доступ к DataContext нижележащего Grid
+                try
+                {
+                    var currentItem = _sfDataGrid.SelectedItem as ExpandoObject;
+                    if (currentItem != null)
+                    {
+                        var dict = currentItem as IDictionary<string, object>;
+                        if (dict.ContainsKey("SpareParts") && dict["SpareParts"] is ObservableCollection<ExpandoObject> parts)
+                        {
+                            sparePartsDataGrid.ItemsSource = parts;
+                            Console.WriteLine($"ItemsSource установлен из SelectedItem[SpareParts], количество: {parts.Count}");
+                        }
+                        else
+                        {
+                            Console.WriteLine("SelectedItem не содержит SpareParts");
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("SelectedItem равен null");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Ошибка при попытке установить ItemsSource напрямую: {ex.Message}");
+                }
+            }
+            
+            // Получаем типы колонок
+            if (_columnTypesSpareParts == null)
+            {
+                _columnTypesSpareParts = await _dataGridColumnService.GetColumnTypesAsync(_currentSparePartsTableName);
+                Console.WriteLine($"Загружено {_columnTypesSpareParts.Count} типов колонок для {_currentSparePartsTableName}");
+            }
+            
+            // Очищаем колонки и настраиваем
+            sparePartsDataGrid.Columns.Clear();
+            foreach (var columnInfo in _columnTypesSpareParts)
+            {
+                var column = _dataGridColumnService.CreateColumnFromDbType(columnInfo.Key, columnInfo.Value);
+                sparePartsDataGrid.Columns.Add(column);
+                Console.WriteLine($"Добавлена колонка: {columnInfo.Key}, тип: {columnInfo.Value}");
+            }
+            
+            Console.WriteLine($"ItemsSource текущий: {sparePartsDataGrid.ItemsSource != null}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка в OnSparePartsDataGridLoaded: {ex.Message}");
+        }
+    }
     
     #region Navigation
     public async void OnNavigatedTo(NavigationContext navigationContext)
@@ -315,6 +454,7 @@ public class DataGridViewModel : BindableBase, INavigationAware
         try
         {
             _currentTableName = navigationContext.Parameters["parameter"] as string;
+            _currentSparePartsTableName = $"{_currentTableName} запасні частини";
             _logger.LogInformation("Navigated to DataGridViewModel with table {TableName} (GUID: {Guid})", _currentTableName, _guid);
         }
         catch (Exception ex)
@@ -324,6 +464,7 @@ public class DataGridViewModel : BindableBase, INavigationAware
         }
     }
     
+    
     public bool IsNavigationTarget(NavigationContext navigationContext) => false;
 
     public void OnNavigatedFrom(NavigationContext navigationContext)
@@ -332,34 +473,11 @@ public class DataGridViewModel : BindableBase, INavigationAware
     }
     #endregion
     
-
-    private async Task LoadSparePartsData(object equipmentId)
-    {
-        try
-        {
-            _spareParts = new ObservableCollection<ExpandoObject>();
-            Console.WriteLine("LoadSparePartsData");
-            SpareParts.Clear();
-            Console.WriteLine("SparePartsClear");
-            string sparePartsTableName = $"{_currentTableName} запасні частини";
-            Console.WriteLine("SparePartsTableName: " + sparePartsTableName);
-            var data = await _sparePartsService.GetDataAsync(sparePartsTableName, equipmentId);
-            foreach (var item in data)
-            {
-                SpareParts.Add(item);
-                Console.WriteLine("Adding item to SpareParts");
-            }
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-            throw;
-        }
-    }
+    
 
     private async void OnDetailsViewExpanded(GridDetailsViewExpandedEventArgs args)
     {
-        string sparePartsTableName = $"{_currentTableName} запасні частини";
+        /*string sparePartsTableName = $"{_currentTableName} запасні частини";
        _columnTypesSpareParts = await _dataGridColumnService.GetColumnTypesAsync(sparePartsTableName);
        _sparePartsDataGrid.Columns.Clear();
        foreach (var columnInfo in _columnTypesSpareParts)
@@ -367,6 +485,7 @@ public class DataGridViewModel : BindableBase, INavigationAware
            var column = _dataGridColumnService.CreateColumnFromDbType(columnInfo.Key, columnInfo.Value);
            _sparePartsDataGrid.Columns.Add(column);
            Console.WriteLine($"Loaded {columnInfo.Key}: {columnInfo.Value}");
-       }
+       }*/
     }
+    
 }

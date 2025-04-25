@@ -81,15 +81,33 @@ public class ColumnSelectorViewModel : BindableBase, INavigationAware
             OnCancel();
             return;
         }
-            var tableName = _tableName;
+            string tableName = _tableName;
             
             var columns = SelectedColumns.Cast<Column>().Select(c => $"\"{c.ColumnName}\" {c.ColumnType}")
                 .ToList();
+
+            string sparePartsTableName = $"{tableName} запасні частини";
+            var sparePartsColumns = new List<string>
+            {
+                "\"EquipmentId\" INTEGER",
+                "\"Назва\" VARCHAR",
+                "\"Кількість\" NUMERIC(10, 2)",
+                "\"Одиниця\" INTEGER",
+                "\"Серійний номер\" TEXT",
+                "\"Дата постачання\" DATE",
+                "\"Постачальник\" TEXT",
+                "\"Ціна\" NUMERIC(10, 2)",
+                "\"Примітки\" TEXT",
+                $"FOREIGN KEY (\"EquipmentId\") REFERENCES \"UserTables\".\"{tableName}\" (\"id\")"
+            };
             
             Console.WriteLine(string.Join(", ", columns));
+
+            var createTableQuery =
+                $"CREATE TABLE IF NOT EXISTS \"UserTables\".\"{tableName}\" (Id SERIAL PRIMARY KEY, {string.Join(", ", columns)}); " +
+                $"CREATE TABLE IF NOT EXISTS \"UserTables\".\"{sparePartsTableName}\" (Id SERIAL PRIMARY KEY, {string.Join(", ", sparePartsColumns)})";
             
-            var createTableQuery = 
-                $"CREATE TABLE IF NOT EXISTS \"UserTables\".\"{tableName}\" (Id SERIAL PRIMARY KEY, {string.Join(", ", columns)});";
+            Console.WriteLine(createTableQuery);
             _context.Database.ExecuteSqlRaw(createTableQuery);
             OnConfirm();
     }
@@ -142,6 +160,7 @@ public class ColumnSelectorViewModel : BindableBase, INavigationAware
         
         Columns.Add(new Column{ColumnName = "Нотатки", ColumnType = "TEXT", Category = "Інше"});
         Columns.Add(new Column{ColumnName = "Відповідальний", ColumnType = "TEXT", Category = "Інше"});
+        Columns.Add(new Column{ColumnName = "У використанні", ColumnType = "BOOLEAN", Category = "Інше"});
     }
 
     private void OnConfirm()

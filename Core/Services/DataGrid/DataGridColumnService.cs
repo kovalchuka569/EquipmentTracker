@@ -1,4 +1,5 @@
-﻿using Common.Logging;
+﻿using System.Collections.ObjectModel;
+using Common.Logging;
 using Data.Repositories.DataGrid;
 using Syncfusion.UI.Xaml.Grid;
 using System.Globalization;
@@ -11,8 +12,6 @@ namespace Core.Services.DataGrid
     {
         private readonly IDataGridRepository _repository;
         private readonly IAppLogger<DataGridColumnService> _logger;
-        
-        private Dictionary<string, Dictionary<string, string>> _tableColumnTypes = new();
 
         public DataGridColumnService(IDataGridRepository repository, IAppLogger<DataGridColumnService> logger)
         {
@@ -112,10 +111,37 @@ namespace Core.Services.DataGrid
                         break;
                 }
                 
-                if (columnName.ToLower() == "id")
+                if (columnName == "id")
                 {
                     column.IsHidden = true;
                     column.AllowEditing = false;
+                }
+                if (columnName == "EquipmentId")
+                {   
+                    column.IsHidden = true;
+                    column.AllowEditing = false;
+                }
+
+                if (columnName == "Одиниця")
+                {
+                    column = new GridComboBoxColumn
+                    {
+                        MappingName = columnName,
+                        HeaderText = columnName,
+                        ItemsSource = new ObservableCollection<string>
+                        {
+                            "шт",
+                            "кг",
+                            "м",
+                            "л",
+                            "см",
+                            "мм",
+                            "м²",
+                            "м³",
+                            "компл",
+                            "пара"
+                        }
+                    };
                 }
                 
                 return column;
