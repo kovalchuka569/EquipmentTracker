@@ -352,7 +352,7 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware
     #endregion
     #region ExecuteItemEndEdit
     private async Task ExecuteItemEndEditAsync()
-    {
+    { 
         string newName = SelectedFolder?.FileName;
 
        if (SelectedFolder == null)

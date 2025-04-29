@@ -139,8 +139,7 @@ public class EquipmentTreeModel
     #region Editing tree items
     public async Task <EquipmentCategory> EditCategoryAsync (int categoryId, string name, int? parentId = null)
     {
-        var category = await GetCategorySet().FirstOrDefaultAsync(c => c.Id == categoryId)
-            ?? throw new ArgumentException($"Категорія з ID: {categoryId} не знайдена");
+        var category = await GetCategorySet().FirstOrDefaultAsync(c => c.Id == categoryId);
         
         category.CategoryName = GenerateUniqueName(name, await GetCategoriesAsync());
         category.ParentId = parentId;

@@ -90,13 +90,10 @@ public class ColumnSelectorViewModel : BindableBase, INavigationAware
             var sparePartsColumns = new List<string>
             {
                 "\"EquipmentId\" INTEGER",
-                "\"Назва\" VARCHAR",
+                "\"Назва\" VARCHAR(255)",
                 "\"Кількість\" NUMERIC(10, 2)",
                 "\"Одиниця\" VARCHAR(255)",
                 "\"Серійний номер\" TEXT",
-                "\"Дата постачання\" DATE",
-                "\"Постачальник\" TEXT",
-                "\"Ціна (грн)\" NUMERIC(10, 2)",
                 "\"Примітки\" TEXT",
                 $"FOREIGN KEY (\"EquipmentId\") REFERENCES \"UserTables\".\"{tableName}\" (\"id\")"
             };

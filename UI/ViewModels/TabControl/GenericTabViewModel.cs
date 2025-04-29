@@ -110,20 +110,22 @@ public class GenericTabViewModel: BindableBase, INavigationAware, IDisposable
     {
         if (tabType == "File")
         {
-            // Для всех файлов используем DataGridView
             return "DataGridView";
         }
         if (tabType == "EquipmentTree")
         {
-            // Для всех пунктов оборудования используем EquipmentTreeView
             return "EquipmentTreeView";
+        }
+        if (tabType == "ConsumablesFile")
+        {
+            return "ConsumablesDataGridView";
         }
 
         if (tabType == "Other")
         {
             return TabName switch
             {
-                "Розхідні матеріали" => "ConsumablesView",
+                "Розхідні матеріали" => "ConsumablesTreeView",
                 "Облік" => "AccountingView",
                 "Календар" => "SchedulerView",
                 "Налаштування" => "SettingsView",

@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Drawing.Printing;
 using System.Dynamic;
 using System.Runtime.CompilerServices;
 using System.Windows;
@@ -8,6 +9,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using Syncfusion.UI.Xaml.Grid;
 using Syncfusion.UI.Xaml.Grid.Helpers;
+using Syncfusion.UI.Xaml.Grid.Converter;
 
 using Core.Services.DataGrid;
 using Core.Models.DataGrid;
@@ -49,6 +51,8 @@ public class DataGridViewModel : BindableBase, INavigationAware
     private DelegateCommand<SfDataGrid> _sfDataGridLoadedCommand;
     private DelegateCommand<SfDataGrid> _sparePartsDataGridLoadedCommand;
     private DelegateCommand _deleteRecordCommand;
+    private DelegateCommand _printCommand;
+    private DelegateCommand _excelExportCommand;
     
     public ObservableCollection<ExpandoObject> Items
     {
@@ -76,6 +80,11 @@ public class DataGridViewModel : BindableBase, INavigationAware
     
     public DelegateCommand DeleteRecordCommand =>
         _deleteRecordCommand ??= new DelegateCommand(OnDeleteRecord);
+
+    public DelegateCommand PrintCommand =>
+        _printCommand ??= new DelegateCommand(OnPrint);
+    public DelegateCommand ExcelExportCommand =>
+        _excelExportCommand ??= new DelegateCommand(OnExcelExport);
     
     
     
@@ -224,8 +233,6 @@ public class DataGridViewModel : BindableBase, INavigationAware
     #region OnDataGridLoaded
     private async void OnDataGridLoaded(SfDataGrid sfDataGrid)
     {
-        if (_isLoaded == false)
-        {
             _sfDataGrid = sfDataGrid;
             _logger.LogInformation("DataGrid loaded for table {TableName} (GUID: {Guid})", _currentTableName, _guid);
 
@@ -242,37 +249,37 @@ public class DataGridViewModel : BindableBase, INavigationAware
             }
         
             await LoadData();
-            
-            _isLoaded = true;
-        }
+        
     }
     #endregion
     
     #region LoadData
     private async Task LoadData()
     {
-        try
+        if (_isLoaded == false)
         {
-            _logger.LogInformation("Loading data for table {TableName}", _currentTableName);
-            Items.CollectionChanged -= Items_CollectionChanged;
-            Items.Clear();
-            var data = await _dataGridService.GetDataAsync(_currentTableName);
-            foreach (var item in data)
+            try
             {
-                Items.Add(item);
-            }
+                _logger.LogInformation("Loading data for table {TableName}", _currentTableName);
+                Items.CollectionChanged -= Items_CollectionChanged;
+                Items.Clear();
+                var data = await _dataGridService.GetDataAsync(_currentTableName);
+                foreach (var item in data)
+                {
+                    Items.Add(item);
+                }
+                Items.CollectionChanged += Items_CollectionChanged;
+                
+                _isLoaded = true;
 
-            _logger.LogInformation("Successfully loaded {Count} records for table {TableName}", data.Count,
-                _currentTableName);
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e, "Failed to load data for table {TableName}", _currentTableName);
-            throw;
-        }
-        finally
-        {
-            Items.CollectionChanged += Items_CollectionChanged;
+                _logger.LogInformation("Successfully loaded {Count} records for table {TableName}", data.Count,
+                    _currentTableName);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Failed to load data for table {TableName}", _currentTableName);
+                throw;
+            }
         }
     }
     #endregion
@@ -294,6 +301,25 @@ public class DataGridViewModel : BindableBase, INavigationAware
             
             Console.WriteLine($"Сохранено: ID={id}, TableName={_currentTableName}");
         }
+    }
+
+    #region OnPrint
+
+    private void OnPrint()
+    {
+        _sfDataGrid.ShowPrintPreview();
+        _sfDataGrid.PrintSettings.AllowPrintStyles = true;
+    }
+
+    #endregion
+
+    private void OnExcelExport()
+    {
+        var options = new ExcelExportingOptions();
+        options.ExportMode = ExportMode.Text;
+        var excelEngine = _sfDataGrid.ExportToExcel(_sfDataGrid.View, options);
+        var workBook = excelEngine.Excel.Workbooks[0];
+        workBook.SaveAs("Sample.xlsx");
     }
     
     
@@ -323,18 +349,6 @@ public class DataGridViewModel : BindableBase, INavigationAware
     #endregion
     
     
-
-    private async void OnDetailsViewExpanded(GridDetailsViewExpandedEventArgs args)
-    {
-        /*string sparePartsTableName = $"{_currentTableName} запасні частини";
-       _columnTypesSpareParts = await _dataGridColumnService.GetColumnTypesAsync(sparePartsTableName);
-       _sparePartsDataGrid.Columns.Clear();
-       foreach (var columnInfo in _columnTypesSpareParts)
-       {
-           var column = _dataGridColumnService.CreateColumnFromDbType(columnInfo.Key, columnInfo.Value);
-           _sparePartsDataGrid.Columns.Add(column);
-           Console.WriteLine($"Loaded {columnInfo.Key}: {columnInfo.Value}");
-       }*/
-    }
+    
     
 }

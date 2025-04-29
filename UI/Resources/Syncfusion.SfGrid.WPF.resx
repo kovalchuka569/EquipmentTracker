@@ -1,0 +1,441 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AddNewRowText" xml:space="preserve">
+    <value>Натисніть тут, щоб додати новий рядок</value>
+    <comment>Add new row water mark text.</comment>
+  </data>
+  <data name="AdvancedFiltersButtonText" xml:space="preserve">
+    <value>Розширені фільтри</value>
+    <comment>Text for Advanced Filters button</comment>
+  </data>
+  <data name="After" xml:space="preserve">
+    <value>Після</value>
+    <comment>Text for After</comment>
+  </data>
+  <data name="AfterOrEqual" xml:space="preserve">
+    <value>Після або дорівнює</value>
+    <comment>Text for AfterOrEqual</comment>
+  </data>
+  <data name="AND" xml:space="preserve">
+    <value>І</value>
+    <comment>Text for AND Operator</comment>
+  </data>
+  <data name="Before" xml:space="preserve">
+    <value>До</value>
+    <comment>Text for Before</comment>
+  </data>
+  <data name="BeforeOrEqual" xml:space="preserve">
+    <value>До або дорівнює</value>
+    <comment>Text for BeforeOrEqual</comment>
+  </data>
+  <data name="BeginsWith" xml:space="preserve">
+    <value>Починається з</value>
+    <comment>Text for BeginsWith</comment>
+  </data>
+  <data name="Blanks" xml:space="preserve">
+    <value>(Порожні значення)</value>
+    <comment>Text for Blank filters</comment>
+  </data>
+  <data name="Bottom" xml:space="preserve">
+    <value>Останній :</value>
+    <comment>Text for Bottom</comment>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Відміна</value>
+    <comment>Text for Cancel</comment>
+  </data>
+  <data name="ClearFilter" xml:space="preserve">
+    <value>Очистити фільтр</value>
+    <comment>Text for Clear filters</comment>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>Закрити</value>
+    <comment>Tooltip text for Close </comment>
+  </data>
+  <data name="ColumnChooserTitle" xml:space="preserve">
+    <value>Вибір стовпців</value>
+    <comment>Column Chooser Window Title</comment>
+  </data>
+  <data name="ColumnChooserWaterMark" xml:space="preserve">
+    <value>(Немає полів)</value>
+    <comment>Empty Column Chooser Water Mark Text</comment>
+  </data>
+  <data name="Contains" xml:space="preserve">
+    <value>Містить</value>
+    <comment>Text for Contains</comment>
+  </data>
+  <data name="CustomMargin" xml:space="preserve">
+    <value>Спеціальне поле</value>
+    <comment>Text for PrintDialog CustomMargin</comment>
+  </data>
+  <data name="CustomMargins" xml:space="preserve">
+    <value>Спеціальні поля</value>
+    <comment>Text for PrintDialog CustomMargins</comment>
+  </data>
+  <data name="CustomPageSizes" xml:space="preserve">
+    <value>Спеціальні розміри сторінок</value>
+    <comment>Text for PrintDialog  CustomPageSizes</comment>
+  </data>
+  <data name="CustomSize" xml:space="preserve">
+    <value>Спеціальний розмір</value>
+    <comment>Text for PrintDialog CustomSize</comment>
+  </data>
+  <data name="DateFilters" xml:space="preserve">
+    <value>Фільтри дат</value>
+    <comment>Text for DateFilters</comment>
+  </data>
+  <data name="Done" xml:space="preserve">
+    <value>Готово</value>
+    <comment>Text for Done button</comment>
+  </data>
+  <data name="Empty" xml:space="preserve">
+    <value>Пусто</value>
+    <comment>Text for Empty</comment>
+  </data>
+  <data name="EndsWith" xml:space="preserve">
+    <value>Закінчується на</value>
+    <comment>Text for EndsWith</comment>
+  </data>
+  <data name="EnterValidFilterValue" xml:space="preserve">
+    <value>Введіть дійсне значення фільтра</value>
+    <comment>Text for EnterValidFilterValue</comment>
+  </data>
+  <data name="Equalss" xml:space="preserve">
+    <value>Дорівнює</value>
+    <comment>Text for Equals</comment>
+  </data>
+  <data name="FitAllColumnsOnOnePage" xml:space="preserve">
+    <value>Розмістити всі стовпці на одній сторінці</value>
+    <comment>Text for FitAllColumnsOnOnePage in PrintDialog window</comment>
+  </data>
+  <data name="FitAllRowsOnOnePage" xml:space="preserve">
+    <value>Розмістити всі рядки на одній сторінці</value>
+    <comment>Text for FitAllRowsOnOnePage in PrintDialog window</comment>
+  </data>
+  <data name="FitGridOnOnePage" xml:space="preserve">
+    <value>Розмістити сітку на одній сторінці</value>
+    <comment>Text for FitGridOnOnePage in PrintDialog window</comment>
+  </data>
+  <data name="GreaterThan" xml:space="preserve">
+    <value>Greater Than</value>
+    <comment>Text for GreaterThan</comment>
+  </data>
+  <data name="GreaterThanorEqual" xml:space="preserve">
+    <value>Більше або дорівнює</value>
+    <comment>Text for GreaterThanorEqual</comment>
+  </data>
+  <data name="GroupDropAreaText" xml:space="preserve">
+    <value>Перетягніть сюди заголовок стовпця, щоб згрупувати його</value>
+    <comment>Text for GroupDropArea</comment>
+  </data>
+  <data name="Height" xml:space="preserve">
+    <value>Висота :</value>
+    <comment>Text for Height of page size in PrintDialog</comment>
+  </data>
+  <data name="LandScapeOrientation" xml:space="preserve">
+    <value>Вертикальна орієнтація</value>
+    <comment>Text for LandScape Orientation of Print Dialog window</comment>
+  </data>
+  <data name="Left" xml:space="preserve">
+    <value>Ліворуч :</value>
+    <comment>Text for Left margin of PrintDialog</comment>
+  </data>
+
+  <data name="LessThan" xml:space="preserve">
+    <value>Менше</value>
+    <comment>Text for Less Than</comment>
+  </data>
+  <data name="LessThanorEqual" xml:space="preserve">
+    <value>Менше або дорівнює</value>
+    <comment>Text for LessThanorEqual</comment>
+  </data>
+  <data name="MatchCaseToolTip" xml:space="preserve">
+    <value>З урахуванням регістру</value>
+    <comment>Tooltip text for Match Case on AdvancedFiltering Popup</comment>
+  </data>
+  <data name="Moderate" xml:space="preserve">
+    <value>Помірний</value>
+    <comment>Text for Moderate margin in PrintDialog</comment>
+  </data>
+  <data name="Narrow" xml:space="preserve">
+    <value>Вузький</value>
+    <comment>Text for Narrow margin in PrintDialog</comment>
+  </data>
+  <data name="NoItems" xml:space="preserve">
+    <value>Немає елементів</value>
+    <comment>No Items to Display</comment>
+  </data>
+  <data name="NoMatches" xml:space="preserve">
+    <value>Немає співпадінь</value>
+    <comment>No Items match </comment>
+  </data>
+  <data name="Normal" xml:space="preserve">
+    <value>Звичайний</value>
+    <comment>Text for Normal margin in PrintDialog</comment>
+  </data>
+  <data name="NoScaling" xml:space="preserve">
+    <value>Без масштабування</value>
+    <comment>Text for NoScaling in PrintDialog window</comment>
+  </data>
+  <data name="NotContains" xml:space="preserve">
+    <value>Не містить</value>
+    <comment>Text for NotContains</comment>
+  </data>
+  <data name="NotEmpty" xml:space="preserve">
+    <value>Не порожній</value>
+    <comment>Text for NotEmpty</comment>
+  </data>
+  <data name="NotEquals" xml:space="preserve">
+    <value>Не дорівнює</value>
+    <comment>Text For NotEquals</comment>
+  </data>
+  <data name="NotNull" xml:space="preserve">
+    <value>Не є пустим</value>
+    <comment>Text for NotNull</comment>
+  </data>
+  <data name="Null" xml:space="preserve">
+    <value>Відсутнє значення</value>
+    <comment>Text for Null</comment>
+  </data>
+  <data name="NumberFilters" xml:space="preserve">
+    <value>Числові фільтри</value>
+    <comment>Text for NumberFilters</comment>
+  </data>
+  <data name="OK" xml:space="preserve">
+    <value>OK</value>
+    <comment>Text for OK</comment>
+  </data>
+  <data name="OR" xml:space="preserve">
+    <value>Або</value>
+    <comment>Text for OR Operator</comment>
+  </data>
+  <data name="PortraitOrientation" xml:space="preserve">
+    <value>Книжкова орієнтація</value>
+    <comment>Text for Portrait Orientation of PrintDialog</comment>
+  </data>
+  <data name="Print" xml:space="preserve">
+    <value>Друк</value>
+    <comment>Text for Print option in PrintDialog</comment>
+  </data>
+  <data name="PrintPreview" xml:space="preserve">
+    <value>Попередній перегляд друку</value>
+    <comment>Text for PrintPreview in PrintDialog </comment>
+  </data>
+  <data name="QuickPrint" xml:space="preserve">
+    <value>Швидкий друк</value>
+    <comment>Text for Quick Print option in PrintDialog</comment>
+  </data>
+  <data name="Right" xml:space="preserve">
+    <value>Праворуч :</value>
+    <comment>Text for Right margin of PrintDialog</comment>
+  </data>
+  <data name="RowErrorMessage" xml:space="preserve">
+    <value>Рядок, що містить помилку</value>
+    <comment>Error Indication by INotifyDataErrorInfo</comment>
+  </data>
+  <data name="Search" xml:space="preserve">
+    <value>Пошук</value>
+    <comment>Search water mark</comment>
+  </data>
+  <data name="SelectAll" xml:space="preserve">
+    <value>(Вибрати все)	</value>
+    <comment>Text for Select All</comment>
+  </data>
+  <data name="SelectDateToolTip" xml:space="preserve">
+    <value>Вибрати дату	</value>
+    <comment>Tooltip text for Select Date on AdvancedFiltering Popup</comment>
+  </data>
+  <data name="ShowRowsWhere" xml:space="preserve">
+    <value>Показати рядки, де:	</value>
+    <comment>Text for show rows Textblock in AdvancedFilter</comment>
+  </data>
+  <data name="SortDateAscending" xml:space="preserve">
+    <value>Сортувати від найстарішого до нового</value>
+    <comment>Text for Sort Ascending</comment>
+  </data>
+  <data name="SortDateDescending" xml:space="preserve">
+    <value>Сортувати від найновішого до старого	</value>
+    <comment>Text for Sort Descending</comment>
+  </data>
+  <data name="SortNumberAscending" xml:space="preserve">
+    <value>Сортувати від найменшого до більшого</value>
+    <comment>Text for Sort Ascending</comment>
+  </data>
+  <data name="SortNumberDescending" xml:space="preserve">
+    <value>Сортувати від найбільшого до меншого	</value>
+    <comment>Text for Sort Descending</comment>
+  </data>
+  <data name="SortStringAscending" xml:space="preserve">
+    <value>Сортувати від А до Я</value>
+    <comment>Text for Sort Ascending</comment>
+  </data>
+  <data name="SortStringDescending" xml:space="preserve">
+    <value>Сортувати від Я до А</value>
+    <comment>Text for Sort Descending</comment>
+  </data>
+  <data name="TextFilters" xml:space="preserve">
+    <value>Текстові фільтри	</value>
+    <comment>Text for TextFilters</comment>
+  </data>
+  <data name="Top" xml:space="preserve">
+    <value>Верх :</value>
+    <comment>Text for Top margin of PrintDialog</comment>
+  </data>
+  <data name="Wide" xml:space="preserve">
+    <value>Широкий</value>
+    <comment>Text for Wide margin in PrintDialog</comment>
+  </data>
+  <data name="Width" xml:space="preserve">
+    <value>Ширина :</value>
+    <comment>Text for Width of page size in PrintDialog</comment>
+  </data>
+  <data name="CantDropHere" xml:space="preserve">
+    <value>Не можна відпустити тут</value>
+    <comment>Text for Cannot drop here in RowDragAndDrop popup</comment>
+  </data>
+  <data name="DraggingRowsCount" xml:space="preserve">
+    <value>Перетягнуто рядків:</value>
+    <comment>Text for Dragging rows count in DragAndDrop popup</comment>
+  </data>
+  <data name="DropAbove" xml:space="preserve">
+    <value>Опуститися вище</value>
+    <comment>Text for Drop above in RowDragAndDrop popup</comment>
+  </data>
+  <data name="DropAsChild" xml:space="preserve">
+    <value>Перейти до дочірнього</value>
+    <comment>Text for Drop as child in RowDragAndDrop popup of TreeGrid</comment>
+  </data>
+  <data name="DropBelow" xml:space="preserve">
+    <value>Опуститися нижче</value>
+    <comment>Text for Drop below in RowDragAndDrop popup</comment>
+  </data>
+  <data name="DropStatus" xml:space="preserve">
+    <value>Статус :</value>
+    <comment>Text for Drop status in RowDragAndDrop popup</comment>
+  </data>
+  <data name="NotBeginsWith" xml:space="preserve">
+    <value>Не починається з</value>
+    <comment>Text for NotBeginsWith</comment>
+  </data>
+  <data name="NotEndsWith" xml:space="preserve">
+    <value>Не закінчується на</value>
+    <comment>Text for NotEndsWith</comment>
+  </data>
+</root>

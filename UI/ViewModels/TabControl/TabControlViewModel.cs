@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using Core.Events.EquipmentTree;
 using Core.Events.NavDrawer;
+using Core.Events.TabControl;
 using Syncfusion.Windows.Shared;
 using Prism.Commands;
 using UI.ViewModels.DataGrid;
@@ -33,8 +34,51 @@ public class TabControlViewModel : BindableBase, INavigationAware
         CloseOtherTabsCommand = new Prism.Commands.DelegateCommand<object>(CloseOtherTabs);
         
         _eventAggregator.GetEvent<OnOpenFileEvent>().Subscribe(NavigateFromFile);
+        _eventAggregator.GetEvent<OnOpenConsumablesFileEvent>().Subscribe(NavigateFromConsumablesFile);
         _eventAggregator.GetEvent<OpenEquipmentTreeTabEvent>().Subscribe(NavigateFromNavDrawer);
         _eventAggregator.GetEvent<OpenOtherTabEvent>().Subscribe(NavigateFromOther);
+    }
+    
+    private void NavigateFromConsumablesFile(string tabName)
+    {
+        Console.WriteLine($"Navigating to {tabName}");
+        
+        // Get the region
+        var region = _regionManager.Regions["TabControlRegion"];
+        string fileName = tabName;
+        string tabType = "ConsumablesFile";
+        var parameters = new NavigationParameters
+        {
+            { "TabName", tabName},
+            { "FileName", fileName },
+            { "TabType", tabType }
+        };
+        // Check if such a tab already exists
+        var existingView = region.Views
+            .OfType<FrameworkElement>()
+            .FirstOrDefault(v => {
+                if (v.DataContext is GenericTabViewModel vm)
+                {
+                    return vm.TabName == tabName;
+                }
+                return false;
+            });
+
+        if (existingView != null)
+        {
+            // Activate an existing view
+            region.Activate(existingView);
+        
+            // If the view is inside a TabItemExt, switch the tab
+            if (existingView.Parent is TabItemExt tabItem && tabItem.Parent is TabControlExt tabControl)
+            {
+                tabControl.SelectedItem = tabItem;
+            }
+            return;
+        }
+
+        // If the view is not found, navigate to the GenericTabView with parameters
+        _regionManager.RequestNavigate("TabControlRegion", "GenericTabView", parameters);
     }
 
     private void NavigateFromOther(string tabName)

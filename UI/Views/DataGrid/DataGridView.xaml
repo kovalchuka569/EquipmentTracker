@@ -51,6 +51,8 @@
             <sf:SfDataGrid.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Видалити запис" Command="{Binding DeleteRecordCommand}"/>
+                    <MenuItem Header="Друкувати" Command="{Binding PrintCommand}"/>
+                    <MenuItem Header="Excel" Command="{Binding ExcelExportCommand}"/>
                 </ContextMenu>
             </sf:SfDataGrid.ContextMenu>
             

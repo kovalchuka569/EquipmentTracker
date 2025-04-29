@@ -13,6 +13,7 @@
       <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.4" />
       <PackageReference Include="Serilog.Extensions.Logging" Version="9.0.1" />
       <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
+      <PackageReference Include="Syncfusion.DataGridExcelExport.Wpf" Version="29.1.39" />
     </ItemGroup>
 
 </Project>

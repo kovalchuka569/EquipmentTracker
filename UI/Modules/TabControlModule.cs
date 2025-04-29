@@ -1,4 +1,5 @@
 ﻿using Core.Models.DataGrid;
+using Core.Services.Consumables;
 using Core.Services.DataGrid;
 using UI.ViewModels.Tabs;
 using UI.ViewModels.TabControl;
@@ -10,10 +11,14 @@ using Core.Services.TabControlExt;
 using Data.Repositories.DataGrid;
 using UI.Interfaces.Factory;
 using UI.Services.Factory;
+using UI.ViewModels.Consumables;
+using UI.ViewModels.ConsumablesTree;
 using UI.ViewModels.EquipmentTree;
 using UI.Views;
+using UI.Views.Consumables;
 using UI.Views.DataGrid;
 using UI.Views.NavDrawer.NavDrawerItems;
+using UI.Views.NavDrawer.NavDrawerItems.ConsumablesTree;
 using UI.Views.TabControl;
 
 namespace UI.Modules;
@@ -55,10 +60,16 @@ public class TabControlModule : IModule
         containerRegistry.Register<IDataGridRepository, DataGridRepository>(); // Repository for DataGrid
         containerRegistry.Register<ISparePartsRepository, SparePartsRepository>(); // Repository for SpareParts
         
+        //Consumables tree
+        containerRegistry.RegisterForNavigation<ConsumablesTreeView, ConsumablesTreeViewModel>(); // View, ViewModel
+        containerRegistry.Register<IConsumablesTreeService, ConsumablesTreeService>(); // Service
+        
+        // Consumables DataGrid
+        containerRegistry.RegisterForNavigation<ConsumablesDataGridView, ConsumablesDataGridViewModel>(); // View, ViewModel
+        
         // Other tabs 
         containerRegistry.RegisterForNavigation<SchedulerView, SchedulerViewModel>();
         containerRegistry.RegisterForNavigation<SettingsView, SettingsViewModel>();
-        containerRegistry.RegisterForNavigation<ConsumablesView, ConsumablesViewModel>();
         containerRegistry.RegisterForNavigation<AccountingView, AccountingViewModel>();
 
         #endregion
