@@ -9,5 +9,6 @@ namespace Data.Repositories.DataGrid
         Task<object> InsertRecordAsync(string tableName, int equipmentId, Dictionary<string, object> values);
         Task UpdateRecordAsync(string tableName, object id, Dictionary<string, object> values);
         Task DeleteRecordAsync(string tableName, object id);
+        IAsyncEnumerable<string> StartListeningForChangesAsync(CancellationToken cancellationToken, string tableName);
     }
 }

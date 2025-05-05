@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Dynamic;
 using Common.Logging;
+using Core.Events.DataGrid;
 using Data.Repositories.DataGrid;
 
 namespace Core.Services.DataGrid
@@ -9,11 +10,13 @@ namespace Core.Services.DataGrid
     {
         private readonly IAppLogger<DataGridService> _logger;
         private readonly IDataGridRepository _repository;
+        private readonly IEventAggregator _eventAggregator;
         
-        public DataGridService(IAppLogger<DataGridService> logger, IDataGridRepository repository)
+        public DataGridService(IAppLogger<DataGridService> logger, IDataGridRepository repository, IEventAggregator eventAggregator)
         {
             _logger = logger;
             _repository = repository;
+            _eventAggregator = eventAggregator;
         }
         public async Task<ObservableCollection<ExpandoObject>> GetDataAsync(string tableName)
         {
@@ -73,6 +76,21 @@ namespace Core.Services.DataGrid
             catch (Exception e)
             {
                 _logger.LogError(e, "Failed to delete record with ID {Id from table {TableName}", id, tableName);
+                throw;
+            }
+        }
+        public async Task StartListeningForChangesAsync(CancellationToken cancellationToken, string tableName)
+        {
+            try
+            {
+                await foreach (var payload in _repository.StartListeningForChangesAsync(cancellationToken, tableName))
+                {
+                    _eventAggregator.GetEvent<DataChangedEvent>().Publish(payload);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in StartListeningForChangesAsync");
                 throw;
             }
         }

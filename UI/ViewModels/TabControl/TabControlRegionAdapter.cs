@@ -5,18 +5,20 @@ namespace UI.ViewModels.TabControl;
 
 public class TabControlRegionAdapter : RegionAdapterBase<TabControlExt>
     {
+        private readonly IRegionManager _regionManager;
         private TabControlExt _tabControl;
         private readonly Dictionary<string, TabItemExt> _parameterToTabMap = new Dictionary<string, TabItemExt>();
 
-        public TabControlRegionAdapter(IRegionBehaviorFactory regionBehaviorFactory)
+        public TabControlRegionAdapter(IRegionBehaviorFactory regionBehaviorFactory, IRegionManager regionManager)
             : base(regionBehaviorFactory)
         {
+            _regionManager = regionManager;
         }
 
         protected override void Adapt(IRegion region, TabControlExt regionTarget)
         {
             _tabControl = regionTarget;
-            
+            if (regionTarget.Name != "MainTabControl") return;
             // Prevent content from reloading when switching tabs
             _tabControl.SelectionChanged += (sender, e) =>
             {
@@ -39,18 +41,20 @@ public class TabControlRegionAdapter : RegionAdapterBase<TabControlExt>
                     {
                         // Create a new tab
                         TabItemExt item;
-                        
+
+
                         if (element.DataContext is GenericTabViewModel newVm)
                         {
+
                             Console.WriteLine($"Adding view with GenericTabViewModel: {element.GetType().Name}");
-                            
+
                             // Create a new tab with a temporary title
                             item = new TabItemExt
                             {
                                 Content = element,
                                 Header = element.GetType().Name.Replace("View", "")
                             };
-                            
+
                             // If TabName is already set, use it for the title
                             if (!string.IsNullOrEmpty(newVm.TabName))
                             {
@@ -68,19 +72,19 @@ public class TabControlRegionAdapter : RegionAdapterBase<TabControlExt>
                                 {
                                     string parameter = newVm.TabName;
                                     Console.WriteLine($"TabName changed to: {parameter}");
-                                    
+
                                     // Check if there is already a tab with such a parameter in our map
-                                    if (_parameterToTabMap.TryGetValue(parameter, out var existingTab) && 
+                                    if (_parameterToTabMap.TryGetValue(parameter, out var existingTab) &&
                                         existingTab != item && existingTab.Parent == _tabControl)
                                     {
                                         Console.WriteLine($"Found existing tab with parameter: {parameter}, merging");
-                                        
+
                                         // If find an existing tab, delete the current one
                                         if (_tabControl.Items.Contains(item))
                                         {
                                             _tabControl.Items.Remove(item);
                                             _tabControl.SelectedItem = existingTab;
-                                            
+
                                             // Remove the view from the region (only if it is not equal to existingTab.Content)
                                             if (region.Views.Contains(element) && element != existingTab.Content)
                                             {
@@ -125,7 +129,8 @@ public class TabControlRegionAdapter : RegionAdapterBase<TabControlExt>
                             // Remove from the parameter map
                             if (element.DataContext is GenericTabViewModel vm && !string.IsNullOrEmpty(vm.TabName))
                             {
-                                if (_parameterToTabMap.TryGetValue(vm.TabName, out var mappedTab) && mappedTab == tabItem)
+                                if (_parameterToTabMap.TryGetValue(vm.TabName, out var mappedTab) &&
+                                    mappedTab == tabItem)
                                 {
                                     _parameterToTabMap.Remove(vm.TabName);
                                 }
@@ -144,14 +149,38 @@ public class TabControlRegionAdapter : RegionAdapterBase<TabControlExt>
                     // Remove from the parameter map before removing from the region
                     if (content.DataContext is GenericTabViewModel vm && !string.IsNullOrEmpty(vm.TabName))
                     {
-                        if (_parameterToTabMap.TryGetValue(vm.TabName, out var mappedTab) && 
+                        if (_parameterToTabMap.TryGetValue(vm.TabName, out var mappedTab) &&
                             mappedTab == e.TargetTabItem)
                         {
                             _parameterToTabMap.Remove(vm.TabName);
                         }
                     }
 
-                    region.Remove(content);
+                    if (e.TargetTabItem?.Content is FrameworkElement genericTabView)
+                    {
+                        // Get GenericTabViewModel
+                        if (genericTabView.DataContext is GenericTabViewModel tabVm)
+                        {
+                            // Get the region where the real content was uploaded 
+                            // Call CleanupRegions when closing a tab
+                            var regionName = tabVm.UniqueRegionName;
+                            if (_regionManager.Regions.ContainsRegionWithName(regionName))
+                            {
+                                var region = _regionManager.Regions[regionName];
+                                foreach (var view in region.Views)
+                                {
+                                    if (view is FrameworkElement fe && fe.DataContext is IRegionCleanup cleanup)
+                                    {
+                                        cleanup.CleanupRegions();
+                                    }
+                                }
+
+                                _regionManager.Regions.Remove(regionName);
+                            }
+                        }
+
+                        region.Remove(content);
+                    }
                 }
             };
         }

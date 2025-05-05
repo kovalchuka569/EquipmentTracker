@@ -27,9 +27,12 @@ public class DataGridViewModel : BindableBase, INavigationAware
     private readonly IAppLogger<DataGridViewModel> _logger;
     private readonly IDataGridService _dataGridService;
     private readonly IDataGridColumnService _dataGridColumnService;
+    private readonly IEventAggregator _eventAggregator;
     
     private string _currentTableName;
     private bool _isLoaded = false;
+    private CancellationTokenSource _cts;
+    private SubscriptionToken _dataChangedToken;
     
     private ObservableCollection<ExpandoObject> _items;
     private ExpandoObject _selectedItem;
@@ -90,15 +93,15 @@ public class DataGridViewModel : BindableBase, INavigationAware
     
     public DataGridViewModel(IAppLogger<DataGridViewModel> logger, 
         IDataGridService dataGridService, 
-        IDataGridColumnService dataGridColumnService)
+        IDataGridColumnService dataGridColumnService,
+        IEventAggregator eventAggregator)
     {
         _logger = logger;
         _dataGridService = dataGridService;
         _dataGridColumnService = dataGridColumnService;
+        _eventAggregator = eventAggregator;
         
         _items = new ObservableCollection<ExpandoObject>();
-        
-        _logger.LogInformation("DataGridViewModel loaded");
     }
     
 
@@ -321,30 +324,42 @@ public class DataGridViewModel : BindableBase, INavigationAware
         var workBook = excelEngine.Excel.Workbooks[0];
         workBook.SaveAs("Sample.xlsx");
     }
-    
+
     
     
     #region Navigation
     public async void OnNavigatedTo(NavigationContext navigationContext)
     {
-        try
-        {
-            _currentTableName = navigationContext.Parameters["parameter"] as string;
-            _logger.LogInformation("Navigated to DataGridViewModel with table {TableName} (GUID: {Guid})", _currentTableName, _guid);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error during navigation to table {TableName} (GUID: {Guid})", _currentTableName, _guid);
-            throw;
-        }
+        _currentTableName = navigationContext.Parameters["parameter"] as string;
+        _cts = new CancellationTokenSource();
+        _dataChangedToken = _eventAggregator.GetEvent<DataChangedEvent>()
+            .Subscribe(OnDataChanged, ThreadOption.UIThread);
+
+        Task.Run(() => _dataGridService.StartListeningForChangesAsync(_cts.Token, _currentTableName));
+        _logger.LogInformation("Navigated to DataGridViewModel with table {TableName} (GUID: {Guid})", _currentTableName, _guid);
     }
     
+    private async void OnDataChanged(string payload)
+    {
+        if (payload.Contains(_currentTableName, StringComparison.OrdinalIgnoreCase))
+        {
+            _logger.LogInformation("Data changed for table {TableName}: {Payload}", _currentTableName, payload);
+            _isLoaded = false;
+            await LoadData();
+        }
+    }
     
     public bool IsNavigationTarget(NavigationContext navigationContext) => false;
 
     public void OnNavigatedFrom(NavigationContext navigationContext)
     {
         _logger.LogInformation("Navigated away from DataGridViewModel for table {TableName} (GUID: {Guid})", _currentTableName, _guid);
+        _eventAggregator.GetEvent<DataChangedEvent>().Unsubscribe(_dataChangedToken);
+        _cts?.Cancel();
+        _cts?.Dispose();
+        _cts = null;
+        Items.Clear();
+        _logger.LogInformation("Navigated away from table {TableName}", _currentTableName);
     }
     #endregion
     

@@ -10,7 +10,7 @@
              prism:ViewModelLocator.AutoWireViewModel="True"
              xmlns:models="clr-namespace:Core.Models.Consumables;assembly=Core" 
              xmlns:syncfusionskin="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF"
-             syncfusionskin:SfSkinManager.Theme="{syncfusionskin:SkinManagerExtension ThemeName=Windows11Dark}"
+             syncfusionskin:SfSkinManager.Theme="{syncfusionskin:SkinManagerExtension ThemeName=Windows11Light}"
              mc:Ignorable="d">
     
         <UserControl.Resources>
@@ -20,13 +20,13 @@
     <Grid>
         <sf:SfTreeView 
             x:Name="SfTreeView"
+            SelectionBackgroundColor="LightGray"
             VerticalAlignment="Top" HorizontalAlignment="Left"
-            BorderThickness="1"
-            FocusVisualStyle="{x:Null}"
             IsAnimationEnabled="True"
             AllowEditing="True"
             EditTrigger="F2"
             ShowLines="True"
+            ItemHeight="38"
             ShowRootLines="True"
             AllowDeleting="True"
             ExpandActionTrigger="Node"
@@ -66,29 +66,43 @@
             
             <sf:SfTreeView.ItemTemplate>
                 <DataTemplate>
-                    <Grid>
-                        
-                        <Grid.ColumnDefinitions>
+                    <Grid VerticalAlignment="Center"> <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition/>
                         </Grid.ColumnDefinitions>
-                        
-                        <Image
-                            Width="25"  
-                            Height="25"
-                            HorizontalAlignment="Stretch"
+
+                        <Grid VerticalAlignment="Center" Margin="5 0 0 0">
+                            <Image
+                                Width="40"
+                                Height="40"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Source="{Binding ImageIcon}"/>
+
+                            <sf:SfBadge
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Top"
+                                Content="99"
+                                Margin="-5,0,0,20"
+                                Background="Red"
+                                BorderThickness="0"
+                                BorderBrush="Transparent"
+                                Foreground = "White"
+                                FontSize="10"
+                                Width="18"
+                                Height="18"/>
+                        </Grid>
+
+                        <TextBlock
                             VerticalAlignment="Center"
-                            Source="{Binding ImageIcon}" />
-                        
-                        <TextBlock VerticalAlignment="Center"
-                                   Foreground="White"
-                                   FontSize="15"
-                                   Grid.Column="1"
-                                   Padding="5 5"
-                                   Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"/>
-                        
+                            FontWeight="DemiBold"
+                            FontSize="16"
+                            Grid.Column="1"
+                            Padding="8 0 0 0"
+                            Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"/>
                     </Grid>
                 </DataTemplate>
+
             </sf:SfTreeView.ItemTemplate>
             
            
@@ -97,7 +111,7 @@
                 <DataTemplate>
                     
                     <TextBox Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                             FontSize="13"/>
+                             FontSize="15"/>
                     
                 </DataTemplate>
             </sf:SfTreeView.EditTemplate>

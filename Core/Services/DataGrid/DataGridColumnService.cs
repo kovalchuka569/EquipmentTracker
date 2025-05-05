@@ -2,7 +2,6 @@
 using Common.Logging;
 using Data.Repositories.DataGrid;
 using Syncfusion.UI.Xaml.Grid;
-using System.Globalization;
 using System.Windows;
 using Syncfusion.Windows.Shared;
 

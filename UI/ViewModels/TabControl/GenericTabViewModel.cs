@@ -58,7 +58,6 @@ public class GenericTabViewModel: BindableBase, INavigationAware, IDisposable
         TabType = navigationContext.Parameters.GetValue<string>("TabType");
         
         Console.WriteLine($"GenericTabViewModel.OnNavigatedTo: TabName = {TabName}");
-        Console.WriteLine($"GenericTabViewModel.OnNavigatedTo: TabType = {TabType}");
         
         //Always create a new unique region name when navigating
         UniqueRegionName = $"TabContentRegion_{TabName}_{Guid.NewGuid().ToString("N")}";

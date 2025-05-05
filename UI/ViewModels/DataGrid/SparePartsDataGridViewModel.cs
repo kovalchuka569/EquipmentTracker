@@ -16,12 +16,15 @@ namespace UI.ViewModels.DataGrid
         
         private readonly ISparePartsService _sparePartsService;
         private readonly IAppLogger<SparePartsDataGridViewModel> _logger;
+        private readonly IEventAggregator _eventAggregator;
         
         private readonly DataGridViewModel _dataGridViewModel;
         
         private bool _isLoaded = false;
         private int _equipmentId;
         private string _currentSparePartsTableName;
+        private CancellationTokenSource _cts;
+        private SubscriptionToken _dataChangedToken;
         
         private ObservableCollection<ExpandoObject> _spareParts;
         private ExpandoObject _selectedSparePart;
@@ -52,14 +55,24 @@ namespace UI.ViewModels.DataGrid
         public DelegateCommand DeleteRecordCommand =>
             _deleteRecordCommand ??= new DelegateCommand(OnDeleteRecord);
 
-        public SparePartsDataGridViewModel(IDataGridColumnService dataGridColumnService, ISparePartsService sparePartsService, IAppLogger<SparePartsDataGridViewModel> logger)
+        public SparePartsDataGridViewModel(
+            IDataGridColumnService dataGridColumnService, 
+            ISparePartsService sparePartsService, 
+            IAppLogger<SparePartsDataGridViewModel> logger,
+            IEventAggregator eventAggregator)
         {
-            Console.WriteLine("SparePartsDataGridViewModel");
             _dataGridColumnService = dataGridColumnService;
             _sparePartsService = sparePartsService;
             _logger = logger;
+            _eventAggregator = eventAggregator;
             
             _spareParts = new ObservableCollection<ExpandoObject>();
+            
+            _cts = new CancellationTokenSource();
+            _dataChangedToken = _eventAggregator.GetEvent<DataChangedEvent>()
+                .Subscribe(OnDataChanged, ThreadOption.UIThread);
+
+            Task.Run(() => _sparePartsService.StartListeningForChangesAsync(_cts.Token, _currentSparePartsTableName));
         }
 
         #region SpareParts_CollectionChanged
@@ -181,6 +194,15 @@ namespace UI.ViewModels.DataGrid
         }
         #endregion
         
+        private async void OnDataChanged(string payload)
+        {
+            if (payload.Contains(_currentSparePartsTableName, StringComparison.OrdinalIgnoreCase))
+            {
+                _logger.LogInformation("Data changed for table {TableName}: {Payload}", _currentSparePartsTableName, payload);
+                _isLoaded = false;
+                await LoadData();
+            }
+        }
         
         #region OnSparePartsLoaded
         private async void OnSparePartsLoaded(SfDataGrid sfDataGrid)
@@ -216,21 +238,26 @@ namespace UI.ViewModels.DataGrid
         #region LoadData
         private async Task LoadData()
         {
-            try
+            if (_isLoaded == false)
             {
-                SpareParts.CollectionChanged -= SpareParts_CollectionChanged;
-                SpareParts.Clear();
-                var data = await _sparePartsService.GetDataAsync(_currentSparePartsTableName, _equipmentId);
-                foreach (var part in data)
+                try
                 {
-                    SpareParts.Add(part);
+                    SpareParts.CollectionChanged -= SpareParts_CollectionChanged;
+                    SpareParts.Clear();
+                    var data = await _sparePartsService.GetDataAsync(_currentSparePartsTableName, _equipmentId);
+                    foreach (var part in data)
+                    {
+                        SpareParts.Add(part);
+                    }
+
+                    SpareParts.CollectionChanged += SpareParts_CollectionChanged;
+                    _isLoaded = true;
+                    _logger.LogInformation("Loaded {Count} record for spare parts", data.Count);
                 }
-                SpareParts.CollectionChanged += SpareParts_CollectionChanged;
-                _logger.LogInformation("Loaded {Count} record for spare parts", data.Count);
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e.Message);
+                catch (Exception e)
+                {
+                    _logger.LogError(e.Message);
+                }
             }
         }
         #endregion

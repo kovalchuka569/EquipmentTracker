@@ -9,5 +9,6 @@ namespace Core.Services.DataGrid
         Task<object> InsertRecordAsync(string tableName, Dictionary<string, object> values);
         Task UpdateRecordAsync(string tableName, object id, Dictionary<string, object> values);
         Task DeleteRecordAsync(string tableName, object id);
+        Task StartListeningForChangesAsync(CancellationToken cancellationToken, string tableName);
     }
 }

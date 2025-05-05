@@ -10,5 +10,6 @@ namespace Data.Repositories.DataGrid
         Task UpdateRecordAsync(string tableName, object id, Dictionary<string, object> values);
         Task DeleteRecordAsync(string tableName, object id);
         Task<Dictionary<string, string>> GetColumnTypesAsync(string tableName);
+        IAsyncEnumerable<string> StartListeningForChangesAsync(CancellationToken cancellationToken, string tableName);
     }
 }

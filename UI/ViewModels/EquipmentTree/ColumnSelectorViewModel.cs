@@ -101,10 +101,32 @@ public class ColumnSelectorViewModel : BindableBase, INavigationAware
             Console.WriteLine(string.Join(", ", columns));
 
             var createTablesQuery =
+                $"CREATE EXTENSION IF NOT EXISTS plpgsql; " +
+                $"CREATE OR REPLACE FUNCTION \"UserTables\".notify_data_changed() " +
+                $"RETURNS TRIGGER AS $$ " +
+                $"BEGIN " +
+                $"PERFORM pg_notify('data_changed', TG_TABLE_NAME || ':' || TG_OP || ':' || TG_TABLE_SCHEMA); " +
+                $"RETURN NULL; " +
+                $"END; " +
+                $"$$ LANGUAGE plpgsql; " +
+
                 $"CREATE TABLE IF NOT EXISTS \"UserTables\".\"{tableName}\" (Id SERIAL PRIMARY KEY, {string.Join(", ", columns)}); " +
-                $"CREATE TABLE IF NOT EXISTS \"UserTables\".\"{sparePartsTableName}\" (Id SERIAL PRIMARY KEY, {string.Join(", ", sparePartsColumns)})";
+
+                $"CREATE OR REPLACE TRIGGER \"{tableName}_data_changed_trigger\" " +
+                $"AFTER INSERT OR UPDATE OR DELETE ON \"UserTables\".\"{tableName}\" " +
+                $"FOR EACH STATEMENT " +
+                $"EXECUTE FUNCTION \"UserTables\".notify_data_changed(); " +
+
+                $"CREATE TABLE IF NOT EXISTS \"UserTables\".\"{sparePartsTableName}\" (Id SERIAL PRIMARY KEY, {string.Join(", ", sparePartsColumns)}); " +
+
+                $"CREATE OR REPLACE TRIGGER \"{sparePartsTableName}_data_changed_trigger\" " +
+                $"AFTER INSERT OR UPDATE OR DELETE ON \"UserTables\".\"{sparePartsTableName}\" " +
+                $"FOR EACH STATEMENT " +
+                $"EXECUTE FUNCTION \"UserTables\".notify_data_changed();";
             
+            Console.WriteLine($"SQL query: {createTablesQuery}");
             _context.Database.ExecuteSqlRaw(createTablesQuery);
+            
             OnConfirm();
     }
 

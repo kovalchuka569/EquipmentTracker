@@ -416,5 +416,37 @@ namespace Data.Repositories.DataGrid
             }
         }
         #endregion
+        
+        public async IAsyncEnumerable<string> StartListeningForChangesAsync(CancellationToken cancellationToken, string tableName)
+        {
+            await using var connection = await OpenNewConnectionAsync();
+            using var cmd = new NpgsqlCommand("LISTEN data_changed", connection);
+            await cmd.ExecuteNonQueryAsync();
+            _logger.LogInformation("Listening for data changes");
+
+            var tcs = new TaskCompletionSource<string>();
+            NotificationEventHandler handler = (o, e) =>
+            {
+                _logger.LogInformation("Notification received: {Payload}", e.Payload);
+                tcs.TrySetResult(e.Payload);
+            };
+    
+            connection.Notification += handler;
+
+            try
+            {
+                while (!cancellationToken.IsCancellationRequested)
+                {
+                    tcs = new TaskCompletionSource<string>();
+                    await connection.WaitAsync(cancellationToken);
+                    var payload = await tcs.Task;
+                    yield return payload;
+                }
+            }
+            finally
+            {
+                connection.Notification -= handler;
+            }
+        }
     }
 }

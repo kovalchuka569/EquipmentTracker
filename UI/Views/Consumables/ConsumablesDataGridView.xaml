@@ -3,14 +3,200 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:sf="clr-namespace:Syncfusion.UI.Xaml.Grid;assembly=Syncfusion.SfGrid.WPF"
+             xmlns:grid="clr-namespace:Syncfusion.UI.Xaml.Grid;assembly=Syncfusion.SfGrid.WPF"
+             xmlns:sf="http://schemas.syncfusion.com/wpf"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:local="clr-namespace:UI.Views.Consumables"
              xmlns:prism="http://prismlibrary.com/"
              xmlns:syncfusionskin="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF"
-             syncfusionskin:SfSkinManager.Theme="{syncfusionskin:SkinManagerExtension ThemeName=Windows11Dark}"
+             syncfusionskin:SfSkinManager.Theme="{syncfusionskin:SkinManagerExtension ThemeName=Windows11Light}"
              mc:Ignorable="d">
+    
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+    </UserControl.Resources>
+    
     <Grid>
-        <TextBlock Text="{Binding TestText}"/>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" MaxWidth="615"/>
+        </Grid.ColumnDefinitions>
+            <Grid>
+        <grid:SfDataGrid 
+            GridLinesVisibility="Horizontal"
+            HeaderLinesVisibility="Both"
+            HorizontalContentAlignment="Center"
+            VerticalContentAlignment="Center"
+            LiveDataUpdateMode="AllowDataShaping"
+            AllowFiltering="True"
+            AllowGrouping="True"
+            ShowGroupDropArea="True"
+            AddNewRowPosition="Top"
+            AddNewRowText="Додати новий матеріал"
+            SelectionMode="Single"
+            x:Name="ConsumablesSfDataGrid"
+            ItemsSource="{Binding Items}"
+            SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
+            AutoGenerateColumns="False">
+            
+            <grid:SfDataGrid.Columns>
+                <grid:GridTextColumn MappingName="Name" HeaderText="Назва">
+                    <grid:GridTextColumn.CellTemplate>
+                        <DataTemplate>
+                                <TextBlock Text="{Binding NameDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        </DataTemplate>
+                    </grid:GridTextColumn.CellTemplate>
+                </grid:GridTextColumn>
+                
+                <grid:GridTextColumn MappingName="Category" HeaderText="Категорія">
+                    <grid:GridTextColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding CategoryDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        </DataTemplate>
+                    </grid:GridTextColumn.CellTemplate>
+                </grid:GridTextColumn>
+                
+                <grid:GridNumericColumn MappingName="Balance" Width="200" HeaderText="Залишок">
+                    <grid:GridNumericColumn.CellTemplate>
+                        <DataTemplate>
+                            <Border x:Name="MainBorder" BorderThickness="1" BorderBrush="Gray">
+                                <Grid>
+                                    <Border 
+                                        Background="{Binding BalanceColor}" 
+                                        Width="{Binding BalanceWidth}" 
+                                        HorizontalAlignment="Left"/>
+                                    
+                                    <TextBlock 
+                                        Text="{Binding BalanceDisplay}" 
+                                        HorizontalAlignment="Center" 
+                                        VerticalAlignment="Center"/>
+                                </Grid>
+                            </Border>
+                            
+                            <DataTemplate.Triggers>
+                                <DataTrigger Binding="{Binding IsCritical}" Value="True">
+                                    <DataTrigger.EnterActions>
+                                        <BeginStoryboard>
+                                            <Storyboard RepeatBehavior="Forever" AutoReverse="True">
+                                                <ColorAnimation
+                                                    Storyboard.TargetName="MainBorder"
+                                                    Storyboard.TargetProperty="(Border.BorderBrush).(SolidColorBrush.Color)"
+                                                    From="Transparent"
+                                                    To="Red"
+                                                    Duration="0:0:0.3" />
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </DataTrigger.EnterActions>
+                                </DataTrigger>
+                            </DataTemplate.Triggers>
+                            
+                        </DataTemplate>
+                    </grid:GridNumericColumn.CellTemplate>
+                </grid:GridNumericColumn>
+                
+                <grid:GridTextColumn MappingName="Unit" HeaderText="Одиниця">
+                    <grid:GridTextColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding UnitDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        </DataTemplate>
+                    </grid:GridTextColumn.CellTemplate>
+                </grid:GridTextColumn>
+                
+                </grid:SfDataGrid.Columns>
+            
+            
+            
+            
+            <grid:SfDataGrid.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Сигналізатор залишків" StaysOpenOnClick="True" Visibility="{Binding ContextMenuLevelIndicatorVisibility, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <sf:SfTextInputLayout Hint="Мінімальний залишок" 
+                                                      FontSize="11"
+                                                      Grid.Row="0"
+                                                      ContainerType="Outlined"
+                                                      BorderThickness="1" BorderBrush="Gray" FocusedBorderBrush="Blue"
+                                                      Margin="0,0,0,4">
+
+                                    <TextBox FontSize="13" FontFamily="Segoe UI" Text="{Binding MinLevel, UpdateSourceTrigger=LostFocus}">
+                                        <i:Interaction.Triggers>
+                                            <i:EventTrigger EventName="LostFocus">
+                                                <i:InvokeCommandAction Command="{Binding MinLevelChangedCommand}"
+                                                                       PassEventArgsToCommand="True"/>
+                                            </i:EventTrigger>
+                                        </i:Interaction.Triggers>
+                                    </TextBox>
+
+                                </sf:SfTextInputLayout>
+                                
+                                <sf:SfTextInputLayout Hint="Максимальний залишок" 
+                                                      FontSize="11"
+                                                      Grid.Row="1"
+                                                      ContainerType="Outlined"
+                                                      BorderThickness="1" BorderBrush="Gray" FocusedBorderBrush="Blue">
+
+                                    <TextBox FontSize="13" FontFamily="Segoe UI" Text="{Binding MaxLevel, UpdateSourceTrigger=LostFocus}">
+                                        <i:Interaction.Triggers>
+                                            <i:EventTrigger EventName="LostFocus">
+                                                <i:InvokeCommandAction Command="{Binding MaxLevelChangedCommand}"
+                                                                       PassEventArgsToCommand="True"/>
+                                            </i:EventTrigger>
+                                        </i:Interaction.Triggers>
+                                    </TextBox>
+
+                                </sf:SfTextInputLayout>
+                            </Grid>
+                    </MenuItem>
+                    <MenuItem Header="Друкувати" Command="{Binding PrintCommand}"/>
+                    <MenuItem Header="Excel" Command="{Binding ExcelExportCommand}"/>
+                    
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Loaded">
+                            <i:InvokeCommandAction Command="{Binding ConsumablesDataGridContextMenuLoadedCommand}"/>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                    
+                </ContextMenu>
+            </grid:SfDataGrid.ContextMenu>
+            
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="Loaded">
+                    <i:InvokeCommandAction Command="{Binding LoadedSfDataGridCommand}"
+                                           CommandParameter="{Binding ElementName=ConsumablesSfDataGrid}"/>
+                </i:EventTrigger>
+                
+                <i:EventTrigger EventName="SelectionChanged">
+                    <i:InvokeCommandAction Command="{Binding RowSelectionChangedCommand}"/>
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+        </grid:SfDataGrid>
+            </Grid>
+        
+        <sf:SfGridSplitter Grid.Column="1" HorizontalAlignment="Stretch" ResizeBehavior="PreviousAndNext" Width="5" Background="Gray"/>
+        
+        
+        <Border Grid.Column="2">
+            <Grid>
+                <ContentControl prism:RegionManager.RegionName="DetailsConsumablesRegion"/>
+            </Grid>
+        </Border>
     </Grid>
+    
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding LoadedUserControlCommand}"/>
+        </i:EventTrigger>
+        
+        <i:EventTrigger EventName="Unloaded">
+            <i:InvokeCommandAction Command="{Binding UnloadedUserControlCommand}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    
+    
+
 </UserControl>

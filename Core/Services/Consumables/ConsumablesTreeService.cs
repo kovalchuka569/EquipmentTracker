@@ -149,9 +149,9 @@ namespace Core.Services.Consumables
             var consumablesColumns = new List<string>
             {
                 "\"Назва\" VARCHAR(255)",
-                "\"Категорія\" INTEGER",
+                "\"Категорія\" VARCHAR(255)",
                 "\"Одиниця\" VARCHAR(255)",
-                "\"Залишок\" NUMERIC(10, 2)",
+                "\"Залишок\" NUMERIC(10, 2) DEFAULT 0",
                 "\"Ціна за одиницю (грн)\" NUMERIC(10, 2)",
                 "\"Мінімальний залишок\" NUMERIC(10, 2)",
                 "\"Максимальний залишок\" NUMERIC(10, 2)", 

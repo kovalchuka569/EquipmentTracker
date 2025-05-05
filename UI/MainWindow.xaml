@@ -10,10 +10,10 @@
         xmlns:bi="clr-namespace:UI.Views.Notifications.BusyIndicator"
         xmlns:sf="clr-namespace:Syncfusion.Windows.Shared;assembly=Syncfusion.Shared.WPF"
         xmlns:syncfusionskin="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF"
-        syncfusionskin:SfSkinManager.Theme="{syncfusionskin:SkinManagerExtension ThemeName=Windows11Dark}"
+        syncfusionskin:SfSkinManager.Theme="{syncfusionskin:SkinManagerExtension ThemeName=Windows11Light}"
         
         WindowStartupLocation="CenterScreen" WindowState="Maximized"
-        Icon="app_ico.png"
+        Icon="app_ico_dark.png"
         Title="Equipment Tracker" TitleFontSize="15" 
         UseNativeChrome="True"
         ResizeBorderThickness="0"
@@ -25,9 +25,7 @@
         <local:VersionTemplate x:Key="versionTemplate">
             <Grid Width="60" Height="30">
                 <Polygon Points="0,0 60,0 50,30 10,30"
-                         Fill="SteelBlue"
-                         Stroke="DarkBlue"
-                         StrokeThickness="1" />
+                         Fill="Blue"/>
                 
                 <Label Content="v0.1.0"
                        Foreground="White"
@@ -39,7 +37,7 @@
             </Grid>
             
             <Button Width="35" Background="Transparent" BorderThickness="0" Margin="10,0,0,0">
-                <Image Source="about.png" Width="16" Height="16" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                <Image Source="about_dark.png" Width="16" Height="16" VerticalAlignment="Center" HorizontalAlignment="Center"/>
             </Button>
         </local:VersionTemplate>
     </sf:ChromelessWindow.Resources>

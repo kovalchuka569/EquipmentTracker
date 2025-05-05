@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Dynamic;
 using Common.Logging;
+using Core.Events.DataGrid;
 using Data.Repositories.DataGrid;
 
 namespace Core.Services.DataGrid
@@ -10,11 +11,13 @@ namespace Core.Services.DataGrid
         
         private readonly IAppLogger<SparePartsService> _logger;
         private readonly ISparePartsRepository _repository;
+        private readonly IEventAggregator _eventAggregator;
 
-        public SparePartsService(IAppLogger<SparePartsService> logger, ISparePartsRepository repository)
+        public SparePartsService(IAppLogger<SparePartsService> logger, ISparePartsRepository repository, IEventAggregator eventAggregator)
         {
             _logger = logger;
             _repository = repository;
+            _eventAggregator = eventAggregator;
         }
         
         public async Task<ObservableCollection<ExpandoObject>> GetDataAsync(string tableName, object equipmentId)
@@ -82,5 +85,21 @@ namespace Core.Services.DataGrid
             }
         }
         #endregion
+        
+        public async Task StartListeningForChangesAsync(CancellationToken cancellationToken, string tableName)
+        {
+            try
+            {
+                await foreach (var payload in _repository.StartListeningForChangesAsync(cancellationToken, tableName))
+                {
+                    _eventAggregator.GetEvent<DataChangedEvent>().Publish(payload);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in StartListeningForChangesAsync");
+                throw;
+            }
+        }
     }
 }

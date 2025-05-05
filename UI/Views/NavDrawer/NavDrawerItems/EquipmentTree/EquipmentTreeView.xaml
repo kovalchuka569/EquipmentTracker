@@ -11,7 +11,7 @@
              xmlns:behavior="clr-namespace:Core.Behaviors.SyncfusionTreeView;assembly=Core"
              xmlns:prism="http://prismlibrary.com/"
              xmlns:syncfusionskin="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF"
-             syncfusionskin:SfSkinManager.Theme="{syncfusionskin:SkinManagerExtension ThemeName=Windows11Dark}">
+             syncfusionskin:SfSkinManager.Theme="{syncfusionskin:SkinManagerExtension ThemeName=Windows11Light}">
     
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
@@ -44,6 +44,12 @@
                 </DataTrigger>
             </Style.Triggers>
         </Style>
+        
+        <ResourceDictionary x:Key="SfTreeViewResource">
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Syncfusion.Themes.Windows11Light.WPF;component/sftreeview/sftreeview.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
         
     </UserControl.Resources>
     <Grid>
@@ -92,8 +98,8 @@
                             Source="{Binding ImageIcon}" />
                         
                         <TextBlock VerticalAlignment="Center"
-                                   Foreground="White"
                                    FontSize="15"
+                                   FontWeight="DemiBold"
                                    Grid.Column="1"
                                    Padding="5 5"
                                    Text="{Binding FileName, UpdateSourceTrigger=PropertyChanged}"/>

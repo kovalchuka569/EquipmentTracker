@@ -1,4 +1,5 @@
 ﻿using Core.Events.NavDrawer;
+using Core.Events.Themes;
 
 
 namespace UI.ViewModels.NavDrawer
@@ -7,6 +8,14 @@ namespace UI.ViewModels.NavDrawer
     {
         private readonly IRegionManager _regionManager;
         private readonly IEventAggregator _eventAggregator;
+
+        private string _themeName;
+
+        public string ThemeName
+        {
+            get => _themeName;
+            set => SetProperty(ref _themeName, value);
+        }
         
         public DelegateCommand<string> NavigateToTabControlExt { get; }
 
@@ -15,8 +24,13 @@ namespace UI.ViewModels.NavDrawer
             _regionManager = regionManager;
             _eventAggregator = eventAggregator;
             NavigateToTabControlExt = new DelegateCommand<string>(OnNavigateToTabControlExt);
+            _eventAggregator.GetEvent<OnThemeChangedEvent>().Subscribe(ChangeTheme);
         }
-        
+
+        private void ChangeTheme(string themeName)
+        {
+            ThemeName = "Windows11Dark";
+        }
 
         private void OnNavigateToTabControlExt(string parameter)
         {
