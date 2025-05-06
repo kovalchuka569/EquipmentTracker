@@ -88,6 +88,8 @@ namespace UI.ViewModels.ConsumablesTree
             _logger = logger;
             _eventAggregator = eventAggregator;
 
+            _folders = new ObservableCollection<IFileSystemItem>();
+            
             LoadTreeAsync();
         }
 
@@ -264,8 +266,55 @@ namespace UI.ViewModels.ConsumablesTree
         private async void LoadTreeAsync()
         {
             var allFolders = await _consumablesTreeService.GetFoldersAsync();
+            _logger.LogInformation($"Кількість завантажених папок: {allFolders?.Count ?? 0}");
             var allFiles = await _consumablesTreeService.GetFilesAsync();
-            Folders = _consumablesTreeService.BuildHierachy(allFolders, allFiles);
+            _logger.LogInformation($"Кількість завантажених файлів: {allFiles?.Count ?? 0}");
+            
+            _folders = _consumablesTreeService.BuildHierachy(allFolders, allFiles);
+            
+            var tableNames = allFiles.Select(f => f.Name).ToList();
+            var lowValueCounts = await _consumablesTreeService.GetLowValueCountsAsync(tableNames);
+
+            foreach (var file in allFiles)
+            {
+                if (lowValueCounts.TryGetValue(file.Name, out int count))
+                {
+                  file.BadgeVisibility = count > 0; 
+                  file.BadgeValue = count;
+                }
+                else
+                {
+                    file.BadgeVisibility = false;
+                    file.BadgeValue = 0;
+                }
+            }
+            CalculateFolderBadgeValue(_folders, lowValueCounts);
+            Folders = new ObservableCollection<IFileSystemItem>(Folders);
+            
+        }
+
+        private int CalculateFolderBadgeValue(ObservableCollection<IFileSystemItem> items,
+            Dictionary<string, int> badgeValues)
+        {
+            int total = 0;
+            foreach (var item in items)
+            {
+                if (item is File file)
+                {
+                    if (badgeValues.TryGetValue(file.Name, out int count))
+                    {
+                        total += count;
+                    }
+                }
+                else if(item is Folder folder)
+                {
+                    int childrenValue = CalculateFolderBadgeValue(folder.Items, badgeValues);
+                    total += childrenValue;
+                    folder.BadgeValue = childrenValue;
+                    folder.BadgeVisibility = childrenValue > 0;
+                }
+            }
+            return total;
         }
 
         // Gets link to the SfTreeView

@@ -9,6 +9,8 @@ namespace Core.Models.Consumables
         private int _id;
         private int _parentIdFolder;
         private string _imageIcon;
+        private int _badgeValue;
+        private bool _badgeVisibility;
         
         public File()
         {
@@ -51,6 +53,26 @@ namespace Core.Models.Consumables
             set
             {
                 _imageIcon = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public int BadgeValue
+        {
+            get => _badgeValue;
+            set
+            {
+                _badgeValue = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool BadgeVisibility
+        {
+            get => _badgeVisibility;
+            set
+            {
+                _badgeVisibility = value;
                 OnPropertyChanged();
             }
         }

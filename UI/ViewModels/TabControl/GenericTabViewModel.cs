@@ -80,7 +80,7 @@ public class GenericTabViewModel: BindableBase, INavigationAware, IDisposable
                 try 
                 {
                     // Give a little time to bind the region
-                    System.Threading.Thread.Sleep(50);
+                    Thread.Sleep(50);
                     
                     if (_regionManager.Regions.ContainsRegionWithName(UniqueRegionName))
                     {
@@ -118,6 +118,10 @@ public class GenericTabViewModel: BindableBase, INavigationAware, IDisposable
         if (tabType == "ConsumablesFile")
         {
             return "ConsumablesDataGridView";
+        }
+        if (tabType == "ImageViewer")
+        {
+            return "ImageViewerView";
         }
 
         if (tabType == "Other")

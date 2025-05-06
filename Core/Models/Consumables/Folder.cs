@@ -11,7 +11,8 @@ namespace Core.Models.Consumables
         private int? _parentId;
         private string _imageIcon;
         private bool _isExpanded;
-
+        private int _badgeValue;
+        private bool _badgeVisibility;
         public Folder()
         {
             _imageIcon = "Assets/folder.png";
@@ -64,6 +65,26 @@ namespace Core.Models.Consumables
             set
             {
                 _isExpanded = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public int BadgeValue
+        {
+            get => _badgeValue;
+            set
+            {
+                _badgeValue = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool BadgeVisibility
+        {
+            get => _badgeVisibility;
+            set
+            {
+                _badgeVisibility = value;
                 OnPropertyChanged();
             }
         }

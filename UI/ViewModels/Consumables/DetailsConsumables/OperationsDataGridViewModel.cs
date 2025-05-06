@@ -1,8 +1,11 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Dynamic;
 using System.Threading.Tasks;
+using Core.Events.Common;
 using Core.Events.DataGrid.Consumables;
+using Core.Services.Common;
 using Core.Services.Consumables.Operations;
 using Core.Services.DataGrid;
 using Prism.Commands;
@@ -11,6 +14,7 @@ using Prism.Navigation.Regions;
 using Syncfusion.UI.Xaml.Grid;
 using Syncfusion.Windows.Controls;
 using UI.ViewModels.TabControl;
+using Timer = System.Timers.Timer;
 
 namespace UI.ViewModels.Consumables.DetailsConsumables
 {
@@ -19,12 +23,21 @@ namespace UI.ViewModels.Consumables.DetailsConsumables
         private readonly IOperationsDataGridService _service;
         private readonly IEventAggregator _eventAggregator;
         private IRegionManager _regionManager;
+        private ImageViewerTempStorage _imageViewerTempStorage;
 
-        private ObservableCollection<dynamic> _operations = new();
-        public ObservableCollection<dynamic> Operations
+        private ObservableCollection<Operation> _operations = new();
+        private Operation _selectedOperation;
+
+        public ObservableCollection<Operation> Operations
         {
             get => _operations;
             set => SetProperty(ref _operations, value);
+        }
+
+        public Operation SelectedOperation
+        {
+            get => _selectedOperation;
+            set => SetProperty(ref _selectedOperation, value);
         }
 
         private bool _isDataLoaded;
@@ -48,22 +61,35 @@ namespace UI.ViewModels.Consumables.DetailsConsumables
             set => SetProperty(ref _isOverlayVisible, value);
         }
 
-        private const string WriteOffOperation = "Списання";
-        private const string IncomeOperation = "Прихід";
-
         public DelegateCommand<SfDataGrid> DataGridLoadedCommand { get; }
         public DelegateCommand ShowAddNewTemplateCommand { get; }
+        public DelegateCommand<object> ViewReceiptCommand  { get; }
 
         public OperationsDataGridViewModel(
             IOperationsDataGridService service,
             IEventAggregator eventAggregator, 
-            IRegionManager regionManager)
+            IRegionManager regionManager,
+            ImageViewerTempStorage imageViewerTempStorage)
         {
             _service = service;
             _eventAggregator = eventAggregator;
             _regionManager = regionManager;
+            _imageViewerTempStorage = imageViewerTempStorage;
+            
             DataGridLoadedCommand = new DelegateCommand<SfDataGrid>(OnDataGridLoaded);
             ShowAddNewTemplateCommand = new DelegateCommand(OnShowAddNewTemplate);
+            ViewReceiptCommand = new DelegateCommand<object>(OnViewReceipt);
+        }
+
+        private void OnViewReceipt(object parameter)
+        {
+            if (parameter is Operation operation)
+            {
+                Console.WriteLine(operation.Receipt.Length+" ImageDataFrom operations");
+                _imageViewerTempStorage.ImageData = operation.Receipt;
+                _imageViewerTempStorage.ImageName = "Квитанція на " + operation.OperationType + " від " + operation.DateTime;
+                _eventAggregator.GetEvent<OpenImageViewerEvent>().Publish("Квитанція на " + operation.OperationType + " від " + operation.DateTime);
+            }
         }
 
         private void OnShowAddNewTemplate()
@@ -85,7 +111,7 @@ namespace UI.ViewModels.Consumables.DetailsConsumables
 
         private async void OnAddNewOperation(AddNewOperationEventArgs args)
         {
-           await _service.InsertRecordAsync(_tableName, _materialId, args.OperationType, args.DateTime.ToString(), args.Quantity, args.Description, args.User);
+           await _service.InsertRecordAsync(_tableName, _materialId, args.OperationType, args.DateTime.ToString(), args.Quantity, args.Description, args.User, args.ReceiptImageBytes);
             _eventAggregator.GetEvent<AddNewOperationEvent>().Unsubscribe(OnAddNewOperation);
             _isDataLoaded = false;
             await LoadData();
@@ -98,6 +124,7 @@ namespace UI.ViewModels.Consumables.DetailsConsumables
 
         private async Task LoadData()
         {
+            var stopwatch = Stopwatch.StartNew();
             if (_isDataLoaded || _isAddingNewOperation)
             {
                 return;
@@ -105,50 +132,27 @@ namespace UI.ViewModels.Consumables.DetailsConsumables
 
             try
             {
+                Operations.Clear();
                 var data = await _service.GetDataAsync(_tableName, _materialId);
                 
                 if (data.Count == 0) NullOperationsTipVisibility = true;
                 if(data.Count > 0) NullOperationsTipVisibility = false;
-                    
-                    Operations.Clear();
 
-                    foreach (var item in data)
-                    {
-                        if (item is not IDictionary<string, object?> dictionary)
-                            continue;
-                        
-                        string operationType = dictionary.TryGetValue("Тип операції", out var opType) ? opType?.ToString() : null;
-                        string rawValue = dictionary.TryGetValue("Кількість", out var rwValue) ? rwValue?.ToString() : null;
-                        string descriptionText = dictionary.TryGetValue("Опис", out var descriptionValue) ? descriptionValue?.ToString() : null;
-                        
-                        string worker = dictionary.TryGetValue("Користувач", out var workerValue) ? workerValue?.ToString() : null;
-
-                        if (!double.TryParse(rawValue, out var numericValue))
-                            continue;
-
-                        dynamic operation = new ExpandoObject();
-                        var operationDict = (IDictionary<string, object>)operation;
-                        
-                        operation.Quantity = numericValue;
-                        operation.QuantityDisplay = GetFormattedValue(operationType, numericValue); 
-                        operation.OperationForeground = GetOperationColor(operationType);
-                        operation.OperationType = operationType;
-                        operation.OperationTypeDisplay = operationType;
-                        operation.CellBackground = GetCellBackgroundColor(operationType);
-                    
-                        operation.Description = descriptionText;
-                        operation.DescriptionDisplay = descriptionText;
-                    
-                        DateTime? dateTime = dictionary.TryGetValue("Дата, час", out var dateTimeValues) ? dateTimeValues as DateTime? : null;
-                        operationDict["DateTime"] = dateTime ?? default(DateTime);
-                        operationDict["DateTimeDisplay"] = dateTime?.ToString("dd.MM.yyyy HH:mm");
-                    
-                        operation.Worker = worker;
-                        operation.WorkerDisplay = worker;
-                    
-
-                        Operations.Add(operation);
-                    }
+                var operations = data.Select(dto => new Operation
+                {
+                    Id = dto.Id,
+                    OperationType = dto.OperationType,
+                    Quantity = dto.Quantity,
+                    DateTime = dto.DateTime,
+                    Description = dto.Description,
+                    Worker = dto.Worker,
+                    Receipt = dto.Receipt,
+                }).ToList();
+                
+                foreach (var operation in operations)
+                {
+                    Operations.Add(operation);
+                }
             }
             catch
             {
@@ -158,6 +162,8 @@ namespace UI.ViewModels.Consumables.DetailsConsumables
             finally
             {
                 _isDataLoaded = true;
+                stopwatch.Stop();
+                Console.WriteLine("загрузка заняла: " +  stopwatch.ElapsedMilliseconds);
             }
         }
 
@@ -167,44 +173,6 @@ namespace UI.ViewModels.Consumables.DetailsConsumables
             _tableName = args.TableName;
             _isDataLoaded = false;
             await LoadData();
-        }
-
-        private string GetCellBackgroundColor(string operationType)
-        {
-            if(string.IsNullOrEmpty(operationType))
-                return "Transparent";
-
-            return operationType switch
-            {
-                WriteOffOperation => "#609C6B6B",
-                IncomeOperation => "#607D9C6B"
-            };
-        }
-
-        private string GetFormattedValue(string operationType, double value)
-        {
-            if (string.IsNullOrEmpty(operationType))
-                return value.ToString();
-
-            return operationType switch
-            {
-                WriteOffOperation => $"-{value}",
-                IncomeOperation => $"+{value}",
-                _ => value.ToString()
-            };
-        }
-
-        private string GetOperationColor(string operationType)
-        {
-            if (string.IsNullOrEmpty(operationType))
-                return "Black";
-
-            return operationType switch
-            {
-                WriteOffOperation => "Red",
-                IncomeOperation => "Green",
-                _ => "Black"
-            };
         }
 
         public void OnNavigatedTo(NavigationContext navigationContext)

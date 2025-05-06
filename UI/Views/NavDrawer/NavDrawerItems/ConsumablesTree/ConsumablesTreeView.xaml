@@ -81,15 +81,15 @@
 
                             <sf:SfBadge
                                 HorizontalAlignment="Left"
+                                Foreground="White"
+                                Fill="Error"
+                                Content="{Binding BadgeValue}"
+                                Visibility="{Binding BadgeVisibility, Converter={StaticResource BoolToVisibilityConverter}}"
                                 VerticalAlignment="Top"
-                                Content="99"
-                                Margin="-5,0,0,20"
-                                Background="Red"
+                                Margin="-10,0,0,20"
+                                Shape="Oval"
                                 BorderThickness="0"
-                                BorderBrush="Transparent"
-                                Foreground = "White"
-                                FontSize="10"
-                                Width="18"
+                                Width="20"
                                 Height="18"/>
                         </Grid>
 

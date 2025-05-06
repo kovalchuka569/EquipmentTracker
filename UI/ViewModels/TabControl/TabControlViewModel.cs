@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using Core.Events.Common;
 using Core.Events.EquipmentTree;
 using Core.Events.NavDrawer;
 using Core.Events.TabControl;
@@ -37,6 +38,47 @@ public class TabControlViewModel : BindableBase, INavigationAware
         _eventAggregator.GetEvent<OnOpenConsumablesFileEvent>().Subscribe(NavigateFromConsumablesFile);
         _eventAggregator.GetEvent<OpenEquipmentTreeTabEvent>().Subscribe(NavigateFromNavDrawer);
         _eventAggregator.GetEvent<OpenOtherTabEvent>().Subscribe(NavigateFromOther);
+        _eventAggregator.GetEvent<OpenImageViewerEvent>().Subscribe(NavigateToImageViewer);
+    }
+    
+    private void NavigateToImageViewer(string tabName)
+    {
+        Console.WriteLine($"Navigating to {tabName}");
+        
+        // Get the region
+        var region = _regionManager.Regions["TabControlRegion"];
+        string tabType = "ImageViewer";
+        var parameters = new NavigationParameters
+        {
+            { "TabName", tabName },
+            { "TabType", tabType }
+        };
+        // Check if such a tab already exists
+        var existingView = region.Views
+            .OfType<FrameworkElement>()
+            .FirstOrDefault(v => {
+                if (v.DataContext is GenericTabViewModel vm)
+                {
+                    return vm.TabName == tabName;
+                }
+                return false;
+            });
+
+        if (existingView != null)
+        {
+            // Activate an existing view
+            region.Activate(existingView);
+        
+            // If the view is inside a TabItemExt, switch the tab
+            if (existingView.Parent is TabItemExt tabItem && tabItem.Parent is TabControlExt tabControl)
+            {
+                tabControl.SelectedItem = tabItem;
+            }
+            return;
+        }
+
+        // If the view is not found, navigate to the GenericTabView with parameters
+        _regionManager.RequestNavigate("TabControlRegion", "GenericTabView", parameters);
     }
     
     private void NavigateFromConsumablesFile(string tabName)

@@ -1,4 +1,5 @@
 ﻿using Core.Models.DataGrid;
+using Core.Services.Common;
 using Core.Services.Common.DataGridColumns;
 using Core.Services.Consumables;
 using Core.Services.Consumables.Operations;
@@ -16,11 +17,13 @@ using Data.Repositories.Consumables.Operations;
 using Data.Repositories.DataGrid;
 using UI.Interfaces.Factory;
 using UI.Services.Factory;
+using UI.ViewModels.Common;
 using UI.ViewModels.Consumables;
 using UI.ViewModels.Consumables.DetailsConsumables;
 using UI.ViewModels.ConsumablesTree;
 using UI.ViewModels.EquipmentTree;
 using UI.Views;
+using UI.Views.Common;
 using UI.Views.Consumables;
 using UI.Views.Consumables.DetailsConsumables;
 using UI.Views.DataGrid;
@@ -50,6 +53,9 @@ public class TabControlModule : IModule
         containerRegistry.RegisterForNavigation<GenericTabView, GenericTabViewModel>();
         
         #region Tabs
+        // Image Viewer
+        containerRegistry.RegisterForNavigation<ImageViewerView, ImageViewerViewModel>();
+        containerRegistry.RegisterSingleton<ImageViewerTempStorage>();
         
         // Equipment tree
         containerRegistry.RegisterSingleton<IEquipmentTreeViewModelFactory, IEquipmentTreeViewModelFactory>(); // Factory

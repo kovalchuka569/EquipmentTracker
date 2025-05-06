@@ -11,20 +11,22 @@ namespace Core.Services.Consumables
     {
         private IAppLogger<ConsumablesTreeService> _logger;
         private DbContext _context;
+
         public ConsumablesTreeService(IAppLogger<ConsumablesTreeService> logger, DbContext context)
         {
             _logger = logger;
             _context = context;
         }
+
         private async Task<NpgsqlConnection> OpenNewConnectionAsync()
         {
             try
             {
                 var connectionString = _context.Database.GetDbConnection().ConnectionString;
-                
+
                 var connection = new NpgsqlConnection(connectionString);
                 await connection.OpenAsync();
-        
+
                 return connection;
             }
             catch (Exception ex)
@@ -35,6 +37,7 @@ namespace Core.Services.Consumables
         }
 
         #region GetFoldersAsync
+
         public async Task<List<Folder>> GetFoldersAsync()
         {
             var folders = new List<Folder>();
@@ -47,7 +50,7 @@ namespace Core.Services.Consumables
                 {
                     while (await reader.ReadAsync())
                     {
-                        
+
                         folders.Add(new Folder
                         {
                             Id = reader.GetInt32(0),
@@ -56,6 +59,7 @@ namespace Core.Services.Consumables
                         });
                     }
                 }
+
                 return folders;
             }
             catch (Exception e)
@@ -63,10 +67,13 @@ namespace Core.Services.Consumables
                 _logger.LogError(e, "Error getting folders.");
                 throw;
             }
-            
+
         }
+
         #endregion
+
         #region GetFilesAsync
+
         public async Task<List<File>> GetFilesAsync()
         {
             var files = new List<File>();
@@ -87,6 +94,7 @@ namespace Core.Services.Consumables
                         });
                     }
                 }
+
                 return files;
             }
             catch (Exception e)
@@ -95,12 +103,13 @@ namespace Core.Services.Consumables
                 throw;
             }
         }
+
         #endregion
 
         public ObservableCollection<IFileSystemItem> BuildHierachy(List<Folder> allFolders, List<File> allFiles)
         {
-            var fodlerDict = allFolders.ToDictionary(f=> f.Id);
-            
+            var fodlerDict = allFolders.ToDictionary(f => f.Id);
+
             // Adding files in folders
             foreach (var file in allFiles)
             {
@@ -118,6 +127,7 @@ namespace Core.Services.Consumables
                     parentFolder.AddFolder(folder);
                 }
             }
+
             return new ObservableCollection<IFileSystemItem>(allFolders.Where(f => !f.ParentId.HasValue));
         }
 
@@ -126,11 +136,12 @@ namespace Core.Services.Consumables
             try
             {
                 await using var connection = await OpenNewConnectionAsync();
-                string sql = "INSERT INTO \"ConsumablesFolders\" (\"Name\", \"ParentId\") VALUES (@name, @parentId) RETURNING \"id\";";
+                string sql =
+                    "INSERT INTO \"ConsumablesFolders\" (\"Name\", \"ParentId\") VALUES (@name, @parentId) RETURNING \"id\";";
                 using var cmd = new NpgsqlCommand(sql, connection);
                 cmd.Parameters.AddWithValue("name", folder.Name);
                 cmd.Parameters.AddWithValue("parentId", (object)folder.ParentId ?? DBNull.Value);
-                
+
                 var newId = (int)await cmd.ExecuteScalarAsync();
                 folder.Id = newId;
                 return newId;
@@ -154,7 +165,7 @@ namespace Core.Services.Consumables
                 "\"Залишок\" NUMERIC(10, 2) DEFAULT 0",
                 "\"Ціна за одиницю (грн)\" NUMERIC(10, 2)",
                 "\"Мінімальний залишок\" NUMERIC(10, 2)",
-                "\"Максимальний залишок\" NUMERIC(10, 2)", 
+                "\"Максимальний залишок\" NUMERIC(10, 2)",
                 "\"Дата, час останньої зміни\" TIMESTAMP",
                 "\"Примітки\" TEXT"
             };
@@ -164,6 +175,7 @@ namespace Core.Services.Consumables
                 "\"Кількість\" NUMERIC(10, 2)",
                 "\"Тип операції\" VARCHAR(255)",
                 "\"Дата, час\" TIMESTAMP",
+                "\"Квитанція\" BYTEA",
                 "\"Опис\" TEXT",
                 "\"Користувач\" INTEGER",
                 $"FOREIGN KEY (\"Матеріал\") REFERENCES \"ConsumablesSchema\".\"{consumablesTableName}\" (\"id\")"
@@ -171,22 +183,64 @@ namespace Core.Services.Consumables
             try
             {
                 await using var connection = await OpenNewConnectionAsync();
-                string sql =
-                    "INSERT INTO \"ConsumablesFiles\" (\"Name\", \"FolderId\") VALUES (@name, @folderId) RETURNING \"id\"; " +
-                    $"CREATE TABLE IF NOT EXISTS \"ConsumablesSchema\".\"{consumablesTableName}\" (Id SERIAL PRIMARY KEY, {string.Join(", ", consumablesColumns)}); " +
-                    $"CREATE TABLE IF NOT EXISTS \"ConsumablesSchema\".\"{transactionsTableName}\" (Id SERIAL PRIMARY KEY, {string.Join(", ", transactionsColumns)}); ";
-                
-                using var cmd = new NpgsqlCommand(sql, connection);
-                cmd.Parameters.AddWithValue("name", file.Name);
-                cmd.Parameters.AddWithValue("folderId", file.ParentIdFolder);
-                
-                var newId = (int)await cmd.ExecuteScalarAsync();
+
+                await using var transaction = await connection.BeginTransactionAsync();
+
+                string sqlInsertFile =
+                    "INSERT INTO \"ConsumablesFiles\" (\"Name\", \"FolderId\") VALUES (@name, @folderId) RETURNING \"id\";";
+                await using var cmdInsertFile = new NpgsqlCommand(sqlInsertFile, connection, transaction);
+                cmdInsertFile.Parameters.AddWithValue("name", file.Name);
+                cmdInsertFile.Parameters.AddWithValue("folderId", file.ParentIdFolder);
+
+                var newId = (int)await cmdInsertFile.ExecuteScalarAsync();
                 file.Id = newId;
+
+                string sqlCreateTableConsumables =
+                    $"CREATE TABLE IF NOT EXISTS \"ConsumablesSchema\".\"{consumablesTableName}\" (Id SERIAL PRIMARY KEY, {string.Join(", ", consumablesColumns)});";
+                await using var cmdCreateTableConsumables =
+                    new NpgsqlCommand(sqlCreateTableConsumables, connection, transaction);
+                await cmdCreateTableConsumables.ExecuteNonQueryAsync();
+
+                string sqlCreateTableTransactions =
+                    $"CREATE TABLE IF NOT EXISTS \"ConsumablesSchema\".\"{transactionsTableName}\" (Id SERIAL PRIMARY KEY, {string.Join(", ", transactionsColumns)});";
+                await using var cmdCreateTableTransactions =
+                    new NpgsqlCommand(sqlCreateTableTransactions, connection, transaction);
+                await cmdCreateTableTransactions.ExecuteNonQueryAsync();
+
+                string sqlCreateFunctionIfNotExists = $@"
+                CREATE OR REPLACE FUNCTION ConsumablesSchema.count_low_stock_{consumablesTableName}()
+                RETURNS INTEGER AS $$
+                DECLARE
+                    low_count INTEGER;
+                BEGIN
+                    SELECT COUNT(*) INTO low_count
+                    FROM ConsumablesSchema.""{consumablesTableName}""
+                    WHERE ""Залишок"" < ""Мінімальний залишок"";
+                    RETURN low_count;
+                END;
+                $$ LANGUAGE plpgsql;
+                ";
+
+                await using var cmdCreateFunctionIfNotExists =
+                    new NpgsqlCommand(sqlCreateFunctionIfNotExists, connection, transaction);
+                await cmdCreateFunctionIfNotExists.ExecuteNonQueryAsync();
+
+                string sqlCreateTrigger = $@"
+                CREATE OR REPLACE TRIGGER update_low_stock_count_{consumablesTableName}
+                AFTER INSERT OR UPDATE OR DELETE ON ConsumablesSchema.""{consumablesTableName}""
+                FOR EACH ROW
+                EXECUTE FUNCTION ConsumablesSchema.count_low_stock_{consumablesTableName}();
+                ";
+
+                await using var cmdCreateTrigger = new NpgsqlCommand(sqlCreateTrigger, connection, transaction);
+                await cmdCreateTrigger.ExecuteNonQueryAsync();
+
+                await transaction.CommitAsync();
                 return newId;
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Error inserting file.");
+                _logger.LogError(e, "Error inserting file and creating tables/trigger.");
                 throw;
             }
         }
@@ -286,5 +340,32 @@ namespace Core.Services.Consumables
                 throw;
             }
         }
-    }
+
+        public async Task<Dictionary<string, int>> GetLowValueCountsAsync(List<string> tableNames)
+        {
+            var lowValues = new Dictionary<string, int>();
+            try
+            {
+                await using var connection = await OpenNewConnectionAsync();
+                string sql = "SELECT table_name, low_value_count FROM \"ConsumablesSchema\".get_low_value_counts(@tableNames)";
+                await using var cmd = new NpgsqlCommand(sql, connection);
+                cmd.Parameters.AddWithValue("tableNames", tableNames.ToArray());
+                
+                await using var reader = await cmd.ExecuteReaderAsync();
+                while (await reader.ReadAsync())
+                {
+                    string tableName = reader.GetString(0);
+                    long count = reader.GetInt64(1);
+                    lowValues[tableName] = (int)count;
+                }
+                return lowValues;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
+    
+}
 }

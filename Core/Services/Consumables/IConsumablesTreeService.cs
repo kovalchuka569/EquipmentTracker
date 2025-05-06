@@ -14,5 +14,6 @@ namespace Core.Services.Consumables
        Task<string> GenerateUniqueFileNameAsync (string baseFileName, int parentFolderId);
        Task RenameFolderAsync(string newName, int folderId);
        Task RenameFileAsync(string newName, string oldName, int fileId);
+       Task <Dictionary<string, int>> GetLowValueCountsAsync (List<string> tableNames);
     }
 }

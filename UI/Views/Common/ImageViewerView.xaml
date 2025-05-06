@@ -1,0 +1,25 @@
+﻿<UserControl x:Class="UI.Views.Common.ImageViewerView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:UI.Views.Common"
+             mc:Ignorable="d"
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:sf="http://schemas.syncfusion.com/wpf"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:grid="clr-namespace:Syncfusion.UI.Xaml.Grid;assembly=Syncfusion.SfGrid.WPF"
+             xmlns:WPFZoomPanel="https://github.com/Moravuscz/WPFZoomPanel"
+             xmlns:syncfusionskin="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF"
+             syncfusionskin:SfSkinManager.Theme="{syncfusionskin:SkinManagerExtension ThemeName=Windows11Light}">
+    <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+        <sf:SfImageEditor ImageSource="{Binding ImageSource}">
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="ImageSaving">
+                    <i:InvokeCommandAction Command="{Binding ImageSavingCommand}"
+                                           PassEventArgsToCommand="True"/>
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+        </sf:SfImageEditor>
+    </Grid>
+</UserControl>

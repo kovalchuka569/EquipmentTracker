@@ -156,26 +156,15 @@ namespace UI.ViewModels.Consumables
                         _selectedItemId = id;
 
                         // Show selected record operations
-                        _eventAggregator.GetEvent<OnSelectionRecordChanged>().Publish(new SelectionRecordChangedEventArgs
-                        {
-                            MaterialId = id,
-                            TableName = $"{_tableName} операції"
-                        });
-                        return; 
-                    }
-                    else
-                    {
-                        _logger.LogError("Вибраний елемент не містить або містить некоректний 'id'.");
+                        _eventAggregator.GetEvent<OnSelectionRecordChanged>().Publish(
+                            new SelectionRecordChangedEventArgs
+                            {
+                                MaterialId = id,
+                                TableName = $"{_tableName} операції"
+                            });
+                        return;
                     }
                 }
-                else
-                {
-                    _logger.LogError($"Вибраний елемент має неочікуваний тип: {SelectedItem.GetType().FullName}");
-                }
-            }
-            else
-            {
-                _logger.LogInformation("Жоден елемент не вибрано.");
             }
         }
 

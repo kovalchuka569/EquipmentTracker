@@ -23,7 +23,7 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <Border CornerRadius="5" BorderBrush="Gray" BorderThickness="2">
+    <Border CornerRadius="5">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -58,6 +58,7 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
@@ -86,9 +87,39 @@
 
                     </sf:SfTextInputLayout>
                     
+                    <!-- Load receipt template-->
+                    
+                    <StackPanel Grid.Row="2" Margin="25,0,25,0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <Image Grid.Column="0" Width="20" Height="20" Source="Assets/pin.png" HorizontalAlignment="Left" VerticalAlignment="Center" Cursor="Hand">
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="MouseLeftButtonDown">
+                                        <i:InvokeCommandAction Command="{Binding ShowFileDialogCommand}"/>
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </Image>
+                            
+                            <TextBlock Grid.Column="1" Margin="5, 0, 0, 0" Text="{Binding ReceiptFileName}" Foreground="Gray" FontSize="16" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                            
+                            <Image Grid.Column="2" Width="16" Height="16" Source="Assets/unpin.png" HorizontalAlignment="Left" VerticalAlignment="Center" Cursor="Hand" Visibility="{Binding UnpinButtonVisibility, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="MouseLeftButtonDown">
+                                        <i:InvokeCommandAction Command="{Binding UnpinFileCommand}"/>
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </Image>
+
+                        </Grid>
+                    </StackPanel>
+                    
                     <!-- RichTextBox for Description -->
-                        
-                    <StackPanel Grid.Row="2" Margin="25,0,25,25">
+                    <StackPanel Grid.Row="3" Margin="25,15,25,25">
                         <TextBlock Text="Опис:" FontSize="13" Margin="5,0,0,5"/>
     
                         <ScrollViewer Height="75" VerticalScrollBarVisibility="Auto">
@@ -115,7 +146,6 @@
                         Foreground="White"
                         Margin="5"/>
             </Grid>
-
         </Grid>
     </Border>
 </UserControl>

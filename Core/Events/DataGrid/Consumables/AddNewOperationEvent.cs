@@ -9,6 +9,7 @@
         public string? Description { get; set; }
         public DateTime? DateTime = System.DateTime.Now;
         public int User { get; set; }
+        public byte[] ReceiptImageBytes { get; set; }
     }
 }
 

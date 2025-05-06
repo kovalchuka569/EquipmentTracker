@@ -31,9 +31,9 @@
                          LiveDataUpdateMode="AllowDataShaping"
                          AllowGrouping="True"
                          ShowGroupDropArea="True"
-                         ItemsSource="{Binding Operations}">
+                         ItemsSource="{Binding ElementName=dataPager, Path=PagedSource}">
                 
-                <grid:SfDataGrid.ContextMenu>
+            <grid:SfDataGrid.ContextMenu>
                 <ContextMenu>
                     
                     <MenuItem Header="Додати" Command="{Binding ShowAddNewTemplateCommand}"/>
@@ -64,16 +64,6 @@
                         </grid:GridTextColumn.CellTemplate>
                     </grid:GridTextColumn>
                     
-                    <grid:GridTextColumn MappingName="Description" HeaderText="Опис" AllowGrouping="False">
-                        <grid:GridTextColumn.CellTemplate>
-                            <DataTemplate>
-                                <Border Background="{Binding CellBackground}">
-                                    <TextBlock Text="{Binding DescriptionDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                </Border>
-                            </DataTemplate>
-                        </grid:GridTextColumn.CellTemplate>
-                    </grid:GridTextColumn>
-                    
                     <grid:GridDateTimeColumn MappingName="DateTime" HeaderText="Дата, час" Pattern="{Binding DateTime, StringFormat='dd.MM.yyyy HH:mm'}" AllowGrouping="False">
                         <grid:GridDateTimeColumn.CellTemplate>
                             <DataTemplate>
@@ -83,6 +73,33 @@
                             </DataTemplate>
                         </grid:GridDateTimeColumn.CellTemplate>
                     </grid:GridDateTimeColumn>
+                    
+                    <grid:GridTextColumn MappingName="Receipt" HeaderText="Квитанція" AllowGrouping="False">
+                        <grid:GridTextColumn.CellTemplate>
+                            <DataTemplate>
+                                <Border Background="{Binding CellBackground}">
+                                    <TextBlock Text="Переглянути квитанію" Foreground="Blue" Visibility="{Binding ReceiptVisibility, Converter={StaticResource BooleanToVisibilityConverter}}" TextDecorations="Underline" Cursor="Hand" VerticalAlignment="Center" HorizontalAlignment="Center">
+                                        <i:Interaction.Triggers>
+                                            <i:EventTrigger EventName="MouseLeftButtonDown">
+                                                <i:InvokeCommandAction Command="{Binding DataContext.ViewReceiptCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                       CommandParameter="{Binding}"/>
+                                            </i:EventTrigger>
+                                        </i:Interaction.Triggers>
+                                    </TextBlock>
+                                </Border>
+                            </DataTemplate>
+                        </grid:GridTextColumn.CellTemplate>
+                    </grid:GridTextColumn>
+                    
+                    <grid:GridTextColumn MappingName="Description" HeaderText="Опис" AllowGrouping="False">
+                        <grid:GridTextColumn.CellTemplate>
+                            <DataTemplate>
+                                <Border Background="{Binding CellBackground}">
+                                    <TextBlock Text="{Binding DescriptionDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                </Border>
+                            </DataTemplate>
+                        </grid:GridTextColumn.CellTemplate>
+                    </grid:GridTextColumn>
                     
                     <grid:GridTextColumn MappingName="Worker" HeaderText="Користувач">
                         <grid:GridTextColumn.CellTemplate>
@@ -109,6 +126,11 @@
             </i:Interaction.Triggers>
             
         </grid:SfDataGrid>
+            
+        <sf:SfDataPager x:Name="dataPager"
+                        HorizontalAlignment="Center" VerticalAlignment="Bottom"
+                        PageSize="36"
+                        Source="{Binding Operations}"/>
         
         <TextBlock Text="Відсутні операції" Visibility="{Binding NullOperationsTipVisibility, Converter={StaticResource BooleanToVisibilityConverter}}" FontWeight="SemiBold" Foreground="Gray" 
                    VerticalAlignment="Center" HorizontalAlignment="Center"/>

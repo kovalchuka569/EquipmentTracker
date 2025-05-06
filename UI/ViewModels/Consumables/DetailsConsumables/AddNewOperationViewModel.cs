@@ -1,6 +1,9 @@
-﻿using System.Windows.Documents;
+﻿using System.IO;
+using System.Windows.Documents;
 using System.Windows.Media;
 using Core.Events.DataGrid.Consumables;
+using Microsoft.Win32;
+using Syncfusion.UI.Xaml.ImageEditor;
 using Syncfusion.Windows.Tools.Controls;
 
 namespace UI.ViewModels.Consumables.DetailsConsumables
@@ -13,6 +16,9 @@ namespace UI.ViewModels.Consumables.DetailsConsumables
         private ComboBoxItemAdv _selectedOperation;
         private string _quantityValue;
         private decimal _quantityValueDecimal;
+        private string _receiptFileName = "файл квитанції";
+        private bool _unpinButtonVisibility = false;
+        private byte[] _receiptImageBytes;
 
         private string _quantityErrorText;
         private bool _quantityErrorVisibility;
@@ -53,12 +59,26 @@ namespace UI.ViewModels.Consumables.DetailsConsumables
             get => _quantityErrorVisibility;
             set => SetProperty(ref _quantityErrorVisibility, value);
         }
+
+        public string ReceiptFileName
+        {
+            get => _receiptFileName;
+            set => SetProperty(ref _receiptFileName, value);
+        }
+
+        public bool UnpinButtonVisibility
+        {
+            get => _unpinButtonVisibility;
+            set => SetProperty(ref _unpinButtonVisibility, value);
+        }
         #endregion
         
         #region Commands
         public DelegateCommand CloseAddNewOperationCommand { get; set; }
         public DelegateCommand SaveCommand { get; set; }
         public DelegateCommand QuantityValueChangedCommand { get; set; }
+        public DelegateCommand ShowFileDialogCommand { get; set; }
+        public DelegateCommand UnpinFileCommand { get; set; }
         #endregion
 
         #region Constructor
@@ -68,10 +88,43 @@ namespace UI.ViewModels.Consumables.DetailsConsumables
             CloseAddNewOperationCommand = new DelegateCommand(OnCloseAddNew);
             SaveCommand = new DelegateCommand(OnSave);
             QuantityValueChangedCommand = new DelegateCommand(OnQuantityValueChanged);
+            ShowFileDialogCommand = new DelegateCommand(OnShowFileDialog);
+            UnpinFileCommand = new DelegateCommand(OnUnpinFile);
 
             QuantityValue = "0,00";
         }
         #endregion
+
+        private void OnShowFileDialog()
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "Зображення (*.png;*.jpg;*.jpeg)|*.png;*.jpg;*.jpeg|Всі файли (*.*)|*.*";
+            if (openFileDialog.ShowDialog() == true)
+            {
+                string path = openFileDialog.FileName;
+                string selectedFileName = Path.GetFileName(path);
+                string extension = Path.GetExtension(selectedFileName);
+                
+                _receiptImageBytes = File.ReadAllBytes(path);
+                
+                if (selectedFileName.Length > 22)
+                {
+                    ReceiptFileName = selectedFileName.Substring(0, 22) + ".." + extension;
+                }
+                else
+                {
+                    ReceiptFileName = selectedFileName;
+                }
+                UnpinButtonVisibility = true;
+            }
+        }
+
+        private void OnUnpinFile()
+        {
+            _receiptImageBytes = null;
+            ReceiptFileName = "файл квитанції";
+            UnpinButtonVisibility = false;
+        }
         
         // Correct value checker
         private void OnQuantityValueChanged()
@@ -120,7 +173,8 @@ namespace UI.ViewModels.Consumables.DetailsConsumables
                 OperationType = SelectedOperation.Content.ToString(),
                 Quantity = QuantityValue,
                 Description = DescriptionText,
-                User = 1
+                User = 1,
+                ReceiptImageBytes = _receiptImageBytes
             });
         }
         
