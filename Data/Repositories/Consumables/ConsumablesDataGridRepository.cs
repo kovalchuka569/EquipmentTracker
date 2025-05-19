@@ -2,8 +2,10 @@
 using System.Dynamic;
 using Common.Logging;
 using Microsoft.EntityFrameworkCore;
+using Models.ConsumablesDataGrid;
 using Npgsql;
 using Syncfusion.UI.Xaml.Grid;
+using Syncfusion.Windows.Controls;
 using DataRow = System.Data.DataRow;
 using DbContext = Data.AppDbContext.DbContext;
 
@@ -38,41 +40,39 @@ namespace Data.Repositories.Consumables
             }
         }
         
-        public async Task<IAsyncEnumerable<ExpandoObject>> GetDataAsync(string tableName)
+        public async Task<List<ConsumableDto>> GetDataAsync(string tableName)
         {
-           async IAsyncEnumerable<ExpandoObject> GetDataStream()
-           {
-               await using var connection = await OpenNewConnectionAsync();
-               string query = $"SELECT * FROM \"ConsumablesSchema\".\"{tableName}\"";
-               using var cmd = new NpgsqlCommand(query, connection);
-        
-               using var reader = await cmd.ExecuteReaderAsync();
+            var result = new List<ConsumableDto>();
+            try
+            {
+                await using var connection = await OpenNewConnectionAsync();
+                string sql = $"SELECT * FROM  \"ConsumablesSchema\".\"{tableName}\"";
+                using var cmd = new NpgsqlCommand(sql, connection);
+                using var reader = await cmd.ExecuteReaderAsync();
 
-               var columnNames = new List<string>();
-               var schemaTable = reader.GetSchemaTable();
-        
-               if (schemaTable != null)
-               {
-                   foreach (DataRow row in schemaTable.Rows)
-                   {
-                       columnNames.Add(row["ColumnName"].ToString() ?? string.Empty);
-                   }
-               }
-
-               while (await reader.ReadAsync())
-               {
-                   dynamic dataRow = new ExpandoObject();
-                   var expandoDict = (IDictionary<string, object>)dataRow;
-
-                   for (int i = 0; i < columnNames.Count; i++)
-                   {
-                       expandoDict[columnNames[i]] = reader.IsDBNull(i) ? null : reader.GetValue(i);
-                   }
-
-                   yield return dataRow;
-               }
-           }
-            return GetDataStream();
+                while (await reader.ReadAsync())
+                {
+                    var consumable = new ConsumableDto
+                    {
+                        Id = reader.GetInt32(reader.GetOrdinal("id")),
+                        Name = reader["Назва"]?.ToString(),
+                        Category = reader["Категорія"]?.ToString(),
+                        Balance = reader.GetDecimal(reader.GetOrdinal("Залишок")),
+                        Unit = reader["Одиниця"]?.ToString(),
+                        MinBalance = reader.GetDecimal(reader.GetOrdinal("Мінімальний залишок")),
+                        MaxBalance = reader.GetDecimal(reader.GetOrdinal("Максимальний залишок")),
+                        LastModifiedDate = reader.IsDBNull(reader.GetOrdinal("Дата, час останньої зміни")) ? null : reader.GetDateTime(reader.GetOrdinal("Дата, час останньої зміни")),
+                        Notes = reader["Примітки"]?.ToString(),
+                    };
+                    result.Add(consumable);
+                }
+                return result;
+            }
+            catch (NpgsqlException e)
+            {
+                _logger.LogError(e, "Database error getting data from {TableName}", tableName);
+                throw;
+            }
         }
 
         public async IAsyncEnumerable<string> StartListeningForChangesAsync(CancellationToken cancellationToken)

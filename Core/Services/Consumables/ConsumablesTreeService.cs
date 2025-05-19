@@ -108,12 +108,12 @@ namespace Core.Services.Consumables
 
         public ObservableCollection<IFileSystemItem> BuildHierachy(List<Folder> allFolders, List<File> allFiles)
         {
-            var fodlerDict = allFolders.ToDictionary(f => f.Id);
+            var folderDict = allFolders.ToDictionary(f => f.Id);
 
             // Adding files in folders
             foreach (var file in allFiles)
             {
-                if (fodlerDict.TryGetValue(file.ParentIdFolder, out var parentFolder))
+                if (folderDict.TryGetValue(file.ParentIdFolder, out var parentFolder))
                 {
                     parentFolder.AddFile(file);
                 }
@@ -122,7 +122,7 @@ namespace Core.Services.Consumables
             // Adding SubFolders
             foreach (var folder in allFolders)
             {
-                if (folder.ParentId.HasValue && fodlerDict.TryGetValue(folder.ParentId.Value, out var parentFolder))
+                if (folder.ParentId.HasValue && folderDict.TryGetValue(folder.ParentId.Value, out var parentFolder))
                 {
                     parentFolder.AddFolder(folder);
                 }
@@ -162,10 +162,9 @@ namespace Core.Services.Consumables
                 "\"Назва\" VARCHAR(255)",
                 "\"Категорія\" VARCHAR(255)",
                 "\"Одиниця\" VARCHAR(255)",
-                "\"Залишок\" NUMERIC(10, 2) DEFAULT 0",
-                "\"Ціна за одиницю (грн)\" NUMERIC(10, 2)",
-                "\"Мінімальний залишок\" NUMERIC(10, 2)",
-                "\"Максимальний залишок\" NUMERIC(10, 2)",
+                "\"Залишок\" NUMERIC(10, 2) DEFAULT 0.00",
+                "\"Мінімальний залишок\" NUMERIC(10, 2) DEFAULT 0.00",
+                "\"Максимальний залишок\" NUMERIC(10, 2) DEFAULT 0.00",
                 "\"Дата, час останньої зміни\" TIMESTAMP",
                 "\"Примітки\" TEXT"
             };
@@ -173,6 +172,7 @@ namespace Core.Services.Consumables
             {
                 "\"Матеріал\" INTEGER",
                 "\"Кількість\" NUMERIC(10, 2)",
+                "\"Залишок після\" NUMERIC(10, 2)",
                 "\"Тип операції\" VARCHAR(255)",
                 "\"Дата, час\" TIMESTAMP",
                 "\"Квитанція\" BYTEA",

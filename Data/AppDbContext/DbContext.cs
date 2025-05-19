@@ -6,16 +6,22 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Documents;
+using Common.Logging;
+using Npgsql;
 using Syncfusion.PMML;
 using TableColumn = Data.Entities.TableColumn;
 
 namespace Data.AppDbContext
 {
-    public class DbContext : Microsoft.EntityFrameworkCore.DbContext
+    public class DbContext : Microsoft.EntityFrameworkCore.DbContext, IDbContext
     {
-        public DbContext(DbContextOptions<DbContext> options) : base(options)
+        private IAppLogger<DbContext> _logger;
+        private readonly DbContextOptions<DbContext> _options;
+        public DbContext(IAppLogger<DbContext> logger, DbContextOptions<DbContext> options) : base(options)
         {
-            Console.WriteLine("AppDbContext Created!");
+            _logger = logger;
+            _options = options;
+            _logger.LogInformation("Created DbContext!");
         }
         
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -24,7 +30,7 @@ namespace Data.AppDbContext
         
         ~DbContext()
         {
-            Console.WriteLine("AppDbContext Finalized!");
+            _logger.LogInformation("Finalized DbContext!");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -37,6 +43,29 @@ namespace Data.AppDbContext
             });
             modelBuilder.Entity<TableColumn>().HasNoKey().ToView(null);
 
+        }
+        
+        public async Task<NpgsqlConnection> OpenNewConnectionAsync()
+        {
+            try
+            {
+                var connectionString = Database.GetDbConnection().ConnectionString;
+
+                var connection = new NpgsqlConnection(connectionString);
+                await connection.OpenAsync();
+
+                return connection;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error opening database connection.");
+                throw;
+            }
+        }
+        
+        public DbContext Create()
+        {
+            return new DbContext(_logger, _options);
         }
         
         public DbSet<User> Users { get; set; }

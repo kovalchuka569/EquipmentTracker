@@ -1,6 +1,7 @@
 ﻿
 
 using Core.Events;
+using Prism.Events;
 
 namespace Core.Services.Notifications;
 

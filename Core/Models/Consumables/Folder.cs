@@ -13,9 +13,21 @@ namespace Core.Models.Consumables
         private bool _isExpanded;
         private int _badgeValue;
         private bool _badgeVisibility;
+        
+        public ObservableCollection<IFileSystemItem> Items { get; } = new();
         public Folder()
         {
             _imageIcon = "Assets/folder.png";
+        }
+        
+        public int Id
+        {
+            get => _id;
+            set
+            {
+                _id = value;
+                OnPropertyChanged();
+            }
         }
 
         public string Name
@@ -24,17 +36,6 @@ namespace Core.Models.Consumables
             set
             {
                 _name = value;
-                OnPropertyChanged();
-            }
-        }
-        public ObservableCollection<IFileSystemItem> Items { get; } = new();
-
-        public int Id
-        {
-            get => _id;
-            set
-            {
-                _id = value;
                 OnPropertyChanged();
             }
         }

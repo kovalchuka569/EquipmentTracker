@@ -3,13 +3,18 @@ using System.Runtime.CompilerServices;
 
 namespace Core.Models.Tabs.EquipmentTree
 {
-    public class File : INotifyPropertyChanged
+    public class File : IFileSystem, INotifyPropertyChanged
     {
         private int _id;
-        private string _fileName;
+        private string _name;
+        private int _parentIdFolder;
         private string _imageIcon;
-        private int _folderId;
-    
+        
+        public File()
+        {
+            _imageIcon = "Assets/file.png";
+        }
+        
         public int Id
         {
             get => _id;
@@ -19,13 +24,23 @@ namespace Core.Models.Tabs.EquipmentTree
                 OnPropertyChanged();
             }
         }
-    
-        public string FileName
+        
+        public string Name
         {
-            get => _fileName;
+            get => _name;
             set
             {
-                _fileName = value;
+                _name = value;
+                OnPropertyChanged();
+            }
+        }
+    
+        public int ParentIdFolder
+        {
+            get => _parentIdFolder;
+            set
+            {
+                _parentIdFolder = value;
                 OnPropertyChanged();
             }
         }
@@ -38,21 +53,6 @@ namespace Core.Models.Tabs.EquipmentTree
                 _imageIcon = value;
                 OnPropertyChanged();
             }
-        }
-    
-        public int FolderId
-        {
-            get => _folderId;
-            set
-            {
-                _folderId = value;
-                OnPropertyChanged();
-            }
-        }
-    
-        public File()
-        {
-            ImageIcon = "Assets/file.png";
         }
         
         public event PropertyChangedEventHandler? PropertyChanged;

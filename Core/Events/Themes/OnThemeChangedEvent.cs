@@ -1,4 +1,6 @@
-﻿namespace Core.Events.Themes
+﻿using Prism.Events;
+
+namespace Core.Events.Themes
 {
     public class OnThemeChangedEvent : PubSubEvent<string> { }
 }

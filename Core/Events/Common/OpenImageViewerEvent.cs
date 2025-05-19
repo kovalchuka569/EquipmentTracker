@@ -1,4 +1,6 @@
-﻿namespace Core.Events.Common
+﻿using Prism.Events;
+
+namespace Core.Events.Common
 {
     public class OpenImageViewerEvent : PubSubEvent<string> {}
     

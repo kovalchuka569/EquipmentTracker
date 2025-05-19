@@ -5,8 +5,8 @@ namespace Core.Models.Consumables
 {
     public class File : IFileSystemItem, INotifyPropertyChanged
     {
-        private string _name;
         private int _id;
+        private string _name;
         private int _parentIdFolder;
         private string _imageIcon;
         private int _badgeValue;
@@ -16,17 +16,7 @@ namespace Core.Models.Consumables
         {
             _imageIcon = "Assets/file.png";
         }
-
-        public string Name
-        {
-            get => _name;
-            set
-            {
-                _name = value;
-                OnPropertyChanged();
-            }
-        }
-
+        
         public int Id
         {
             get => _id;
@@ -36,7 +26,17 @@ namespace Core.Models.Consumables
                 OnPropertyChanged();
             }
         }
-
+        
+        public string Name
+        {
+            get => _name;
+            set
+            {
+                _name = value;
+                OnPropertyChanged();
+            }
+        }
+        
         public int ParentIdFolder
         {
             get => _parentIdFolder;

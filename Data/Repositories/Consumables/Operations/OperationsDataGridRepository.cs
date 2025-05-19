@@ -56,6 +56,7 @@ namespace Data.Repositories.Consumables.Operations
                         Id = reader.GetInt32(reader.GetOrdinal("id")),
                         OperationType = reader["Тип операції"]?.ToString(),
                         Quantity = reader.GetDouble(reader.GetOrdinal("Кількість")),
+                        BalanceAfter = reader.IsDBNull(reader.GetOrdinal("Залишок після")) ? (double?)null : reader.GetDouble(reader.GetOrdinal("Залишок після")),
                         Description = reader["Опис"]?.ToString(),
                         Worker = reader["Користувач"]?.ToString(),
                         DateTime = reader.GetDateTime(reader.GetOrdinal("Дата, час")),
@@ -67,18 +68,28 @@ namespace Data.Repositories.Consumables.Operations
             }
         }
 
-        public async Task<int> InsertRecordAsync(string tableName, int materialId, string operationType,
+        public async Task<int> InsertRecordAsync(string operationsTableName, string tableName, int materialId, string operationType,
             string dateTime, string quantity, string description, int user, byte[] receiptImageBytes)
-        
         {
             var parsedQuantity = decimal.Parse(quantity);
             var parsedDateTime = DateTime.Parse(dateTime);
             
             await using var connection = await OpenNewConnectionAsync();
-            string query = $"INSERT INTO \"ConsumablesSchema\".\"{tableName}\" (\"Матеріал\", \"Кількість\", \"Тип операції\", \"Дата, час\", \"Квитанція\", \"Опис\", \"Користувач\") VALUES (@materialId, @quantity, @operationType, @datetime, @receipt, @description, @user) RETURNING \"id\"";
+            
+            string selectBalanceQuery = $"SELECT \"Залишок\" FROM \"ConsumablesSchema\".\"{tableName}\" WHERE \"id\" = @materialId";
+            using var selectCmd = new NpgsqlCommand(selectBalanceQuery, connection);
+            selectCmd.Parameters.AddWithValue("@materialId", materialId);
+            var currentBalance = await selectCmd.ExecuteScalarAsync();
+            decimal balance = (decimal)currentBalance;
+            decimal balanceAfterOperation = operationType == "Списання" ? balance - parsedQuantity : balance + parsedQuantity;
+            
+            string query =
+                $"INSERT INTO \"ConsumablesSchema\".\"{operationsTableName}\" (\"Матеріал\", \"Кількість\", \"Залишок після\", \"Тип операції\", \"Дата, час\", \"Квитанція\", \"Опис\", \"Користувач\") VALUES (@materialId, @quantity, @balanceAfter, @operationType, @datetime, @receipt, @description, @user) RETURNING \"id\"; " +
+                $"UPDATE \"ConsumablesSchema\".{tableName} SET \"Дата, час останньої зміни\" = @datetime WHERE \"id\" = @materialId";
             using var cmd = new NpgsqlCommand(query, connection);
             cmd.Parameters.AddWithValue("@materialId", materialId);
             cmd.Parameters.AddWithValue("@quantity", parsedQuantity);
+            cmd.Parameters.AddWithValue("@balanceAfter", balanceAfterOperation);
             cmd.Parameters.AddWithValue("@operationType", operationType);
             cmd.Parameters.AddWithValue("@datetime", parsedDateTime);
             AddNullableParameter(cmd, "@receipt", receiptImageBytes, NpgsqlDbType.Bytea);

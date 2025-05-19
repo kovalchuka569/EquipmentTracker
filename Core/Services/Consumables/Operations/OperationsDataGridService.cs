@@ -41,14 +41,14 @@ namespace Core.Services.Consumables.Operations
             }
         }
 
-        public async Task<int> InsertRecordAsync(string tableName, int materialId, string operationType,
+        public async Task<int> InsertRecordAsync(string operationsTableName, string tableName, int materialId, string operationType,
             string dateTime, string quantity, string description, int user, byte[] receiptImageBytes)
         {
             _logger.LogInformation("Starting data inserting into material id {materialId}", materialId);
             var timer = Stopwatch.StartNew();
             try
             {
-                var newId = await _repository.InsertRecordAsync(tableName, materialId, operationType, dateTime, quantity,
+                var newId = await _repository.InsertRecordAsync(operationsTableName, tableName, materialId, operationType, dateTime, quantity,
                     description, user, receiptImageBytes);
                 _logger.LogInformation("Successfully inserted, new id: {newId} in {Time}ms",
                     newId, timer.ElapsedMilliseconds);

@@ -4,15 +4,20 @@ using System.Runtime.CompilerServices;
 
 namespace Core.Models.Tabs.EquipmentTree
 {
-    public class Folder : INotifyPropertyChanged
+    public class Folder : IFileSystem,  INotifyPropertyChanged
     {
+        private string _name;
         private int _id;
-        private string _fileName;
-        private bool _isExpanded;
+        private int? _parentId;
         private string _imageIcon;
+        private bool _isExpanded;
+
+        public ObservableCollection<IFileSystem> Items { get; } = new();
+        public Folder()
+        {
+            _imageIcon = "Assets/folder.png";
+        }
         
-        public event PropertyChangedEventHandler? PropertyChanged;
-    
         public int Id
         {
             get => _id;
@@ -22,17 +27,37 @@ namespace Core.Models.Tabs.EquipmentTree
                 OnPropertyChanged();
             }
         }
-    
-        public string FileName
+        
+        public string Name
         {
-            get => _fileName;
+            get => _name;
             set
             {
-                _fileName = value;
+                _name = value;
                 OnPropertyChanged();
             }
         }
-    
+
+        public int? ParentId
+        {
+            get => _parentId;
+            set
+            {
+                _parentId = value;
+                OnPropertyChanged();
+            }
+        }
+        
+        public string ImageIcon
+        {
+            get => _imageIcon;
+            set
+            {
+                _imageIcon = value;
+                OnPropertyChanged();
+            }
+        }
+        
         public bool IsExpanded
         {
             get => _isExpanded;
@@ -42,36 +67,19 @@ namespace Core.Models.Tabs.EquipmentTree
                 OnPropertyChanged();
             }
         }
-    
-        public string ImageIcon
-        {
-            get => _imageIcon;
-            set => _imageIcon = value;
-        }
-    
-        public ObservableCollection<object> Items { get; } = new();
-        public ObservableCollection<Folder> SubFolders{ get; set; } = new();
-    
-        public ObservableCollection<File> Files{ get; set; } = new();
-    
+        
         public void AddFile(File file)
         {
-            Files.Add(file);
             Items.Add(file);
         }
-        public void AddFolder (Folder folder)
+
+        public void AddFolder(Folder folder)
         {
-            SubFolders.Add(folder);
             Items.Add(folder);
         }
-    
-        public Folder()
-        {
-            _imageIcon = "Assets/folder.png";
-            _isExpanded = false;
-        }
-    
-    
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+        
         public void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

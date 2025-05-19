@@ -2,21 +2,24 @@
 {
     public class Operation
     {
-        public int Id { get; set; }
-        public string OperationType { get; set; }
+        public int? Id { get; set; }
+        public string? OperationType { get; set; }
         public double Quantity { get; set; }
-        public string QuantityDisplay => GetFormattedValue(OperationType, Quantity);
-        public string OperationForeground => GetOperationColor(OperationType);
-        public string OperationTypeDisplay => OperationType;
-        public string CellBackground => GetCellBackgroundColor(OperationType);
-        public string Description { get; set; }
-        public string DescriptionDisplay => Description;
+        public string? QuantityDisplay => GetFormattedValue(OperationType, Quantity);
+        public double? BalanceAfter { get; set; }
+        public string? BalanceAfterDisplay => BalanceAfter?.ToString();
+        public string? OperationForeground => GetOperationColor(OperationType);
+        public string? OperationTypeDisplay => OperationType;
+        public string? CellBackground => GetCellBackgroundColor(OperationType);
+        public string? Description { get; set; }
+        public string? DescriptionDisplay => Description;
         public DateTime DateTime { get; set; }
-        public string DateTimeDisplay => DateTime.ToString("dd.MM.yyyy HH:mm");
-        public string Worker { get; set; }
-        public string WorkerDisplay => Worker;
+        public string? DateTimeDisplay => DateTime.ToString("dd.MM.yyyy HH:mm");
+        public string? Worker { get; set; }
+        public string? WorkerDisplay => Worker;
         public byte[]? Receipt { get; set; }
-        public bool ReceiptVisibility => Receipt != null;
+        public string? ReceiptDisplay => Receipt != null ? "Переглянути квитанцію" : "";
+        public bool? ReceiptVisibility => Receipt != null;
         
         private string GetFormattedValue(string type, double value)
         {

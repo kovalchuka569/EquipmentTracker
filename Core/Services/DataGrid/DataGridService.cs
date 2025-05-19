@@ -3,6 +3,7 @@ using System.Dynamic;
 using Common.Logging;
 using Core.Events.DataGrid;
 using Data.Repositories.DataGrid;
+using Prism.Events;
 
 namespace Core.Services.DataGrid
 {

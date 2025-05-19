@@ -1,4 +1,6 @@
-﻿namespace Core.Events;
+﻿using Prism.Events;
+
+namespace Core.Events;
 
 public class BusyIndicatorIsBusyEvent : PubSubEvent<bool>{}
 public class BusyIndicatorMessageEvent : PubSubEvent<string>{}

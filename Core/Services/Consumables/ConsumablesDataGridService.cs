@@ -5,7 +5,9 @@ using Common.Logging;
 using Core.Events.DataGrid;
 using Data.AppDbContext;
 using Data.Repositories.Consumables;
+using Models.ConsumablesDataGrid;
 using Npgsql;
+using Prism.Events;
 
 namespace Core.Services.Consumables
 {
@@ -22,29 +24,30 @@ namespace Core.Services.Consumables
             _eventAggregator = eventAggregator;
         }
         
-        public async Task<ObservableCollection<ExpandoObject>> GetDataAsync(string tableName)
+        public async Task<ObservableCollection<ConsumableItem>> GetDataAsync(string tableName)
         {
             _logger.LogInformation("Starting data load from table {Table}", tableName);
-            var timer = Stopwatch.StartNew();
             try
             {
-                var dataStream = await _repository.GetDataAsync(tableName);
-                var result = new ObservableCollection<ExpandoObject>();
-                
-                    await foreach (var item in dataStream)
-                    {
-                        result.Add(item);
-                    }
+                var consumablesFromDb = await _repository.GetDataAsync(tableName);
+                var consumableItems = consumablesFromDb.Select(c => new ConsumableItem
+                {
+                    Id = c.Id,
+                    Name = c.Name,
+                    Category = c.Category,
+                    Balance = c.Balance,
+                    Unit = c.Unit,
+                    MinBalance = c.MinBalance,
+                    MaxBalance = c.MaxBalance,
+                    LastModifiedDate = c.LastModifiedDate,
+                    Notes = c.Notes,
+                }).ToList();
                     
-                    _logger.LogInformation("Successfully loaded {Count} rows in {Time}ms", 
-                        result.Count, timer.ElapsedMilliseconds);
-                    
-                    return result;
+                    return new ObservableCollection<ConsumableItem>(consumableItems);
             }
-            catch (NpgsqlException ex)
+            catch (Exception e)
             {
-                _logger.LogError(ex, "Failed to load table {Table} (duration: {Time}ms)", 
-                    tableName, timer.ElapsedMilliseconds);
+                _logger.LogError(e, "System error getting data for {TableName}", tableName);
                 throw;
             }
         }

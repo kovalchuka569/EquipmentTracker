@@ -1,4 +1,5 @@
-﻿using Syncfusion.UI.Xaml.Maps;
+﻿using Prism.Events;
+using Syncfusion.UI.Xaml.Maps;
 
 namespace Core.Events.DataGrid.Consumables
 {
@@ -7,6 +8,7 @@ namespace Core.Events.DataGrid.Consumables
     public class SelectionRecordChangedEventArgs
     {
         public int MaterialId { get; set; }
+        public string OperationsTableName { get; set; }
         public string TableName { get; set; }
     }
 }

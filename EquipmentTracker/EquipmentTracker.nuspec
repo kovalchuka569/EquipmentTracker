@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package >
+  <metadata>
+    <id>EquipmentTracker</id>
+    <version>0.1.217</version>
+    <title>Equipment Tracker</title>
+    <authors>Artem Kovalchuk</authors>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">MIT</license>
+    <icon>gears_ico.png</icon>
+    <projectUrl>http://project_url_here_or_delete_this_line/</projectUrl>
+    <description>App for tracking and managing production equipment</description>
+    <releaseNotes>Summary of changes made in this release of the package.</releaseNotes>
+    <copyright>© 2025 Artem Kovalchuk</copyright>
+    <tags>Tag1 Tag2</tags>
+  </metadata>
+  
+  <files>
+	<file src="bin\Release\net8.0-windows\**" target="lib\net8.0-windows10.0.19041.0"/>
+	<file src="gears_ico.png" target=""/>
+  </files>
+</package>

@@ -1,0 +1,139 @@
+﻿<UserControl x:Class="UI.Views.DataGrid.Repairs.DataGridUsedMaterialsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:UI.Views.DataGrid.Repairs"
+             mc:Ignorable="d"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:behavior="clr-namespace:Core.Behaviors.SyncfusionTreeView;assembly=Core"
+             xmlns:prism="http://prismlibrary.com/"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             xmlns:sf="http://schemas.syncfusion.com/wpf"
+             xmlns:consumablesTree="clr-namespace:UI.Views.NavDrawer.NavDrawerItems.ConsumablesTree"
+             xmlns:grid="clr-namespace:Syncfusion.UI.Xaml.Grid;assembly=Syncfusion.SfGrid.WPF"
+             xmlns:syncfusionskin="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF"
+             syncfusionskin:SfSkinManager.Theme="{syncfusionskin:SkinManagerExtension ThemeName=Windows11Light}">
+    
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Syncfusion.Themes.Office2019Colorful.WPF;component/sfdatagrid/sfdatagrid.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary>
+    </UserControl.Resources>
+    
+        <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+            
+                <Button x:Name="AddMaterialButton" Grid.Row="0" Background="LightGray" HorizontalAlignment="Left" Width="170" Height="30" Margin="10">
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="Assets/add.png" Width="20" Height="20" Margin="0,0,5,0"/>
+                        <TextBlock Text="Додати матеріал" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                    </StackPanel>
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Click">
+                            <i:InvokeCommandAction Command="{Binding ShowMaterialSelector}"/>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </Button>
+        
+            <Popup
+                Width="400"
+                Height="250"
+                Placement="Bottom"
+                AllowsTransparency="True"
+                IsOpen="{Binding MaterialSelectorOpened}"
+                PlacementTarget="{Binding ElementName=AddMaterialButton}"
+                StaysOpen="False"
+                PopupAnimation="Slide">
+                <Border
+                    Background="White"
+                    BorderBrush="#66000000"
+                    BorderThickness="1"
+                    CornerRadius="6"
+                    Padding="10"
+                    Margin="5">
+                     <Border.Effect>
+                        <DropShadowEffect
+                            Color="#66000000"
+                            Direction="270"
+                            ShadowDepth="3"
+                            Opacity="0.6"
+                            RenderingBias="Performance" />
+                    </Border.Effect>
+                    <ContentControl prism:RegionManager.RegionName="ConsumablesTreeSelectorRegion"/>
+                </Border>
+                
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="Loaded">
+                        <i:InvokeCommandAction Command="{Binding PopupConsumablesTreeLoadedCommand}"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </Popup>
+        
+        <Grid Grid.Row="1">
+            
+            <TextBlock Visibility="Collapsed" Text="Витрачені матеріали відсутні" FontWeight="DemiBold" FontSize="16" Foreground="Gray" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+        
+                <grid:SfDataGrid
+                    Style="{StaticResource SyncfusionSfDataGridStyle}"
+                    ColumnSizer="Star"
+                    GridLinesVisibility="Both"
+                    HeaderLinesVisibility="Both"
+                    ItemsSource="{Binding UsedMaterials}"
+                    SelectedItem="{Binding SelectedUsedMaterial}"
+                    AutoGenerateColumns="False">
+                
+                <grid:SfDataGrid.Columns>
+                    
+                    <grid:GridTextColumn MappingName="Category" HeaderText="Категорія" AllowEditing="False">
+                        <grid:GridTextColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding CategoryDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                            </DataTemplate>
+                        </grid:GridTextColumn.CellTemplate>
+                    </grid:GridTextColumn>
+                    
+                    <grid:GridTextColumn MappingName="Name" HeaderText="Назва" AllowEditing="False">
+                        <grid:GridTextColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding NameDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                            </DataTemplate>
+                        </grid:GridTextColumn.CellTemplate>
+                    </grid:GridTextColumn>
+                    
+                    <grid:GridTextColumn MappingName="Unit" HeaderText="Одиниця" AllowEditing="False">
+                        <grid:GridTextColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding UnitDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                            </DataTemplate>
+                        </grid:GridTextColumn.CellTemplate>
+                    </grid:GridTextColumn>
+                    
+                    <grid:GridNumericColumn MappingName="SpentMaterial" HeaderText="Витрачено" AllowEditing="True">
+                        <grid:GridNumericColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding SpentMaterialDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                            </DataTemplate>
+                        </grid:GridNumericColumn.CellTemplate>
+                    </grid:GridNumericColumn>
+                    
+                </grid:SfDataGrid.Columns>
+                
+                <grid:SfDataGrid.StackedHeaderRows>
+                    <grid:StackedHeaderRow>
+                        <grid:StackedHeaderRow.StackedColumns>
+                            <grid:StackedColumn ChildColumns="Category,Name,Unit,SpentMaterial" HeaderText="Витрачені матеріали"/>
+                        </grid:StackedHeaderRow.StackedColumns>
+                    </grid:StackedHeaderRow>
+                </grid:SfDataGrid.StackedHeaderRows>
+            </grid:SfDataGrid>
+        </Grid>
+    </Grid>
+</UserControl>
