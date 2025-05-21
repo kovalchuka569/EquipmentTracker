@@ -17,11 +17,39 @@
                 <ResourceDictionary Source="/Syncfusion.Themes.Windows11Light.WPF;component/tabcontrolext/tabcontrolext.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+            
+            <Storyboard x:Key="TabHeaderSlideIn">
+                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)"
+                                 From="30" To="0" Duration="0:0:0.3" />
+                <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                 From="0" To="1" Duration="0:0:0.3" />
+            </Storyboard>
+            
+            <Style TargetType="sf:TabItemExt" BasedOn="{StaticResource SyncfusionTabItemExtStyle}">
+                <Setter Property="HeaderTemplate">
+                    <Setter.Value>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Header}"
+                                       Opacity="0"
+                                       RenderTransformOrigin="0.5,0.5">
+                                <TextBlock.RenderTransform>
+                                    <TranslateTransform X="30"/>
+                                </TextBlock.RenderTransform>
+                                <TextBlock.Triggers>
+                                    <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+                                        <BeginStoryboard Storyboard="{StaticResource TabHeaderSlideIn}"/>
+                                    </EventTrigger>
+                                </TextBlock.Triggers>
+                            </TextBlock>
+                        </DataTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
 
             <Storyboard x:Key="OpenTabAnimation">
                 <DoubleAnimation Storyboard.TargetProperty="(FrameworkElement.Opacity)"
                                  From="0" To="1"
-                                 Duration="0:0:0.2" />
+                                 Duration="0:0:0.3" />
             </Storyboard>
 
             <Style TargetType="{x:Type ContentPresenter}">
@@ -43,7 +71,7 @@
     </UserControl.Resources>
 
     <Grid>
-        <sf:TabControlExt  CloseButtonType="Individual"
+        <sf:TabControlExt  CloseButtonType="IndividualOnMouseOver"
                            IsDisableUnloadTabItemExtContent="True"
                            IsSynchronizedWithCurrentItem="True"
                            TabItemHeaderStyle="Fill"
@@ -60,23 +88,47 @@
 
             <sf:TabControlExt.ItemTemplate>
                 <DataTemplate>
-                    <TextBlock Text="{Binding Header}"/>
+                    <TextBlock Text="{Binding Header}" />
                 </DataTemplate>
             </sf:TabControlExt.ItemTemplate>
 
             <sf:TabControlExt.ItemContainerStyle>
                 <Style TargetType="sf:TabItemExt" BasedOn="{StaticResource SyncfusionTabItemExtStyle}">
+                    
+                    <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
+                    <Setter Property="RenderTransform">
+                        <Setter.Value>
+                            <TranslateTransform X="-30"/>
+                        </Setter.Value>
+                    </Setter>
+                    <Setter Property="Opacity" Value="0"/>
+
                     <Setter Property="ContextMenu">
                         <Setter.Value>
                             <ContextMenu>
-                                <MenuItem Header="Закрити" Command="{Binding CloseThisCommand}"
-                                          CommandParameter="{Binding}"/>
+                                <MenuItem Header="Закрити" Command="{Binding CloseThisCommand}" CommandParameter="{Binding}"/>
                                 <MenuItem Header="Закрити всі" Command="{Binding CloseAllCommand}"/>
-                                <MenuItem Header="Закрити всі крім цієї" Command="{Binding CloseAllButThisCommand}"
-                                          CommandParameter="{Binding}"/>
+                                <MenuItem Header="Закрити всі крім цієї" Command="{Binding CloseAllButThisCommand}" CommandParameter="{Binding}"/>
                             </ContextMenu>
                         </Setter.Value>
                     </Setter>
+                    
+                    <Style.Triggers>
+                        <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)"
+                                                     From="-30" To="0" Duration="0:0:0.5"/>
+                                    <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                     From="0" To="1" Duration="0:0:0.5"/>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                        
+                    </Style.Triggers>
+                    
+                    
+
                 </Style>
             </sf:TabControlExt.ItemContainerStyle>
 
