@@ -15,7 +15,7 @@ namespace UI.ViewModels.Consumables.DetailsConsumables
     public class AddNewOperationViewModel : BindableBase, INavigationAware
     {
         #region Fields
-        private static IEventAggregator _eventAggregator;
+        private EventAggregator _scopedEventAggregator;
         private string _descriptionText;
         private ComboBoxItemAdv _selectedOperation;
         private string _quantityValue;
@@ -86,9 +86,8 @@ namespace UI.ViewModels.Consumables.DetailsConsumables
         #endregion
 
         #region Constructor
-        public AddNewOperationViewModel(IEventAggregator? eventAggregator)
+        public AddNewOperationViewModel()
         {
-            _eventAggregator = eventAggregator;
             CloseAddNewOperationCommand = new DelegateCommand(OnCloseAddNew);
             SaveCommand = new DelegateCommand(OnSave);
             QuantityValueChangedCommand = new DelegateCommand(OnQuantityValueChanged);
@@ -165,14 +164,14 @@ namespace UI.ViewModels.Consumables.DetailsConsumables
         }
         
         // Close this template (Remove view from region)
-        private void OnCloseAddNew() => _eventAggregator.GetEvent<CloseAddNewTemplateEvent>().Publish();
+        private void OnCloseAddNew() => _scopedEventAggregator.GetEvent<CloseAddNewTemplateEvent>().Publish();
 
         // Save (Publish event with args from fields)
         private void OnSave()
         {
             if(QuantityErrorVisibility || SelectedOperation == null) return;
-            _eventAggregator.GetEvent<CloseAddNewTemplateEvent>().Publish();
-            _eventAggregator.GetEvent<AddNewOperationEvent>().Publish(new AddNewOperationEventArgs
+            _scopedEventAggregator.GetEvent<CloseAddNewTemplateEvent>().Publish();
+            _scopedEventAggregator.GetEvent<AddNewOperationEvent>().Publish(new AddNewOperationEventArgs
             {
                 OperationType = SelectedOperation.Content.ToString(),
                 Quantity = QuantityValue,
@@ -183,7 +182,14 @@ namespace UI.ViewModels.Consumables.DetailsConsumables
         }
         
         #region Navigation
-        public void OnNavigatedTo(NavigationContext navigationContext) {}
+
+        public void OnNavigatedTo(NavigationContext navigationContext)
+        {
+            if (navigationContext.Parameters["ScopedEventAggregator"] is EventAggregator scopedEventAggregator)
+            {
+                _scopedEventAggregator = scopedEventAggregator;
+            }
+        }
         public bool IsNavigationTarget(NavigationContext navigationContext) => true;
         public void OnNavigatedFrom(NavigationContext navigationContext) {}
         #endregion

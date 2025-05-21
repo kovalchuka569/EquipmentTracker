@@ -10,7 +10,7 @@ namespace UI.ViewModels.Consumables.DetailsConsumables
     public class DetailsConsumablesViewModel : BindableBase, INavigationAware
     {
         private IRegionManager _regionManager;
-        private readonly IEventAggregator _eventAggregator;
+        private EventAggregator _scopedEventAggregator;
         
         private bool _isLoading = false;
         private bool _tipShowed = true;
@@ -44,19 +44,15 @@ namespace UI.ViewModels.Consumables.DetailsConsumables
         public DelegateCommand LoadedUserControlCommand =>
             _loadedUserControlCommand ??= new DelegateCommand(OnLoadedUserControl);
         
-        public DetailsConsumablesViewModel(IEventAggregator eventAggregator)
-        {
-            _eventAggregator = eventAggregator;
-        }
 
         private void OnLoadedUserControl()
         {
-            _eventAggregator.GetEvent<OnSelectionRecordChanged>().Subscribe(ShowOperationsDataGrid);
+            _scopedEventAggregator.GetEvent<OnSelectionRecordChanged>().Subscribe(ShowOperationsDataGrid);
         }
 
         private void OnUnloadedUserControl ()
         {
-            _eventAggregator.GetEvent<OnSelectionRecordChanged>().Unsubscribe(ShowOperationsDataGrid);
+            _scopedEventAggregator.GetEvent<OnSelectionRecordChanged>().Unsubscribe(ShowOperationsDataGrid);
         }
 
         private async void ShowOperationsDataGrid(SelectionRecordChangedEventArgs args)
@@ -69,11 +65,12 @@ namespace UI.ViewModels.Consumables.DetailsConsumables
             {
                 var parameters = new NavigationParameters();
                 parameters.Add("ScopedRegionManager", _regionManager);
+                parameters.Add("ScopedEventAggregator", _scopedEventAggregator);
                 _regionManager.RequestNavigate("OperationsConsumablesRegion", "OperationsDataGridView", parameters);
                 _operationsShowed = true;
             }
             
-            _eventAggregator.GetEvent<UpdateOperationsConsumablesDataGridEvent>().Publish(new UpdateOperationsConsumablesDataGridEventArgs
+            _scopedEventAggregator.GetEvent<UpdateOperationsConsumablesDataGridEvent>().Publish(new UpdateOperationsConsumablesDataGridEventArgs
             {
                 MaterialId = args.MaterialId,
                 OperationsTableName = args.OperationsTableName,
@@ -87,6 +84,10 @@ namespace UI.ViewModels.Consumables.DetailsConsumables
             if (navigationContext.Parameters["ScopedRegionManager"] is IRegionManager scopedRegionManager)
             {
                 _regionManager = scopedRegionManager;
+            }
+            if (navigationContext.Parameters["ScopedEventAggregator"] is EventAggregator scopedEventAggregator)
+            {
+                _scopedEventAggregator = scopedEventAggregator;
             }
         }
 

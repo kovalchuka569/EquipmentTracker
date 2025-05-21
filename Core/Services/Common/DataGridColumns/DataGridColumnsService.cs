@@ -183,6 +183,14 @@ namespace Core.Services.Common.DataGridColumns
                 {
                     column.IsHidden = true;
                 }
+                if (columnName == "IsWriteOff")
+                {
+                    column.IsHidden = true;
+                }
+                if (columnName == "CopyOfData")
+                {
+                    column.IsHidden = true;
+                }
 
                 return column;
             }

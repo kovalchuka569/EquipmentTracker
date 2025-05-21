@@ -24,7 +24,7 @@ namespace UI.ViewModels.Consumables
         private IRegionManager _regionManager;
         private readonly IAppLogger<ConsumablesDataGridSelectorViewModel> _logger;
         private readonly IConsumablesDataGridService _service;
-        private readonly IEventAggregator _eventAggregator;
+        private EventAggregator _scopedEventAggregator;
         
         private string _tableName;
         
@@ -47,12 +47,10 @@ namespace UI.ViewModels.Consumables
         
         public ConsumablesDataGridSelectorViewModel(
             IAppLogger<ConsumablesDataGridSelectorViewModel> logger,
-            IConsumablesDataGridService service,
-            IEventAggregator eventAggregator)
+            IConsumablesDataGridService service)
         {
             _logger = logger;
             _service = service;
-            _eventAggregator = eventAggregator;
 
             CellDoubleTappedCommand = new DelegateCommand<object>(OnCellDoubleTapped);
             BackToFoldersCommand = new DelegateCommand(OnBackToFolders);
@@ -67,7 +65,11 @@ namespace UI.ViewModels.Consumables
         {
             if (SelectedItem is ConsumableItem consumableItem)
             {
-                _eventAggregator.GetEvent<ConsumableSelectedEvent>().Publish(consumableItem);
+                _scopedEventAggregator.GetEvent<ConsumableSelectedEvent>().Publish(new ConsumableSelectedEventArgs
+                {
+                    ConsumableTableName = _tableName,
+                    ConsumableItem = consumableItem
+                });
             }
         }
 
@@ -81,6 +83,10 @@ namespace UI.ViewModels.Consumables
             if (navigationContext.Parameters["ScopedRegionManager"] is IRegionManager scopedRegionManager)
             {
                 _regionManager = scopedRegionManager;
+            }
+            if (navigationContext.Parameters["ScopedEventAggregator"] is EventAggregator scopedEventAggregator)
+            {
+                _scopedEventAggregator = scopedEventAggregator;
             }
             _tableName = navigationContext.Parameters["TableName"] as string;
             await LoadDataAsync();

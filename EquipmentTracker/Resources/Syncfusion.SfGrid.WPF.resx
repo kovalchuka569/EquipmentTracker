@@ -234,7 +234,7 @@
     <comment>Text for FitGridOnOnePage in PrintDialog window</comment>
   </data>
   <data name="GreaterThan" xml:space="preserve">
-    <value>Greater Than</value>
+    <value>Більше ніж</value>
     <comment>Text for GreaterThan</comment>
   </data>
   <data name="GreaterThanorEqual" xml:space="preserve">
@@ -371,7 +371,7 @@
     <comment>Text for Sort Ascending</comment>
   </data>
   <data name="SortDateDescending" xml:space="preserve">
-    <value>Сортувати від найновішого до старого	</value>
+    <value>Сортувати від найновішого до старого</value>
     <comment>Text for Sort Descending</comment>
   </data>
   <data name="SortNumberAscending" xml:space="preserve">

@@ -26,6 +26,7 @@ namespace UI.ViewModels.Consumables.DetailsConsumables
     {
         private readonly IOperationsDataGridService _service;
         private readonly IEventAggregator _eventAggregator;
+        private EventAggregator _scopedEventAggregator;
         private IRegionManager _regionManager;
         private ImageViewerTempStorage _imageViewerTempStorage;
 
@@ -105,15 +106,17 @@ namespace UI.ViewModels.Consumables.DetailsConsumables
         {
             _isAddingNewOperation = true;
             IsOverlayVisible = true;
-            _regionManager.RequestNavigate("AddNewOperationTemplateRegion", "AddNewOperationView");
-            _eventAggregator.GetEvent<CloseAddNewTemplateEvent>().Subscribe(OnCloseAddNewTemplate);
-            _eventAggregator.GetEvent<AddNewOperationEvent>().Subscribe(OnAddNewOperation);
+            var parameters = new NavigationParameters();
+            parameters.Add("ScopedEventAggregator", _scopedEventAggregator);
+            _regionManager.RequestNavigate("AddNewOperationTemplateRegion", "AddNewOperationView", parameters);
+            _scopedEventAggregator.GetEvent<CloseAddNewTemplateEvent>().Subscribe(OnCloseAddNewTemplate);
+            _scopedEventAggregator.GetEvent<AddNewOperationEvent>().Subscribe(OnAddNewOperation);
         }
 
         private void OnCloseAddNewTemplate()
         {
             _regionManager.Regions["AddNewOperationTemplateRegion"].RemoveAll();
-            _eventAggregator.GetEvent<CloseAddNewTemplateEvent>().Unsubscribe(OnCloseAddNewTemplate);
+            _scopedEventAggregator.GetEvent<CloseAddNewTemplateEvent>().Unsubscribe(OnCloseAddNewTemplate);
             _isAddingNewOperation = false;
             IsOverlayVisible = false;
         }
@@ -122,7 +125,7 @@ namespace UI.ViewModels.Consumables.DetailsConsumables
         {
 
            await _service.InsertRecordAsync(_operationsTableName, _tableName, _materialId, args.OperationType, args.DateTime.ToString(), args.Quantity,args.Description, args.User, args.ReceiptImageBytes);
-            _eventAggregator.GetEvent<AddNewOperationEvent>().Unsubscribe(OnAddNewOperation);
+            _scopedEventAggregator.GetEvent<AddNewOperationEvent>().Unsubscribe(OnAddNewOperation);
             _isDataLoaded = false;
             await LoadData();
         }
@@ -134,6 +137,7 @@ namespace UI.ViewModels.Consumables.DetailsConsumables
 
         private async Task LoadData()
         {
+            Console.WriteLine("LoadData1");
             if (_isDataLoaded || _isAddingNewOperation)
             {
                 return;
@@ -141,6 +145,7 @@ namespace UI.ViewModels.Consumables.DetailsConsumables
 
             try
             {
+                Console.WriteLine("LoadData");
                 Operations.Clear();
                 var data = await _service.GetDataAsync(_operationsTableName, _materialId);
                 
@@ -190,10 +195,14 @@ namespace UI.ViewModels.Consumables.DetailsConsumables
             {
                 _regionManager = scopedRegionManager;
             }
+            if (navigationContext.Parameters["ScopedEventAggregator"] is EventAggregator scopedEventAggregator)
+            {
+                _scopedEventAggregator = scopedEventAggregator;
+            }
             _materialId = navigationContext.Parameters["MaterialId"] as int? ?? 0;
             _operationsTableName = navigationContext.Parameters["TableName"] as string ?? string.Empty;
             _isDataLoaded = false;
-            _eventAggregator.GetEvent<UpdateOperationsConsumablesDataGridEvent>().Subscribe(UpdateOperationsConsumablesDataGrid);
+            _scopedEventAggregator.GetEvent<UpdateOperationsConsumablesDataGridEvent>().Subscribe(UpdateOperationsConsumablesDataGrid);
         }
         public bool IsNavigationTarget(NavigationContext navigationContext) => true;
         public void OnNavigatedFrom(NavigationContext navigationContext) { }

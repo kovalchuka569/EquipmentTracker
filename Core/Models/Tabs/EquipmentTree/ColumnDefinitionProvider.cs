@@ -15,7 +15,9 @@ namespace Core.Models.Tabs.EquipmentTree
                 new() { ColumnName = "Клас", ColumnType = "VARCHAR(255)", Category = "Основні характеристики" },
                 new() { ColumnName = "Рік", ColumnType = "INTEGER", Category = "Основні характеристики" },
 
-                new() { ColumnName = "Розмір (см)", ColumnType = "DECIMAL(10,2)", Category = "Фізичні характеристики" },
+                new() { ColumnName = "Висота (см)", ColumnType = "DECIMAL(10,2)", Category = "Фізичні характеристики" },
+                new() { ColumnName = "Ширина (см)", ColumnType = "DECIMAL(10,2)", Category = "Фізичні характеристики" },
+                new() { ColumnName = "Довжина (см)", ColumnType = "DECIMAL(10,2)", Category = "Фізичні характеристики" },
                 new() { ColumnName = "Вага (кг)", ColumnType = "DECIMAL(10,2)", Category = "Фізичні характеристики" },
 
                 new() { ColumnName = "Поверх", ColumnType = "VARCHAR(255)", Category = "Локація" },
@@ -31,7 +33,6 @@ namespace Core.Models.Tabs.EquipmentTree
 
                 new() { ColumnName = "Нотатки", ColumnType = "TEXT", Category = "Інше" },
                 new() { ColumnName = "Відповідальний", ColumnType = "TEXT", Category = "Інше" },
-                new() { ColumnName = "У використанні", ColumnType = "BOOLEAN DEFAULT TRUE", Category = "Інше" }
             };
         }
     }

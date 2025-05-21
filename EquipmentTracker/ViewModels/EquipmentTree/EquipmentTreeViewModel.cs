@@ -34,9 +34,8 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware, IRegionCle
 {
     #region Properties
     private readonly IEquipmentTreeService _service;
-    
     private readonly IEventAggregator _eventAggregator;
-
+    private IEventAggregator _scopedEventAggregator;
     private IRegionManager _regionManager;
     private bool _isFirstRegionInitialized;
     private bool _isSecondRegionInitialized;
@@ -142,8 +141,9 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware, IRegionCle
     public DelegateCommand OpenCommand { get; }
     
     #region Constructor
-    public EquipmentTreeViewModel(IEventAggregator eventAggregator, IEquipmentTreeService service)
+    public EquipmentTreeViewModel(IEquipmentTreeService service, IEventAggregator eventAggregator)
     {
+        _scopedEventAggregator = new EventAggregator();
         _eventAggregator = eventAggregator;
         _service = service;
 
@@ -509,22 +509,24 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware, IRegionCle
        var parameters = new NavigationParameters
        {
            {"TableName", fileName},
-           {"ScopedRegionManager", _regionManager}
+           {"ScopedRegionManager", _regionManager},
+           {"ScopedEventAggregator", _scopedEventAggregator}
        };
        
        SubscriptionToken subscriptionToken = null;
-       subscriptionToken = _eventAggregator.GetEvent<TableCreatingSuccessfullyEvent>()
+       subscriptionToken = _scopedEventAggregator.GetEvent<TableCreatingSuccessfullyEvent>()
            .Subscribe(isSuccess =>
                {
+                   Console.WriteLine("Получено событие: " + isSuccess);
                    _tableCreationTcs.TrySetResult(isSuccess);
                    if (subscriptionToken != null)
                    {
-                       _eventAggregator.GetEvent<TableCreatingSuccessfullyEvent>()
+                       _scopedEventAggregator.GetEvent<TableCreatingSuccessfullyEvent>()
                            .Unsubscribe(subscriptionToken);
                    }
                }, 
                ThreadOption.UIThread, 
-               keepSubscriberReferenceAlive: false);
+               keepSubscriberReferenceAlive: true);
        
        _regionManager.RequestNavigate("ColumnSelectorRegion", "ColumnSelectorView", parameters);
        

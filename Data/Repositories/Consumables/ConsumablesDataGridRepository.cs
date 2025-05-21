@@ -167,5 +167,59 @@ namespace Data.Repositories.Consumables
             Console.WriteLine(newQuantity);
             return newQuantity;
         }
+
+        public async Task InsertConsumableAsync(ConsumableDto consumable, string tableName)
+        {
+            await using var connection = await OpenNewConnectionAsync();
+            await using var transaction = connection.BeginTransaction();
+            try
+            {
+                string sql =
+                    $@"INSERT INTO ""ConsumablesSchema"".""{tableName}"" (""Назва"", ""Категорія"", ""Одиниця"", ""Примітки"") VALUES (@name, @category, @unit, @notes); ";
+                using var cmd = new NpgsqlCommand(sql, connection, transaction);
+                cmd.Parameters.AddWithValue("@name", consumable.Name);
+                cmd.Parameters.AddWithValue("@category", consumable.Category);
+                cmd.Parameters.AddWithValue("@unit", consumable.Unit);
+                cmd.Parameters.AddWithValue("@notes", consumable.Notes ?? (object)DBNull.Value);
+                await cmd.ExecuteNonQueryAsync();
+                await transaction.CommitAsync();
+            }
+            catch (NpgsqlException e)
+            {
+                transaction.RollbackAsync();
+                _logger.LogError(e, "Database error inserting consumable");
+                throw;
+            }
+        }
+
+        public async Task UpdateConsumableAsync(ConsumableDto consumable, string tableName)
+        {
+            await using var connection = await OpenNewConnectionAsync();
+            await using var transaction = connection.BeginTransaction();
+            try
+            {
+                string sql = $@"UPDATE ""ConsumablesSchema"".""{tableName}"" SET 
+                                                                            ""Назва"" = @name,
+                                                                            ""Категорія"" = @category,
+                                                                            ""Одиниця"" = @unit,
+                                                                            ""Примітки"" = @notes 
+                                                                            WHERE ""id"" = @id; ";
+                
+                using var cmd = new NpgsqlCommand(sql, connection, transaction);
+                cmd.Parameters.AddWithValue("@name", consumable.Name);
+                cmd.Parameters.AddWithValue("@category", consumable.Category);
+                cmd.Parameters.AddWithValue("@unit", consumable.Unit);
+                cmd.Parameters.AddWithValue("@notes", consumable.Notes ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@id", consumable.Id);
+                await cmd.ExecuteNonQueryAsync();
+                await transaction.CommitAsync();
+            }
+            catch (NpgsqlException e)
+            {
+                transaction.RollbackAsync();
+                _logger.LogError(e, "Database error updating consumable");
+                throw;
+            }
+        }
     }
 }

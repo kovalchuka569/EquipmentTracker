@@ -14,9 +14,9 @@
              xmlns:syncfusionskin="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF"
              syncfusionskin:SfSkinManager.Theme="{syncfusionskin:SkinManagerExtension ThemeName=Windows11Light}">
     
-           <UserControl.Resources>
-            <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
-        </UserControl.Resources>
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+    </UserControl.Resources>
     
     <Grid>
     <Grid>
@@ -28,7 +28,7 @@
             AllowEditing="True"
             EditTrigger="F2"
             ShowLines="True"
-            ItemHeight="38"
+            ItemHeight="33"
             ShowRootLines="True"
             AllowDeleting="True"
             ExpandActionTrigger="Node"
@@ -71,9 +71,9 @@
                         </Grid.ColumnDefinitions>
 
                         <Image
-                                Width="40"
+                                Width="33"
                                 Margin="5 0 0 0"
-                                Height="40"
+                                Height="33"
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center"
                                 Source="{Binding ImageIcon}"/>
@@ -81,7 +81,7 @@
                         <TextBlock
                             VerticalAlignment="Center"
                             FontWeight="DemiBold"
-                            FontSize="16"
+                            FontSize="14"
                             Grid.Column="1"
                             Padding="8 0 0 0"
                             Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"/>
@@ -95,7 +95,7 @@
                 <DataTemplate>
                     
                     <TextBox ToolTip="123" Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                             FontSize="16"/>
+                             FontSize="15"/>
                     
                 </DataTemplate>
             </sf:SfTreeView.EditTemplate>

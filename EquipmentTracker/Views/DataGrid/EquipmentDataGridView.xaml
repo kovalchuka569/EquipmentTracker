@@ -1,0 +1,238 @@
+﻿<UserControl x:Class="EquipmentTracker.Views.DataGrid.EquipmentDataGridView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:EquipmentTracker.Views.DataGrid"
+             mc:Ignorable="d"
+             xmlns:sf="clr-namespace:Syncfusion.UI.Xaml.Grid;assembly=Syncfusion.SfGrid.WPF"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:syncfusionskin="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF"
+             syncfusionskin:SfSkinManager.Theme="{syncfusionskin:SkinManagerExtension ThemeName=Office2019Colorful}">
+    <Grid>
+        <sf:SfDataGrid
+            GridLinesVisibility="Both"
+            HeaderLinesVisibility="Both"
+            ItemsSource="{Binding Equipments}"
+            SelectedItem="{Binding SelectedEquipment}"
+            AutoGenerateColumns="False"
+            LiveDataUpdateMode="AllowDataShaping">
+            
+            <sf:SfDataGrid.Columns>
+                
+                <!-- BASIC COLUMNS -->
+                
+                <!-- Inventory Number -->
+                <sf:GridTextColumn MappingName="InventoryNumber" HeaderText="Інвентарний номер" AllowEditing="True" AllowFiltering="True" AllowGrouping="False">
+                    <sf:GridTextColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding InventoryNumberDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        </DataTemplate>
+                    </sf:GridTextColumn.CellTemplate>
+                </sf:GridTextColumn>
+                
+                <!-- Brand -->
+                <sf:GridTextColumn MappingName="Brand" HeaderText="Бренд" AllowEditing="True" AllowFiltering="True" AllowGrouping="True">
+                    <sf:GridTextColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding BrandDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        </DataTemplate>
+                    </sf:GridTextColumn.CellTemplate>
+                </sf:GridTextColumn>
+                
+                <!-- Model -->
+                <sf:GridTextColumn MappingName="Model" HeaderText="Модель" AllowEditing="True" AllowFiltering="True" AllowGrouping="True">
+                    <sf:GridTextColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding ModelDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        </DataTemplate>
+                    </sf:GridTextColumn.CellTemplate>
+                </sf:GridTextColumn>
+                
+                <!-- Serial Number -->
+                <sf:GridTextColumn MappingName="SerialNumber" HeaderText="Серійний номер" AllowEditing="True" AllowFiltering="True" AllowGrouping="False">
+                    <sf:GridTextColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding SerialNumberDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        </DataTemplate>
+                    </sf:GridTextColumn.CellTemplate>
+                </sf:GridTextColumn>
+                
+                <!-- Class -->
+                <sf:GridTextColumn MappingName="Class" HeaderText="Клас" AllowEditing="True" AllowFiltering="True" AllowGrouping="False">
+                    <sf:GridTextColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding ClassDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        </DataTemplate>
+                    </sf:GridTextColumn.CellTemplate>
+                </sf:GridTextColumn>
+                
+                <!-- Year -->
+                <sf:GridTextColumn MappingName="Year" HeaderText="Рік" AllowEditing="True" AllowFiltering="True" AllowGrouping="True">
+                    <sf:GridTextColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding YearDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        </DataTemplate>
+                    </sf:GridTextColumn.CellTemplate>
+                </sf:GridTextColumn>
+                
+                
+                <!-- DIMENSIONS COLUMNS -->
+                
+                <!-- Height -->
+                <sf:GridNumericColumn MappingName="Height" HeaderText="Висота (см)" AllowEditing="True" AllowFiltering="True" AllowGrouping="False">
+                    <sf:GridNumericColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding HeightDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        </DataTemplate>
+                    </sf:GridNumericColumn.CellTemplate>
+                </sf:GridNumericColumn>
+                
+                <!-- Width -->
+                <sf:GridNumericColumn MappingName="Width" HeaderText="Ширина (см)" AllowEditing="True" AllowFiltering="True" AllowGrouping="False">
+                    <sf:GridNumericColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding WidthDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        </DataTemplate>
+                    </sf:GridNumericColumn.CellTemplate>
+                </sf:GridNumericColumn>
+                
+                <!-- Length -->
+                <sf:GridNumericColumn MappingName="Length" HeaderText="Довжина (см)" AllowEditing="True" AllowFiltering="True" AllowGrouping="False">
+                    <sf:GridNumericColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding LengthDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        </DataTemplate>
+                    </sf:GridNumericColumn.CellTemplate>
+                </sf:GridNumericColumn>
+                
+                <!-- Weight -->
+                <sf:GridNumericColumn MappingName="Weight" HeaderText="Вага (кг)" AllowEditing="True" AllowFiltering="True" AllowGrouping="False">
+                    <sf:GridNumericColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding WeightDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        </DataTemplate>
+                    </sf:GridNumericColumn.CellTemplate>
+                </sf:GridNumericColumn>
+                
+                
+                <!-- LOCATION COLUMNS -->
+                
+                <!-- Floor -->
+                <sf:GridTextColumn MappingName="Floor" HeaderText="Поверх" AllowEditing="True" AllowFiltering="True" AllowGrouping="True">
+                    <sf:GridTextColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding FloorDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        </DataTemplate>
+                    </sf:GridTextColumn.CellTemplate>
+                </sf:GridTextColumn>
+                
+                <!-- Department -->
+                <sf:GridTextColumn MappingName="Department" HeaderText="Відділ" AllowEditing="True" AllowFiltering="True" AllowGrouping="True">
+                    <sf:GridTextColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding DepartmentDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        </DataTemplate>
+                    </sf:GridTextColumn.CellTemplate>
+                </sf:GridTextColumn>
+                
+                <!-- Room -->
+                <sf:GridTextColumn MappingName="Room" HeaderText="Кімната" AllowEditing="True" AllowFiltering="True" AllowGrouping="True">
+                    <sf:GridTextColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding RoomDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        </DataTemplate>
+                    </sf:GridTextColumn.CellTemplate>
+                </sf:GridTextColumn>
+                
+                
+                <!-- TECHNICAL COLUMNS -->
+                
+                <!-- Consumption -->
+                <sf:GridNumericColumn MappingName="Consumption" HeaderText="Споживанння (КВ/год)" AllowEditing="True" AllowFiltering="True" AllowGrouping="True">
+                    <sf:GridNumericColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding ConsumptionDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        </DataTemplate>
+                    </sf:GridNumericColumn.CellTemplate>
+                </sf:GridNumericColumn>
+                
+                <!-- Voltage -->
+                <sf:GridNumericColumn MappingName="Voltage" HeaderText="Напруга (В)" AllowEditing="True" AllowFiltering="True" AllowGrouping="True">
+                    <sf:GridNumericColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding VoltageDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        </DataTemplate>
+                    </sf:GridNumericColumn.CellTemplate>
+                </sf:GridNumericColumn>
+                
+                <!-- Water -->
+                <sf:GridNumericColumn MappingName="Water" HeaderText="Вода (Л/год)" AllowEditing="True" AllowFiltering="True" AllowGrouping="True">
+                    <sf:GridNumericColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding WaterDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        </DataTemplate>
+                    </sf:GridNumericColumn.CellTemplate>
+                </sf:GridNumericColumn>
+                
+                <!-- Air -->
+                <sf:GridNumericColumn MappingName="Air" HeaderText="Повітря (Л/год)" AllowEditing="True" AllowFiltering="True" AllowGrouping="True">
+                    <sf:GridNumericColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding AirDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        </DataTemplate>
+                    </sf:GridNumericColumn.CellTemplate>
+                </sf:GridNumericColumn>
+                
+                
+                <!-- FINANCICAL COLUMNS -->
+                
+                <!-- Balance cost -->
+                <sf:GridNumericColumn MappingName="BalanceCost" HeaderText="Балансова вартість (грн)" AllowEditing="True" AllowFiltering="True" AllowGrouping="False">
+                    <sf:GridNumericColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding BalanceCostDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        </DataTemplate>
+                    </sf:GridNumericColumn.CellTemplate>
+                </sf:GridNumericColumn>
+                
+                <!-- ADDITIONALLY COLUMNS -->
+                
+                <!-- Notes -->
+                <sf:GridTextColumn MappingName="Notes" HeaderText="Нотатки" AllowEditing="True" AllowFiltering="True" AllowGrouping="False">
+                    <sf:GridTextColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding NotesDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        </DataTemplate>
+                    </sf:GridTextColumn.CellTemplate>
+                </sf:GridTextColumn>
+                
+                <!-- Responsible person -->
+                <sf:GridTextColumn MappingName="ResponsiblePerson" HeaderText="Відповідальний" AllowEditing="True" AllowFiltering="True" AllowGrouping="True">
+                    <sf:GridTextColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding ResponsiblePersonDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        </DataTemplate>
+                    </sf:GridTextColumn.CellTemplate>
+                </sf:GridTextColumn>
+                
+            </sf:SfDataGrid.Columns>
+            
+            <sf:SfDataGrid.StackedHeaderRows>
+                <sf:StackedHeaderRow>
+                    <sf:StackedHeaderRow.StackedColumns>
+                        <sf:StackedColumn ChildColumns="Floor,Department,Room" HeaderText="Локація" MappingName="Location"/>
+                        <sf:StackedColumn ChildColumns="Height,Width,Length,Weight" HeaderText="Габарити" MappingName="Size"/>
+                        <sf:StackedColumn ChildColumns="Consumption,Voltage,Water,Air" HeaderText="Технічні характеристики" MappingName="TechnicalCharacterisitics"/>
+                    </sf:StackedHeaderRow.StackedColumns>
+                </sf:StackedHeaderRow>
+                
+                
+            </sf:SfDataGrid.StackedHeaderRows>
+
+            
+            
+            </sf:SfDataGrid>
+    </Grid>
+</UserControl>

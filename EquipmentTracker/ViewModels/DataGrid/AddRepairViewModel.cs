@@ -1,9 +1,11 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows.Forms;
+using Core.Events.DataGrid;
 using Prism.Mvvm;
 using Prism.Regions;
 using Prism.Commands;
 using Core.Events.DataGrid.Consumables;
+using Core.Events.TabControl;
 using Core.Services.RepairsDataGrid;
 using Models.RepairsDataGrid;
 using Models.RepairsDataGrid.AddRepair;
@@ -19,7 +21,8 @@ public class AddRepairViewModel : BindableBase, INavigationAware
     private NotificationManager _notificationManager;
     private SfMultiColumnDropDownControl _equipmentSelector;
     private readonly IAddRepairService _service;
-    private readonly IEventAggregator _eventAggregator;
+    private EventAggregator _scopedEventAggregator;
+    private IEventAggregator _globalEventAggregator;
     
     private string _equipmentTableName;
     
@@ -94,12 +97,12 @@ public class AddRepairViewModel : BindableBase, INavigationAware
     public DelegateCommand<SfMultiColumnDropDownControl> EquipmentSelectorLoadedCommand { get; }
     public DelegateCommand SaveRepairCommand { get; }
     public AddRepairViewModel(IAddRepairService service,
-        IEventAggregator eventAggregator,
-        NotificationManager notificationManager)
+        NotificationManager notificationManager,
+        IEventAggregator globalEventAggregator)
     {
         _service = service;
-        _eventAggregator = eventAggregator;
         _notificationManager = notificationManager;
+        _globalEventAggregator = globalEventAggregator;
         
         UserControlLoadedCommand = new DelegateCommand(OnUserControlLoaded);
         EquipmentSelectorLoadedCommand = new DelegateCommand<SfMultiColumnDropDownControl>(OnEquipmentSelectorLoaded);
@@ -114,28 +117,58 @@ public class AddRepairViewModel : BindableBase, INavigationAware
     {
         var parameters = new NavigationParameters();
         parameters.Add("ScopedRegionManager", _regionManager);
+        parameters.Add("ScopedEventAggregator", _scopedEventAggregator);
+        parameters.Add("ConsumablesTableName", $"{_equipmentTableName} РВМ");
         _regionManager.RequestNavigate("DataGridUsedMaterialsRegion", "DataGridUsedMaterialsView", parameters);
     }
     
 
-    private void OnSaveRepair()
+    private async void OnSaveRepair()
     {
-        if (HaveNullData()) return;
-        
-        var newRepairData = new RepairData
+        try
         {
-            EquipmentId = SelectedEquipment.EquipmentId,
-            RepairTableName = _equipmentTableName + " Р",
-            StartRepair = DateTimeStartRepair,
-            EndRepair = DateTimeEndRepair,
-            TimeSpentOnRepair = TimeSpentOnRepair,
-            BreakDescription = BreakDescription,
-            RepairStatus = SelectedRepairStatus.StatusName
-        };
+            if (DataValidate()) return;
+        
+            var newRepairData = new RepairData
+            {
+                EquipmentId = SelectedEquipment.EquipmentId,
+                StartRepair = DateTimeStartRepair,
+                EndRepair = DateTimeEndRepair,
+                TimeSpentOnRepair = TimeSpentOnRepair,
+                BreakDescription = BreakDescription,
+                Worker = 1,
+                RepairStatus = SelectedRepairStatus.StatusName
+            };
+            string repairTableName = _equipmentTableName + " Р";
+        
+            int newId = await _service.SaveRepairAsync(newRepairData, repairTableName);
+            
+            // Check have empty materials collection
+            bool isEmptyMaterial = false;
+            _scopedEventAggregator.GetEvent<IsEmptyUsedMaterials>().Publish(result => isEmptyMaterial = result);
+            
+            // If dont have - save used materials
+            if (!isEmptyMaterial)
+            {
+                _scopedEventAggregator.GetEvent<SaveUsedMaterialsEvent>().Publish(newId);
+            }
+            
+            // In any case, close the tab
+            _globalEventAggregator.GetEvent<CloseActiveTabEvent>().Publish();
+            _notificationManager.Show("Успішно збережено!", NotificationType.Success);
+        }
+        catch (Exception e)
+        {
+            _notificationManager.Show($"Помилка додавання ремонту: {e.Message}", NotificationType.Error);
+            throw;
+        }
     }
 
-    private bool HaveNullData()
+    private bool DataValidate()
     {
+        bool quantityIsNull = false;
+        _scopedEventAggregator.GetEvent<IsAnyNullQuantityConsumables>().Publish(result => quantityIsNull = result);
+        
         if (SelectedEquipment is null)
         {
             _notificationManager.Show("Об'єкт ремонту не може бути порожнім", NotificationType.Warning);
@@ -144,6 +177,21 @@ public class AddRepairViewModel : BindableBase, INavigationAware
         if (SelectedRepairStatus is null)
         {
             _notificationManager.Show("Статус ремонту не може бути порожнім", NotificationType.Warning);
+            return true;
+        }
+        if (!string.IsNullOrWhiteSpace(BreakDescription) && BreakDescription.Length > 2000)
+        {
+            _notificationManager.Show("Масимальна довжина опису поломки - 2000 символів", NotificationType.Warning);
+            return true;
+        }
+        if (quantityIsNull)
+        {
+            _notificationManager.Show("Встановіть кількість витраченого матеріалу", NotificationType.Warning);
+            return true;
+        }
+        if (SelectedRepairStatus.StatusName == "Заплановано" && !DateTimeStartRepair.HasValue)
+        {
+            _notificationManager.Show("Для статусу \"Заплановано\" потрібно встановити дату початку ремонту", NotificationType.Warning);
             return true;
         }
         return false;
@@ -197,6 +245,10 @@ public class AddRepairViewModel : BindableBase, INavigationAware
         if (navigationContext.Parameters["ScopedRegionManager"] is IRegionManager scopedRegionManager)
         {
             _regionManager = scopedRegionManager;
+        }
+        if (navigationContext.Parameters["ScopedEventAggregator"] is EventAggregator scopedEventAggregator)
+        {
+            _scopedEventAggregator = scopedEventAggregator;
         }
         _equipmentTableName = navigationContext.Parameters["EquipmentTableName"].ToString();
         LoadEquipmentsAsync();

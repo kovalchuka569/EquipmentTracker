@@ -124,6 +124,16 @@ namespace Core.Services.DataGrid
                     column.IsHidden = true;
                     column.AllowEditing = false;
                 }
+                if (columnName == "IsWriteOff")
+                {
+                    column.IsHidden = true;
+                    column.AllowEditing = false;
+                }
+                if (columnName == "CopyOfData")
+                {
+                    column.IsHidden = true;
+                    column.AllowEditing = false;
+                }
 
                 if (columnName == "Одиниця")
                 {

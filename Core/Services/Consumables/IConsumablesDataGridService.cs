@@ -13,5 +13,7 @@ namespace Core.Services.Consumables
         Task UpdateMinLevelAsync(string tableName, int recordId, int? min);
         Task UpdateMaxLevelAsync(string tableName, int recordId, int? max);
         Task<int> UpdateQuantityAsync(string tableName, int materialId, string quantity, string operation);
+        Task InsertConsumableAsync(ConsumableItem consumableItem, string tableName);
+        Task UpdateConsumableAsync(ConsumableItem consumableItem, string tableName);
     }
 }

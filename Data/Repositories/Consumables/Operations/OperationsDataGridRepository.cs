@@ -85,7 +85,7 @@ namespace Data.Repositories.Consumables.Operations
             
             string query =
                 $"INSERT INTO \"ConsumablesSchema\".\"{operationsTableName}\" (\"Матеріал\", \"Кількість\", \"Залишок після\", \"Тип операції\", \"Дата, час\", \"Квитанція\", \"Опис\", \"Користувач\") VALUES (@materialId, @quantity, @balanceAfter, @operationType, @datetime, @receipt, @description, @user) RETURNING \"id\"; " +
-                $"UPDATE \"ConsumablesSchema\".{tableName} SET \"Дата, час останньої зміни\" = @datetime WHERE \"id\" = @materialId";
+                $"UPDATE \"ConsumablesSchema\".\"{tableName}\" SET \"Дата, час останньої зміни\" = @datetime WHERE \"id\" = @materialId";
             using var cmd = new NpgsqlCommand(query, connection);
             cmd.Parameters.AddWithValue("@materialId", materialId);
             cmd.Parameters.AddWithValue("@quantity", parsedQuantity);

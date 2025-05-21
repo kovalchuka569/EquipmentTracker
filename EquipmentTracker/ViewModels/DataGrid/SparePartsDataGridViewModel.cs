@@ -75,8 +75,6 @@ namespace UI.ViewModels.DataGrid
             _cts = new CancellationTokenSource();
             _dataChangedToken = _eventAggregator.GetEvent<DataChangedEvent>()
                 .Subscribe(OnDataChanged, ThreadOption.UIThread);
-
-            Task.Run(() => _sparePartsService.StartListeningForChangesAsync(_cts.Token, _currentSparePartsTableName));
         }
 
         #region SpareParts_CollectionChanged

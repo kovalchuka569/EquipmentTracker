@@ -1,4 +1,5 @@
-﻿using Prism.Regions;
+﻿using Prism.Events;
+using Prism.Regions;
 
 namespace UI.ViewModels.TabControl.GenericTab;
 

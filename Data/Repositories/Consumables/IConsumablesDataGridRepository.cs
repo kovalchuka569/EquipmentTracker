@@ -13,5 +13,7 @@ namespace Data.Repositories.Consumables
         Task UpdateMaxLevelAsync(string tableName, int recordId, int? max);
         Task<int> DecreaseQuantityAsync(string tableName, int materialId, string quantity);
         Task<int> IncreaseQuantityAsync(string tableName, int materialId, string quantity);
+        Task InsertConsumableAsync(ConsumableDto consumable, string tableName);
+        Task UpdateConsumableAsync(ConsumableDto consumable, string tableName);
     }
 }

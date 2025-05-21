@@ -13,7 +13,7 @@
              xmlns:grid="clr-namespace:Syncfusion.UI.Xaml.Grid;assembly=Syncfusion.SfGrid.WPF"
              prism:ViewModelLocator.AutoWireViewModel="True"
              xmlns:syncfusionskin="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF"
-             syncfusionskin:SfSkinManager.Theme="{syncfusionskin:SkinManagerExtension ThemeName=Windows11Light}">
+             syncfusionskin:SfSkinManager.Theme="{syncfusionskin:SkinManagerExtension ThemeName=Office2019Colorful}">
     
     <Border BorderThickness="0,1,0,0" BorderBrush="Gray">
     <Grid Background="White">
@@ -51,7 +51,7 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             
-            <TextBox IsReadOnly="True" Grid.Row="0" Text="Дата та час кінця:" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="5"/>
+            <TextBlock Grid.Row="0" Text="Дата та час кінця:" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="5"/>
             
             <sf:DateTimeEdit Grid.Row="1" DateTime="{Binding DateTimeEndRepair}" TodayButtonAction="DateTime" DropDownView="Combined" ShowMaskOnNullValue="False"
                              NullValue="{x:Null}" IsEmptyDateEnabled="True" IsNull="True" Pattern="CustomPattern" CustomPattern="dd.MM.yyyy HH:mm" NoneDateText="Виберіть дату та час"/>
@@ -67,7 +67,7 @@
             
             <TextBlock Grid.Row="0" Text="Витрачено часу:" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="5"/>
             
-            <sf:TimeSpanEdit Grid.Row="1" Value="{Binding TimeSpentOnRepair}" Format="d 'днів' h 'годин' m 'хвилин' s 'секунд'"  NullString="Встановіть витрачений час" AllowNull="True" Height="25" ShowArrowButtons="False"/>
+            <sf:TimeSpanEdit Grid.Row="1" Value="{Binding TimeSpentOnRepair}" Format="d 'днів' h 'годин' m 'хвилин'"  NullString="Встановіть дату кінця" AllowNull="True" Height="25" ShowArrowButtons="False" IsReadOnly="True" BorderThickness="0" HorizontalAlignment="Center"/>
         </Grid>
         
         <!-- Repair description -->
@@ -79,7 +79,7 @@
             
             <TextBlock Grid.Row="0" Text="Опис поломки:" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="5"/>
             
-            <TextBox Grid.Row="1" Height="70" BorderThickness="1" BorderBrush="Gray" VerticalScrollBarVisibility="Auto" HorizontalAlignment="Stretch" TextWrapping="Wrap" AcceptsReturn="True" Text="{Binding BreakDescriptionShort, UpdateSourceTrigger=PropertyChanged}"/>
+            <TextBox Grid.Row="1" Height="70" VerticalContentAlignment="Top" HorizontalContentAlignment="Left" BorderThickness="1" BorderBrush="Gray" VerticalScrollBarVisibility="Auto" HorizontalAlignment="Stretch" TextWrapping="Wrap" AcceptsReturn="True" Text="{Binding BreakDescription, UpdateSourceTrigger=PropertyChanged}"/>
             
         </Grid>
         
@@ -164,7 +164,7 @@
         </Grid>
         
         <Grid Grid.Row="2" Grid.Column="0">
-            <Button HorizontalAlignment="Left" Content="Зберегти" Height="40" Width="120" FontSize="13" Foreground="White" FontWeight="DemiBold" Background="Blue" Margin="10">
+            <Button HorizontalAlignment="Left" Content="Створити" Height="40" Width="120" FontSize="13" Foreground="White" FontWeight="DemiBold" Background="#005fb8" Margin="10">
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="Click">
                         <i:InvokeCommandAction Command="{Binding SaveRepairCommand}"/>

@@ -48,8 +48,7 @@ namespace Data.Repositories.DataGrid
                 await using var connection = await OpenNewConnectionAsync();
 
                 string sql = $"SELECT * FROM \"UserTables\".\"{tableName}\" WHERE \"EquipmentId\" = @equipmentId";
-
-                _logger.LogInformation("SQL QUERY: {sql}", sql);
+                
                 using var cmd = new NpgsqlCommand(sql, connection);
                 cmd.Parameters.Add(new NpgsqlParameter("equipmentId", equipmentId));
                 using var reader = await cmd.ExecuteReaderAsync();

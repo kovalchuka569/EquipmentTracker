@@ -51,6 +51,7 @@ public class TabControlViewModel : BindableBase
         CloseAllButThisCommand = new DelegateCommand<TabControlItem>(OnCloseAllButThis);
         
         _eventAggregator.GetEvent<OpenNewTabEvent>().Subscribe(AddNewTab);
+        _eventAggregator.GetEvent<CloseActiveTabEvent>().Subscribe(OnCloseSelectedTabItem);
 
         TabItems.CollectionChanged += TabItems_CollectionChanged;
     }
@@ -77,6 +78,14 @@ public class TabControlViewModel : BindableBase
         };
         TabItems.Add(newTab);
         SelectedTabItem = newTab;
+    }
+
+    private void OnCloseSelectedTabItem()
+    {
+        if (SelectedTabItem is TabControlItem tabControlItem)
+        {
+            TabItems.Remove(tabControlItem);
+        }
     }
     
     

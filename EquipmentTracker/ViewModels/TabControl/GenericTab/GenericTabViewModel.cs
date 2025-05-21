@@ -1,12 +1,14 @@
 ﻿using Prism.Mvvm;
 using Prism.Regions;
 using Prism.Commands;
+using Prism.Events;
 
 namespace UI.ViewModels.TabControl.GenericTab;
 
 public class GenericTabViewModel
 {
     public IRegionManager ViewRegionManager { get; }
+    private IEventAggregator _scopedEventAggregator;
     public Dictionary<string, object> Parameters { get; set; }
     public string _viewNameToShow;
     
@@ -14,6 +16,7 @@ public class GenericTabViewModel
     public GenericTabViewModel(IRegionManager scopedRegionManager)
     {
         ViewRegionManager = scopedRegionManager;
+        _scopedEventAggregator = new EventAggregator();
         
         UserControlLoadedCommand = new DelegateCommand(OnUserControlLoaded);
     }
@@ -25,6 +28,7 @@ public class GenericTabViewModel
         var navigationParameters = new NavigationParameters();
         ExtractViewSpecificParameters(navigationParameters);
         navigationParameters.Add("ScopedRegionManager", ViewRegionManager);
+        navigationParameters.Add("ScopedEventAggregator", _scopedEventAggregator);
         
         ViewRegionManager.RequestNavigate("ContentRegion", _viewNameToShow, navigationParameters);
     }

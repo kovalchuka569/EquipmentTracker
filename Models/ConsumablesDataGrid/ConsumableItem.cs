@@ -1,4 +1,6 @@
-﻿namespace Models.ConsumablesDataGrid
+﻿using System.Collections.ObjectModel;
+
+namespace Models.ConsumablesDataGrid
 {
     public class ConsumableItem
     {
@@ -20,10 +22,10 @@
         public string? Notes { get; set; }
         public string? NotesDisplay => Notes;
         
-        public double BalanceWidth => CalculateBalanceWidth();
-        public string BalanceColor => WidthColorSelector(BalanceWidth, 200);
+        public double BalanceWidth => (!MaxBalance.HasValue || MaxBalance == 0) ? 0 : CalculateBalanceWidth();
+        public string BalanceColor => (!MaxBalance.HasValue || MaxBalance == 0) ? "Gray" : WidthColorSelector(BalanceWidth, 200);
 
-        public bool IsCritical => (BalanceWidth / 200) * 100 < 15;
+        public bool IsCritical => (!MaxBalance.HasValue || MaxBalance == 0) ? false : (BalanceWidth / 200) * 100 < 15;
         
         private double CalculateBalanceWidth()
         {

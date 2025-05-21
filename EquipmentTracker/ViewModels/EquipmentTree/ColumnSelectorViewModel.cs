@@ -30,7 +30,7 @@ public class ColumnSelectorViewModel : BindableBase, INavigationAware
     private Action<bool> _callback;
     
     private IRegionManager _regionManager;
-    private readonly IEventAggregator _eventAggregator;
+    private IEventAggregator _eventAggregator;
     
     private bool _isInitialized = false;
     private string _tableName;
@@ -69,10 +69,9 @@ public class ColumnSelectorViewModel : BindableBase, INavigationAware
         view.GroupDescriptions.Add(new PropertyGroupDescription("Category"));
     }
 
-    public ColumnSelectorViewModel(IEventAggregator eventAggregator, DbContext context, IAppLogger<ColumnSelectorViewModel> logger)
+    public ColumnSelectorViewModel(DbContext context, IAppLogger<ColumnSelectorViewModel> logger)
     {
         _context = context;
-        _eventAggregator = eventAggregator;
         _logger = logger;
         
         LoadedCommand = new DelegateCommand<object>(OnLoaded);
@@ -130,7 +129,7 @@ public class ColumnSelectorViewModel : BindableBase, INavigationAware
             var columns = SelectedColumns.Cast<Column>().Select(c => $"\"{c.ColumnName}\" {c.ColumnType}")
                 .ToList();
 
-            string sparePartsTableName = $"{tableName} запасні частини";
+            string sparePartsTableName = $"{tableName} ЗЧ";
             var sparePartsColumns = new List<string>
             {
                 "\"EquipmentId\" INTEGER",
@@ -168,6 +167,7 @@ public class ColumnSelectorViewModel : BindableBase, INavigationAware
                 "\"Опис поломки\" TEXT",
                 "\"Дата початку\" TIMESTAMP",
                 "\"Дата кінця\" TIMESTAMP",
+                "\"Витрачено часу\" INTERVAL",
                 "\"Працівник\" INTEGER",
                 "\"Статус\" TEXT",
                 $"FOREIGN KEY (\"Об'єкт\") REFERENCES \"UserTables\".\"{tableName}\" (\"id\")"
@@ -233,7 +233,7 @@ public class ColumnSelectorViewModel : BindableBase, INavigationAware
                 {
                     await transaction.RollbackAsync();
                     OnCancel();
-                    _logger.LogError(e, "System error on updating tables");
+                    _logger.LogError(e, "System error on creating tables");
                     throw;
                 }
             
@@ -246,6 +246,11 @@ public class ColumnSelectorViewModel : BindableBase, INavigationAware
         if (navigationContext.Parameters["ScopedRegionManager"] is IRegionManager scopedRegionManager)
         {
             _regionManager = scopedRegionManager;
+        }
+        
+        if (navigationContext.Parameters["ScopedEventAggregator"] is IEventAggregator scopedEventAgreggator)
+        {
+            _eventAggregator = scopedEventAgreggator;
         }
         if (navigationContext == null)
         {
@@ -295,7 +300,7 @@ public class ColumnSelectorViewModel : BindableBase, INavigationAware
         SelectedColumns.Clear();
     }
 
-    public bool IsNavigationTarget(NavigationContext navigationContext) => true;
+    public bool IsNavigationTarget(NavigationContext navigationContext) => false;
 
     public void OnNavigatedFrom(NavigationContext navigationContext)
     {

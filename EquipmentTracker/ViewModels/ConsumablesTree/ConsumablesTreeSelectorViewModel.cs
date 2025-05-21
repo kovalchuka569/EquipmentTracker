@@ -25,7 +25,7 @@ namespace UI.ViewModels.ConsumablesTree
         
         private IConsumablesTreeService _consumablesTreeService;
         private IAppLogger<ConsumablesTreeSelectorViewModel> _logger;
-        private IEventAggregator _eventAggregator;
+        private EventAggregator _scopedEventAggregator;
         private IRegionManager _regionManager;
         
         private ObservableCollection<IFileSystemItem> _folders;
@@ -78,11 +78,10 @@ namespace UI.ViewModels.ConsumablesTree
         
         public DelegateCommand OpenCommand { get; }
 
-        public ConsumablesTreeSelectorViewModel(IConsumablesTreeService consumablesTreeService, IAppLogger<ConsumablesTreeSelectorViewModel> logger, IEventAggregator eventAggregator)
+        public ConsumablesTreeSelectorViewModel(IConsumablesTreeService consumablesTreeService, IAppLogger<ConsumablesTreeSelectorViewModel> logger)
         {
             _consumablesTreeService = consumablesTreeService;
             _logger = logger;
-            _eventAggregator = eventAggregator;
 
             OpenCommand = new DelegateCommand(OnOpenFile);
 
@@ -98,7 +97,8 @@ namespace UI.ViewModels.ConsumablesTree
                 var parameters = new NavigationParameters
                 {
                     {"TableName", item.Name},
-                    {"ScopedRegionManager", _regionManager}
+                    {"ScopedRegionManager", _regionManager},
+                    {"ScopedEventAggregator", _scopedEventAggregator}
                 };
                 _regionManager.RequestNavigate("ConsumablesDataGridSelectorRegion", "ConsumablesDataGridSelectorView", parameters);
             }
@@ -171,6 +171,10 @@ namespace UI.ViewModels.ConsumablesTree
             if (navigationContext.Parameters["ScopedRegionManager"] is IRegionManager scopedRegionManager)
             {
                 _regionManager = scopedRegionManager;
+            }
+            if (navigationContext.Parameters["ScopedEventAggregator"] is EventAggregator scopedEventAggregator)
+            {
+                _scopedEventAggregator = scopedEventAggregator;
             }
         }
 

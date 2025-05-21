@@ -2,4 +2,4 @@
 
 namespace Core.Events.DataGrid.Consumables;
 
-public class SaveUsedMaterialsEvent : PubSubEvent {}
+public class SaveUsedMaterialsEvent : PubSubEvent<int> {}

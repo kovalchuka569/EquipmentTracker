@@ -17,6 +17,8 @@ using Data.Repositories.Consumables.Operations;
 using Data.Repositories.DataGrid;
 using Data.Repositories.EquipmentTree;
 using Data.Repositories.Repairs;
+using EquipmentTracker.ViewModels.DataGrid;
+using EquipmentTracker.Views.DataGrid;
 using UI.Interfaces.Factory;
 using UI.Services.Factory;
 using UI.ViewModels.Common;
@@ -72,6 +74,9 @@ public class TabControlModule : IModule
         
         // Data grid
         containerRegistry.RegisterForNavigation<DataGridView, DataGridViewModel>(); // View, ViewModel
+        
+        containerRegistry.RegisterForNavigation<EquipmentDataGridView, EquipmentDataGridViewModel>();
+        
         containerRegistry.Register<IDataGridViewModelFactory, DataGridViewModelFactory>(); // Factory for ViewModel
         containerRegistry.Register<IDataGridService, DataGridService>(); // Service for DataGrid
         containerRegistry.Register<ISparePartsService, SparePartsService>(); // Service for SpareParts

@@ -10,6 +10,7 @@
         public string EquipmentModel { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
+        public TimeSpan Duration { get; set; }
         public int Worker { get; set; }
         public string Status {get; set; }
     }

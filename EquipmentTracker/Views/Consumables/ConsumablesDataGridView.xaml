@@ -9,7 +9,7 @@
              xmlns:local="clr-namespace:UI.Views.Consumables"
              xmlns:prism="http://prismlibrary.com/"
              xmlns:syncfusionskin="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF"
-             syncfusionskin:SfSkinManager.Theme="{syncfusionskin:SkinManagerExtension ThemeName=Windows11Light}"
+             syncfusionskin:SfSkinManager.Theme="{syncfusionskin:SkinManagerExtension ThemeName=Office2019Colorful}"
              mc:Ignorable="d">
     
     <UserControl.Resources>
@@ -25,9 +25,10 @@
         
             <Grid>
         <grid:SfDataGrid 
-            GridLinesVisibility="Horizontal"
+            GridLinesVisibility="Both"
             HeaderLinesVisibility="Both"
             HorizontalContentAlignment="Center"
+            GridValidationMode="InEdit"
             VerticalContentAlignment="Center"
             LiveDataUpdateMode="AllowDataShaping"
             AllowFiltering="True"
@@ -42,7 +43,7 @@
             AutoGenerateColumns="False">
             
             <grid:SfDataGrid.Columns>
-                <grid:GridTextColumn MappingName="Name" HeaderText="Назва" AllowGrouping="False">
+                <grid:GridTextColumn MappingName="Name" HeaderText="Назва" AllowGrouping="False" AllowEditing="True" AllowFiltering="True">
                     <grid:GridTextColumn.CellTemplate>
                         <DataTemplate>
                                 <TextBlock Text="{Binding NameDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
@@ -50,7 +51,7 @@
                     </grid:GridTextColumn.CellTemplate>
                 </grid:GridTextColumn>
                 
-                <grid:GridTextColumn MappingName="Category" HeaderText="Категорія">
+                <grid:GridTextColumn MappingName="Category" HeaderText="Категорія" AllowGrouping="True" AllowEditing="True" AllowFiltering="True">
                     <grid:GridTextColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding CategoryDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
@@ -58,7 +59,7 @@
                     </grid:GridTextColumn.CellTemplate>
                 </grid:GridTextColumn>
                 
-                <grid:GridNumericColumn MappingName="Balance" Width="200" HeaderText="Залишок" AllowGrouping="False">
+                <grid:GridNumericColumn MappingName="Balance" Width="200" HeaderText="Залишок" AllowGrouping="False" AllowEditing="False" AllowFiltering="True">
                     <grid:GridNumericColumn.CellTemplate>
                         <DataTemplate>
                             <Border x:Name="MainBorder" BorderThickness="1" BorderBrush="Gray">
@@ -96,13 +97,7 @@
                     </grid:GridNumericColumn.CellTemplate>
                 </grid:GridNumericColumn>
                 
-                <grid:GridTextColumn MappingName="Unit" HeaderText="Одиниця">
-                    <grid:GridTextColumn.CellTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding UnitDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                        </DataTemplate>
-                    </grid:GridTextColumn.CellTemplate>
-                </grid:GridTextColumn>
+                <grid:GridComboBoxColumn MappingName="Unit" ItemsSource="{Binding UnitItems}" HeaderText="Одиниця" AllowEditing="True" AllowGrouping="True" IsEditable="True"/>
                 
                 <grid:GridDateTimeColumn MappingName="LastModifiedDate" AllowGrouping="False" Pattern="{Binding LastModifiedDate, StringFormat='dd.MM.yyyy HH:mm'}" HeaderText="Остання зміна">
                     <grid:GridDateTimeColumn.CellTemplate>
@@ -112,10 +107,10 @@
                     </grid:GridDateTimeColumn.CellTemplate>
                 </grid:GridDateTimeColumn>
                 
-                <grid:GridTextColumn MappingName="Notes" HeaderText="Нотатки" AllowGrouping="False">
+                <grid:GridTextColumn MappingName="Notes" HeaderText="Нотатки" AllowGrouping="False" AllowFiltering="True" AllowEditing="True">
                     <grid:GridTextColumn.CellTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding NotesDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                            <TextBlock Text="{Binding NotesDisplay}" VerticalAlignment="Top" HorizontalAlignment="Left" TextWrapping="Wrap" MaxHeight="100"/>
                         </DataTemplate>
                     </grid:GridTextColumn.CellTemplate>
                 </grid:GridTextColumn>
@@ -169,10 +164,13 @@
                                 </sf:SfTextInputLayout>
                             </Grid>
                     </MenuItem>
+                    <MenuItem Header="Оновити" Command="{Binding RefreshCommand}"/>
                     <MenuItem Header="Друкувати" Command="{Binding PrintCommand}"/>
-                    <MenuItem Header="Excel" Command="{Binding ExcelExportCommand}"/>
+                    <MenuItem Header="Експорт в Excel" Command="{Binding ExcelExportCommand}"/>
+                    <MenuItem Header="Експорт в PDF" Command="{Binding PdfExportCommand}"/>
                     
                     <i:Interaction.Triggers>
+                        
                         <i:EventTrigger EventName="Loaded">
                             <i:InvokeCommandAction Command="{Binding ConsumablesDataGridContextMenuLoadedCommand}"/>
                         </i:EventTrigger>
@@ -190,6 +188,16 @@
                 <i:EventTrigger EventName="SelectionChanged">
                     <i:InvokeCommandAction Command="{Binding RowSelectionChangedCommand}"/>
                 </i:EventTrigger>
+                
+                <i:EventTrigger EventName="RowValidating">
+                    <i:InvokeCommandAction Command="{Binding RowValidatingCommand}"
+                                           PassEventArgsToCommand="True"/>
+                </i:EventTrigger>
+                <i:EventTrigger EventName="RowValidated">
+                    <i:InvokeCommandAction Command="{Binding RowValidatedCommand}"
+                                           PassEventArgsToCommand="True"/>
+                </i:EventTrigger>
+                
             </i:Interaction.Triggers>
         </grid:SfDataGrid>
             </Grid>

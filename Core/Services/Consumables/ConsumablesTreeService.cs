@@ -207,34 +207,6 @@ namespace Core.Services.Consumables
                     new NpgsqlCommand(sqlCreateTableTransactions, connection, transaction);
                 await cmdCreateTableTransactions.ExecuteNonQueryAsync();
 
-                string sqlCreateFunctionIfNotExists = $@"
-                CREATE OR REPLACE FUNCTION ConsumablesSchema.count_low_stock_{consumablesTableName}()
-                RETURNS INTEGER AS $$
-                DECLARE
-                    low_count INTEGER;
-                BEGIN
-                    SELECT COUNT(*) INTO low_count
-                    FROM ConsumablesSchema.""{consumablesTableName}""
-                    WHERE ""Залишок"" < ""Мінімальний залишок"";
-                    RETURN low_count;
-                END;
-                $$ LANGUAGE plpgsql;
-                ";
-
-                await using var cmdCreateFunctionIfNotExists =
-                    new NpgsqlCommand(sqlCreateFunctionIfNotExists, connection, transaction);
-                await cmdCreateFunctionIfNotExists.ExecuteNonQueryAsync();
-
-                string sqlCreateTrigger = $@"
-                CREATE OR REPLACE TRIGGER update_low_stock_count_{consumablesTableName}
-                AFTER INSERT OR UPDATE OR DELETE ON ConsumablesSchema.""{consumablesTableName}""
-                FOR EACH ROW
-                EXECUTE FUNCTION ConsumablesSchema.count_low_stock_{consumablesTableName}();
-                ";
-
-                await using var cmdCreateTrigger = new NpgsqlCommand(sqlCreateTrigger, connection, transaction);
-                await cmdCreateTrigger.ExecuteNonQueryAsync();
-
                 await transaction.CommitAsync();
                 return newId;
             }

@@ -8,17 +8,26 @@
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:prism="http://prismlibrary.com/"
              xmlns:syncfusionskin="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF"
-             syncfusionskin:SfSkinManager.Theme="{syncfusionskin:SkinManagerExtension ThemeName=Windows11Light}"
+             syncfusionskin:SfSkinManager.Theme="{syncfusionskin:SkinManagerExtension ThemeName=Office2019Colorful}"
              mc:Ignorable="d">
     
+
+    
     <UserControl.Resources>
-        <DataTemplate x:Key="SparePartsTemplate">
-            <local:SparePartsDataGridView/>
-        </DataTemplate>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Syncfusion.Themes.Office2019Colorful.WPF;component/sfdatagrid/sfdatagrid.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            
+            <DataTemplate x:Key="SparePartsTemplate">
+                <local:SparePartsDataGridView/>
+            </DataTemplate>
+        </ResourceDictionary>
     </UserControl.Resources>
     
     <Grid>
         <sf:SfDataGrid x:Name="SfDataGrid"
+                       Style="{StaticResource SyncfusionSfDataGridStyle}"
             ItemsSource="{Binding Items}"
             SelectedItem="{Binding SelectedItem}"
             NavigationMode="Cell"

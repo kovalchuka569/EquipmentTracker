@@ -118,7 +118,8 @@ namespace Data.Repositories.EquipmentTree
                 cmd1.Parameters.AddWithValue("@tableName", name);
                 cmd1.Parameters.AddWithValue("@fileType", "equipments table");
                 var newId = (int)await cmd1.ExecuteScalarAsync();
-                
+                Console.WriteLine(sql);
+
                 string sqlInsertingServiceFolder =
                     "INSERT INTO \"public\".\"EquipmentTreeFolders\" (\"Name\", \"ParentId\", \"MenuType\") VALUES (@name, @parentId, @menuType) RETURNING \"id\"; ";
                 using var cmd2 = new NpgsqlCommand(sqlInsertingServiceFolder, connection, transaction);
@@ -126,6 +127,7 @@ namespace Data.Repositories.EquipmentTree
                 cmd2.Parameters.AddWithValue("@parentId", folderId);
                 cmd2.Parameters.AddWithValue("@menuType", menuType);
                 var serviceFolderId = (int)await cmd2.ExecuteScalarAsync();
+                Console.WriteLine(sqlInsertingServiceFolder);
 
                 string sqlInsertingWriteOff =
                     "INSERT INTO \"public\".\"EquipmentTreeFiles\" (\"Name\", \"FolderId\", \"MenuType\", \"TableName\", \"FileType\") VALUES (@name, @folderId, @menuType, @tableName, @fileType); ";
@@ -136,6 +138,7 @@ namespace Data.Repositories.EquipmentTree
                 cmd3.Parameters.AddWithValue("@tableName", name);
                 cmd3.Parameters.AddWithValue("@fileType", "writeoff");
                 await cmd3.ExecuteScalarAsync();
+                Console.WriteLine(sqlInsertingWriteOff);
 
                 string sqlInsertingServiceFile =
                     "INSERT INTO \"public\".\"EquipmentTreeFiles\" (\"Name\", \"FolderId\", \"MenuType\", \"TableName\", \"FileType\") VALUES (@name, @folderId, @menuType, @tableName, @fileType); ";
@@ -146,6 +149,7 @@ namespace Data.Repositories.EquipmentTree
                 cmd4.Parameters.AddWithValue("@tableName", $"{name} О");
                 cmd4.Parameters.AddWithValue("@fileType", "services");
                 await cmd4.ExecuteScalarAsync();
+                Console.WriteLine(sqlInsertingServiceFile);
 
                 string sqlInsertingRepairsFile =
                     "INSERT INTO \"public\".\"EquipmentTreeFiles\" (\"Name\", \"FolderId\", \"MenuType\", \"TableName\", \"FileType\") VALUES (@name, @folderId, @menuType, @tableName, @fileType); ";
@@ -156,13 +160,20 @@ namespace Data.Repositories.EquipmentTree
                 cmd5.Parameters.AddWithValue("@tableName", $"{name} Р");
                 cmd5.Parameters.AddWithValue("@fileType", "repairs");
                 await cmd5.ExecuteScalarAsync();
+                Console.WriteLine(sqlInsertingRepairsFile);
                 
-                transaction.Commit();
+                await transaction.CommitAsync();
                 return newId;
             }
             catch (NpgsqlException e)
             {
-                transaction.Rollback();
+                await transaction.RollbackAsync();
+                _logger.LogError(e.Message, "Database error inserting file");
+                throw;
+            }
+            catch (Exception e)
+            {
+                await transaction.RollbackAsync();
                 _logger.LogError(e.Message, "Database error inserting file");
                 throw;
             }

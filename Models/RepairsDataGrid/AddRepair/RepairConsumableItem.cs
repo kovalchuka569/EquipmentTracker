@@ -2,6 +2,7 @@
 
 public class RepairConsumableItem
 {
+    public string ConsumableTableName { get; set; }
     public int MaterialId { get; set; }
     public string Category { get; set; }
     public string CategoryDisplay => Category;

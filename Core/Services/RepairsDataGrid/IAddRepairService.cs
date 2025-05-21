@@ -8,5 +8,6 @@ namespace Core.Services.RepairsDataGrid;
 public interface IAddRepairService
 {
     Task<ObservableCollection<EquipmentItem>> GetEquipmentItemsAsync(string equipmentTableName);
-    Task SaveRepairAsync(EquipmentItem equipmentItem, ConsumableItem consumableItem, string equipmentTableName);
+    Task<int> SaveRepairAsync(RepairData repairData, string equipmentTableName);
+    Task InsertUsedMaterialsAsync(ObservableCollection<RepairConsumableItem> repairConsumableItems, int repairId, string consumablesTableName);
 }

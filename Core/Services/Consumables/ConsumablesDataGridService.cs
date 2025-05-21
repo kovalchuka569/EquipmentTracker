@@ -149,5 +149,47 @@ namespace Core.Services.Consumables
                 throw;
             }
         }
+
+        public async Task InsertConsumableAsync(ConsumableItem consumableItem, string tableName)
+        {
+            try
+            {
+                var consumableDto = new ConsumableDto
+                {
+                    Name = consumableItem.Name,
+                    Category = consumableItem.Category,
+                    Unit = consumableItem.Unit,
+                    Notes = consumableItem.Notes,
+                };
+                
+                await _repository.InsertConsumableAsync(consumableDto, tableName);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "System error inserting consumable");
+                throw;
+            }
+        }
+
+        public async Task UpdateConsumableAsync(ConsumableItem consumableItem, string tableName)
+        {
+            try
+            {
+                var consumableDto = new ConsumableDto
+                {
+                    Id = consumableItem.Id,
+                    Name = consumableItem.Name,
+                    Category = consumableItem.Category,
+                    Unit = consumableItem.Unit,
+                    Notes = consumableItem.Notes,
+                };
+               await _repository.UpdateConsumableAsync(consumableDto, tableName);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "System error updating consumable");
+                throw;
+            }
+        }
     }
 }

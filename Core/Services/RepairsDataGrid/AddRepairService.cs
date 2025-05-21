@@ -2,6 +2,7 @@
 using Common.Logging;
 using Data.Repositories.Repairs;
 using Models.ConsumablesDataGrid;
+using Models.RepairsDataGrid;
 using Models.RepairsDataGrid.AddRepair;
 
 namespace Core.Services.RepairsDataGrid;
@@ -38,19 +39,41 @@ public class AddRepairService : IAddRepairService
         }
     }
 
-    public Task SaveRepairAsync(EquipmentItem equipmentItem, ConsumableItem consumableItem, string equipmentTableName)
+    public async Task<int> SaveRepairAsync(RepairData repairData, string equipmentTableName)
     {
         try
         {
-            var equipmentDto = new EquipmentDto
-            {
-                EquipmentId = equipmentItem.EquipmentId,
-            };
-            return null;
+            return await _repository.SaveRepairAsync(repairData, equipmentTableName);
         }
         catch (Exception e)
         {
             _logger.LogError(e, "System error saving repair");
+            throw;
+        }
+    }
+
+    public async Task InsertUsedMaterialsAsync(ObservableCollection<RepairConsumableItem> repairConsumableItems, int repairId, string consumablesTableName)
+    {
+        try
+        {
+            _logger.LogInformation("Inserting dto used materials");
+            var repairConsumableDto = new ObservableCollection<RepairConsumableDto>(repairConsumableItems.Select(item =>
+                new RepairConsumableDto
+                {
+                    ConsumableTableName = item.ConsumableTableName,
+                    Name = item.Name,
+                    Unit = item.Unit,
+                    Category = item.Category,
+                    SpentMaterial = item.SpentMaterial
+                }));
+            _logger.LogInformation("Successfully inserting dto used materials");
+            _logger.LogInformation("Sending used materials to repository");
+            await _repository.InsertUsedMaterialsAsync(repairConsumableDto, repairId, consumablesTableName);
+            _logger.LogInformation("Successfully sending used materials to repository");
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "System error inserting dto or sending to repository used materials");
             throw;
         }
     }

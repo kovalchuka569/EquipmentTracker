@@ -294,9 +294,8 @@ public class DataGridViewModel : BindableBase, INavigationAware
     // Load data when details view expanding
     private void OnDetailsViewExpanding(GridDetailsViewExpandingEventArgs args)
     {
-        Console.WriteLine("OnDetailsViewExpanding");
 
-        string currentSparePartsTableName = $"{_currentTableName} запасні частини";
+        string currentSparePartsTableName = $"{_currentTableName} ЗЧ";
     
         if (args.Record is ExpandoObject expando && expando is IDictionary<string, object> dictionary &&
             dictionary.TryGetValue("id", out var idObj) && idObj is int id)
@@ -306,7 +305,6 @@ public class DataGridViewModel : BindableBase, INavigationAware
             SparePartsData.TableName = _currentTableName;
             SparePartsData.SparePartsTableName = currentSparePartsTableName;
             
-            Console.WriteLine($"Сохранено: ID={id}, TableName={_currentTableName}");
         }
     }
 

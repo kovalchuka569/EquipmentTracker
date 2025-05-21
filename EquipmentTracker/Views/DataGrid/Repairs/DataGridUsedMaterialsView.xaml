@@ -14,10 +14,11 @@
              xmlns:consumablesTree="clr-namespace:UI.Views.NavDrawer.NavDrawerItems.ConsumablesTree"
              xmlns:grid="clr-namespace:Syncfusion.UI.Xaml.Grid;assembly=Syncfusion.SfGrid.WPF"
              xmlns:syncfusionskin="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF"
-             syncfusionskin:SfSkinManager.Theme="{syncfusionskin:SkinManagerExtension ThemeName=Windows11Light}">
+             syncfusionskin:SfSkinManager.Theme="{syncfusionskin:SkinManagerExtension ThemeName=Office2019Colorful}">
     
     <UserControl.Resources>
         <ResourceDictionary>
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/Syncfusion.Themes.Office2019Colorful.WPF;component/sfdatagrid/sfdatagrid.xaml"/>
             </ResourceDictionary.MergedDictionaries>
@@ -79,9 +80,9 @@
         
         <Grid Grid.Row="1">
             
-            <TextBlock Visibility="Collapsed" Text="Витрачені матеріали відсутні" FontWeight="DemiBold" FontSize="16" Foreground="Gray" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-        
+            <Grid>
                 <grid:SfDataGrid
+                    x:Name="DataGridUsedMaterials"
                     Style="{StaticResource SyncfusionSfDataGridStyle}"
                     ColumnSizer="Star"
                     GridLinesVisibility="Both"
@@ -92,14 +93,6 @@
                 
                 <grid:SfDataGrid.Columns>
                     
-                    <grid:GridTextColumn MappingName="Category" HeaderText="Категорія" AllowEditing="False">
-                        <grid:GridTextColumn.CellTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding CategoryDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                            </DataTemplate>
-                        </grid:GridTextColumn.CellTemplate>
-                    </grid:GridTextColumn>
-                    
                     <grid:GridTextColumn MappingName="Name" HeaderText="Назва" AllowEditing="False">
                         <grid:GridTextColumn.CellTemplate>
                             <DataTemplate>
@@ -108,10 +101,10 @@
                         </grid:GridTextColumn.CellTemplate>
                     </grid:GridTextColumn>
                     
-                    <grid:GridTextColumn MappingName="Unit" HeaderText="Одиниця" AllowEditing="False">
+                    <grid:GridTextColumn MappingName="Category" HeaderText="Категорія" AllowEditing="False">
                         <grid:GridTextColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding UnitDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                <TextBlock Text="{Binding CategoryDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                             </DataTemplate>
                         </grid:GridTextColumn.CellTemplate>
                     </grid:GridTextColumn>
@@ -124,6 +117,14 @@
                         </grid:GridNumericColumn.CellTemplate>
                     </grid:GridNumericColumn>
                     
+                    <grid:GridTextColumn MappingName="Unit" HeaderText="Одиниця" AllowEditing="False">
+                        <grid:GridTextColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding UnitDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                            </DataTemplate>
+                        </grid:GridTextColumn.CellTemplate>
+                    </grid:GridTextColumn>
+                    
                 </grid:SfDataGrid.Columns>
                 
                 <grid:SfDataGrid.StackedHeaderRows>
@@ -133,7 +134,39 @@
                         </grid:StackedHeaderRow.StackedColumns>
                     </grid:StackedHeaderRow>
                 </grid:SfDataGrid.StackedHeaderRows>
-            </grid:SfDataGrid>
+                    
+                    <grid:SfDataGrid.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="Видалити матеріал" Command="{Binding DeleteConsumableCommand}"/>
+                        </ContextMenu>
+                    </grid:SfDataGrid.ContextMenu>
+                    
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Loaded">
+                            <i:InvokeCommandAction Command="{Binding SfDataGridLoadedCommand}"
+                                                   CommandParameter="{Binding ElementName=DataGridUsedMaterials}"/>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                    
+                </grid:SfDataGrid>
+                </Grid>
+            
+            <TextBlock Visibility="{Binding AreUsedMaterialsEmpty, Converter={StaticResource BooleanToVisibilityConverter}}" Text="Витрачені матеріали відсутні" FontWeight="DemiBold" FontSize="16" Foreground="Gray" FontFamily="Segoe UI" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+
+            
         </Grid>
     </Grid>
+    
+    <i:Interaction.Triggers>
+        
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding UserControlLoadedCommand}"/>
+        </i:EventTrigger>
+        
+        <i:EventTrigger EventName="Unloaded">
+            <i:InvokeCommandAction Command="{Binding UserControlUnloadedCommand}"/>
+        </i:EventTrigger>
+        
+    </i:Interaction.Triggers>
+    
 </UserControl>
