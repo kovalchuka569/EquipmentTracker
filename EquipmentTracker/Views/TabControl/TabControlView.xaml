@@ -10,16 +10,38 @@
              xmlns:syncfusionskin="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF"
              syncfusionskin:SfSkinManager.Theme="{syncfusionskin:SkinManagerExtension ThemeName=Windows11Light}"
              prism:ViewModelLocator.AutoWireViewModel="True">
-    
+
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/Syncfusion.Themes.Windows11Light.WPF;component/tabcontrolext/tabcontrolext.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+
+            <Storyboard x:Key="OpenTabAnimation">
+                <DoubleAnimation Storyboard.TargetProperty="(FrameworkElement.Opacity)"
+                                 From="0" To="1"
+                                 Duration="0:0:0.2" />
+            </Storyboard>
+
+            <Style TargetType="{x:Type ContentPresenter}">
+                <Style.Triggers>
+                    <Trigger Property="Visibility" Value="Visible">
+                        <Trigger.EnterActions>
+                            <BeginStoryboard Storyboard="{StaticResource OpenTabAnimation}" />
+                        </Trigger.EnterActions>
+                    </Trigger>
+                </Style.Triggers>
+                <Setter Property="Opacity" Value="0"/>
+            </Style>
+
+            <DataTemplate x:Key="AnimatedContentTemplate">
+                <ContentPresenter Content="{Binding GenericTab}" Style="{StaticResource {x:Type ContentPresenter}}"/>
+            </DataTemplate>
+
         </ResourceDictionary>
     </UserControl.Resources>
-    
+
     <Grid>
         <sf:TabControlExt  CloseButtonType="Individual"
                            IsDisableUnloadTabItemExtContent="True"
@@ -33,14 +55,15 @@
                            AllowDragDrop="True"
                            ItemsSource="{Binding TabItems}"
                            SelectedItem="{Binding SelectedTabItem}"
+                           ContentTemplate="{StaticResource AnimatedContentTemplate}"
                            DefaultContextMenuItemVisibility="Collapsed">
-            
+
             <sf:TabControlExt.ItemTemplate>
                 <DataTemplate>
                     <TextBlock Text="{Binding Header}"/>
                 </DataTemplate>
             </sf:TabControlExt.ItemTemplate>
-            
+
             <sf:TabControlExt.ItemContainerStyle>
                 <Style TargetType="sf:TabItemExt" BasedOn="{StaticResource SyncfusionTabItemExtStyle}">
                     <Setter Property="ContextMenu">
@@ -56,21 +79,16 @@
                     </Setter>
                 </Style>
             </sf:TabControlExt.ItemContainerStyle>
-            
-            <sf:TabControlExt.ContentTemplate>
-                <DataTemplate>
-                    <ContentControl Content="{Binding GenericTab}"/>
-                </DataTemplate>
-            </sf:TabControlExt.ContentTemplate>
+
         </sf:TabControlExt>
 
         <TextBlock Text="Не відкрито жодної вкладки"
-           FontSize="16"
-           FontWeight="Bold"
-           Foreground="Gray"
-           HorizontalAlignment="Center"
-           VerticalAlignment="Center"
-           Visibility="{Binding AreTabsEmpty, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-        
+                   FontSize="16"
+                   FontWeight="Bold"
+                   Foreground="Gray"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   Visibility="{Binding AreTabsEmpty, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
     </Grid>
 </UserControl>
