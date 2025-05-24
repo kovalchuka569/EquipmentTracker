@@ -21,4 +21,5 @@
             <i:InvokeCommandAction Command="{Binding UserControlLoadedCommand}"/>
         </i:EventTrigger>
     </i:Interaction.Triggers>
+    
 </UserControl>

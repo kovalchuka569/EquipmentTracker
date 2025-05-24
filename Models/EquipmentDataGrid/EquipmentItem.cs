@@ -6,9 +6,10 @@ public class EquipmentItem
     public string InventoryNumber { get; set; }
     public string Brand { get; set; }
     public string Model { get; set; }
+    public string Category { get; set; }
     public string SerialNumber { get; set; }
     public string Class { get; set; }
-    public string Year { get; set; }
+    public int? Year { get; set; }
     
     public decimal Height { get; set; }
     public decimal Width { get; set; }
@@ -28,28 +29,28 @@ public class EquipmentItem
     public string Notes { get; set; }
     public string ResponsiblePerson { get; set; }
     
-    public string InvenoryNumberDisplay => InventoryNumber;
+    public string InventoryNumberDisplay => InventoryNumber;
     public string BrandDisplay => Brand;
     public string ModelDisplay => Model;
+    public string CategoryDisplay => Category;
     public string SerialNumberDisplay => SerialNumber;
     public string ClassDisplay => Class;
-    public string YearDisplay => $"{Year} р";
-    
-    public string HeightDisplay => $"{Height} см";
-    public string WidthDisplay => $"{Width} см";
-    public string LengthDisplay => $"{Length} см";
-    public string WeightDisplay => $"{Weight} кг";
+    public string YearDisplay => Year.HasValue && Year.Value != 0 ? $"{Year} р" : string.Empty;
+    public string HeightDisplay => Height > 0 ? $"{Height} см" : string.Empty;
+    public string WidthDisplay => Width > 0 ? $"{Width} см" : string.Empty;
+    public string LengthDisplay => Length > 0 ? $"{Length} см" : string.Empty;
+    public string WeightDisplay => Weight > 0 ? $"{Weight} кг" : string.Empty;
     
     public string FloorDisplay => Floor;
     public string DepartmentDisplay => Department;
     public string RoomDisplay => Room;
     
-    public string ConsumptionDisplay => $"{Consumption} (КВ/год)";
-    public string VoltageDisplay => $"{Voltage} (В)";
-    public string WaterDisplay => $"{Water} (Л/год)";
-    public string AirDisplay => $"{Air} (Л/год)";
+    public string ConsumptionDisplay => Consumption > 0 ? $"{Consumption} (КВ/год)" : string.Empty;
+    public string VoltageDisplay => Voltage > 0 ? $"{Voltage} (В)" : string.Empty;
+    public string WaterDisplay => Water > 0 ? $"{Water} (Л/год)" : string.Empty;
+    public string AirDisplay => Air > 0 ? $"{Air} (Л/год)" : string.Empty;
     
-    public string BalanceCostDisplay => $"{BalanceCost} грн";
+    public string BalanceCostDisplay => BalanceCost > 0 ? $"{BalanceCost} грн" : string.Empty;
     public string NotesDisplay => Notes;  
     public string ResponsiblePersonDisplay => ResponsiblePerson;
 }

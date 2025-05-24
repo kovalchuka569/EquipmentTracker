@@ -35,7 +35,7 @@
             AllowGrouping="True"
             ShowGroupDropArea="True"
             AddNewRowPosition="Top"
-            AddNewRowText="Додати новий матеріал"
+            AddNewRowText="+ Додати новий матеріал"
             SelectionMode="Single"
             x:Name="ConsumablesSfDataGrid"
             ItemsSource="{Binding Items}"

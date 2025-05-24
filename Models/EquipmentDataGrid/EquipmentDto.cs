@@ -6,9 +6,10 @@ public class EquipmentDto
     public string InventoryNumber { get; set; }
     public string Brand { get; set; }
     public string Model { get; set; }
+    public string Category { get; set; }
     public string SerialNumber { get; set; }
     public string Class { get; set; }
-    public string Year { get; set; }
+    public int? Year { get; set; }
     
     public decimal Height { get; set; }
     public decimal Width { get; set; }

@@ -15,12 +15,27 @@
              syncfusionskin:SfSkinManager.Theme="{syncfusionskin:SkinManagerExtension ThemeName=Windows11Light}">
     
     <UserControl.Resources>
-        <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Syncfusion.Themes.Windows11Light.WPF;component/sflinearprogressbar/sflinearprogressbar.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        </ResourceDictionary>
     </UserControl.Resources>
     
     <Grid>
-    <Grid>
-        <sf:SfTreeView 
+        
+        <Grid>
+        
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+        
+        <ProgressBar Grid.Row="0" IsIndeterminate="True" IsEnabled="True" Visibility="{Binding ProgressBarVisibility, Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+        
+        <sf:SfTreeView Grid.Row="1" 
             x:Name="SfTreeView"
             SelectionBackgroundColor="LightGray"
             VerticalAlignment="Top" HorizontalAlignment="Left"
@@ -143,14 +158,18 @@
             
         </sf:SfTreeView>
         
-        <Rectangle Fill="Black"
-                   Opacity="0.5"
-                   Visibility="{Binding IsColumnSelectorVisible, Converter={StaticResource BoolToVisibilityConverter}}"
-                   Panel.ZIndex="1" />
+        
+        </Grid>
+        
+        <Grid>
+            <Rectangle Fill="Black"
+                       Opacity="0.5"
+                       Visibility="{Binding IsOverlayVisible, Converter={StaticResource BoolToVisibilityConverter}}"
+                       Panel.ZIndex="1" />
         </Grid>
         
         
-        <Grid VerticalAlignment="Center" HorizontalAlignment="Center">
+            <Grid VerticalAlignment="Center" HorizontalAlignment="Center">
             <ContentControl prism:RegionManager.RegionName="ColumnSelectorRegion"/>
         </Grid>
         

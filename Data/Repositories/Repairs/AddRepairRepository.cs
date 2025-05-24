@@ -27,7 +27,7 @@ public class AddRepairRepository : IAddRepairRepository
         await using var connection = await _context.OpenNewConnectionAsync();
         try
         {
-            string sql = $"SELECT \"id\", \"Інвентарний номер\", \"Бренд\", \"Модель\" FROM \"UserTables\".\"{equipmentTableName}\"; ";
+            string sql = $@"SELECT ""id"", ""Інвентарний номер"", ""Бренд"", ""Модель"" FROM ""UserTables"".""{equipmentTableName}"" WHERE ""IsWriteOff"" = false AND ""CopyOfData"" = false; ";
             using var cmd = new NpgsqlCommand(sql, connection);
             using (var reader = await cmd.ExecuteReaderAsync())
             {

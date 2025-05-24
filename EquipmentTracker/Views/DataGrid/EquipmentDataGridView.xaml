@@ -5,17 +5,39 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:EquipmentTracker.Views.DataGrid"
              mc:Ignorable="d"
+             xmlns:converter="clr-namespace:Core.Services.EquipmentDataGrid;assembly=Core"
              xmlns:sf="clr-namespace:Syncfusion.UI.Xaml.Grid;assembly=Syncfusion.SfGrid.WPF"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:prism="http://prismlibrary.com/"
              xmlns:syncfusionskin="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF"
              syncfusionskin:SfSkinManager.Theme="{syncfusionskin:SkinManagerExtension ThemeName=Office2019Colorful}">
+   
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <converter:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
+    </UserControl.Resources>
+    
     <Grid>
-        <sf:SfDataGrid
-            GridLinesVisibility="Both"
-            HeaderLinesVisibility="Both"
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            
+            <ProgressBar Grid.Row="0" IsIndeterminate="True" IsEnabled="True" Visibility="{Binding ProgressBarVisibility, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+            
+            <sf:SfDataGrid Grid.Row="1"
             ItemsSource="{Binding Equipments}"
             SelectedItem="{Binding SelectedEquipment}"
+            ShowGroupDropArea="True"
+            ShowBusyIndicator="True"
+            SelectionMode="Single"
+            GridLinesVisibility="Both" HeaderLinesVisibility="Both"
+            GridValidationMode="InEdit"
+            AddNewRowPosition="Top"
+            NewItemPlaceholderPosition="AtBeginning"
+            ColumnSizer="Auto"
+            AddNewRowText="+ Додати нове обладнання"
             AutoGenerateColumns="False"
             LiveDataUpdateMode="AllowDataShaping">
             
@@ -24,7 +46,7 @@
                 <!-- BASIC COLUMNS -->
                 
                 <!-- Inventory Number -->
-                <sf:GridTextColumn MappingName="InventoryNumber" HeaderText="Інвентарний номер" AllowEditing="True" AllowFiltering="True" AllowGrouping="False">
+                <sf:GridTextColumn MappingName="InventoryNumber" HeaderText="Інвентарний номер" IsHidden="{Binding VisibleColumns[InventoryNumber], Converter={StaticResource InverseBooleanConverter}}" AllowEditing="True" AllowFiltering="True" AllowGrouping="False">
                     <sf:GridTextColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding InventoryNumberDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
@@ -32,8 +54,17 @@
                     </sf:GridTextColumn.CellTemplate>
                 </sf:GridTextColumn>
                 
+                <!-- Category -->
+                <sf:GridTextColumn MappingName="Category" HeaderText="Категорія" IsHidden="{Binding VisibleColumns[Category], Converter={StaticResource InverseBooleanConverter}}" AllowEditing="True" AllowFiltering="True" AllowGrouping="True">
+                    <sf:GridTextColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding CategoryDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        </DataTemplate>
+                    </sf:GridTextColumn.CellTemplate>
+                </sf:GridTextColumn>
+                
                 <!-- Brand -->
-                <sf:GridTextColumn MappingName="Brand" HeaderText="Бренд" AllowEditing="True" AllowFiltering="True" AllowGrouping="True">
+                <sf:GridTextColumn MappingName="Brand" HeaderText="Бренд" IsHidden="{Binding VisibleColumns[Brand], Converter={StaticResource InverseBooleanConverter}}" AllowEditing="True" AllowFiltering="True" AllowGrouping="True">
                     <sf:GridTextColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding BrandDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
@@ -42,7 +73,7 @@
                 </sf:GridTextColumn>
                 
                 <!-- Model -->
-                <sf:GridTextColumn MappingName="Model" HeaderText="Модель" AllowEditing="True" AllowFiltering="True" AllowGrouping="True">
+                <sf:GridTextColumn MappingName="Model" HeaderText="Модель" IsHidden="{Binding VisibleColumns[Model], Converter={StaticResource InverseBooleanConverter}}" AllowEditing="True" AllowFiltering="True" AllowGrouping="True">
                     <sf:GridTextColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding ModelDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
@@ -51,7 +82,7 @@
                 </sf:GridTextColumn>
                 
                 <!-- Serial Number -->
-                <sf:GridTextColumn MappingName="SerialNumber" HeaderText="Серійний номер" AllowEditing="True" AllowFiltering="True" AllowGrouping="False">
+                <sf:GridTextColumn MappingName="SerialNumber" HeaderText="Серійний номер" IsHidden="{Binding VisibleColumns[SerialNumber], Converter={StaticResource InverseBooleanConverter}}" AllowEditing="True" AllowFiltering="True" AllowGrouping="False">
                     <sf:GridTextColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding SerialNumberDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
@@ -60,7 +91,7 @@
                 </sf:GridTextColumn>
                 
                 <!-- Class -->
-                <sf:GridTextColumn MappingName="Class" HeaderText="Клас" AllowEditing="True" AllowFiltering="True" AllowGrouping="False">
+                <sf:GridTextColumn MappingName="Class" HeaderText="Клас" IsHidden="{Binding VisibleColumns[Class], Converter={StaticResource InverseBooleanConverter}}" AllowEditing="True" AllowFiltering="True" AllowGrouping="False">
                     <sf:GridTextColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding ClassDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
@@ -69,7 +100,7 @@
                 </sf:GridTextColumn>
                 
                 <!-- Year -->
-                <sf:GridTextColumn MappingName="Year" HeaderText="Рік" AllowEditing="True" AllowFiltering="True" AllowGrouping="True">
+                <sf:GridTextColumn MappingName="Year" HeaderText="Рік" IsHidden="{Binding VisibleColumns[Year], Converter={StaticResource InverseBooleanConverter}}" AllowEditing="True" AllowFiltering="True" AllowGrouping="True">
                     <sf:GridTextColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding YearDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
@@ -81,7 +112,7 @@
                 <!-- DIMENSIONS COLUMNS -->
                 
                 <!-- Height -->
-                <sf:GridNumericColumn MappingName="Height" HeaderText="Висота (см)" AllowEditing="True" AllowFiltering="True" AllowGrouping="False">
+                <sf:GridNumericColumn MappingName="Height" HeaderText="Висота (см)" IsHidden="{Binding VisibleColumns[Height], Converter={StaticResource InverseBooleanConverter}}" AllowEditing="True" AllowFiltering="True" AllowGrouping="False">
                     <sf:GridNumericColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding HeightDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
@@ -90,7 +121,7 @@
                 </sf:GridNumericColumn>
                 
                 <!-- Width -->
-                <sf:GridNumericColumn MappingName="Width" HeaderText="Ширина (см)" AllowEditing="True" AllowFiltering="True" AllowGrouping="False">
+                <sf:GridNumericColumn MappingName="Width" HeaderText="Ширина (см)" IsHidden="{Binding VisibleColumns[Width], Converter={StaticResource InverseBooleanConverter}}" AllowEditing="True" AllowFiltering="True" AllowGrouping="False">
                     <sf:GridNumericColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding WidthDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
@@ -99,7 +130,7 @@
                 </sf:GridNumericColumn>
                 
                 <!-- Length -->
-                <sf:GridNumericColumn MappingName="Length" HeaderText="Довжина (см)" AllowEditing="True" AllowFiltering="True" AllowGrouping="False">
+                <sf:GridNumericColumn MappingName="Length" HeaderText="Довжина (см)" IsHidden="{Binding VisibleColumns[Length], Converter={StaticResource InverseBooleanConverter}}" AllowEditing="True" AllowFiltering="True" AllowGrouping="False">
                     <sf:GridNumericColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding LengthDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
@@ -108,7 +139,7 @@
                 </sf:GridNumericColumn>
                 
                 <!-- Weight -->
-                <sf:GridNumericColumn MappingName="Weight" HeaderText="Вага (кг)" AllowEditing="True" AllowFiltering="True" AllowGrouping="False">
+                <sf:GridNumericColumn MappingName="Weight" HeaderText="Вага (кг)" IsHidden="{Binding VisibleColumns[Weight], Converter={StaticResource InverseBooleanConverter}}" AllowEditing="True" AllowFiltering="True" AllowGrouping="False">
                     <sf:GridNumericColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding WeightDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
@@ -120,7 +151,7 @@
                 <!-- LOCATION COLUMNS -->
                 
                 <!-- Floor -->
-                <sf:GridTextColumn MappingName="Floor" HeaderText="Поверх" AllowEditing="True" AllowFiltering="True" AllowGrouping="True">
+                <sf:GridTextColumn MappingName="Floor" HeaderText="Поверх" IsHidden="{Binding VisibleColumns[Floor], Converter={StaticResource InverseBooleanConverter}}" AllowEditing="True" AllowFiltering="True" AllowGrouping="True">
                     <sf:GridTextColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding FloorDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
@@ -129,7 +160,7 @@
                 </sf:GridTextColumn>
                 
                 <!-- Department -->
-                <sf:GridTextColumn MappingName="Department" HeaderText="Відділ" AllowEditing="True" AllowFiltering="True" AllowGrouping="True">
+                <sf:GridTextColumn MappingName="Department" HeaderText="Відділ" IsHidden="{Binding VisibleColumns[Department], Converter={StaticResource InverseBooleanConverter}}" AllowEditing="True" AllowFiltering="True" AllowGrouping="True">
                     <sf:GridTextColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding DepartmentDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
@@ -138,7 +169,7 @@
                 </sf:GridTextColumn>
                 
                 <!-- Room -->
-                <sf:GridTextColumn MappingName="Room" HeaderText="Кімната" AllowEditing="True" AllowFiltering="True" AllowGrouping="True">
+                <sf:GridTextColumn MappingName="Room" HeaderText="Кімната" IsHidden="{Binding VisibleColumns[Room], Converter={StaticResource InverseBooleanConverter}}" AllowEditing="True" AllowFiltering="True" AllowGrouping="True">
                     <sf:GridTextColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding RoomDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
@@ -150,7 +181,7 @@
                 <!-- TECHNICAL COLUMNS -->
                 
                 <!-- Consumption -->
-                <sf:GridNumericColumn MappingName="Consumption" HeaderText="Споживанння (КВ/год)" AllowEditing="True" AllowFiltering="True" AllowGrouping="True">
+                <sf:GridNumericColumn MappingName="Consumption" IsHidden="{Binding VisibleColumns[Consumption], Converter={StaticResource InverseBooleanConverter}}" HeaderText="Споживанння (КВ/год)" AllowEditing="True" AllowFiltering="True" AllowGrouping="True">
                     <sf:GridNumericColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding ConsumptionDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
@@ -159,7 +190,7 @@
                 </sf:GridNumericColumn>
                 
                 <!-- Voltage -->
-                <sf:GridNumericColumn MappingName="Voltage" HeaderText="Напруга (В)" AllowEditing="True" AllowFiltering="True" AllowGrouping="True">
+                <sf:GridNumericColumn MappingName="Voltage" HeaderText="Напруга (В)" IsHidden="{Binding VisibleColumns[Voltage], Converter={StaticResource InverseBooleanConverter}}" AllowEditing="True" AllowFiltering="True" AllowGrouping="True">
                     <sf:GridNumericColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding VoltageDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
@@ -168,7 +199,7 @@
                 </sf:GridNumericColumn>
                 
                 <!-- Water -->
-                <sf:GridNumericColumn MappingName="Water" HeaderText="Вода (Л/год)" AllowEditing="True" AllowFiltering="True" AllowGrouping="True">
+                <sf:GridNumericColumn MappingName="Water" HeaderText="Вода (Л/год)" IsHidden="{Binding VisibleColumns[Water], Converter={StaticResource InverseBooleanConverter}}" AllowEditing="True" AllowFiltering="True" AllowGrouping="True">
                     <sf:GridNumericColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding WaterDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
@@ -177,7 +208,7 @@
                 </sf:GridNumericColumn>
                 
                 <!-- Air -->
-                <sf:GridNumericColumn MappingName="Air" HeaderText="Повітря (Л/год)" AllowEditing="True" AllowFiltering="True" AllowGrouping="True">
+                <sf:GridNumericColumn MappingName="Air" HeaderText="Повітря (Л/год)" IsHidden="{Binding VisibleColumns[Air], Converter={StaticResource InverseBooleanConverter}}" AllowEditing="True" AllowFiltering="True" AllowGrouping="True">
                     <sf:GridNumericColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding AirDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
@@ -189,7 +220,7 @@
                 <!-- FINANCICAL COLUMNS -->
                 
                 <!-- Balance cost -->
-                <sf:GridNumericColumn MappingName="BalanceCost" HeaderText="Балансова вартість (грн)" AllowEditing="True" AllowFiltering="True" AllowGrouping="False">
+                <sf:GridNumericColumn MappingName="BalanceCost" IsHidden="{Binding VisibleColumns[BalanceCost], Converter={StaticResource InverseBooleanConverter}}" HeaderText="Балансова вартість (грн)" AllowEditing="True" AllowFiltering="True" AllowGrouping="False">
                     <sf:GridNumericColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding BalanceCostDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
@@ -200,39 +231,128 @@
                 <!-- ADDITIONALLY COLUMNS -->
                 
                 <!-- Notes -->
-                <sf:GridTextColumn MappingName="Notes" HeaderText="Нотатки" AllowEditing="True" AllowFiltering="True" AllowGrouping="False">
+                <sf:GridTextColumn MappingName="Notes" HeaderText="Нотатки" IsHidden="{Binding VisibleColumns[Notes], Converter={StaticResource InverseBooleanConverter}}" AllowEditing="True" AllowFiltering="True" AllowGrouping="False">
                     <sf:GridTextColumn.CellTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding NotesDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                            <TextBlock Text="{Binding NotesDisplay}" MaxWidth="300" Margin="4" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                         </DataTemplate>
                     </sf:GridTextColumn.CellTemplate>
                 </sf:GridTextColumn>
                 
                 <!-- Responsible person -->
-                <sf:GridTextColumn MappingName="ResponsiblePerson" HeaderText="Відповідальний" AllowEditing="True" AllowFiltering="True" AllowGrouping="True">
+                <sf:GridTextColumn MappingName="ResponsiblePerson" HeaderText="Відповідальний" IsHidden="{Binding VisibleColumns[ResponsiblePerson], Converter={StaticResource InverseBooleanConverter}}" AllowEditing="True" AllowFiltering="True" AllowGrouping="True">
                     <sf:GridTextColumn.CellTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding ResponsiblePersonDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                            <TextBlock Text="{Binding ResponsiblePersonDisplay}" MaxWidth="300" Margin="4" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                         </DataTemplate>
                     </sf:GridTextColumn.CellTemplate>
                 </sf:GridTextColumn>
                 
             </sf:SfDataGrid.Columns>
-            
+                
+                
+            <!-- STACKED HEADERS -->
             <sf:SfDataGrid.StackedHeaderRows>
                 <sf:StackedHeaderRow>
                     <sf:StackedHeaderRow.StackedColumns>
                         <sf:StackedColumn ChildColumns="Floor,Department,Room" HeaderText="Локація" MappingName="Location"/>
-                        <sf:StackedColumn ChildColumns="Height,Width,Length,Weight" HeaderText="Габарити" MappingName="Size"/>
+                        <sf:StackedColumn ChildColumns="Height,Width,Length,Weight" HeaderText="Габарити" MappingName="Dimesnions"/>
                         <sf:StackedColumn ChildColumns="Consumption,Voltage,Water,Air" HeaderText="Технічні характеристики" MappingName="TechnicalCharacterisitics"/>
                     </sf:StackedHeaderRow.StackedColumns>
                 </sf:StackedHeaderRow>
                 
+                <sf:StackedHeaderRow>
+                    <sf:StackedHeaderRow.StackedColumns>
+                        <sf:StackedColumn ChildColumns="Height,Width,Length" HeaderText="Розмір"/>
+                    </sf:StackedHeaderRow.StackedColumns>
+                </sf:StackedHeaderRow>
                 
             </sf:SfDataGrid.StackedHeaderRows>
-
+                
             
+                <!-- CONTEXT MENU -->
+            <sf:SfDataGrid.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Оновити" Command="{Binding RefreshCommand}"/>
+                    <MenuItem Header="Додати в списані" Command="{Binding WriteOffCommand}"/>
+                    <MenuItem Header="Друкувати" Command="{Binding PrintCommand}"/>
+                    <MenuItem Header="Експорт в Excel" Command="{Binding ExcelExportCommand}"/>
+                    <MenuItem Header="Експорт в PDF" Command="{Binding PdfExportCommand}"/>
+                    <MenuItem Header="Видалити" Command="{Binding DeleteCommand}"/>
+                </ContextMenu>
+            </sf:SfDataGrid.ContextMenu>
+                
+                
+                <!-- SPARE PARTS DETAILS VIEW -->
+                <sf:SfDataGrid.DetailsViewDefinition>
+                    <sf:GridViewDefinition RelationalColumn="InventoryNumber">
+                        <sf:GridViewDefinition.DataGrid>
+                            <sf:SfDataGrid x:Name="SparePartsDataGrid"
+                                           AutoGenerateColumns="False">
+                                
+                                <sf:SfDataGrid.Columns>
+                                    
+                                    <!-- Name -->
+                                    <sf:GridTextColumn MappingName="SparePartName" HeaderText="Назва" AllowFiltering="True" AllowGrouping="True">
+                                        <sf:GridTextColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding SparePartNameDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                            </DataTemplate>
+                                        </sf:GridTextColumn.CellTemplate>
+                                    </sf:GridTextColumn>
+                                    
+                                    <!-- Category -->
+                                    <sf:GridTextColumn MappingName="SparePartCategory" HeaderText="Категорія" AllowFiltering="True" AllowGrouping="True">
+                                        <sf:GridTextColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding SparePartCategoryDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                            </DataTemplate>
+                                        </sf:GridTextColumn.CellTemplate>
+                                    </sf:GridTextColumn>
+                                    
+                                </sf:SfDataGrid.Columns>
+                                
+                                <sf:SfDataGrid.StackedHeaderRows>
+                                    <sf:StackedHeaderRow>
+                                        <sf:StackedHeaderRow.StackedColumns>
+                                            <sf:StackedColumn ChildColumns="SparePartName,SparePartCategory" HeaderText="Запасні частини"/>
+                                        </sf:StackedHeaderRow.StackedColumns>
+                                    </sf:StackedHeaderRow>
+                                </sf:SfDataGrid.StackedHeaderRows>
+                                
+                                </sf:SfDataGrid>
+                        </sf:GridViewDefinition.DataGrid>
+                    </sf:GridViewDefinition>
+                </sf:SfDataGrid.DetailsViewDefinition>
+            
+                    <i:Interaction.Triggers>
+                <i:EventTrigger EventName="RowValidating">
+                    <i:InvokeCommandAction Command="{Binding RowValidatingCommand}"
+                                           PassEventArgsToCommand="True"/>
+                </i:EventTrigger>
+                <i:EventTrigger EventName="RowValidated">
+                    <i:InvokeCommandAction Command="{Binding RowValidatedCommand}"
+                                           PassEventArgsToCommand="True"/>
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
             
             </sf:SfDataGrid>
+            
     </Grid>
+        
+        <Grid>
+            <Rectangle Fill="Black"
+                       Opacity="0.5"
+                       Visibility="{Binding IsOverlayVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
+                       Panel.ZIndex="1" />
+        </Grid>
+        
+        <Border CornerRadius="8" Width="350" Height="120" Visibility="{Binding IsOverlayVisible, Converter={StaticResource BooleanToVisibilityConverter}}" Background="White">
+            <Grid>
+                <ContentControl prism:RegionManager.RegionName="DeletionAgreementRegion"/>
+                <ContentControl prism:RegionManager.RegionName="WritOffFormRegion"/>
+            </Grid>
+        </Border>
+    </Grid>
+    
 </UserControl>

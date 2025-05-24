@@ -24,7 +24,8 @@
         <sf:SfNavigationDrawer x:Name="navDrawer"
                                Padding="0"
                                Style="{StaticResource SyncfusionPrimarySfNavigationDrawerStyle}"
-                               DisplayMode="Compact" >
+                               DisplayMode="Expanded"
+                               IsOpen="False">
             <sf:SfNavigationDrawer.ToggleButtonContentTemplate>
                 <DataTemplate>
                     <Label HorizontalAlignment="Center" VerticalAlignment="Center"

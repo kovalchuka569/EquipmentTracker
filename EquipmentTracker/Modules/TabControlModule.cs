@@ -4,6 +4,7 @@ using Core.Services.Common.DataGridColumns;
 using Core.Services.Consumables;
 using Core.Services.Consumables.Operations;
 using Core.Services.DataGrid;
+using Core.Services.EquipmentDataGrid;
 using Core.Services.EquipmentTree;
 using Core.Services.RepairsDataGrid;
 using Core.Services.ServicesDataGrid;
@@ -16,6 +17,7 @@ using Data.Repositories.Common.DataGridColumns;
 using Data.Repositories.Consumables;
 using Data.Repositories.Consumables.Operations;
 using Data.Repositories.DataGrid;
+using Data.Repositories.EquipmentDataGrid;
 using Data.Repositories.EquipmentTree;
 using Data.Repositories.Repairs;
 using Data.Repositories.Services;
@@ -81,7 +83,11 @@ public class TabControlModule : IModule
         // Data grid
         containerRegistry.RegisterForNavigation<DataGridView, DataGridViewModel>(); // View, ViewModel
         
-        containerRegistry.RegisterForNavigation<EquipmentDataGridView, EquipmentDataGridViewModel>();
+        containerRegistry.RegisterForNavigation<EquipmentDataGridView, EquipmentDataGridViewModel>(); // View, ViewModel
+        containerRegistry.Register<IEquipmentDataGridService, EquipmentDataGridService>(); // Service
+        containerRegistry.Register<IEquipmentDataGridRepository, EquipmentDataGridRepository>(); // Repository
+        // Deletion agreement
+        containerRegistry.RegisterForNavigation<DeletionAgreementView, DeletionAgreementViewModel>();
         
         containerRegistry.Register<IDataGridViewModelFactory, DataGridViewModelFactory>(); // Factory for ViewModel
         containerRegistry.Register<IDataGridService, DataGridService>(); // Service for DataGrid

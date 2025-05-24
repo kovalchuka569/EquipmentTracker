@@ -66,6 +66,8 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware, IRegionCle
 
     private bool _emptyDataTipVisibility;
     private bool _isColumnSelectorVisible;
+    private bool _progressBarVisibility;
+    private bool _isOverlayVisible;
     
     public bool ColumnSelectorVisibility
     {
@@ -126,6 +128,18 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware, IRegionCle
         get => _isColumnSelectorVisible;
         set => SetProperty(ref _isColumnSelectorVisible, value);
     }
+
+    public bool ProgressBarVisibility
+    {
+        get => _progressBarVisibility;
+        set => SetProperty(ref _progressBarVisibility, value);
+    }
+
+    public bool IsOverlayVisible
+    {
+        get => _isOverlayVisible;
+        set => SetProperty(ref _isOverlayVisible, value);
+    }
     
 
     #endregion
@@ -167,7 +181,7 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware, IRegionCle
             switch (fileItem.FileType)
             {
                 case "equipments table":
-                    viewName = "DataGridView";
+                    viewName = "EquipmentDataGridView";
                     break;
 
                 case "writeoff":
@@ -188,7 +202,7 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware, IRegionCle
                 Parameters = new Dictionary<string, object>
                 {
                     { "ViewNameToShow", viewName },
-                    { "DataGridView.TableName", fileItem.TableName },
+                    { "EquipmentDataGridView.TableName", fileItem.TableName },
                     { "RepairsDataGridView.RepairsTableName", fileItem.TableName },
                     { "ServicesDataGridView.ServicesTableName", fileItem.TableName }
                 }
@@ -334,9 +348,12 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware, IRegionCle
 
     private async void LoadTreeAsync()
     {
+        ProgressBarVisibility = true;
+        await Task.Delay(500);
         _items = await _service.BuildHierachy(_menuType);
         Items = new ObservableCollection<IFileSystemItem>(_items);
         CheckEmptyData();
+        ProgressBarVisibility = false;
     }
 
     private void CheckEmptyData()
@@ -411,7 +428,9 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware, IRegionCle
         string fileName = SelectedItem.Name;
         string menuType = _menuType;
 
+        IsOverlayVisible = true;
         bool creationStatus = await ShowColumnSelectorAsync(fileName);
+        IsOverlayVisible = false;
 
         if (creationStatus)
         {
@@ -419,6 +438,8 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware, IRegionCle
             var newFile = new FileItem
             {
                 Name = fileName,
+                FileType = "equipments table",
+                TableName = $"{fileName}",
                 Id = newId
             };
             var newFolder = new FolderItem
@@ -428,14 +449,20 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware, IRegionCle
             var newServiceFile = new FileItem
             {
                 Name = $"{fileName} обслуговування",
+                TableName = $"{fileName} О",
+                FileType = "services",
             };
             var newRepairsFile = new FileItem
             {
                 Name = $"{fileName} ремонти",
+                TableName = $"{fileName} Р",
+                FileType = "repairs",
             };
             var newWriteOffFile = new FileItem
             {
-                Name = $"{fileName} списані"
+                Name = $"{fileName} списані",
+                TableName = $"{fileName}",
+                FileType = "writeoff",
             };
             if (SelectedItem is FolderItem folder)
             {
@@ -504,7 +531,6 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware, IRegionCle
     
    private async Task<bool> ShowColumnSelectorAsync(string fileName)
    {
-       IsColumnSelectorVisible = true;
        _tableCreationTcs = new TaskCompletionSource<bool>();
     
        var parameters = new NavigationParameters
@@ -518,7 +544,6 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware, IRegionCle
        subscriptionToken = _scopedEventAggregator.GetEvent<TableCreatingSuccessfullyEvent>()
            .Subscribe(isSuccess =>
                {
-                   Console.WriteLine("Получено событие: " + isSuccess);
                    _tableCreationTcs.TrySetResult(isSuccess);
                    if (subscriptionToken != null)
                    {
@@ -532,7 +557,6 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware, IRegionCle
        _regionManager.RequestNavigate("ColumnSelectorRegion", "ColumnSelectorView", parameters);
        
        var result = await _tableCreationTcs.Task;
-       IsColumnSelectorVisible = false;
        return result;
    }
    

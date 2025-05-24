@@ -302,7 +302,7 @@ public class ColumnSelectorViewModel : BindableBase, INavigationAware
         SelectedColumns.Clear();
     }
 
-    public bool IsNavigationTarget(NavigationContext navigationContext) => false;
+    public bool IsNavigationTarget(NavigationContext navigationContext) => true;
 
     public void OnNavigatedFrom(NavigationContext navigationContext)
     {
