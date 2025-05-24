@@ -143,22 +143,24 @@ public class ColumnSelectorViewModel : BindableBase, INavigationAware
             var servicesColumns = new List<string>
             {
                 "\"Об'єкт\" INTEGER",
+                "\"Опис обслуговування\" TEXT",
                 "\"Тип обслуговування\" VARCHAR(255)",
-                "\"Дата обслуговування\" TIMESTAMP",
-                "\"Дата наступного обслуговування\" TIMESTAMP",
-                "\"Вартість\" NUMERIC(10, 2)",
+                "\"Дата початку\" TIMESTAMP",
+                "\"Дата кінця\" TIMESTAMP",
+                "\"Витрачено часу\" INTERVAL",
+                "\"Статус\" VARCHAR(255)",
                 "\"Працівник\" INTEGER",
                 $"FOREIGN KEY (\"Об'єкт\") REFERENCES \"UserTables\".\"{tableName}\" (\"id\")"
             };
 
             var servicesMaterialsColumns = new List<string>
             {
-                "\"Обслуговування\" INTEGER",
+                "\"Робота\" INTEGER",
                 "\"Категорія\" VARCHAR(255)",
                 "\"Назва\" VARCHAR(255)",
                 "\"Одиниця\" VARCHAR(255)", 
                 "\"Витрачено\" NUMERIC(10, 2) DEFAULT 0.00",
-                $"FOREIGN KEY (\"Обслуговування\") REFERENCES \"UserTables\".\"{tableName} О\" (\"id\")",
+                $"FOREIGN KEY (\"Робота\") REFERENCES \"UserTables\".\"{tableName} О\" (\"id\")",
             };
 
             var repairsColumns = new List<string>
@@ -175,12 +177,12 @@ public class ColumnSelectorViewModel : BindableBase, INavigationAware
 
             var repairsMaterialsColumns = new List<string>
             {
-                "\"Ремонт\" INTEGER",
+                "\"Робота\" INTEGER",
                 "\"Категорія\" VARCHAR(255)",
                 "\"Назва\" VARCHAR(255)",
                 "\"Одиниця\" VARCHAR(255)", 
                 "\"Витрачено\" NUMERIC(10, 2) DEFAULT 0.00",
-                $"FOREIGN KEY (\"Ремонт\") REFERENCES \"UserTables\".\"{tableName} Р\" (\"id\")",
+                $"FOREIGN KEY (\"Робота\") REFERENCES \"UserTables\".\"{tableName} Р\" (\"id\")",
             };
 
             var createTablesQuery =

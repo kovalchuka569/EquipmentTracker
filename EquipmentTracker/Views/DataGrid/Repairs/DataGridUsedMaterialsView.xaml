@@ -45,8 +45,8 @@
                 </Button>
         
             <Popup
-                Width="400"
-                Height="250"
+                Width="700"
+                Height="300"
                 Placement="Bottom"
                 AllowsTransparency="True"
                 IsOpen="{Binding MaterialSelectorOpened}"
@@ -137,7 +137,14 @@
                     
                     <grid:SfDataGrid.ContextMenu>
                         <ContextMenu>
-                            <MenuItem Header="Видалити матеріал" Command="{Binding DeleteConsumableCommand}"/>
+                            <MenuItem Header="Видалити матеріал" Command="{Binding DeleteConsumableCommand}"
+                                      Visibility="{Binding RemoveMaterialContextMenuVisibility, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                            
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="Loaded">
+                                    <i:InvokeCommandAction Command="{Binding ContextMenuLoadedCommand}"/>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
                         </ContextMenu>
                     </grid:SfDataGrid.ContextMenu>
                     

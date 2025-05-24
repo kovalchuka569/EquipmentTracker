@@ -24,11 +24,13 @@ public class DataGridUsedMaterialsViewModel: BindableBase, INavigationAware
     private readonly IAddRepairService _addRepairService;
 
     private SfDataGrid _sfDataGrid;
-    private string _consumablesTableName;
+    private string _tableNameForSave;
+    private int _workId;
     
     private ObservableCollection<RepairConsumableItem> _usedMaterials = new();
     private RepairConsumableItem _selectedUsedMaterial;
     private bool _materialSelectorOpened;
+    private bool _removeMaterialContextMenuVisibility;
 
     public ObservableCollection<RepairConsumableItem> UsedMaterials
     {
@@ -47,11 +49,18 @@ public class DataGridUsedMaterialsViewModel: BindableBase, INavigationAware
         set => SetProperty(ref _materialSelectorOpened, value);
     }
 
+    public bool RemoveMaterialContextMenuVisibility
+    {
+        get => _removeMaterialContextMenuVisibility;
+        set => SetProperty(ref _removeMaterialContextMenuVisibility, value);
+    }
+
     public bool AreUsedMaterialsEmpty => !UsedMaterials.Any();
     
     public DelegateCommand UserControlLoadedCommand { get; }
     public DelegateCommand UserControlUnloadedCommand { get; }
     public DelegateCommand<SfDataGrid> SfDataGridLoadedCommand { get; }
+    public DelegateCommand ContextMenuLoadedCommand { get; }
     public DelegateCommand ShowMaterialSelector  { get; }
     public DelegateCommand PopupConsumablesTreeLoadedCommand { get; }
     public DelegateCommand DeleteConsumableCommand { get; }
@@ -63,11 +72,26 @@ public class DataGridUsedMaterialsViewModel: BindableBase, INavigationAware
         UserControlLoadedCommand = new DelegateCommand(OnUserControlLoaded);
         UserControlUnloadedCommand = new DelegateCommand(OnUserControlUnloaded);
         SfDataGridLoadedCommand = new DelegateCommand<SfDataGrid>(OnSfDataGridLoaded);
+        ContextMenuLoadedCommand = new DelegateCommand(OnContextMenuLoaded);
         ShowMaterialSelector = new DelegateCommand(OnShowMaterialSelector);
         PopupConsumablesTreeLoadedCommand = new DelegateCommand(OnPopupConsumablesTreeLoaded);
         DeleteConsumableCommand = new DelegateCommand(OnDeleteConsumable);
+        
+    }
 
-        UsedMaterials.CollectionChanged += UsedMaterials_CollectionChanged;
+    private void OnContextMenuLoaded()
+    {
+        if (SelectedUsedMaterial is RepairConsumableItem item)
+        {
+            if (item.IsUserAdded)
+            {
+                RemoveMaterialContextMenuVisibility = true;
+            }
+            else
+            {
+                RemoveMaterialContextMenuVisibility = false;
+            }
+        }
     }
 
     private void UsedMaterials_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
@@ -117,6 +141,12 @@ public class DataGridUsedMaterialsViewModel: BindableBase, INavigationAware
         }
     }
 
+    private async Task LoadUsedMaterials()
+    {
+        UsedMaterials = await _addRepairService.LoadUsedMaterialsAsync(_tableNameForSave, _workId);
+        RaisePropertyChanged(nameof(AreUsedMaterialsEmpty));
+    }
+
     private void OnDeleteConsumable()
     {
         if (SelectedUsedMaterial is RepairConsumableItem repairConsumableItem)
@@ -131,7 +161,9 @@ public class DataGridUsedMaterialsViewModel: BindableBase, INavigationAware
         try
         {
             _logger.LogInformation("Request for transfer of used materials to the service");
-            await _addRepairService.InsertUsedMaterialsAsync(UsedMaterials, repairId, _consumablesTableName);
+            var userAddedMaterials = UsedMaterials.Where(x => x.IsUserAdded).ToList();
+            if(userAddedMaterials.Count == 0) return;
+            await _addRepairService.InsertUsedMaterialsAsync(userAddedMaterials, repairId, _tableNameForSave);
             _logger.LogInformation("The materials used were successfully transferred to the service");
         }
         catch (Exception e)
@@ -163,14 +195,17 @@ public class DataGridUsedMaterialsViewModel: BindableBase, INavigationAware
             Name = args.ConsumableItem.Name,
             Category = args.ConsumableItem.Category,
             Unit = args.ConsumableItem.Unit,
-            ConsumableTableName = args.ConsumableTableName
+            ConsumableTableName = args.ConsumableTableName,
+            IsUserAdded = true
         };
         UsedMaterials.Add(newRepairConsumableItem);
         SelectedUsedMaterial = newRepairConsumableItem;
     }
 
-    public void OnNavigatedTo(NavigationContext navigationContext)
+    public async void OnNavigatedTo(NavigationContext navigationContext)
     {
+        UsedMaterials.CollectionChanged += UsedMaterials_CollectionChanged;
+        
         if (navigationContext.Parameters["ScopedRegionManager"] is IRegionManager scopedRegionManager)
         {
             _regionManager = scopedRegionManager;
@@ -179,9 +214,23 @@ public class DataGridUsedMaterialsViewModel: BindableBase, INavigationAware
         {
             _scopedEventAggregator = scopedEventAggregator;
         }
-        if (navigationContext.Parameters["ConsumablesTableName"] is string consumablesTableName)
+        if (navigationContext.Parameters["RepairConsumablesTableName"] is string repairConsumablesTableName)
         {
-           _consumablesTableName = consumablesTableName;
+            _tableNameForSave = repairConsumablesTableName;
+        }
+        if (navigationContext.Parameters["ServiceConsumablesTableName"] is string serviceConsumablesTableName)
+        {
+            _tableNameForSave = serviceConsumablesTableName;
+        }
+        if (navigationContext.Parameters["RepairId"] is int workId)
+        {
+            _workId = workId;
+            await LoadUsedMaterials();
+        }
+        else if (navigationContext.Parameters["ServiceId"] is int serviceId)
+        {
+            _workId = serviceId;
+            await LoadUsedMaterials();
         }
     }
 

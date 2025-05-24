@@ -9,5 +9,7 @@ public interface IAddRepairService
 {
     Task<ObservableCollection<EquipmentItem>> GetEquipmentItemsAsync(string equipmentTableName);
     Task<int> SaveRepairAsync(RepairData repairData, string equipmentTableName);
-    Task InsertUsedMaterialsAsync(ObservableCollection<RepairConsumableItem> repairConsumableItems, int repairId, string consumablesTableName);
+    Task InsertUsedMaterialsAsync(List<RepairConsumableItem> repairConsumableItems, int repairId, string repairConsumablesTableName);
+    Task<ObservableCollection<RepairConsumableItem>> LoadUsedMaterialsAsync(string repairConsumablesTableName, int repairId);
+    Task UpdateRepairAsync(RepairData repairData, string repairTableName, int repairId);
 }

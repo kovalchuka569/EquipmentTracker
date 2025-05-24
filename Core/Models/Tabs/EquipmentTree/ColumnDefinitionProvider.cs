@@ -11,6 +11,7 @@ namespace Core.Models.Tabs.EquipmentTree
                 new() { ColumnName = "Інвентарний номер", ColumnType = "TEXT", Category = "Основні характеристики", IsMandatory = true },
                 new() { ColumnName = "Бренд", ColumnType = "VARCHAR(255)", Category = "Основні характеристики", IsMandatory = true },
                 new() { ColumnName = "Модель", ColumnType = "VARCHAR(255)", Category = "Основні характеристики", IsMandatory = true },
+                new() { ColumnName = "Категорія", ColumnType = "VARCHAR(255)", Category = "Основні характеристики" },
                 new() { ColumnName = "Серійний номер", ColumnType = "TEXT", Category = "Основні характеристики" },
                 new() { ColumnName = "Клас", ColumnType = "VARCHAR(255)", Category = "Основні характеристики" },
                 new() { ColumnName = "Рік", ColumnType = "INTEGER", Category = "Основні характеристики" },

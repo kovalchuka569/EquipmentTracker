@@ -19,12 +19,17 @@ public class AddRepairViewModel : BindableBase, INavigationAware
 {
     private IRegionManager _regionManager;
     private NotificationManager _notificationManager;
-    private SfMultiColumnDropDownControl _equipmentSelector;
     private readonly IAddRepairService _service;
     private EventAggregator _scopedEventAggregator;
     private IEventAggregator _globalEventAggregator;
     
     private string _equipmentTableName;
+    private int _repairId;
+    
+    
+    private bool _isEditMode;
+    private bool _repairEquipmentTextBlockVisibility;
+    private bool _equipmentSelectorVisibility;
     
     private ObservableCollection<EquipmentItem> _equipments = new();
     private EquipmentItem _selectedEquipment;
@@ -37,9 +42,17 @@ public class AddRepairViewModel : BindableBase, INavigationAware
     private DateTime? _dateTimeEndRepair;
     private TimeSpan? _timeSpentOnRepair;
     private string? _breakDescription;
+    private string _repairObjectDisplay;
+    private string _mainButtonContent;
     
 
     #endregion
+
+    public bool IsEditMode
+    {
+        get => _isEditMode;
+        set => SetProperty(ref _isEditMode, value);
+    }
     
     public ObservableCollection<EquipmentItem> Equipments
     {
@@ -91,11 +104,36 @@ public class AddRepairViewModel : BindableBase, INavigationAware
         get => _breakDescription;
         set => SetProperty(ref _breakDescription, value);
     }
+
+    public string RepairObjectDisplay
+    {
+        get => _repairObjectDisplay;
+        set => SetProperty(ref _repairObjectDisplay, value);
+    }
+
+    public bool RepairEquipmentTextBlockVisibility
+    {
+        get => _repairEquipmentTextBlockVisibility;
+        set => SetProperty(ref _repairEquipmentTextBlockVisibility, value);
+    }
+
+    public bool EquipmentSelectorVisibility
+    {
+        get => _equipmentSelectorVisibility;
+        set => SetProperty(ref _equipmentSelectorVisibility, value);
+    }
+
+    public string MainButtonContent
+    {
+        get => _mainButtonContent;
+        set => SetProperty(ref _mainButtonContent, value);
+    }
+    
     
     
     public DelegateCommand UserControlLoadedCommand { get; }
-    public DelegateCommand<SfMultiColumnDropDownControl> EquipmentSelectorLoadedCommand { get; }
     public DelegateCommand SaveRepairCommand { get; }
+    
     public AddRepairViewModel(IAddRepairService service,
         NotificationManager notificationManager,
         IEventAggregator globalEventAggregator)
@@ -105,7 +143,6 @@ public class AddRepairViewModel : BindableBase, INavigationAware
         _globalEventAggregator = globalEventAggregator;
         
         UserControlLoadedCommand = new DelegateCommand(OnUserControlLoaded);
-        EquipmentSelectorLoadedCommand = new DelegateCommand<SfMultiColumnDropDownControl>(OnEquipmentSelectorLoaded);
         SaveRepairCommand = new DelegateCommand(OnSaveRepair);
         
         DateTimeStartRepair = DateTime.Now;
@@ -118,50 +155,77 @@ public class AddRepairViewModel : BindableBase, INavigationAware
         var parameters = new NavigationParameters();
         parameters.Add("ScopedRegionManager", _regionManager);
         parameters.Add("ScopedEventAggregator", _scopedEventAggregator);
-        parameters.Add("ConsumablesTableName", $"{_equipmentTableName} РВМ");
+        parameters.Add("RepairConsumablesTableName", $"{_equipmentTableName} РВМ");
+        parameters.Add("RepairId", _repairId);
         _regionManager.RequestNavigate("DataGridUsedMaterialsRegion", "DataGridUsedMaterialsView", parameters);
     }
     
 
     private async void OnSaveRepair()
     {
-        try
+        if (DataValidate()) return;
+        
+        var newRepairData = new RepairData
         {
-            if (DataValidate()) return;
+            EquipmentId = SelectedEquipment.EquipmentId,
+            StartRepair = DateTimeStartRepair,
+            EndRepair = DateTimeEndRepair,
+            TimeSpentOnRepair = TimeSpentOnRepair,
+            BreakDescription = BreakDescription,
+            Worker = 1,
+            RepairStatus = SelectedRepairStatus.StatusName
+        };
+        string repairTableName = _equipmentTableName + " Р";
         
-            var newRepairData = new RepairData
-            {
-                EquipmentId = SelectedEquipment.EquipmentId,
-                StartRepair = DateTimeStartRepair,
-                EndRepair = DateTimeEndRepair,
-                TimeSpentOnRepair = TimeSpentOnRepair,
-                BreakDescription = BreakDescription,
-                Worker = 1,
-                RepairStatus = SelectedRepairStatus.StatusName
-            };
-            string repairTableName = _equipmentTableName + " Р";
+        // Check have empty materials collection
+        bool isEmptyMaterial = false;
+        _scopedEventAggregator.GetEvent<IsEmptyUsedMaterials>().Publish(result => isEmptyMaterial = result);
         
-            int newId = await _service.SaveRepairAsync(newRepairData, repairTableName);
-            
-            // Check have empty materials collection
-            bool isEmptyMaterial = false;
-            _scopedEventAggregator.GetEvent<IsEmptyUsedMaterials>().Publish(result => isEmptyMaterial = result);
-            
-            // If dont have - save used materials
-            if (!isEmptyMaterial)
+        if (!IsEditMode)
+        {
+            try
             {
-                _scopedEventAggregator.GetEvent<SaveUsedMaterialsEvent>().Publish(newId);
+                // Save repair
+                int repairId = await _service.SaveRepairAsync(newRepairData, repairTableName);
+                // If dont have empty - save used materials and write-off 
+                if (!isEmptyMaterial)
+                {
+                    _scopedEventAggregator.GetEvent<SaveUsedMaterialsEvent>().Publish(repairId);
+                }
+            
+                // Close tab
+                _globalEventAggregator.GetEvent<CloseActiveTabEvent>().Publish();
+                _notificationManager.Show("Успішно збережено!", NotificationType.Success);
             }
-            
-            // In any case, close the tab
-            _globalEventAggregator.GetEvent<CloseActiveTabEvent>().Publish();
-            _notificationManager.Show("Успішно збережено!", NotificationType.Success);
+            catch (Exception e)
+            {
+                _notificationManager.Show($"Помилка додавання ремонту: {e.Message}", NotificationType.Error);
+                throw;
+            }
         }
-        catch (Exception e)
+        // If edit mode
+        else if (IsEditMode)
         {
-            _notificationManager.Show($"Помилка додавання ремонту: {e.Message}", NotificationType.Error);
-            throw;
+            try
+            {
+                await _service.UpdateRepairAsync(newRepairData, repairTableName, _repairId);
+                // Save (in DataGiridUsedMaterials updating)
+                if (!isEmptyMaterial)
+                {
+                    _scopedEventAggregator.GetEvent<SaveUsedMaterialsEvent>().Publish(_repairId);
+                }
+                
+                // Close tab
+                _globalEventAggregator.GetEvent<CloseActiveTabEvent>().Publish();
+                _notificationManager.Show("Успішно збережено!", NotificationType.Success);
+            }
+            catch (Exception e)
+            {
+                _notificationManager.Show($"Помилка збереження ремонту: {e.Message}", NotificationType.Error);
+                throw;
+            }
         }
+        
     }
 
     private bool DataValidate()
@@ -234,11 +298,6 @@ public class AddRepairViewModel : BindableBase, INavigationAware
         RepairStatuses.Add(new RepairStatusItem {StatusName = "Діагностика"});
         RepairStatuses.Add(new RepairStatusItem {StatusName = "Передано підряднику"});
     }
-
-    private void OnEquipmentSelectorLoaded(SfMultiColumnDropDownControl equipmentSelector)
-    {
-        _equipmentSelector = equipmentSelector;
-    }
     
     public void OnNavigatedTo(NavigationContext navigationContext)
     {
@@ -250,9 +309,53 @@ public class AddRepairViewModel : BindableBase, INavigationAware
         {
             _scopedEventAggregator = scopedEventAggregator;
         }
+        
+        // Set table name value before loading equipments for selector
         _equipmentTableName = navigationContext.Parameters["EquipmentTableName"].ToString();
-        LoadEquipmentsAsync();
+        
         LoadRepairStatuses();
+
+        // If have parameter RepairItem - its EditMode! Load repair data in model
+        if (navigationContext.Parameters["RepairItem"] is RepairItem repairItem)
+        {
+            // Make edit mode true
+            IsEditMode = true;
+            
+            // Load selected equipment
+            SelectedEquipment = new EquipmentItem
+            {
+                EquipmentId = repairItem.EquipmentId,
+                EquipmentInventoryNumber = repairItem.EquipmentInventoryNumber,
+                EquipmentBrand = repairItem.EquipmentBrand,
+                EquipmentModel = repairItem.EquipmentModel,
+            };
+            
+            // Load other data
+            DateTimeStartRepair = repairItem.StartDate;
+            DateTimeEndRepair = repairItem.EndDate;
+            TimeSpentOnRepair = repairItem.Duration;
+            BreakDescription = repairItem.BreakDescription;
+            
+            // Select repair status
+            SelectedRepairStatus = RepairStatuses.First(s => s.StatusName == repairItem.Status);
+
+            _repairId = repairItem.Id;
+
+            RepairEquipmentTextBlockVisibility = true;
+            RepairObjectDisplay = $"{SelectedEquipment.EquipmentInventoryNumber} | {SelectedEquipment.EquipmentBrand} | {SelectedEquipment.EquipmentModel}";
+
+            MainButtonContent = "Зберегти";
+        }
+        
+
+        // Load equipment selector items only in creating mode
+        if (!IsEditMode)
+        {
+            LoadEquipmentsAsync();
+            EquipmentSelectorVisibility = true;
+            MainButtonContent = "Створити";
+        }
+        
     }
     public bool IsNavigationTarget(NavigationContext navigationContext) => true;
 

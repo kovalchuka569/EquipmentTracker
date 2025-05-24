@@ -81,36 +81,169 @@ public class AddRepairRepository : IAddRepairRepository
         }
     }
 
-    public async Task InsertUsedMaterialsAsync(ObservableCollection<RepairConsumableDto> repairConsumableDtos, int repairId, string consumablesTableName)
+public async Task InsertUsedMaterialsAsync(
+    ObservableCollection<RepairConsumableDto> repairConsumableDtos,
+    int repairId,
+    string repairConsumablesTableName)
+{
+    await using var connection = await _context.OpenNewConnectionAsync();
+    await using var transaction = await connection.BeginTransactionAsync();
+
+    try
+    {
+        // Вставка использованных материалов
+        _logger.LogInformation("Inserting in database used materials for repair consumable");
+        var sqlInsertUsedMaterials = new StringBuilder($@"INSERT INTO ""UserTables"".""{repairConsumablesTableName}"" 
+            (""Робота"", ""Категорія"", ""Назва"", ""Одиниця"", ""Витрачено"") VALUES ");
+        var parameters = new List<NpgsqlParameter>();
+
+        for (int i = 0; i < repairConsumableDtos.Count; i++)
+        {
+            if (i > 0) sqlInsertUsedMaterials.Append(", ");
+            sqlInsertUsedMaterials.Append($"(@repairId, @category{i}, @name{i}, @unit{i}, @quantity{i})");
+            parameters.Add(new NpgsqlParameter($"@category{i}", repairConsumableDtos[i].Category));
+            parameters.Add(new NpgsqlParameter($"@name{i}", repairConsumableDtos[i].Name));
+            parameters.Add(new NpgsqlParameter($"@unit{i}", repairConsumableDtos[i].Unit));
+            parameters.Add(new NpgsqlParameter($"@quantity{i}", repairConsumableDtos[i].SpentMaterial));
+        }
+        parameters.Add(new NpgsqlParameter("@repairId", repairId));
+
+        await using (var cmdInsertUsedMaterials = new NpgsqlCommand(sqlInsertUsedMaterials.ToString(), connection, transaction))
+        {
+            cmdInsertUsedMaterials.Parameters.AddRange(parameters.ToArray());
+            await cmdInsertUsedMaterials.ExecuteNonQueryAsync();
+        }
+
+        var groupedByOperationsAndMaterial = repairConsumableDtos
+    .GroupBy(x => new { x.OperationsConsumableTableName, x.MaterialId });
+
+        foreach (var group in groupedByOperationsAndMaterial)
+        {
+            string operationsTableName = group.Key.OperationsConsumableTableName;
+            int materialId = group.Key.MaterialId;
+            string materialsTableName = group.First().ConsumableTableName;
+
+            // Получаем начальный баланс из базы
+            decimal? currentBalance;
+            var sqlGetBalance = $@"SELECT ""Залишок"" FROM ""ConsumablesSchema"".""{materialsTableName}"" WHERE ""id"" = @materialId;";
+            await using (var cmdGetBalance = new NpgsqlCommand(sqlGetBalance, connection, transaction))
+            {
+                cmdGetBalance.Parameters.AddWithValue("@materialId", materialId);
+                var result = await cmdGetBalance.ExecuteScalarAsync();
+                currentBalance = result == null || result == DBNull.Value ? 0m : Convert.ToDecimal(result);
+            }
+
+            // Добавляем операции с подсчетом остатка локально
+            foreach (var item in repairConsumableDtos.Where(x =>
+                         x.OperationsConsumableTableName == operationsTableName && x.MaterialId == materialId))
+            {
+                currentBalance -= item.SpentMaterial;
+
+                var sqlAddOperation = $@"INSERT INTO ""ConsumablesSchema"".""{operationsTableName}"" 
+                    (""Матеріал"", ""Кількість"", ""Залишок після"", ""Тип операції"", ""Дата, час"") 
+                    VALUES (@materialId, @spentMaterial, @balanceAfter, @operationType, @dateTime);";
+
+                await using var cmdAddOperation = new NpgsqlCommand(sqlAddOperation, connection, transaction);
+                cmdAddOperation.Parameters.AddWithValue("@materialId", materialId);
+                cmdAddOperation.Parameters.AddWithValue("@spentMaterial", item.SpentMaterial);
+                cmdAddOperation.Parameters.AddWithValue("@balanceAfter", currentBalance);
+                cmdAddOperation.Parameters.AddWithValue("@operationType", "Списання");
+                cmdAddOperation.Parameters.AddWithValue("@dateTime", DateTime.Now);
+                await cmdAddOperation.ExecuteNonQueryAsync();
+            }
+        }
+
+        // Затем обновляем остатки уже после добавления операций
+        var groupedConsumablesTableName = repairConsumableDtos.GroupBy(x => x.ConsumableTableName);
+        foreach (var group in groupedConsumablesTableName)
+        {
+            string tableName = group.Key;
+            var items = group.ToList();
+
+            foreach (var item in items)
+            {
+                var sqlUpdateQuantity = $@"UPDATE ""ConsumablesSchema"".""{tableName}"" 
+                                           SET ""Залишок"" = ""Залишок"" - @spentMaterial 
+                                           WHERE ""id"" = @materialId;";
+                await using var cmdUpdateQuantity = new NpgsqlCommand(sqlUpdateQuantity, connection, transaction);
+                cmdUpdateQuantity.Parameters.AddWithValue("@spentMaterial", item.SpentMaterial);
+                cmdUpdateQuantity.Parameters.AddWithValue("@materialId", item.MaterialId);
+                await cmdUpdateQuantity.ExecuteNonQueryAsync();
+            }
+        }
+
+        await transaction.CommitAsync();
+        _logger.LogInformation("Successfully inserted used materials for repair consumable");
+    }
+    catch (NpgsqlException e)
+    {
+        await transaction.RollbackAsync();
+        _logger.LogError(e, "Database error inserting used materials");
+        throw;
+    }
+}
+
+    public async Task<List<RepairConsumableDto>> GetUsedMaterialsAsync(string repairConsumablesTableName, int repairId)
+    {
+        var usedMaterials = new List<RepairConsumableDto>();
+        await using var connection = await _context.OpenNewConnectionAsync();
+        try
+        {
+            string sql = $@"SELECT * FROM ""UserTables"".""{repairConsumablesTableName}"" WHERE ""Робота"" = @repairId; ";
+            using var cmd = new NpgsqlCommand(sql, connection);
+            cmd.Parameters.AddWithValue("@repairId", repairId);
+            using (var reader = await cmd.ExecuteReaderAsync())
+            {
+                while (await reader.ReadAsync())
+                {
+                    usedMaterials.Add(new RepairConsumableDto
+                    {
+                        Category = reader.GetValueOrDefault<string>("Категорія"),
+                        Name = reader.GetValueOrDefault<string>("Назва"),
+                        Unit = reader.GetValueOrDefault<string>("Одиниця"),
+                        SpentMaterial = reader.GetValueOrDefault<decimal?>("Витрачено")
+                    });
+                }
+            }
+            return usedMaterials;
+        }
+        catch (NpgsqlException e)
+        {
+            _logger.LogError(e, "Failed to get used materials for repair");
+            throw;
+        }
+    }
+
+    public async Task UpdateRepairAsync(RepairData repairData, string repairsTableName, int repairId)
     {
         await using var connection = await _context.OpenNewConnectionAsync();
         await using var transaction = connection.BeginTransaction();
         try
         {
-            _logger.LogInformation("Inserting in database used materials for repair consumable");
-            var sql = new StringBuilder($@"INSERT INTO ""UserTables"".""{consumablesTableName}"" (""Ремонт"", ""Категорія"", ""Назва"", ""Одиниця"", ""Витрачено"") VALUES ");
-            var parameters = new List<NpgsqlParameter>();
-
-            for (int i = 0; i < repairConsumableDtos.Count; i++)
-            {
-                if (i > 0) sql.Append(", ");
-                sql.Append($"(@repairId, @category{i}, @name{i}, @unit{i}, @quantity{i})");
-                parameters.Add(new NpgsqlParameter($"@category{i}", repairConsumableDtos[i].Category));
-                parameters.Add(new NpgsqlParameter($"@name{i}", repairConsumableDtos[i].Name));
-                parameters.Add(new NpgsqlParameter($"@unit{i}", repairConsumableDtos[i].Unit));
-                parameters.Add(new NpgsqlParameter($"@quantity{i}", repairConsumableDtos[i].SpentMaterial));
-            }
-            parameters.Add(new NpgsqlParameter("@repairId", repairId));
-            await using var cmd = new NpgsqlCommand(sql.ToString(), connection, transaction);
-            cmd.Parameters.AddRange(parameters.ToArray());
+            string sql = $@"UPDATE ""UserTables"".""{repairsTableName}"" 
+                                                            SET 
+                                                            ""Опис поломки"" = @description, 
+                                                            ""Дата початку"" = @dateTimeStart,
+                                                            ""Дата кінця"" = @dateTimeEnd,
+                                                            ""Витрачено часу"" = @spentTime,
+                                                            ""Працівник"" = @worker,
+                                                            ""Статус"" = @repairStatus 
+                                                            WHERE ""id"" = @repairId; ";
+            await using var cmd = new NpgsqlCommand(sql, connection, transaction);
+            cmd.Parameters.AddWithValue("@repairId", repairId);
+            cmd.Parameters.AddWithNullableValue("@dateTimeStart", repairData.StartRepair, NpgsqlDbType.Timestamp);
+            cmd.Parameters.AddWithNullableValue("@dateTimeEnd", repairData.EndRepair, NpgsqlDbType.Timestamp);
+            cmd.Parameters.AddWithNullableValue("@spentTime", repairData.TimeSpentOnRepair, NpgsqlDbType.Interval);
+            cmd.Parameters.AddWithNullableValue("@description", repairData.BreakDescription, NpgsqlDbType.Text);
+            cmd.Parameters.AddWithValue("@worker", repairData.Worker);
+            cmd.Parameters.AddWithValue("@repairStatus", repairData.RepairStatus);
             await cmd.ExecuteNonQueryAsync();
             await transaction.CommitAsync();
-            _logger.LogInformation("Successfully inserting in database used materials for repair consumable");
         }
-        catch (NpgsqlException e)
+        catch (Exception e)
         {
             await transaction.RollbackAsync();
-            _logger.LogError(e, "Database error inserting used materials");
+            _logger.LogError(e, "Database failed to update repair");
             throw;
         }
     }

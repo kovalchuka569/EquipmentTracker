@@ -87,7 +87,7 @@ namespace UI.ViewModels.NavDrawer
                 case "Облік":
                     _eventAggregator.GetEvent<OpenNewTabEvent>().Publish(new OpenNewTabEventArgs
                     {
-                        Header = "Облік",
+                        Header = "Історія",
                         Parameters = new Dictionary<string, object>
                         {
                             {"ViewNameToShow", "AccountingView"},

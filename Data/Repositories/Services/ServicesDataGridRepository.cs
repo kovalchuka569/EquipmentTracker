@@ -1,43 +1,44 @@
-﻿using System.Collections.ObjectModel;
-using Common.Logging;
-using Data.AppDbContext;
-using Models.RepairsDataGrid;
-using Models.RepairsDataGrid.AddRepair;
-using Models.RepairsDataGrid.AddService;
+﻿using Common.Logging;
+using Microsoft.EntityFrameworkCore;
+using Models.RepairsDataGrid.ServicesDataGrid;
 using Npgsql;
+using DbContext = Data.AppDbContext.DbContext;
 
-namespace Data.Repositories.Repairs;
- 
-public class RepairsRepository : IRepairsRepository
+namespace Data.Repositories.Services;
+
+public class ServicesDataGridRepository : IServicesDataGridReposotory
 {
-    private readonly DbContext _context;
-    private readonly IAppLogger<RepairsRepository> _logger;
+    private readonly AppDbContext.DbContext _context;
+    private readonly IAppLogger<ServicesDataGridRepository> _logger;
 
-    public RepairsRepository(DbContext context, IAppLogger<RepairsRepository> logger)
+    public ServicesDataGridRepository(DbContext context, IAppLogger<ServicesDataGridRepository> logger)
     {
         _context = context;
         _logger = logger;
     }
-    public async Task<List<RepairDto>> GetDataAsync(string repairsTable, string equipmentTable)
+    
+    public async Task<List<ServiceDto>> GetDataAsync(string servicesTableName, string equipmentsTable)
     {
-        var repairs = new List<RepairDto>();
+        var services = new List<ServiceDto>();
         await using var connection = await _context.OpenNewConnectionAsync();
+        
         try
         {
             string sql =
-                $"SELECT r.\"id\", r.\"Об'єкт\", r.\"Опис поломки\", r.\"Дата початку\", r.\"Дата кінця\", r.\"Витрачено часу\", r.\"Працівник\", r.\"Статус\", e.\"Інвентарний номер\", e.\"Бренд\", e.\"Модель\" " +
-                $"FROM \"UserTables\".\"{repairsTable}\" r " +
-                $"JOIN \"UserTables\".\"{equipmentTable}\" e ON r.\"Об'єкт\" = e.\"id\"; ";
+                $@" SELECT r.""id"", r.""Об'єкт"", r.""Тип обслуговування"", r.""Опис обслуговування"", r.""Дата початку"", r.""Дата кінця"", r.""Витрачено часу"", r.""Працівник"", r.""Статус"", e.""Інвентарний номер"", e.""Бренд"", e.""Модель"" " +
+                $@" FROM ""UserTables"".""{servicesTableName}"" r " +
+                $@"JOIN ""UserTables"".""{equipmentsTable}"" e ON r.""Об'єкт"" = e.""id""; ";
             using var cmd = new NpgsqlCommand(sql, connection);
             using (var reader = await cmd.ExecuteReaderAsync())
             {
                 while (await reader.ReadAsync())
                 {
-                    repairs.Add(new RepairDto
+                    services.Add(new ServiceDto()
                     {
                         Id = reader.GetValueOrDefault<int>("id"),
                         EquipmentId = reader.GetValueOrDefault<int>("Об'єкт"),
-                        BreakDescription = reader.GetValueOrDefault<string>("Опис поломки"),
+                        Type = reader.GetValueOrDefault<string>("Тип обслуговування"),
+                        ServiceDescription = reader.GetValueOrDefault<string>("Опис обслуговування"),
                         StartDate = reader.GetValueOrDefault<DateTime?>("Дата початку"),
                         EndDate = reader.GetValueOrDefault<DateTime?>("Дата кінця"),
                         Duration = reader.GetValueOrDefault<TimeSpan?>("Витрачено часу"),
@@ -49,7 +50,7 @@ public class RepairsRepository : IRepairsRepository
                     });
                 }
             }
-            return repairs;
+            return services;
         }
         catch (NpgsqlException e)
         {

@@ -52,7 +52,7 @@ public class AddRepairService : IAddRepairService
         }
     }
 
-    public async Task InsertUsedMaterialsAsync(ObservableCollection<RepairConsumableItem> repairConsumableItems, int repairId, string consumablesTableName)
+    public async Task InsertUsedMaterialsAsync(List<RepairConsumableItem> repairConsumableItems, int repairId, string repairConsumablesTableName)
     {
         try
         {
@@ -60,6 +60,7 @@ public class AddRepairService : IAddRepairService
             var repairConsumableDto = new ObservableCollection<RepairConsumableDto>(repairConsumableItems.Select(item =>
                 new RepairConsumableDto
                 {
+                    MaterialId = item.MaterialId,
                     ConsumableTableName = item.ConsumableTableName,
                     Name = item.Name,
                     Unit = item.Unit,
@@ -68,12 +69,48 @@ public class AddRepairService : IAddRepairService
                 }));
             _logger.LogInformation("Successfully inserting dto used materials");
             _logger.LogInformation("Sending used materials to repository");
-            await _repository.InsertUsedMaterialsAsync(repairConsumableDto, repairId, consumablesTableName);
+            await _repository.InsertUsedMaterialsAsync(repairConsumableDto, repairId, repairConsumablesTableName);
             _logger.LogInformation("Successfully sending used materials to repository");
         }
         catch (Exception e)
         {
             _logger.LogError(e, "System error inserting dto or sending to repository used materials");
+            throw;
+        }
+    }
+
+    public async Task<ObservableCollection<RepairConsumableItem>> LoadUsedMaterialsAsync(string repairConsumablesTableName, int repairId)
+    {
+        try
+        {
+            var usedMaterialsFromDb = await _repository.GetUsedMaterialsAsync(repairConsumablesTableName, repairId);
+            var usedMaterialsItems = usedMaterialsFromDb.Select(e => new RepairConsumableItem
+            {
+                MaterialId = e.MaterialId,
+                Category = e.Category,
+                Name = e.Name,
+                Unit = e.Unit,
+                SpentMaterial = e.SpentMaterial,
+                IsUserAdded = false
+            });
+            return new ObservableCollection<RepairConsumableItem>(usedMaterialsItems);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "System error getting used materials items");
+            throw;
+        }
+    }
+
+    public async Task UpdateRepairAsync(RepairData repairData, string repairTableName, int repairId)
+    {
+        try
+        {
+            _repository.UpdateRepairAsync(repairData, repairTableName, repairId);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "System error updating repair");
             throw;
         }
     }

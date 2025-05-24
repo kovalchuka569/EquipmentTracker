@@ -1,11 +1,10 @@
-﻿<UserControl x:Class="UI.Views.DataGrid.Repairs.RepairsDataGridView"
+﻿<UserControl x:Class="UI.Views.DataGrid.Services.ServicesDataGridView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:local="clr-namespace:UI.Views.DataGrid.Repairs"
+             xmlns:local="clr-namespace:UI.Views.DataGrid.Services"
              mc:Ignorable="d"
-             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:behavior="clr-namespace:Core.Behaviors.SyncfusionTreeView;assembly=Core"
              xmlns:prism="http://prismlibrary.com/"
@@ -17,7 +16,7 @@
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
     </UserControl.Resources>
-    
+        
         <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -38,9 +37,10 @@
             AllowGrouping="True"
             ShowGroupDropArea="True"
             SelectionMode="Single"
-            x:Name="RepairsDataGrid"
-            ItemsSource="{Binding Repairs}"
-            SelectedItem="{Binding SelectedRepair, Mode=TwoWay}"
+            ColumnSizer="Auto"
+            x:Name="ServicesDataGrid"
+            ItemsSource="{Binding Services}"
+            SelectedItem="{Binding SelectedService, Mode=TwoWay}"
             AutoGenerateColumns="False">
             
             <grid:SfDataGrid.Columns>
@@ -77,10 +77,10 @@
                     </grid:GridTextColumn.CellTemplate>
                 </grid:GridTextColumn>
                 
-                <grid:GridTextColumn MappingName="BreakDescription" HeaderText="Опис поломки" AllowGrouping="False">
+                <grid:GridTextColumn MappingName="Type" HeaderText="Тип обслуговування" AllowGrouping="True">
                     <grid:GridTextColumn.CellTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding BreakDescriptionDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                            <TextBlock Text="{Binding TypeDisplay}" Background="{Binding TypeBackground}" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="4"/>
                         </DataTemplate>
                     </grid:GridTextColumn.CellTemplate>
                 </grid:GridTextColumn>
@@ -109,6 +109,14 @@
                     </grid:GridTimeSpanColumn.CellTemplate>
                 </grid:GridTimeSpanColumn>
                 
+                <grid:GridTextColumn MappingName="ServiceDescription" MaximumWidth="300" HeaderText="Опис осбслуговування" AllowGrouping="False">
+                    <grid:GridTextColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding ServiceDescriptionDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        </DataTemplate>
+                    </grid:GridTextColumn.CellTemplate>
+                </grid:GridTextColumn>
+                
                 <grid:GridTextColumn MappingName="Worker" HeaderText="Працівник" AllowGrouping="True">
                     <grid:GridTextColumn.CellTemplate>
                         <DataTemplate>
@@ -121,8 +129,8 @@
                 
                 <grid:SfDataGrid.ContextMenu>
                     <ContextMenu>
-                        <MenuItem Header="Редагувати" Command="{Binding EditRepairCommand}" Visibility="{Binding EditRepairContextMenuVisibility, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                        <MenuItem Header="Створити новий ремонт" Command="{Binding CreateNewRepairCommand}"/>
+                        <MenuItem Header="Редагувати" Command="{Binding EditServiceCommand}" Visibility="{Binding EditServiceContextMenuVisibility, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                        <MenuItem Header="Створити нове обслуговування" Command="{Binding CreateNewServiceCommand}"/>
                         <MenuItem Header="Оновити" Command="{Binding RefreshCommand}"/>
                         <MenuItem Header="Друкувати" Command="{Binding PrintCommand}"/>
                         <MenuItem Header="Експорт в Excel" Command="{Binding ExcelExportCommand}"/>
@@ -138,8 +146,8 @@
             
                     <i:Interaction.Triggers>
                     <i:EventTrigger EventName="Loaded">
-                        <i:InvokeCommandAction Command="{Binding RepairsDataGridLoadedCommand}"
-                                               CommandParameter="{Binding ElementName=RepairsDataGrid}"/>
+                        <i:InvokeCommandAction Command="{Binding ServicesDataGridLoadedCommand}"
+                                               CommandParameter="{Binding ElementName=ServicesDataGrid}"/>
                     </i:EventTrigger>
             </i:Interaction.Triggers>
                 

@@ -24,7 +24,7 @@
         <sf:SfNavigationDrawer x:Name="navDrawer"
                                Padding="0"
                                Style="{StaticResource SyncfusionPrimarySfNavigationDrawerStyle}"
-                               DisplayMode="Expanded" >
+                               DisplayMode="Compact" >
             <sf:SfNavigationDrawer.ToggleButtonContentTemplate>
                 <DataTemplate>
                     <Label HorizontalAlignment="Center" VerticalAlignment="Center"
@@ -86,20 +86,20 @@
                 
                 <sf:NavigationItem ItemType="Separator" Style="{StaticResource SyncfusionPrimaryDefaultNavigationItemStyle}"/>
                 
-                <sf:NavigationItem Header="Облік" FontSize="14" FontWeight="DemiBold"
-                                   Style="{StaticResource SyncfusionPrimaryDefaultNavigationItemStyle}"
-                                   Command="{Binding NavigateToTabControlExt}"  CommandParameter="Облік" Height="40">
-                    <sf:NavigationItem.Icon>
-                        <Image Source="pack://application:,,,/Views/NavDrawer/Assets/accounting_light.png" Width="25" Height="25"/>
-                    </sf:NavigationItem.Icon>
-                </sf:NavigationItem>
-                
-                <sf:NavigationItem ItemType="Separator" Style="{StaticResource SyncfusionPrimaryDefaultNavigationItemStyle}"/>
-                
             </sf:SfNavigationDrawer.Items>
             
             
             <sf:SfNavigationDrawer.FooterItems>
+                
+                <sf:NavigationItem ItemType="Separator" Style="{StaticResource SyncfusionPrimaryDefaultNavigationItemStyle}"/>
+                
+                <sf:NavigationItem Header="Історія" FontSize="14" FontWeight="DemiBold"
+                                   Style="{StaticResource SyncfusionPrimaryDefaultNavigationItemStyle}"
+                                   Command="{Binding NavigateToTabControlExt}"  CommandParameter="Облік" Height="40">
+                    <sf:NavigationItem.Icon>
+                        <Image Source="pack://application:,,,/Views/NavDrawer/Assets/history_light.png" Width="25" Height="25"/>
+                    </sf:NavigationItem.Icon>
+                </sf:NavigationItem>
                 
                 <sf:NavigationItem ItemType="Separator" Style="{StaticResource SyncfusionPrimaryDefaultNavigationItemStyle}"/>
                 

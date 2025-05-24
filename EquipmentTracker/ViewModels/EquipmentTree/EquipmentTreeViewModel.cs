@@ -189,7 +189,8 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware, IRegionCle
                 {
                     { "ViewNameToShow", viewName },
                     { "DataGridView.TableName", fileItem.TableName },
-                    { "RepairsDataGridView.RepairsTableName", fileItem.TableName }
+                    { "RepairsDataGridView.RepairsTableName", fileItem.TableName },
+                    { "ServicesDataGridView.ServicesTableName", fileItem.TableName }
                 }
             });
         }

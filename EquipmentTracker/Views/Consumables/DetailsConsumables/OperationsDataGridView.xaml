@@ -21,6 +21,7 @@
         <grid:SfDataGrid x:Name="OperationsDataGrid"
                          Margin="0,0,0,33"
                          GridLinesVisibility="Vertical"
+                         ShowBusyIndicator="True"
                          AutoGenerateColumns="False"
                          SelectionUnit="Cell"
                          HeaderLinesVisibility="Vertical"
@@ -123,6 +124,22 @@
                     </grid:GridTextColumn>
                     
                 </grid:SfDataGrid.Columns>
+            
+            <grid:SfDataGrid.GroupSummaryRows>
+                <grid:GridSummaryRow Title="Всього кількість: {SummaryQuantity} для {CountOperations} операцій" ShowSummaryInRow="True">
+                    <grid:GridSummaryRow.SummaryColumns>
+                        <grid:GridSummaryColumn Name="SummaryQuantity"
+                                                Format=" '{Sum}'"
+                                                MappingName="Quantity"
+                                                SummaryType="DoubleAggregate"/>
+                        
+                        <grid:GridSummaryColumn Name="CountOperations"
+                                                Format=" '{Count}'"
+                                                MappingName="Quantity"
+                                                SummaryType="CountAggregate"/>
+                    </grid:GridSummaryRow.SummaryColumns>
+                    </grid:GridSummaryRow>
+            </grid:SfDataGrid.GroupSummaryRows>
             
             
                 <i:Interaction.Triggers>

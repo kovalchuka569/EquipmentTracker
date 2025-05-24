@@ -10,6 +10,7 @@ public class RepairConsumableItem
     public string NameDisplay => Name;
     public string Unit { get; set; }
     public string UnitDisplay => Unit;
-    public double? SpentMaterial { get; set; }
+    public decimal? SpentMaterial { get; set; }
     public string SpentMaterialDisplay => SpentMaterial?.ToString();
+    public bool IsUserAdded {get; set;}
 }

@@ -6,7 +6,7 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <UseWPF>true</UseWPF>
-        <AssemblyVersion>0.1.217</AssemblyVersion>
+        <AssemblyVersion>0.2.000</AssemblyVersion>
     	<GenerateAppInstallerFile>True</GenerateAppInstallerFile>
     	<AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
     	<AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
@@ -17,10 +17,10 @@
     	<HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
     	<ApplicationManifest>app.manifest</ApplicationManifest>
     	<PlatformTarget>AnyCPU</PlatformTarget>
-    	<FileVersion>0.1.217</FileVersion>
+    	<FileVersion>0.2.000</FileVersion>
     	<AssemblyName>Equipment Tracker</AssemblyName>
     	<ApplicationIcon>gears_ico.ico</ApplicationIcon>
-    	<Version>0.1.217</Version>
+    	<Version>0.2.000</Version>
     </PropertyGroup>
 
     <ItemGroup>
@@ -105,11 +105,11 @@
       <None Remove="Views\Tabs\EquipmentTree\ColumnSelector\Assets\icons8-close-50.png" />
       <Resource Include="Views\Consumables\DetailsConsumables\Assets\close_dark.png" />
       <Resource Include="Views\DataGrid\Repairs\Assets\file.png" />
-      <Resource Include="Views\DataGrid\Repairs\Assets\folder.png" />
-      <Resource Include="Views\DataGrid\Repairs\Assets\opened_folder.png" />
       <Resource Include="Views\NavDrawer\NavDrawerItems\ConsumablesTree\Assets\file.png" />
       <Resource Include="Views\NavDrawer\NavDrawerItems\ConsumablesTree\Assets\folder.png" />
       <Resource Include="Views\NavDrawer\NavDrawerItems\ConsumablesTree\Assets\opened_folder.png" />
+      <Resource Include="Views\NavDrawer\NavDrawerItems\EquipmentTree\Assets\folder.png" />
+      <Resource Include="Views\NavDrawer\NavDrawerItems\EquipmentTree\Assets\opened_folder.png" />
       <Resource Include="Views\NavDrawer\NavDrawerItems\EquipmentTree\ColumnSelector\Assets\close_light.png" />
       <None Remove="icons8-gears-50.png" />
       <Resource Include="app_ico_light.png" />
@@ -167,9 +167,7 @@
       <None Remove="Views\Consumables\DetailsConsumables\Assets\unpin.png" />
       <Resource Include="Views\Consumables\DetailsConsumables\Assets\unpin.png" />
       <None Remove="Views\NavDrawer\NavDrawerItems\EquipmentTree\Assets\folder.png" />
-      <Resource Include="Views\NavDrawer\NavDrawerItems\EquipmentTree\Assets\folder.png" />
       <None Remove="Views\NavDrawer\NavDrawerItems\EquipmentTree\Assets\opened_folder.png" />
-      <Resource Include="Views\NavDrawer\NavDrawerItems\EquipmentTree\Assets\opened_folder.png" />
       <None Remove="Views\NavDrawer\NavDrawerItems\EquipmentTree\Assets\file.png" />
       <Resource Include="Views\NavDrawer\NavDrawerItems\EquipmentTree\Assets\file.png" />
       <None Remove="Views\DataGrid\Repairs\Assets\icons8-add-48.png" />
@@ -179,6 +177,12 @@
       <None Remove="Views\DataGrid\Repairs\Assets\icons8-edit-128.png" />
       <Content Include="gears_ico.ico" />
       <Resource Include="Views\DataGrid\Repairs\Assets\edit.png" />
+      <None Remove="Views\NavDrawer\Assets\icons8-history-30.png" />
+      <Resource Include="Views\NavDrawer\Assets\history_light.png" />
+      <None Remove="Views\DataGrid\Repairs\Assets\folder.png" />
+      <Resource Include="Views\DataGrid\Repairs\Assets\folder.png" />
+      <None Remove="Views\DataGrid\Repairs\Assets\opened_folder.png" />
+      <Resource Include="Views\DataGrid\Repairs\Assets\opened_folder.png" />
     </ItemGroup>
 
     <ItemGroup>
@@ -273,6 +277,11 @@
         <XamlRuntime>Wpf</XamlRuntime>
         <SubType>Designer</SubType>
       </Page>
+      <Page Update="Views\DataGrid\Services\ServicesDataGridView.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
     </ItemGroup>
 
     <ItemGroup>
@@ -280,5 +289,6 @@
         <LastGenOutput>Syncfusion.Shared.Wpf.uk-UA.Designer.cs</LastGenOutput>
       </EmbeddedResource>
     </ItemGroup>
+	
 	
 </Project>

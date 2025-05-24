@@ -27,15 +27,15 @@ public class RepairsDataGridService : IRepairsDataGridService
             {
                 Id = r.Id,
                 EquipmentId = r.EquipmentId,
-                RepairDescription = r.RepairDescription,
+                BreakDescription = r.BreakDescription,
                 EquipmentInventoryNumber = r.EquipmentInventoryNumber,
                 EquipmentBrand = r.EquipmentBrand,
                 EquipmentModel = r.EquipmentModel,
                 StartDate = r.StartDate,
                 EndDate = r.EndDate,
+                Duration = r.Duration,
                 Worker = r.Worker,
                 Status = r.Status,
-                
             });
             return new ObservableCollection<RepairItem>(repairItems);
         }
