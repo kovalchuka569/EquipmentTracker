@@ -1,7 +1,13 @@
-﻿namespace Models.EquipmentDataGrid;
+﻿using System.Collections.ObjectModel;
+using Prism.Mvvm;
 
-public class EquipmentItem
+namespace Models.EquipmentDataGrid;
+
+public class EquipmentItem : BindableBase
 {
+    private ObservableCollection<SparePartItem> _spareParts = new();
+    private SparePartItem _selectedSparePart;
+    
     public int Id { get; set; }
     public string InventoryNumber { get; set; }
     public string Brand { get; set; }
@@ -53,4 +59,16 @@ public class EquipmentItem
     public string BalanceCostDisplay => BalanceCost > 0 ? $"{BalanceCost} грн" : string.Empty;
     public string NotesDisplay => Notes;  
     public string ResponsiblePersonDisplay => ResponsiblePerson;
+
+    public ObservableCollection<SparePartItem> SpareParts
+    {
+        get => _spareParts;
+        set => SetProperty(ref _spareParts, value);
+    }
+
+    public SparePartItem SelectedSparePart
+    {
+        get => _selectedSparePart;
+        set => SetProperty(ref _selectedSparePart, value);
+    }
 }

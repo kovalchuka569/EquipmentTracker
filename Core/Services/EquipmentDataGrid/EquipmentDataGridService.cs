@@ -128,4 +128,21 @@ public class EquipmentDataGridService : IEquipmentDataGridService
     {
         await _repository.MakeDataCopyAsync(equipmentId, equipmentTableName);
     }
+
+    public async Task<ObservableCollection<SparePartItem>> GetSparePartItemAsync(int equipmentId, string sparePartTableName)
+    {
+        var sparePartsFromDb = await _repository.GetSparePartListAsync(equipmentId, sparePartTableName);
+        var sparePartsItems = sparePartsFromDb.Select(s => new SparePartItem
+        {
+            Id = s.Id,
+            SparePartName = s.SparePartName,
+            SparePartCategory = s.SparePartCategory,
+            EquipmentId = equipmentId,
+            SparePartQuantity = s.SparePartQuantity,
+            SparePartUnit = s.SparePartUnit,
+            SparePartSerialNumber = s.SparePartSerialNumber,
+            SparePartNotes = s.SparePartNotes
+        });
+        return new ObservableCollection<SparePartItem>(sparePartsItems);
+    }
 }

@@ -57,6 +57,8 @@ public class EquipmentDataGridViewModel: BindableBase, INavigationAware
     
     public DelegateCommand<RowValidatingEventArgs> RowValidatingCommand { get; }
     public DelegateCommand<RowValidatedEventArgs> RowValidatedCommand { get; }
+    public DelegateCommand<RowValidatingEventArgs> SparePartsRowValidatingCommand { get; }
+    public DelegateCommand<GridDetailsViewExpandingEventArgs> SparePartsLoadingCommand { get; }
     public DelegateCommand RefreshCommand { get; }
     public DelegateCommand WriteOffCommand { get; }
     public DelegateCommand PrintCommand { get; }
@@ -74,11 +76,32 @@ public class EquipmentDataGridViewModel: BindableBase, INavigationAware
 
         RowValidatingCommand = new DelegateCommand<RowValidatingEventArgs>(async (args) => await OnRowValidating(args));
         RowValidatedCommand = new DelegateCommand<RowValidatedEventArgs>(async (args) => await OnRowValidated(args));
+        SparePartsLoadingCommand = new DelegateCommand<GridDetailsViewExpandingEventArgs>(OnSparePartsLoading);
         RefreshCommand = new DelegateCommand(async (o) => await RefreshAsync());
         WriteOffCommand = new DelegateCommand(async (o) => await OnWriteOffEquipment());
         DeleteCommand = new DelegateCommand(async (o) => await OnDeleteEquipment());
+        SparePartsRowValidatingCommand = new DelegateCommand<RowValidatingEventArgs>(test);
     }
-    
+
+    private async void OnSparePartsLoading(GridDetailsViewExpandingEventArgs args)
+    {
+        if (args.Record is EquipmentItem equipmentItem)
+        {
+            string sparePartsTableName = $"{_equipmentTableName} ЗЧ";
+            var spareParts = await _service.GetSparePartItemAsync(equipmentItem.Id, sparePartsTableName);
+            
+            equipmentItem.SpareParts.Clear(); 
+            foreach (var part in spareParts)
+            {
+                equipmentItem.SpareParts.Add(part); 
+            }
+        }
+    }
+
+    private void test(RowValidatingEventArgs args)
+    {
+        Console.WriteLine("test");
+    }
 
     #region Row Validating
     private async Task OnRowValidating(RowValidatingEventArgs args)

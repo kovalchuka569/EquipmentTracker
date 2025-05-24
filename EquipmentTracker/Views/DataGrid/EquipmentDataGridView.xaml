@@ -13,8 +13,21 @@
              syncfusionskin:SfSkinManager.Theme="{syncfusionskin:SkinManagerExtension ThemeName=Office2019Colorful}">
    
     <UserControl.Resources>
-        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
-        <converter:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Syncfusion.Themes.Office2019Colorful.WPF;component/sfdatagrid/sfdatagrid.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            
+            <Style x:Key="SparePartsHeadersStyle" TargetType="sf:GridHeaderCellControl" BasedOn="{StaticResource SyncfusionGridHeaderCellControlStyle}">
+                <Setter Property="Background" Value="LightGray"/>  
+                <Setter Property="FontWeight" Value="SemiBold"/>  
+                <Setter Property="FontFamily" Value="Segoe UI"/>  
+                <Setter Property="BorderBrush" Value="DarkGray"/>
+            </Style>
+            
+                <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+            <converter:InverseBooleanConverter x:Key="InverseBooleanConverter"/>
+        </ResourceDictionary>
     </UserControl.Resources>
     
     <Grid>
@@ -32,6 +45,7 @@
             ShowGroupDropArea="True"
             ShowBusyIndicator="True"
             SelectionMode="Single"
+            AutoGenerateRelations="False"
             GridLinesVisibility="Both" HeaderLinesVisibility="Both"
             GridValidationMode="InEdit"
             AddNewRowPosition="Top"
@@ -55,7 +69,7 @@
                 </sf:GridTextColumn>
                 
                 <!-- Category -->
-                <sf:GridTextColumn MappingName="Category" HeaderText="Категорія" IsHidden="{Binding VisibleColumns[Category], Converter={StaticResource InverseBooleanConverter}}" AllowEditing="True" AllowFiltering="True" AllowGrouping="True">
+                <sf:GridTextColumn MappingName="Category" HeaderText="Категорія"  IsHidden="{Binding VisibleColumns[Category], Converter={StaticResource InverseBooleanConverter}}" AllowEditing="True" AllowFiltering="True" AllowGrouping="True">
                     <sf:GridTextColumn.CellTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding CategoryDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
@@ -255,9 +269,9 @@
             <sf:SfDataGrid.StackedHeaderRows>
                 <sf:StackedHeaderRow>
                     <sf:StackedHeaderRow.StackedColumns>
-                        <sf:StackedColumn ChildColumns="Floor,Department,Room" HeaderText="Локація" MappingName="Location"/>
-                        <sf:StackedColumn ChildColumns="Height,Width,Length,Weight" HeaderText="Габарити" MappingName="Dimesnions"/>
-                        <sf:StackedColumn ChildColumns="Consumption,Voltage,Water,Air" HeaderText="Технічні характеристики" MappingName="TechnicalCharacterisitics"/>
+                        <sf:StackedColumn ChildColumns="Floor,Department,Room" HeaderText="ЛОКАЦІЯ" MappingName="Location"/>
+                        <sf:StackedColumn ChildColumns="Height,Width,Length,Weight" HeaderText="ГАБАРИТИ" MappingName="Dimesnions"/>
+                        <sf:StackedColumn ChildColumns="Consumption,Voltage,Water,Air" HeaderText="ТЕХНІЧНІ ХАРАКТЕРИСТИКИ" MappingName="TechnicalCharacterisitics"/>
                     </sf:StackedHeaderRow.StackedColumns>
                 </sf:StackedHeaderRow>
                 
@@ -285,15 +299,27 @@
                 
                 <!-- SPARE PARTS DETAILS VIEW -->
                 <sf:SfDataGrid.DetailsViewDefinition>
-                    <sf:GridViewDefinition RelationalColumn="InventoryNumber">
+                    <sf:GridViewDefinition RelationalColumn="SpareParts">
                         <sf:GridViewDefinition.DataGrid>
                             <sf:SfDataGrid x:Name="SparePartsDataGrid"
+                                           AddNewRowPosition="Top"
+                                           AddNewRowText="+ Додати нову запасну частину"
+                                           NewItemPlaceholderPosition="AtBeginning"
+                                           GridValidationMode="InEdit"
+                                           AllowEditing="True"
+                                           AllowDeleting="True"
+                                           ShowBusyIndicator="True"
+                                           GridLinesVisibility="Both"
+                                           HeaderLinesVisibility="Both"
+                                           ColumnSizer="Auto"
+                                           SelectionMode="Single"
+                                           LiveDataUpdateMode="AllowDataShaping"
                                            AutoGenerateColumns="False">
                                 
                                 <sf:SfDataGrid.Columns>
                                     
                                     <!-- Name -->
-                                    <sf:GridTextColumn MappingName="SparePartName" HeaderText="Назва" AllowFiltering="True" AllowGrouping="True">
+                                    <sf:GridTextColumn MappingName="SparePartName" HeaderText="Назва" HeaderStyle="{StaticResource SparePartsHeadersStyle}" AllowFiltering="True" AllowGrouping="True">
                                         <sf:GridTextColumn.CellTemplate>
                                             <DataTemplate>
                                                 <TextBlock Text="{Binding SparePartNameDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
@@ -302,10 +328,46 @@
                                     </sf:GridTextColumn>
                                     
                                     <!-- Category -->
-                                    <sf:GridTextColumn MappingName="SparePartCategory" HeaderText="Категорія" AllowFiltering="True" AllowGrouping="True">
+                                    <sf:GridTextColumn MappingName="SparePartCategory" HeaderText="Категорія" HeaderStyle="{StaticResource SparePartsHeadersStyle}" AllowFiltering="True" AllowGrouping="True">
                                         <sf:GridTextColumn.CellTemplate>
                                             <DataTemplate>
                                                 <TextBlock Text="{Binding SparePartCategoryDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                            </DataTemplate>
+                                        </sf:GridTextColumn.CellTemplate>
+                                    </sf:GridTextColumn>
+                                    
+                                    <!-- Category -->
+                                    <sf:GridTextColumn MappingName="SparePartSerialNumber" HeaderText="Серійний номер" HeaderStyle="{StaticResource SparePartsHeadersStyle}" AllowFiltering="True" AllowGrouping="False">
+                                        <sf:GridTextColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding SparePartSerialNumberDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                            </DataTemplate>
+                                        </sf:GridTextColumn.CellTemplate>
+                                    </sf:GridTextColumn>
+                                    
+                                    <!-- Quantity -->
+                                    <sf:GridNumericColumn MappingName="SparePartQuantity" HeaderText="Кількість" HeaderStyle="{StaticResource SparePartsHeadersStyle}" AllowFiltering="True" AllowGrouping="False">
+                                        <sf:GridNumericColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding SparePartQuantityDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                            </DataTemplate>
+                                        </sf:GridNumericColumn.CellTemplate>
+                                    </sf:GridNumericColumn>
+                                    
+                                    <!-- Unit -->
+                                    <sf:GridComboBoxColumn MappingName="SparePartUnit" HeaderText="Одиниця" HeaderStyle="{StaticResource SparePartsHeadersStyle}" AllowFiltering="True" AllowGrouping="True">
+                                        <sf:GridComboBoxColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding SparePartUnitDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                            </DataTemplate>
+                                        </sf:GridComboBoxColumn.CellTemplate>
+                                    </sf:GridComboBoxColumn>
+                                    
+                                    <!-- Notes -->
+                                    <sf:GridTextColumn MappingName="SparePartNotes" HeaderText="Нотатки" HeaderStyle="{StaticResource SparePartsHeadersStyle}" AllowEditing="True" AllowFiltering="True" AllowGrouping="False">
+                                        <sf:GridTextColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding SparePartNotesDisplay}" MaxWidth="300" Margin="4" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                                             </DataTemplate>
                                         </sf:GridTextColumn.CellTemplate>
                                     </sf:GridTextColumn>
@@ -315,17 +377,24 @@
                                 <sf:SfDataGrid.StackedHeaderRows>
                                     <sf:StackedHeaderRow>
                                         <sf:StackedHeaderRow.StackedColumns>
-                                            <sf:StackedColumn ChildColumns="SparePartName,SparePartCategory" HeaderText="Запасні частини"/>
+                                                <sf:StackedColumn ChildColumns="SparePartName,SparePartCategory,SparePartSerialNumber,SparePartQuantity,SparePartUnit,SparePartNotes" HeaderText="ЗАПАСНІ ЧАСТИНИ"/>
                                         </sf:StackedHeaderRow.StackedColumns>
                                     </sf:StackedHeaderRow>
                                 </sf:SfDataGrid.StackedHeaderRows>
                                 
-                                </sf:SfDataGrid>
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="RowValidating">
+                                        <i:InvokeCommandAction Command="{Binding SparePartsRowValidatingCommand}"
+                                                               PassEventArgsToCommand="True"/>
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                                
+                            </sf:SfDataGrid>
                         </sf:GridViewDefinition.DataGrid>
                     </sf:GridViewDefinition>
                 </sf:SfDataGrid.DetailsViewDefinition>
             
-                    <i:Interaction.Triggers>
+            <i:Interaction.Triggers>
                 <i:EventTrigger EventName="RowValidating">
                     <i:InvokeCommandAction Command="{Binding RowValidatingCommand}"
                                            PassEventArgsToCommand="True"/>
@@ -334,6 +403,11 @@
                     <i:InvokeCommandAction Command="{Binding RowValidatedCommand}"
                                            PassEventArgsToCommand="True"/>
                 </i:EventTrigger>
+                <i:EventTrigger EventName="DetailsViewExpanding">
+                    <i:InvokeCommandAction Command="{Binding SparePartsLoadingCommand}"
+                                           PassEventArgsToCommand="True"/>
+                </i:EventTrigger>
+                
             </i:Interaction.Triggers>
             
             </sf:SfDataGrid>

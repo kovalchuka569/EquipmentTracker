@@ -287,4 +287,28 @@ public class EquipmentDataGridRepository : IEquipmentDataGridRepository
             throw;
         }
     }
+
+    public async Task<List<SparePartDto>> GetSparePartListAsync(int equipmentId, string sparePartTableName)
+    {
+        var sparePartsFromDb = new List<SparePartDto>();
+        await using var connection = await _context.OpenNewConnectionAsync();
+        string sql = $@"SELECT * FROM ""UserTables"".""{sparePartTableName}"" WHERE ""EquipmentId"" = @equipmentId; ";
+        await using var cmd = new NpgsqlCommand(sql, connection);
+        cmd.Parameters.Add(new NpgsqlParameter("@equipmentId", equipmentId));
+        using var reader = await cmd.ExecuteReaderAsync();
+        while (await reader.ReadAsync())
+        {
+            sparePartsFromDb.Add(new SparePartDto
+            {
+                Id = reader.GetValueOrDefault<int>("id"),
+                SparePartName = reader.GetValueOrDefault<string>("Назва"),
+                SparePartCategory = reader.GetValueOrDefault<string>("Категорія"),
+                SparePartQuantity = reader.GetValueOrDefault<decimal>("Кількість"),
+                SparePartUnit = reader.GetValueOrDefault<string>("Одиниця"),
+                SparePartSerialNumber = reader.GetValueOrDefault<string>("Серійний номер"),
+                SparePartNotes = reader.GetValueOrDefault<string>("Примітки")
+            });
+        }
+        return sparePartsFromDb;
+    }
 }

@@ -11,4 +11,5 @@ public interface IEquipmentDataGridRepository
     Task UpdateEquipmentAsync(EquipmentDto equipment, string equipmentTableName);
     Task WriteOffEquipmentAsync(int equipmentId, string equipmentTableName);
     Task MakeDataCopyAsync(int equipmentId, string equipmentTableName);
+    Task<List<SparePartDto>> GetSparePartListAsync(int equipmentId, string sparePartTableName);
 }
