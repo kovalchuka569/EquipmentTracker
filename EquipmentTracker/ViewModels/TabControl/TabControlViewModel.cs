@@ -66,7 +66,7 @@ public class TabControlViewModel : BindableBase
     {
         var viewModel = _genericTabViewModelFactory.Create(args.Parameters);
         viewModel.InitializePrameters();
-        var genericTabView = new GenericTabView() { DataContext = viewModel };
+        var genericTabView = new GenericTabView { DataContext = viewModel };
         var newTab = new TabControlItem
         {
             Header = args.Header,

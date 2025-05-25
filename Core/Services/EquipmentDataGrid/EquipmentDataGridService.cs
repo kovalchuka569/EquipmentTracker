@@ -135,14 +135,44 @@ public class EquipmentDataGridService : IEquipmentDataGridService
         var sparePartsItems = sparePartsFromDb.Select(s => new SparePartItem
         {
             Id = s.Id,
+            EquipmentId = s.EquipmentId,
             SparePartName = s.SparePartName,
             SparePartCategory = s.SparePartCategory,
-            EquipmentId = equipmentId,
             SparePartQuantity = s.SparePartQuantity,
             SparePartUnit = s.SparePartUnit,
             SparePartSerialNumber = s.SparePartSerialNumber,
             SparePartNotes = s.SparePartNotes
         });
         return new ObservableCollection<SparePartItem>(sparePartsItems);
+    }
+
+    public async Task<int> InsertSparePartAsync(SparePartItem sparePart, string sparePartTableName)
+    {
+        var sparePartDto = new SparePartDto
+        {
+            EquipmentId = sparePart.EquipmentId,
+            SparePartName = sparePart.SparePartName,
+            SparePartCategory = sparePart.SparePartCategory,
+            SparePartNotes = sparePart.SparePartNotes,
+            SparePartQuantity = sparePart.SparePartQuantity,
+            SparePartUnit = sparePart.SparePartUnit,
+            SparePartSerialNumber = sparePart.SparePartSerialNumber,
+        };
+        return await _repository.InsertSparePartAsync(sparePartDto, sparePartTableName);
+    }
+
+    public async Task UpdateSparePartAsync(SparePartItem sparePart, string sparePartTableName)
+    {
+        var sparePartDto = new SparePartDto
+        {
+            Id = sparePart.Id,
+            SparePartName = sparePart.SparePartName,
+            SparePartCategory = sparePart.SparePartCategory,
+            SparePartNotes = sparePart.SparePartNotes,
+            SparePartQuantity = sparePart.SparePartQuantity,
+            SparePartUnit = sparePart.SparePartUnit,
+            SparePartSerialNumber = sparePart.SparePartSerialNumber,
+        };
+        await _repository.UpdateSparePartAsync(sparePartDto, sparePartTableName);
     }
 }

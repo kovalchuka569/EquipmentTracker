@@ -4,7 +4,6 @@ using NpgsqlTypes;
 
 public static class DbParameterExtensions
 {
-    // Для значень-структур (наприклад, int?, TimeSpan?)
     public static void AddWithNullableValue<T>(
         this DbParameterCollection parameters,
         string name,
@@ -18,8 +17,7 @@ public static class DbParameterExtensions
         };
         parameters.Add(parameter);
     }
-
-    // Для класів (наприклад, string, byte[])
+    
     public static void AddWithNullableValue<T>(
         this DbParameterCollection parameters,
         string name,

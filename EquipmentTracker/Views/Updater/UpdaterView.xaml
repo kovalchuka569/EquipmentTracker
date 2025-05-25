@@ -16,7 +16,7 @@
     </UserControl.Resources>
     
         <Grid>
-        <sf:SfBusyIndicator Visibility="{Binding BusyIndicatorVisibility, Converter={StaticResource BooleanToVisibilityConverter}}" IsBusy="True" AnimationType="Fluent" Foreground="Blue" Header="{Binding UpdateStatusContent, Mode=TwoWay}">
+        <sf:SfBusyIndicator Visibility="{Binding BusyIndicatorVisibility, Converter={StaticResource BooleanToVisibilityConverter}}" IsBusy="True" AnimationType="Fluent" Foreground="Blue" ViewboxHeight="70" ViewboxWidth="70" Header="{Binding UpdateStatusContent, Mode=TwoWay}">
             <sf:SfBusyIndicator.LayoutTransform>
                 <ScaleTransform ScaleX="1.5" ScaleY="1.5"/>
             </sf:SfBusyIndicator.LayoutTransform>

@@ -355,13 +355,13 @@
                                     </sf:GridNumericColumn>
                                     
                                     <!-- Unit -->
-                                    <sf:GridComboBoxColumn MappingName="SparePartUnit" HeaderText="Одиниця" HeaderStyle="{StaticResource SparePartsHeadersStyle}" AllowFiltering="True" AllowGrouping="True">
-                                        <sf:GridComboBoxColumn.CellTemplate>
+                                    <sf:GridTextColumn MappingName="SparePartUnit" HeaderText="Одиниця" HeaderStyle="{StaticResource SparePartsHeadersStyle}" AllowFiltering="True" AllowGrouping="True">
+                                        <sf:GridTextColumn.CellTemplate>
                                             <DataTemplate>
                                                 <TextBlock Text="{Binding SparePartUnitDisplay}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                                             </DataTemplate>
-                                        </sf:GridComboBoxColumn.CellTemplate>
-                                    </sf:GridComboBoxColumn>
+                                        </sf:GridTextColumn.CellTemplate>
+                                    </sf:GridTextColumn>
                                     
                                     <!-- Notes -->
                                     <sf:GridTextColumn MappingName="SparePartNotes" HeaderText="Нотатки" HeaderStyle="{StaticResource SparePartsHeadersStyle}" AllowEditing="True" AllowFiltering="True" AllowGrouping="False">
@@ -377,17 +377,11 @@
                                 <sf:SfDataGrid.StackedHeaderRows>
                                     <sf:StackedHeaderRow>
                                         <sf:StackedHeaderRow.StackedColumns>
-                                                <sf:StackedColumn ChildColumns="SparePartName,SparePartCategory,SparePartSerialNumber,SparePartQuantity,SparePartUnit,SparePartNotes" HeaderText="ЗАПАСНІ ЧАСТИНИ"/>
+                                                <sf:StackedColumn ChildColumns="SparePartName,SparePartCategory,SparePartSerialNumber,SparePartQuantity,SparePartUnits,SparePartNotes" HeaderText="ЗАПАСНІ ЧАСТИНИ"/>
                                         </sf:StackedHeaderRow.StackedColumns>
                                     </sf:StackedHeaderRow>
                                 </sf:SfDataGrid.StackedHeaderRows>
                                 
-                                <i:Interaction.Triggers>
-                                    <i:EventTrigger EventName="RowValidating">
-                                        <i:InvokeCommandAction Command="{Binding SparePartsRowValidatingCommand}"
-                                                               PassEventArgsToCommand="True"/>
-                                    </i:EventTrigger>
-                                </i:Interaction.Triggers>
                                 
                             </sf:SfDataGrid>
                         </sf:GridViewDefinition.DataGrid>
@@ -402,6 +396,10 @@
                 <i:EventTrigger EventName="RowValidated">
                     <i:InvokeCommandAction Command="{Binding RowValidatedCommand}"
                                            PassEventArgsToCommand="True"/>
+                </i:EventTrigger>
+                <i:EventTrigger EventName="DetailsViewLoading">
+                    <i:InvokeCommandAction Command="{Binding DetailsViewLoadingCommand}"
+                                           CommandParameter="{Binding ElementName=SparePartsDataGrid}"/>
                 </i:EventTrigger>
                 <i:EventTrigger EventName="DetailsViewExpanding">
                     <i:InvokeCommandAction Command="{Binding SparePartsLoadingCommand}"

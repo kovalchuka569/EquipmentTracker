@@ -20,6 +20,8 @@ public class EquipmentDataGridViewModel: BindableBase, INavigationAware
     private readonly NotificationManager _globalNotificationManager;
     
     private string _equipmentTableName;
+    
+    private SfDataGrid _sparePartsDataGrid;
 
     private Dictionary<string, bool> _visibleColumns = new();
     private ObservableCollection<EquipmentItem> _equipments = new();
@@ -57,7 +59,6 @@ public class EquipmentDataGridViewModel: BindableBase, INavigationAware
     
     public DelegateCommand<RowValidatingEventArgs> RowValidatingCommand { get; }
     public DelegateCommand<RowValidatedEventArgs> RowValidatedCommand { get; }
-    public DelegateCommand<RowValidatingEventArgs> SparePartsRowValidatingCommand { get; }
     public DelegateCommand<GridDetailsViewExpandingEventArgs> SparePartsLoadingCommand { get; }
     public DelegateCommand RefreshCommand { get; }
     public DelegateCommand WriteOffCommand { get; }
@@ -65,6 +66,9 @@ public class EquipmentDataGridViewModel: BindableBase, INavigationAware
     public DelegateCommand ExcelExportCommand { get; }
     public DelegateCommand PdfExportCommand { get; }
     public DelegateCommand DeleteCommand { get; }
+    
+    public DelegateCommand<SfDataGrid> DetailsViewLoadingCommand { get; set; }
+
     
     public EquipmentDataGridViewModel(IAppLogger<EquipmentDataGridViewModel> logger,
         IEquipmentDataGridService service,
@@ -80,7 +84,8 @@ public class EquipmentDataGridViewModel: BindableBase, INavigationAware
         RefreshCommand = new DelegateCommand(async (o) => await RefreshAsync());
         WriteOffCommand = new DelegateCommand(async (o) => await OnWriteOffEquipment());
         DeleteCommand = new DelegateCommand(async (o) => await OnDeleteEquipment());
-        SparePartsRowValidatingCommand = new DelegateCommand<RowValidatingEventArgs>(test);
+
+        DetailsViewLoadingCommand = new DelegateCommand<SfDataGrid>(SparePartsDataGridLoading);
     }
 
     private async void OnSparePartsLoading(GridDetailsViewExpandingEventArgs args)
@@ -98,9 +103,51 @@ public class EquipmentDataGridViewModel: BindableBase, INavigationAware
         }
     }
 
-    private void test(RowValidatingEventArgs args)
+    private void SparePartsDataGridLoading(SfDataGrid sparePartsDataGrid)
     {
-        Console.WriteLine("test");
+        _sparePartsDataGrid = sparePartsDataGrid;
+        _sparePartsDataGrid.RowValidating += SpareParts_RowValidating;
+        _sparePartsDataGrid.RowValidated += SpareParts_RowValidated;
+    }
+    
+    private void SpareParts_RowValidating(object? sender, RowValidatingEventArgs args)
+    {
+        var rowData = args.RowData as SparePartItem;
+        if(rowData == null) return;
+        args.ErrorMessages.Clear();
+
+        string? error;
+        
+        void Add(string key, string? message)
+        {
+            args.IsValid = false;
+            if (message != null)
+                args.ErrorMessages.Add(key, message);
+        }
+        
+        if(!IsValidText(rowData.SparePartName, 3, 50, out error, "Назва", true)) Add ("SparePartName", error);
+        if(!IsValidText(rowData.SparePartCategory, 3, 50, out error, "Категорія", false)) Add ("SparePartCategory", error);
+        if(!IsValidText(rowData.SparePartSerialNumber, 3, 50, out error, "Серійний номер", false)) Add ("SparePartSerialNumber", error);
+        if(!IsValidText(rowData.SparePartUnit, 1, 50, out error, "Одиниця")) Add ("SparePartUnit", error);
+        if(!IsValidText(rowData.SparePartNotes, 0, 2000, out error, "Нотатки", false)) Add ("SparePartNotes", error);
+        if(!IsValidNumber(rowData.SparePartQuantity, 0, 10000, out error, "Кількість", true)) Add ("SparePartQuantity", error); 
+    }
+
+    private async void SpareParts_RowValidated(object? sender, RowValidatedEventArgs args)
+    {
+        var rowData = args.RowData as SparePartItem;
+        if(rowData == null) return;
+        string sparePartsTableName = $"{_equipmentTableName} ЗЧ";
+
+        if (rowData.Id == 0)
+        {
+            rowData.EquipmentId = SelectedEquipment.Id;
+            rowData.Id = await _service.InsertSparePartAsync(rowData, sparePartsTableName);
+        }
+        else
+        {
+            await _service.UpdateSparePartAsync(rowData, sparePartsTableName);
+        }
     }
 
     #region Row Validating

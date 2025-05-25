@@ -12,4 +12,6 @@ public interface IEquipmentDataGridService
     Task WriteOffEquipmentAsync(int equipmentId, string equipmentTableName);
     Task MakeDataCopyAsync(int equipmentId, string equipmentTableName);
     Task<ObservableCollection<SparePartItem>> GetSparePartItemAsync(int equipmentId, string sparePartTableName);
+    Task<int> InsertSparePartAsync(SparePartItem sparePart, string sparePartTableName);
+    Task UpdateSparePartAsync(SparePartItem sparePart, string sparePartTableName);
 }

@@ -91,7 +91,6 @@ public async Task InsertUsedMaterialsAsync(
 
     try
     {
-        // Вставка использованных материалов
         _logger.LogInformation("Inserting in database used materials for repair consumable");
         var sqlInsertUsedMaterials = new StringBuilder($@"INSERT INTO ""UserTables"".""{repairConsumablesTableName}"" 
             (""Робота"", ""Категорія"", ""Назва"", ""Одиниця"", ""Витрачено"") VALUES ");
@@ -122,8 +121,7 @@ public async Task InsertUsedMaterialsAsync(
             string operationsTableName = group.Key.OperationsConsumableTableName;
             int materialId = group.Key.MaterialId;
             string materialsTableName = group.First().ConsumableTableName;
-
-            // Получаем начальный баланс из базы
+            
             decimal? currentBalance;
             var sqlGetBalance = $@"SELECT ""Залишок"" FROM ""ConsumablesSchema"".""{materialsTableName}"" WHERE ""id"" = @materialId;";
             await using (var cmdGetBalance = new NpgsqlCommand(sqlGetBalance, connection, transaction))
@@ -132,8 +130,7 @@ public async Task InsertUsedMaterialsAsync(
                 var result = await cmdGetBalance.ExecuteScalarAsync();
                 currentBalance = result == null || result == DBNull.Value ? 0m : Convert.ToDecimal(result);
             }
-
-            // Добавляем операции с подсчетом остатка локально
+            
             foreach (var item in repairConsumableDtos.Where(x =>
                          x.OperationsConsumableTableName == operationsTableName && x.MaterialId == materialId))
             {
@@ -152,8 +149,7 @@ public async Task InsertUsedMaterialsAsync(
                 await cmdAddOperation.ExecuteNonQueryAsync();
             }
         }
-
-        // Затем обновляем остатки уже после добавления операций
+        
         var groupedConsumablesTableName = repairConsumableDtos.GroupBy(x => x.ConsumableTableName);
         foreach (var group in groupedConsumablesTableName)
         {

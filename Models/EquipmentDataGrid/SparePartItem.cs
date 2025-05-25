@@ -1,4 +1,7 @@
-﻿using Prism.Mvvm;
+﻿using System.Collections.ObjectModel;
+using Prism.Commands;
+using Prism.Mvvm;
+using Syncfusion.UI.Xaml.Grid;
 
 namespace Models.EquipmentDataGrid;
 
@@ -15,8 +18,8 @@ public class SparePartItem : BindableBase
 
     public int EquipmentId
     {
-        get => _id;
-        set => SetProperty(ref _id, value);
+        get => _equipmentId;
+        set => SetProperty(ref _equipmentId, value);
     }
     public int Id
     {
@@ -53,6 +56,7 @@ public class SparePartItem : BindableBase
         get => _sparePartNotes;
         set => SetProperty(ref _sparePartNotes, value);
     }
+    
 
     public string SparePartNameDisplay => SparePartName;
     public string SparePartCategoryDisplay => SparePartCategory;

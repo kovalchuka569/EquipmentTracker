@@ -3,6 +3,7 @@
 public class SparePartDto
 {
     public int Id { get; set; }
+    public int EquipmentId { get; set; }
     public string SparePartName { get; set; }
     public string SparePartCategory { get; set; }
     public string SparePartSerialNumber { get; set; }

@@ -4,6 +4,7 @@ using Common.Logging;
 using Data.AppDbContext;
 using Models.EquipmentDataGrid;
 using Npgsql;
+using NpgsqlTypes;
 
 namespace Data.Repositories.EquipmentDataGrid;
 
@@ -301,6 +302,7 @@ public class EquipmentDataGridRepository : IEquipmentDataGridRepository
             sparePartsFromDb.Add(new SparePartDto
             {
                 Id = reader.GetValueOrDefault<int>("id"),
+                EquipmentId = reader.GetValueOrDefault<int>("EquipmentId"),
                 SparePartName = reader.GetValueOrDefault<string>("Назва"),
                 SparePartCategory = reader.GetValueOrDefault<string>("Категорія"),
                 SparePartQuantity = reader.GetValueOrDefault<decimal>("Кількість"),
@@ -310,5 +312,66 @@ public class EquipmentDataGridRepository : IEquipmentDataGridRepository
             });
         }
         return sparePartsFromDb;
+    }
+
+    public async Task<int> InsertSparePartAsync(SparePartDto sparePart, string sparePartTableName)
+    {
+        await using var connection = await _context.OpenNewConnectionAsync();
+        await using var transaction = connection.BeginTransaction();
+        try
+        {
+            string sql = $@"INSERT INTO ""UserTables"".""{sparePartTableName}"" (""EquipmentId"", ""Назва"", ""Кількість"", ""Одиниця"", ""Серійний номер"", ""Примітки"", ""Категорія"") 
+                        VALUES (@equipmentId, @name, @quantity, @unit, @serialNumber, @notes, @category) RETURNING ""id""; ";
+            await using var cmd = new NpgsqlCommand(sql, connection, transaction);
+            cmd.Parameters.AddWithValue("@equipmentId", sparePart.EquipmentId);
+            cmd.Parameters.AddWithValue("@name", sparePart.SparePartName);
+            cmd.Parameters.AddWithNullableValue("@quantity", (decimal?)sparePart.SparePartQuantity, NpgsqlDbType.Numeric);
+            cmd.Parameters.AddWithValue("@unit", sparePart.SparePartUnit);
+            cmd.Parameters.AddWithNullableValue("@serialNumber", sparePart.SparePartSerialNumber, NpgsqlDbType.Text);
+            cmd.Parameters.AddWithNullableValue("@notes", sparePart.SparePartNotes, NpgsqlDbType.Text);
+            cmd.Parameters.AddWithNullableValue("@category", sparePart.SparePartCategory, NpgsqlDbType.Text);
+            var newId = (int)await cmd.ExecuteScalarAsync();
+            transaction.Commit();
+            return newId;
+        }
+        catch (NpgsqlException e)
+        {
+            transaction.Rollback();
+            _logger.LogError(e, "Database error inserting spare part");
+            throw;
+        }
+    }
+
+    public async Task UpdateSparePartAsync(SparePartDto sparePart, string sparePartTableName)
+    {
+        await using var connection = await _context.OpenNewConnectionAsync();
+        await using var transaction = connection.BeginTransaction();
+        try
+        {
+            string sql = $@"UPDATE ""UserTables"".""{sparePartTableName}"" SET 
+                                                            ""Назва"" = @name,
+                                                            ""Кількість"" = @quantity,
+                                                            ""Одиниця"" = @unit,
+                                                            ""Серійний номер"" = @serialNumber,
+                                                            ""Примітки"" = @notes,
+                                                            ""Категорія"" = @category 
+                                                            WHERE ""id"" = @id; ";
+            await using var cmd = new NpgsqlCommand(sql, connection, transaction);
+            cmd.Parameters.AddWithValue("@id", sparePart.Id);
+            cmd.Parameters.AddWithValue("@name", sparePart.SparePartName);
+            cmd.Parameters.AddWithNullableValue("@quantity", (decimal?)sparePart.SparePartQuantity, NpgsqlDbType.Numeric);
+            cmd.Parameters.AddWithValue("@unit", sparePart.SparePartUnit);
+            cmd.Parameters.AddWithNullableValue("@serialNumber", sparePart.SparePartSerialNumber, NpgsqlDbType.Text);
+            cmd.Parameters.AddWithNullableValue("@notes", sparePart.SparePartNotes, NpgsqlDbType.Text);
+            cmd.Parameters.AddWithNullableValue("@category", sparePart.SparePartCategory, NpgsqlDbType.Text);
+            await cmd.ExecuteNonQueryAsync();
+            transaction.Commit();
+        }
+        catch (NpgsqlException e)
+        {
+            transaction.Rollback();
+            _logger.LogError(e, "Database error updating spare part");
+            throw;
+        }
     }
 }

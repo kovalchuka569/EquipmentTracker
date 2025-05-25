@@ -1,5 +1,8 @@
 ﻿using System.Collections.ObjectModel;
+using Prism.Commands;
 using Prism.Mvvm;
+using Syncfusion.PMML;
+using Syncfusion.UI.Xaml.Grid;
 
 namespace Models.EquipmentDataGrid;
 
@@ -71,4 +74,5 @@ public class EquipmentItem : BindableBase
         get => _selectedSparePart;
         set => SetProperty(ref _selectedSparePart, value);
     }
+    
 }
