@@ -41,11 +41,16 @@ public class EquipmentDataGridViewModel: BindableBase, INavigationAware
     // Search pannel fields
     private bool _searchPannelVisibility;
     private bool _isDragging;
-    private System.Windows.Point _startPoint;
     private string _searchText;
-    private double _startLeft;
-    private double _startTop;
+    private System.Windows.Point _startMousePos;
+    private System.Windows.Point _startPanelPos;
+    private double _searchPanelX = 0;
+    private double _searchPanelY = 0;
     private SearchType _searchType = SearchType.Contains;
+    private double _containerWidth;
+    private double _containerHeight;
+    private const double PanelWidth = 350;
+    private const double PanelHeight = 140;
 
     public Dictionary<string, bool> VisibleColumns
     {
@@ -85,6 +90,26 @@ public class EquipmentDataGridViewModel: BindableBase, INavigationAware
         get => _searchText;
         set => SetProperty(ref _searchText, value);
     }
+    public double ContainerWidth
+    {
+        get => _containerWidth;
+        set => SetProperty(ref _containerWidth, value);
+    }
+    public double ContainerHeight
+    {
+        get => _containerHeight;
+        set => SetProperty(ref _containerHeight, value);
+    }
+    public double SearchPanelX
+    {
+        get => _searchPanelX;
+        set => SetProperty(ref _searchPanelX, value);
+    }
+    public double SearchPanelY
+    {
+        get => _searchPanelY;
+        set => SetProperty(ref _searchPanelY, value);
+    }
     public SearchType SearchType
     {
         get => _searchType;
@@ -111,11 +136,12 @@ public class EquipmentDataGridViewModel: BindableBase, INavigationAware
     public DelegateCommand PdfExportCommand { get; }
     public DelegateCommand DeleteCommand { get; }
     public DelegateCommand<SfDataGrid> DetailsViewLoadingCommand { get; set; }
-    public Prism.Commands.DelegateCommand<MouseButtonEventArgs> SearchPannelMouseDownCommand { get; set; }
-    public Prism.Commands.DelegateCommand<MouseEventArgs> SearchPannelMouseMoveCommand { get; set; }
-    public Prism.Commands.DelegateCommand<MouseButtonEventArgs> SearchPannelMouseUpCommand { get; set; }
     
     // Search pannel command
+    public Prism.Commands.DelegateCommand<MouseEventArgs> SearchPannelMouseMoveCommand { get; set; }
+    public Prism.Commands.DelegateCommand<MouseButtonEventArgs> SearchPannelMouseDownCommand { get; set; }
+    public Prism.Commands.DelegateCommand<MouseButtonEventArgs> SearchPannelMouseUpCommand { get; set; }
+    
     public DelegateCommand<TextChangedEventArgs> SearchTextChangedCommand { get; }
     public DelegateCommand SearchNextCommand { get; }
     public DelegateCommand SearchPreviousCommand { get; }
@@ -139,13 +165,13 @@ public class EquipmentDataGridViewModel: BindableBase, INavigationAware
         WriteOffCommand = new DelegateCommand(async (o) => await OnWriteOffEquipment());
         DeleteCommand = new DelegateCommand(async (o) => await OnDeleteEquipment());
         DetailsViewLoadingCommand = new DelegateCommand<SfDataGrid>(SparePartsDataGridLoading);
+        PrintCommand = new DelegateCommand(OnPrint);
+        
+        // Search pannel command initialization
         SearchPannelMouseDownCommand = new Prism.Commands.DelegateCommand<MouseButtonEventArgs>(OnSearchPannelMouseDown);
         SearchPannelMouseMoveCommand = new Prism.Commands.DelegateCommand<MouseEventArgs>(OnSearchPannelMouseMove);
         SearchPannelMouseUpCommand = new Prism.Commands.DelegateCommand<MouseButtonEventArgs>(OnSearchPannelMouseUp);
         SearchTextChangedCommand = new DelegateCommand<TextChangedEventArgs>(OnSearchTextChanged);
-        PrintCommand = new DelegateCommand(OnPrint);
-        
-        // Search pannel command initialization
         SearchNextCommand = new DelegateCommand(OnSearchNext);
         SearchPreviousCommand = new DelegateCommand(OnSearchPrevious);
         ClearSearchCommand = new DelegateCommand(OnClearSearch);
@@ -194,29 +220,30 @@ public class EquipmentDataGridViewModel: BindableBase, INavigationAware
         if (args.LeftButton == MouseButtonState.Pressed)
         {
             _isDragging = true;
-            var element = args.Source as FrameworkElement;
-            var canvas = VisualTreeHelper.GetParent(element) as Canvas;
-            
-            _startPoint = args.GetPosition(canvas);
-            _startLeft = Canvas.GetLeft(element);
-            _startTop = Canvas.GetTop(element);
-            
-            args.Handled = true;
+            _startMousePos = args.GetPosition(null);
+            _startPanelPos = new System.Windows.Point(SearchPanelX, SearchPanelY);
         }
     }
 
     private void OnSearchPannelMouseMove(MouseEventArgs args)
     {
         if (!_isDragging) return;
-        var element = args.Source as FrameworkElement;
-        var canvas = VisualTreeHelper.GetParent(element) as Canvas;
+
+        var currentPos = args.GetPosition(null);
+        var offsetX = currentPos.X - _startMousePos.X;
+        var offsetY = currentPos.Y - _startMousePos.Y;
+
+        var newX = _startPanelPos.X + offsetX;
+        var newY = _startPanelPos.Y + offsetY;
         
-        System.Windows.Point currentPosition = args.GetPosition(canvas);
-        double offsetX = currentPosition.X - _startPoint.X;
-        double offsetY = currentPosition.Y - _startPoint.Y;
-        
-        Canvas.SetLeft(element, _startLeft + offsetX);
-        Canvas.SetTop(element, _startTop + offsetY);
+        if (ContainerWidth > 0 && ContainerHeight > 0)
+        {
+            newX = Math.Max(0, Math.Min(ContainerWidth - PanelWidth, newX));
+            newY = Math.Max(0, Math.Min(ContainerHeight - PanelHeight, newY));
+        }
+
+        SearchPanelX = newX;
+        SearchPanelY = newY;
     }
 
     private void OnSearchPannelMouseUp(MouseButtonEventArgs args)

@@ -37,6 +37,13 @@
     </UserControl.Resources>
     
     <Grid>
+        
+        <i:Interaction.Behaviors>
+            <searchconverter:SizeChangedToViewModelBehavior 
+                Width="{Binding ContainerWidth, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                Height="{Binding ContainerHeight, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+        </i:Interaction.Behaviors>
+        
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -834,10 +841,20 @@
         
                         
         <!-- SEARCH PANNEL -->
-        <Canvas Visibility="{Binding SearchPannelVisibility, Converter={StaticResource BooleanToVisibilityConverter}}">
-            
-            <Border x:Name="searchPanel" Background="White" BorderBrush="Black" BorderThickness="1"
-                    CornerRadius="5" Width="350" Height="140" Canvas.Left="50" Canvas.Top="50">
+        <Canvas x:Name="SearchPanelContainer"
+                ClipToBounds="True"
+                Background="Transparent"
+                Visibility="{Binding SearchPannelVisibility, Converter={StaticResource BooleanToVisibilityConverter}}">
+
+            <Border Width="350" Height="140"
+                    SnapsToDevicePixels="True"
+                    UseLayoutRounding="True"
+                    Canvas.Left="{Binding SearchPanelX}"
+                    Canvas.Top="{Binding SearchPanelY}"
+                    Background="White"
+                    BorderBrush="Black"
+                    BorderThickness="1"
+                    CornerRadius="5">
                 
                 <Border.Effect>
                     <DropShadowEffect
@@ -849,17 +866,17 @@
                 </Border.Effect>
                 
                 <i:Interaction.Triggers>
-                    <i:EventTrigger EventName="MouseDown">
+                    <i:EventTrigger EventName="PreviewMouseDown">
                         <i:InvokeCommandAction Command="{Binding SearchPannelMouseDownCommand}"
                                                PassEventArgsToCommand="True"/>
                     </i:EventTrigger>
                     
-                    <i:EventTrigger EventName="MouseMove">
+                    <i:EventTrigger EventName="PreviewMouseMove">
                         <i:InvokeCommandAction Command="{Binding SearchPannelMouseMoveCommand}"
                                                PassEventArgsToCommand="True"/>
                     </i:EventTrigger>
                     
-                    <i:EventTrigger EventName="MouseUp">
+                    <i:EventTrigger EventName="PreviewMouseUp">
                         <i:InvokeCommandAction Command="{Binding SearchPannelMouseUpCommand}"
                                                PassEventArgsToCommand="True"/>
                     </i:EventTrigger>
