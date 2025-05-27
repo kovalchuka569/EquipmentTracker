@@ -166,10 +166,10 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware, IRegionCle
         NodeCollapsedCommand = new DelegateCommand<NodeExpandedCollapsedEventArgs>(OnNodeExpandedCollapsed);
         AddFolderCommand = new DelegateCommand(OnAddFolder);
         AddFileCommand = new DelegateCommand(OnAddFile);
+        OpenCommand = new DelegateCommand(OnOpenFileCommand);
         EditCommand = new DelegateCommand(OnEdit);
         ItemEndEditCommand = new DelegateCommand<TreeViewItemEndEditEventArgs>(OnItemEndEdit);
         ContextMenuOpenedCommand = new DelegateCommand(OnContextMenuOpened);
-        OpenCommand = new DelegateCommand(OnOpenFileCommand);
     }
     #endregion
 
@@ -566,9 +566,8 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware, IRegionCle
         {
             _regionManager = scopedRegionManager;
         }
-        var parameters = navigationContext.Parameters["MenuType"] as string;
+        _menuType = navigationContext.Parameters["MenuType"] as string;
         ColumnSelectorRegionName = navigationContext.Parameters.GetValue<string>("ColumnSelectorRegionName");
-        _menuType = parameters;
         LoadTreeAsync();
     }
     

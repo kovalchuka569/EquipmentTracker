@@ -51,6 +51,8 @@
             ItemsSource="{Binding Items}"
             SelectedItem="{Binding SelectedItem, Mode=TwoWay}">
             
+            
+            
             <i:Interaction.Triggers>
                 <i:EventTrigger EventName="NodeExpanded">
                     <i:InvokeCommandAction Command="{Binding NodeExpandedCommand}"
@@ -75,7 +77,7 @@
             
             <sf:SfTreeView.HierarchyPropertyDescriptors>
                     <sf:HierarchyPropertyDescriptor ChildPropertyName="SubItems" TargetType="{x:Type models:FolderItem}"/>
-                </sf:SfTreeView.HierarchyPropertyDescriptors>
+            </sf:SfTreeView.HierarchyPropertyDescriptors>
             
             
             <sf:SfTreeView.ItemTemplate>

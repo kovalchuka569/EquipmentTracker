@@ -1,5 +1,9 @@
 ﻿using System.Collections.ObjectModel;
 using System.Text.RegularExpressions;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Media;
 using Common.Logging;
 using Core.Events.DataGrid;
 using Core.Services.EquipmentDataGrid;
@@ -7,8 +11,11 @@ using Models.EquipmentDataGrid;
 using Notification.Wpf;
 using Prism.Mvvm;
 using Prism.Regions;
+using Syncfusion.UI.Xaml.Diagram;
 using Syncfusion.UI.Xaml.Grid;
+using Syncfusion.UI.Xaml.ScrollAxis;
 using Syncfusion.Windows.Shared;
+using Point = System.Drawing.Point;
 
 namespace EquipmentTracker.ViewModels.DataGrid;
 
@@ -22,6 +29,7 @@ public class EquipmentDataGridViewModel: BindableBase, INavigationAware
     private string _equipmentTableName;
     
     private SfDataGrid _sparePartsDataGrid;
+    private SfDataGrid _equipmentDataGrid;
 
     private Dictionary<string, bool> _visibleColumns = new();
     private ObservableCollection<EquipmentItem> _equipments = new();
@@ -29,6 +37,15 @@ public class EquipmentDataGridViewModel: BindableBase, INavigationAware
 
     private bool _isOverlayVisible;
     private bool _progressBarVisibility;
+    
+    // Search pannel fields
+    private bool _searchPannelVisibility;
+    private bool _isDragging;
+    private System.Windows.Point _startPoint;
+    private string _searchText;
+    private double _startLeft;
+    private double _startTop;
+    private SearchType _searchType = SearchType.Contains;
 
     public Dictionary<string, bool> VisibleColumns
     {
@@ -56,19 +73,53 @@ public class EquipmentDataGridViewModel: BindableBase, INavigationAware
         get => _progressBarVisibility;
         set => SetProperty(ref _progressBarVisibility, value);
     }
+
+    // Search pannel properties
+    public bool SearchPannelVisibility
+    {
+        get => _searchPannelVisibility;
+        set => SetProperty(ref _searchPannelVisibility, value);
+    }
+    public string SearchText
+    {
+        get => _searchText;
+        set => SetProperty(ref _searchText, value);
+    }
+    public SearchType SearchType
+    {
+        get => _searchType;
+        set
+        {
+            if (SetProperty(ref _searchType, value))
+            {
+                _equipmentDataGrid.SearchHelper.SearchType = value;
+            }
+        }
+    }
     
+    
+    public DelegateCommand<SfDataGrid> EquipmentDataGridLoadedCommand { get; }
     public DelegateCommand<RowValidatingEventArgs> RowValidatingCommand { get; }
     public DelegateCommand<RowValidatedEventArgs> RowValidatedCommand { get; }
     public DelegateCommand<GridDetailsViewExpandingEventArgs> SparePartsLoadingCommand { get; }
     public DelegateCommand RefreshCommand { get; }
+    public DelegateCommand OpenSearchPannelCommand { get; }
+    public DelegateCommand CloseSearchPannelCommand { get; }
     public DelegateCommand WriteOffCommand { get; }
     public DelegateCommand PrintCommand { get; }
     public DelegateCommand ExcelExportCommand { get; }
     public DelegateCommand PdfExportCommand { get; }
     public DelegateCommand DeleteCommand { get; }
-    
     public DelegateCommand<SfDataGrid> DetailsViewLoadingCommand { get; set; }
-
+    public Prism.Commands.DelegateCommand<MouseButtonEventArgs> SearchPannelMouseDownCommand { get; set; }
+    public Prism.Commands.DelegateCommand<MouseEventArgs> SearchPannelMouseMoveCommand { get; set; }
+    public Prism.Commands.DelegateCommand<MouseButtonEventArgs> SearchPannelMouseUpCommand { get; set; }
+    
+    // Search pannel command
+    public DelegateCommand<TextChangedEventArgs> SearchTextChangedCommand { get; }
+    public DelegateCommand SearchNextCommand { get; }
+    public DelegateCommand SearchPreviousCommand { get; }
+    public DelegateCommand ClearSearchCommand { get; }
     
     public EquipmentDataGridViewModel(IAppLogger<EquipmentDataGridViewModel> logger,
         IEquipmentDataGridService service,
@@ -78,15 +129,110 @@ public class EquipmentDataGridViewModel: BindableBase, INavigationAware
         _service = service;
         _globalNotificationManager = globalNotificationManager;
 
+        EquipmentDataGridLoadedCommand = new DelegateCommand<SfDataGrid>(OnEquipmentDataGridLoaded);
         RowValidatingCommand = new DelegateCommand<RowValidatingEventArgs>(async (args) => await OnRowValidating(args));
         RowValidatedCommand = new DelegateCommand<RowValidatedEventArgs>(async (args) => await OnRowValidated(args));
         SparePartsLoadingCommand = new DelegateCommand<GridDetailsViewExpandingEventArgs>(OnSparePartsLoading);
         RefreshCommand = new DelegateCommand(async (o) => await RefreshAsync());
+        OpenSearchPannelCommand = new DelegateCommand(OnOpenSearchPannel);
+        CloseSearchPannelCommand = new DelegateCommand(OnCloseSearchPannel);
         WriteOffCommand = new DelegateCommand(async (o) => await OnWriteOffEquipment());
         DeleteCommand = new DelegateCommand(async (o) => await OnDeleteEquipment());
-
         DetailsViewLoadingCommand = new DelegateCommand<SfDataGrid>(SparePartsDataGridLoading);
+        SearchPannelMouseDownCommand = new Prism.Commands.DelegateCommand<MouseButtonEventArgs>(OnSearchPannelMouseDown);
+        SearchPannelMouseMoveCommand = new Prism.Commands.DelegateCommand<MouseEventArgs>(OnSearchPannelMouseMove);
+        SearchPannelMouseUpCommand = new Prism.Commands.DelegateCommand<MouseButtonEventArgs>(OnSearchPannelMouseUp);
+        SearchTextChangedCommand = new DelegateCommand<TextChangedEventArgs>(OnSearchTextChanged);
+        PrintCommand = new DelegateCommand(OnPrint);
+        
+        // Search pannel command initialization
+        SearchNextCommand = new DelegateCommand(OnSearchNext);
+        SearchPreviousCommand = new DelegateCommand(OnSearchPrevious);
+        ClearSearchCommand = new DelegateCommand(OnClearSearch);
     }
+    
+    private void OnClearSearch(object obj)
+    {
+        _equipmentDataGrid.SearchHelper.ClearSearch();
+        _equipmentDataGrid.SelectionController.ClearSelections(false);
+        SearchText = string.Empty;
+        SearchType = SearchType.Contains;
+    }
+    
+    private void OnSearchPrevious(object obj)
+    {
+        _equipmentDataGrid.SearchHelper.FindPrevious(SearchText);
+        _equipmentDataGrid.SelectionController.MoveCurrentCell(_equipmentDataGrid.SearchHelper.CurrentRowColumnIndex);
+    }
+
+    private void OnSearchNext(object obj)
+    {
+        _equipmentDataGrid.SearchHelper.FindNext(SearchText);
+        _equipmentDataGrid.SelectionController.MoveCurrentCell(_equipmentDataGrid.SearchHelper.CurrentRowColumnIndex);
+    }
+
+    private void OnPrint(object obj)
+    {
+        _equipmentDataGrid.ShowPrintPreview();
+    }
+
+    private void OnEquipmentDataGridLoaded(SfDataGrid equipmentDataGrid)
+    {
+        _equipmentDataGrid = equipmentDataGrid;
+        _equipmentDataGrid.SearchHelper.AllowFiltering = true;
+        Console.WriteLine(_equipmentDataGrid.SearchHelper.SearchType);
+    }
+
+    private void OnSearchTextChanged(TextChangedEventArgs obj)
+    {
+        _equipmentDataGrid.SearchHelper.Search(SearchText);
+        _equipmentDataGrid.SelectionController.ClearSelections(false);
+    }
+
+    private void OnSearchPannelMouseDown(MouseButtonEventArgs args)
+    {
+        if (args.LeftButton == MouseButtonState.Pressed)
+        {
+            _isDragging = true;
+            var element = args.Source as FrameworkElement;
+            var canvas = VisualTreeHelper.GetParent(element) as Canvas;
+            
+            _startPoint = args.GetPosition(canvas);
+            _startLeft = Canvas.GetLeft(element);
+            _startTop = Canvas.GetTop(element);
+            
+            args.Handled = true;
+        }
+    }
+
+    private void OnSearchPannelMouseMove(MouseEventArgs args)
+    {
+        if (!_isDragging) return;
+        var element = args.Source as FrameworkElement;
+        var canvas = VisualTreeHelper.GetParent(element) as Canvas;
+        
+        System.Windows.Point currentPosition = args.GetPosition(canvas);
+        double offsetX = currentPosition.X - _startPoint.X;
+        double offsetY = currentPosition.Y - _startPoint.Y;
+        
+        Canvas.SetLeft(element, _startLeft + offsetX);
+        Canvas.SetTop(element, _startTop + offsetY);
+    }
+
+    private void OnSearchPannelMouseUp(MouseButtonEventArgs args)
+    {
+        _isDragging = false;
+    }
+    private void OnOpenSearchPannel(object obj)
+    {
+       SearchPannelVisibility = true;
+    }
+
+    private void OnCloseSearchPannel(object obj)
+    {
+        SearchPannelVisibility = false;
+    }
+    
 
     private async void OnSparePartsLoading(GridDetailsViewExpandingEventArgs args)
     {
@@ -166,8 +312,9 @@ public class EquipmentDataGridViewModel: BindableBase, INavigationAware
                 args.ErrorMessages.Add(key, message);
         }
         
-        if (IsColumnVisible("InventoryNumber") && !IsValidText(rowData.InventoryNumber, 3, 12, out error, "Інвентарний номер")) Add("InventoryNumber", error);
         if (IsColumnVisible("Brand") && !IsValidText(rowData.Brand, 2, 50, out error, "Бренд")) Add("Brand", error);
+        
+        if (IsColumnVisible("InventoryNumber") && !IsValidText(rowData.InventoryNumber, 3, 12, out error, "Інвентарний номер")) Add("InventoryNumber", error);
         if (IsColumnVisible("Model") && !IsValidText(rowData.Model, 2, 50, out error, "Модель")) Add("Model", error);
         if (IsColumnVisible("Category") && !IsValidText(rowData.Category, 2, 50, out error, "Категорія")) Add("Category", error);
         if (IsColumnVisible("SerialNumber") && !IsValidText(rowData.SerialNumber, 0, 50, out error, "Серійний номер", false)) Add("SerialNumber", error);

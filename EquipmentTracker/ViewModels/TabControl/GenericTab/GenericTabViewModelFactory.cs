@@ -23,3 +23,4 @@ public class GenericTabViewModelFactory : IGenericTabViewModelFactory
         return new GenericTabViewModel(scopedRegionManager) { Parameters = parameters };
     }
 }
+

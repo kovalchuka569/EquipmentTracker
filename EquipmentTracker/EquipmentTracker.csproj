@@ -183,6 +183,8 @@
       <Resource Include="Views\DataGrid\Repairs\Assets\folder.png" />
       <None Remove="Views\DataGrid\Repairs\Assets\opened_folder.png" />
       <Resource Include="Views\DataGrid\Repairs\Assets\opened_folder.png" />
+      <None Remove="Views\DataGrid\Assets\search.png" />
+      <Resource Include="Views\DataGrid\Assets\search.png" />
     </ItemGroup>
 
     <ItemGroup>

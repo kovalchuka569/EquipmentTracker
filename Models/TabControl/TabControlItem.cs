@@ -19,3 +19,5 @@ public class TabControlItem : BindableBase
     public DelegateCommand CloseAllCommand { get; set; }
     public DelegateCommand<TabControlItem> CloseAllButThisCommand { get; set; }
 }
+
+
