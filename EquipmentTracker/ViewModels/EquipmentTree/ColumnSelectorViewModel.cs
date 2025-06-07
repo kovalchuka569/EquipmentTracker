@@ -134,6 +134,7 @@ public class ColumnSelectorViewModel : BindableBase, INavigationAware
             {
                 "\"EquipmentId\" INTEGER",
                 "\"Назва\" VARCHAR(255)",
+                "\"Категорія\" VARCHAR(255)",
                 "\"Кількість\" NUMERIC(10, 2)",
                 "\"Одиниця\" VARCHAR(255)",
                 "\"Серійний номер\" TEXT",

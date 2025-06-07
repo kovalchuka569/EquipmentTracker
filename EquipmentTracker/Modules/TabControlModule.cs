@@ -68,6 +68,7 @@ public class TabControlModule : IModule
         containerRegistry.RegisterForNavigation<GenericTabView, GenericTabViewModel>();
         
         #region Tabs
+        
         // Image Viewer
         containerRegistry.RegisterForNavigation<ImageViewerView, ImageViewerViewModel>();
         containerRegistry.RegisterSingleton<ImageViewerTempStorage>();

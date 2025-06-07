@@ -180,6 +180,7 @@ namespace UI.ViewModels.Auth
             
             try 
             {
+                Settings.Default.Reload();
                 // Check user by username
                 var user = await _dbContext.Users
                     .AsNoTracking()
@@ -196,7 +197,6 @@ namespace UI.ViewModels.Auth
                 switch (result)
                 {
                     case AuthResult.Admin:
-                        Console.WriteLine("Admin");
                         UsernameHasError = false;
                         PasswordHasError = false;
                         _busyIndicatorService.SuccessAuthMessage();
@@ -206,7 +206,6 @@ namespace UI.ViewModels.Auth
                         _busyIndicatorService.HiddenBusyIndicator();
                         break;
                     case AuthResult.NoAdmin:
-                        Console.WriteLine("No admin");
                         UsernameHasError = false;
                         PasswordHasError = false;
                         _busyIndicatorService.SuccessAuthMessage();
@@ -248,7 +247,6 @@ namespace UI.ViewModels.Auth
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error during login: {ex.Message}");
                 _busyIndicatorService.ErrorAuthMessage();
                 await Task.Delay(500);
                 _busyIndicatorService.StopBusy();

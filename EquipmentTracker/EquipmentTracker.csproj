@@ -6,7 +6,7 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <UseWPF>true</UseWPF>
-        <AssemblyVersion>0.2.000</AssemblyVersion>
+        <AssemblyVersion>0.2.101</AssemblyVersion>
     	<GenerateAppInstallerFile>True</GenerateAppInstallerFile>
     	<AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
     	<AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
@@ -17,10 +17,9 @@
     	<HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
     	<ApplicationManifest>app.manifest</ApplicationManifest>
     	<PlatformTarget>AnyCPU</PlatformTarget>
-    	<FileVersion>0.2.000</FileVersion>
+    	<FileVersion>0.2.101</FileVersion>
     	<AssemblyName>Equipment Tracker</AssemblyName>
     	<ApplicationIcon>gears_ico.ico</ApplicationIcon>
-    	<Version>0.2.000</Version>
     </PropertyGroup>
 
     <ItemGroup>

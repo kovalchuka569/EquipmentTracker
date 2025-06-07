@@ -62,6 +62,8 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware, IRegionCle
     //Context menu items visibility
     private bool _openContextMenuVisibility;
     private bool _addFolderFileContextMenuItemVisibility;
+    private bool _addFileContextMenuVisibility;
+    private bool _addFileContextMenuItemVisibility;
     private bool _editContextMenuItemVisibility;
 
     private bool _emptyDataTipVisibility;
@@ -102,6 +104,12 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware, IRegionCle
     public bool AddFolderFileContextMenuItemVisibility
     {
         get => _addFolderFileContextMenuItemVisibility;
+        set => SetProperty(ref _addFolderFileContextMenuItemVisibility, value);
+    }
+
+    public bool AddFileContextMenuItemVisibility
+    {
+        get => _addFileContextMenuItemVisibility;
         set => SetProperty(ref _addFolderFileContextMenuItemVisibility, value);
     }
 
@@ -525,6 +533,10 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware, IRegionCle
             if (folderItem.SubItems.Any(child => child is FileItem))
             {
                 AddFolderFileContextMenuItemVisibility = false;
+            }
+            if (folderItem.SubItems.Any(child => child is FolderItem))
+            {
+                AddFileContextMenuItemVisibility = false;
             }
         }
     }

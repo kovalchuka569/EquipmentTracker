@@ -799,7 +799,7 @@
                                 <grid:SfDataGrid.StackedHeaderRows>
                                     <grid:StackedHeaderRow>
                                         <grid:StackedHeaderRow.StackedColumns>
-                                                <grid:StackedColumn ChildColumns="SparePartName,SparePartCategory,SparePartSerialNumber,SparePartQuantity,SparePartUnits,SparePartNotes" HeaderText="ЗАПАСНІ ЧАСТИНИ"/>
+                                                <grid:StackedColumn ChildColumns="SparePartName,SparePartCategory,SparePartSerialNumber,SparePartQuantity,SparePartUnit,SparePartNotes" HeaderText="ЗАПАСНІ ЧАСТИНИ"/>
                                         </grid:StackedHeaderRow.StackedColumns>
                                     </grid:StackedHeaderRow>
                                 </grid:SfDataGrid.StackedHeaderRows>
@@ -898,21 +898,26 @@
                         </Grid.ColumnDefinitions>
                         
                         <Border Grid.Column="0" BorderBrush="LightGray" BorderThickness="1,0">
+                            
                             <RadioButton Content="Починається з" Margin="5" 
-                                         IsChecked="{Binding SearchType, Converter={StaticResource SearchTypeToBoolConverter}, ConverterParameter=StartsWith}"
+                                         IsChecked="{Binding SearchType, 
+                                         Converter={StaticResource SearchTypeToBoolConverter}, ConverterParameter=StartsWith}"
                                          GroupName="SearchMode"/>
                         </Border>
                         
                         <Border Grid.Column="1">
                             <RadioButton Content="Закінчується на" Margin="5" 
-                                      IsChecked="{Binding SearchType, Converter={StaticResource SearchTypeToBoolConverter}, ConverterParameter=EndsWith}"
+                                      IsChecked="{Binding SearchType, 
+                                      Converter={StaticResource SearchTypeToBoolConverter}, ConverterParameter=EndsWith}"
                                       GroupName="SearchMode"/>
                         </Border>
                         
                         <Border Grid.Column="2" BorderBrush="LightGray" BorderThickness="1,0">
                             <RadioButton Content="Містить" Margin="5" 
-                                      IsChecked="{Binding SearchType, Converter={StaticResource SearchTypeToBoolConverter}, ConverterParameter=Contains}"
+                                      IsChecked="{Binding SearchType, 
+                                      Converter={StaticResource SearchTypeToBoolConverter}, ConverterParameter=Contains}"
                                       GroupName="SearchMode"/>
+                            
                         </Border>
                         
                         <Button Style="{StaticResource WPFRoundedGlyphButtonStyle}" Grid.Column="3" HorizontalAlignment="Right" VerticalAlignment="Top"

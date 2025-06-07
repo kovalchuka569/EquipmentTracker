@@ -122,6 +122,17 @@
             <!-- CONTEXT MENU -->
             <grid:SfDataGrid.ContextMenu>
                 <ContextMenu>
+                    
+                    <!-- Metrics -->
+                    <MenuItem Header="Метрики">
+                        <MenuItem Header="Діаграми">
+                            <MenuItem Header="Діаграма обладнання відносно цього матеріалу" 
+                                      Command="{Binding OpenConsumableEquipmentChartCommand}">
+                            
+                            </MenuItem>
+                        </MenuItem>
+                    </MenuItem>
+                    
                     <!-- Residue alarm -->
                     <MenuItem Header="Сигналізатор залишків" StaysOpenOnClick="True" Visibility="{Binding ContextMenuLevelIndicatorVisibility, Converter={StaticResource BoolToVisibilityConverter}}">
                             <Grid>

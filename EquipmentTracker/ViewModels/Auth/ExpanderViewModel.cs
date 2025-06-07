@@ -105,6 +105,7 @@ namespace UI.ViewModels.Auth
             Settings.Default.DbUser = DbUser;
             Settings.Default.DbPassword = DbPassword;
             Settings.Default.Save();
+            Settings.Default.Reload();
             TestDbConnectionAsync(DbHost, DbName, DbUser, DbPassword);
             ButtonSaveLabel = "Збережено ✓";
             ButtonSaveContentColor = Brushes.Green;

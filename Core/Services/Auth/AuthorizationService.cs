@@ -18,9 +18,7 @@ namespace Core.Services.Auth
 
         public async Task<AuthResult> AuthenticateAsync(string login, string password)
         {
-            Console.WriteLine("AuthorizationService.AuthenticateAsync started...");
             var result = await _authModel.AuthenticateAsync(login, password);
-            Console.WriteLine("AuthorizationService.AuthenticateAsync completed!");
             return result;
         }
     }

@@ -18,6 +18,7 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/Syncfusion.Themes.Windows11Light.WPF;component/sflinearprogressbar/sflinearprogressbar.xaml"/>
+                <ResourceDictionary Source="/Syncfusion.Themes.Windows11Light.WPF;component/sftreeview/sftreeview.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         </ResourceDictionary>
@@ -37,6 +38,7 @@
         
         <sf:SfTreeView Grid.Row="1" 
             x:Name="SfTreeView"
+            Style="{StaticResource SyncfusionSfTreeViewStyle}"
             SelectionBackgroundColor="LightGray"
             VerticalAlignment="Top" HorizontalAlignment="Left"
             IsAnimationEnabled="True"
@@ -125,7 +127,7 @@
                         
                         <MenuItem Header="Створити" Visibility="{Binding AddFolderFileContextMenuItemVisibility, Converter={StaticResource BoolToVisibilityConverter}}">
                             
-                            <MenuItem Header="Створити нову папку" IsEnabled="{Binding AddFolderContextMenuItemVisibility}">
+                            <MenuItem Header="Створити нову папку" Visibility="{Binding AddFolderContextMenuItemVisibility}">
                                 <i:Interaction.Triggers>
                                     <i:EventTrigger EventName="Click">
                                         <i:InvokeCommandAction Command="{Binding AddFolderCommand}"/>
@@ -133,7 +135,7 @@
                                 </i:Interaction.Triggers>
                             </MenuItem>
                             
-                            <MenuItem Header="Створити нову таблицю" IsEnabled="{Binding AddFileContextMenuItemVisibility}">
+                            <MenuItem Header="Створити нову таблицю" Visibility="{Binding AddFileContextMenuItemVisibility}">
                                 <i:Interaction.Triggers>
                                     <i:EventTrigger EventName="Click">
                                             <i:InvokeCommandAction Command="{Binding AddFileCommand}"/>

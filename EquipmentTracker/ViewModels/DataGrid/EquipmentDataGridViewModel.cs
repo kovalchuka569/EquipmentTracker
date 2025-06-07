@@ -206,7 +206,6 @@ public class EquipmentDataGridViewModel: BindableBase, INavigationAware
     {
         _equipmentDataGrid = equipmentDataGrid;
         _equipmentDataGrid.SearchHelper.AllowFiltering = true;
-        Console.WriteLine(_equipmentDataGrid.SearchHelper.SearchType);
     }
 
     private void OnSearchTextChanged(TextChangedEventArgs obj)

@@ -11,6 +11,7 @@ using System.Windows.Controls;
 using Common.Logging;
 using Core.Events.DataGrid;
 using Core.Events.DataGrid.Consumables;
+using Core.Events.TabControl;
 using Core.Services.Common.DataGridColumns;
 using Core.Services.Consumables;
 using Microsoft.Win32;
@@ -30,7 +31,8 @@ namespace UI.ViewModels.Consumables
         private readonly IAppLogger<ConsumablesDataGridViewModel> _logger;
         private readonly IConsumablesDataGridService _service;
         private readonly NotificationManager _notificationManager;
-        private IRegionManager _regionManager;
+        private readonly IEventAggregator _globalEventAggregator;
+        private IRegionManager _scopedRegionManager;
         private IEventAggregator _scopedEventAggregator;
         private CancellationTokenSource _cts;
         private SubscriptionToken _dataChangedToken;
@@ -126,14 +128,17 @@ namespace UI.ViewModels.Consumables
         public DelegateCommand PrintCommand { get; }
         public DelegateCommand ExcelExportCommand { get; }
         public DelegateCommand PdfExportCommand { get; }
+        public DelegateCommand OpenConsumableEquipmentChartCommand { get; }
         public ConsumablesDataGridViewModel(
             IAppLogger<ConsumablesDataGridViewModel> logger,
             IConsumablesDataGridService service, 
-            NotificationManager notificationManager)
+            NotificationManager notificationManager, 
+            IEventAggregator globalEventAggregator)
         {
             _logger = logger;
             _service = service;
             _notificationManager = notificationManager;
+            _globalEventAggregator = globalEventAggregator;
             
             LoadedUserControlCommand = new DelegateCommand(OnLoadedUserControl);
             UnloadedUserControlCommand = new DelegateCommand(OnUnloadedUserControl);
@@ -143,6 +148,19 @@ namespace UI.ViewModels.Consumables
             PrintCommand = new DelegateCommand(OnPrint);
             ExcelExportCommand = new DelegateCommand(OnExcelExport);
             PdfExportCommand = new DelegateCommand(OnPdfExport);
+            OpenConsumableEquipmentChartCommand = new DelegateCommand(OnOpenConsumableEquipmentChart);
+        }
+
+        private void OnOpenConsumableEquipmentChart()
+        {
+            _globalEventAggregator.GetEvent<OpenNewTabEvent>().Publish(new OpenNewTabEventArgs
+            {
+                Header = "Test Chart",
+                Parameters = new Dictionary<string, object>
+                {
+                    {"ViewNameToShow", "ConsumablesEquipmentChartView"}
+                }
+            });
         }
 
         private void OnPrint()
@@ -301,10 +319,10 @@ namespace UI.ViewModels.Consumables
             _scopedEventAggregator.GetEvent<AddNewOperationEvent>().Subscribe(ChangeQuantityValue);
 
             var parameters = new NavigationParameters();
-            parameters.Add("ScopedRegionManager", _regionManager);
+            parameters.Add("ScopedRegionManager", _scopedRegionManager);
             parameters.Add("ScopedEventAggregator", _scopedEventAggregator);
             
-            _regionManager.RequestNavigate("DetailsConsumablesRegion", "DetailsConsumablesView", parameters);
+            _scopedRegionManager.RequestNavigate("DetailsConsumablesRegion", "DetailsConsumablesView", parameters);
         }
 
         private void OnUnloadedUserControl()
@@ -426,7 +444,7 @@ namespace UI.ViewModels.Consumables
         {
             if (navigationContext.Parameters["ScopedRegionManager"] is IRegionManager scopedRegionManager)
             {
-                _regionManager = scopedRegionManager;
+                _scopedRegionManager = scopedRegionManager;
             }
             if (navigationContext.Parameters["ScopedEventAggregator"] is EventAggregator scopedEventAggregator)
             {
