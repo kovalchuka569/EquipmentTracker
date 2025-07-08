@@ -1,7 +1,5 @@
 ﻿using System.Collections.ObjectModel;
 using Prism.Commands;
-using Prism.Mvvm;
-using Prism.Regions;
 using Prism.Events;
 using Core.Events.TabControl;
 using Models.TabControl;

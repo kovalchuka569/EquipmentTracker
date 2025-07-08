@@ -1,4 +1,4 @@
-﻿using Core.Models.DataGrid;
+using Core.Models.DataGrid;
 using Core.Services.Common;
 using Core.Services.Common.DataGridColumns;
 using Core.Services.Consumables;
@@ -25,6 +25,7 @@ using EquipmentTracker.ViewModels.DataGrid;
 using EquipmentTracker.ViewModels.DataGrid.Services;
 using EquipmentTracker.Views.DataGrid;
 using EquipmentTracker.Views.DataGrid.Services;
+using EquipmentTracker.Views.Equipment.DataGrid;
 using UI.Interfaces.Factory;
 using UI.Services.Factory;
 using UI.ViewModels.Common;
@@ -44,9 +45,14 @@ using UI.Views.NavDrawer.NavDrawerItems.ConsumablesTree;
 using UI.Views.TabControl;
 using Prism.Modularity;
 using Prism.Ioc;
-using Prism.Regions;
 using UI.ViewModels.DataGrid.Services;
+using UI.ViewModels.Equipment.DataGrid;
 using UI.Views.DataGrid.Services;
+using EquipmentTracker.Views.Equipment.DataGrid;
+using EquipmentTracker.Views.Equipment.Dialogs;
+using UI.ViewModels.Equipment.DataGrid;
+using EquipmentDataGridView = EquipmentTracker.Views.Equipment.DataGrid.EquipmentDataGridView;
+using EquipmentDataGridViewModel = UI.ViewModels.Equipment.DataGrid.EquipmentDataGridViewModel;
 
 namespace UI.Modules;
 
@@ -85,6 +91,8 @@ public class TabControlModule : IModule
         containerRegistry.RegisterForNavigation<DataGridView, DataGridViewModel>(); // View, ViewModel
         
         containerRegistry.RegisterForNavigation<EquipmentDataGridView, EquipmentDataGridViewModel>(); // View, ViewModel
+        containerRegistry.RegisterForNavigation<ColumnCreatorView, ColumnCreatorViewModel>();
+        containerRegistry.RegisterForNavigation<SheetSelectorView, SheetSelectorViewModel>();
         containerRegistry.Register<IEquipmentDataGridService, EquipmentDataGridService>(); // Service
         containerRegistry.Register<IEquipmentDataGridRepository, EquipmentDataGridRepository>(); // Repository
         // Deletion agreement

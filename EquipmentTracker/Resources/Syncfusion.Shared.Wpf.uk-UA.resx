@@ -1,0 +1,882 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="TodayLabel" xml:space="preserve">
+    <value>Сьогодні</value>
+  </data>
+  <data name="TodayLabel" xml:space="preserve">
+    <value />
+  </data>
+  <data name="OkLabel" xml:space="preserve">
+    <value>ОК</value>
+  </data>
+  <data name="AccessEmptyDateText" xml:space="preserve">
+    <value>Очистити</value>
+  </data>
+  <data name="CancelLabel" xml:space="preserve">
+    <value>Відміна</value>
+  </data>
+  <data name="ColorsText" xml:space="preserve">
+    <value>Кольори:</value>
+  </data>
+  <data name="MoreColorsText" xml:space="preserve">
+    <value>Більше кольорів...</value>
+  </data>
+  <data name="MoreColorsWindowTitleText" xml:space="preserve">
+    <value>Колори</value>
+  </data>
+  <data name="StandardColorsText" xml:space="preserve">
+    <value>Стандартні кольори</value>
+  </data>
+  <data name="ThemeColorsText" xml:space="preserve">
+    <value>Кольори теми</value>
+  </data>
+  <data name="Accent" xml:space="preserve">
+    <value>Акцент</value>
+  </data>
+  <data name="AccessCalendarText" xml:space="preserve">
+    <value>Календар</value>
+  </data>
+  <data name="AccessClockText" xml:space="preserve">
+    <value>Годинник</value>
+  </data>
+  <data name="AccessTodayText" xml:space="preserve">
+    <value>Сьогодні</value>
+  </data>
+  <data name="AccessWatchText" xml:space="preserve">
+    <value>Годинник</value>
+  </data>
+  <data name="AliceBlue" xml:space="preserve">
+    <value>Блакитна аліса</value>
+  </data>
+  <data name="AlphaTooltipText" xml:space="preserve">
+    <value>Альфа</value>
+  </data>
+  <data name="AntiqueWhite" xml:space="preserve">
+    <value>Античний білий</value>
+  </data>
+  <data name="Aqua" xml:space="preserve">
+    <value>Аква</value>
+  </data>
+  <data name="Aquamarine" xml:space="preserve">
+    <value>Аквамарин</value>
+  </data>
+  <data name="AText" xml:space="preserve">
+    <value>А</value>
+  </data>
+  <data name="AutomaticText" xml:space="preserve">
+    <value>Автоматично</value>
+  </data>
+  <data name="Azure" xml:space="preserve">
+    <value>Блакитний</value>
+  </data>
+  <data name="BackgroundText" xml:space="preserve">
+    <value>Фон</value>
+  </data>
+  <data name="Beige" xml:space="preserve">
+    <value>Бежевий</value>
+  </data>
+  <data name="Bisque" xml:space="preserve">
+    <value>Бісквітний</value>
+  </data>
+  <data name="Black" xml:space="preserve">
+    <value>Чорний</value>
+  </data>
+  <data name="BlanchedAlmond" xml:space="preserve">
+    <value>Вибілений мигдаль</value>
+  </data>
+  <data name="Blue" xml:space="preserve">
+    <value>Синій</value>
+  </data>
+  <data name="BlueTooltipText" xml:space="preserve">
+    <value>Синій</value>
+  </data>
+  <data name="BlueViolet" xml:space="preserve">
+    <value>Синьо-фіолетовий</value>
+  </data>
+  <data name="Bottom" xml:space="preserve">
+    <value>Нижній</value>
+  </data>
+  <data name="BrightText" xml:space="preserve">
+    <value>Яскравий</value>
+  </data>
+  <data name="Brown" xml:space="preserve">
+    <value>Коричневий</value>
+  </data>
+  <data name="BurlyWood" xml:space="preserve">
+    <value>Жовто-коричневий</value>
+  </data>
+  <data name="CadetBlue" xml:space="preserve">
+    <value>Синьо-сірий</value>
+  </data>
+  <data name="CancelText" xml:space="preserve">
+    <value>Відміна</value>
+  </data>
+  <data name="Center" xml:space="preserve">
+    <value>Центр</value>
+  </data>
+  <data name="Chartreuse" xml:space="preserve">
+    <value>Шартрез</value>
+  </data>
+  <data name="Chocolate" xml:space="preserve">
+    <value>Шоколадний</value>
+  </data>
+  <data name="CloseTooltip" xml:space="preserve">
+    <value>Закрити</value>
+  </data>
+  <data name="ColorModelsText" xml:space="preserve">
+    <value>Моделі кольорів:</value>
+  </data>
+  <data name="Coral" xml:space="preserve">
+    <value>Кораловий</value>
+  </data>
+  <data name="CornflowerBlue" xml:space="preserve">
+    <value>Волошковий синій</value>
+  </data>
+  <data name="CornSilk" xml:space="preserve">
+    <value>Кукурудзяний шовк</value>
+  </data>
+  <data name="Crimson" xml:space="preserve">
+    <value>Малиновий</value>
+  </data>
+  <data name="CurrentText" xml:space="preserve">
+    <value>Поточний</value>
+  </data>
+  <data name="CustomText" xml:space="preserve">
+    <value>Користувацький</value>
+  </data>
+  <data name="Cyan" xml:space="preserve">
+    <value>Блакитний</value>
+  </data>
+  <data name="DarkBlue" xml:space="preserve">
+    <value>Темно-синій</value>
+  </data>
+  <data name="DarkCyan" xml:space="preserve">
+    <value>Темно-бірюзовий</value>
+  </data>
+  <data name="DarkerText" xml:space="preserve">
+    <value>Темний</value>
+  </data>
+  <data name="DarkGoldenrod" xml:space="preserve">
+    <value>Темно-золотавий</value>
+  </data>
+  <data name="DarkGray" xml:space="preserve">
+    <value>Темно-сірий</value>
+  </data>
+  <data name="DarkGreen" xml:space="preserve">
+    <value>Темно-зелений</value>
+  </data>
+  <data name="DarkKhaki" xml:space="preserve">
+    <value>Темно-хакі</value>
+  </data>
+  <data name="DarkMagenta" xml:space="preserve">
+    <value>Темно-пурпуровий</value>
+  </data>
+  <data name="DarkOliveGreen" xml:space="preserve">
+    <value>Темно-оливковий</value>
+  </data>
+  <data name="DarkOrange" xml:space="preserve">
+    <value>Темно-помаранчевий</value>
+  </data>
+  <data name="DarkOrchid" xml:space="preserve">
+    <value>Темна орхідея</value>
+  </data>
+  <data name="DarkRed" xml:space="preserve">
+    <value>Темно-червоний</value>
+  </data>
+  <data name="DarkSalmon" xml:space="preserve">
+    <value>Темно-лососевий</value>
+  </data>
+  <data name="DarkSeaGreen" xml:space="preserve">
+    <value>Темно-морська зелень</value>
+  </data>
+  <data name="DarkSlateBlue" xml:space="preserve">
+    <value>Темно-шиферно синій</value>
+  </data>
+  <data name="DarkSlateGray" xml:space="preserve">
+    <value>Темно-шиферно сірий</value>
+  </data>
+  <data name="DarkTurquoise" xml:space="preserve">
+    <value>Темно-бірюзовий</value>
+  </data>
+  <data name="DarkViolet" xml:space="preserve">
+    <value>Темно-фіолетовий</value>
+  </data>
+  <data name="DeepPink" xml:space="preserve">
+    <value>Насичений рожевий</value>
+  </data>
+  <data name="DeepSkyBlue" xml:space="preserve">
+    <value>Яскраво-блакитний</value>
+  </data>
+  <data name="DimGray" xml:space="preserve">
+    <value>Тьмяно-сірий</value>
+  </data>
+  <data name="DodgerBlue" xml:space="preserve">
+    <value>Яскраво-синій</value>
+  </data>
+  <data name="EndPoint" xml:space="preserve">
+    <value>Кінцева-точка</value>
+  </data>
+  <data name="Firebrick" xml:space="preserve">
+    <value>Вогняна цегла</value>
+  </data>
+  <data name="FloralWhite" xml:space="preserve">
+    <value>Квітковий білий</value>
+  </data>
+  <data name="ForestGreen" xml:space="preserve">
+    <value>Лісовий зелений</value>
+  </data>
+  <data name="Fuchsia" xml:space="preserve">
+    <value>Фуксія</value>
+  </data>
+  <data name="Gainsboro" xml:space="preserve">
+    <value>Гейнсбро</value>
+  </data>
+  <data name="GhostWhite" xml:space="preserve">
+    <value>Примарний білий</value>
+  </data>
+  <data name="Gold" xml:space="preserve">
+    <value>Золотий</value>
+  </data>
+  <data name="Goldenrod" xml:space="preserve">
+    <value>Золотарник</value>
+  </data>
+  <data name="GradientOrigin" xml:space="preserve">
+    <value>Початок градієнта</value>
+  </data>
+  <data name="Gray" xml:space="preserve">
+    <value>Сірий</value>
+  </data>
+  <data name="Green" xml:space="preserve">
+    <value>Зелений</value>
+  </data>
+  <data name="GreenTooltipText" xml:space="preserve">
+    <value>Зелений</value>
+  </data>
+  <data name="GreenYellow" xml:space="preserve">
+    <value>Зелений жовтий</value>
+  </data>
+  <data name="Height" xml:space="preserve">
+    <value>Висота</value>
+  </data>
+  <data name="Honeydew" xml:space="preserve">
+    <value>Медовий</value>
+  </data>
+  <data name="HotPink" xml:space="preserve">
+    <value>Яскраво-рожевий</value>
+  </data>
+  <data name="HSV" xml:space="preserve">
+    <value>HSV</value>
+  </data>
+  <data name="HueTooltipText" xml:space="preserve">
+    <value>Відтінок</value>
+  </data>
+  <data name="Ice" xml:space="preserve">
+    <value>Льодовий</value>
+  </data>
+  <data name="IndianRed" xml:space="preserve">
+    <value>Індійський червоний</value>
+  </data>
+  <data name="Indigo" xml:space="preserve">
+    <value>Індиго</value>
+  </data>
+  <data name="Ivory" xml:space="preserve">
+    <value>Слонова кістка</value>
+  </data>
+  <data name="Khaki" xml:space="preserve">
+    <value>Хакі</value>
+  </data>
+  <data name="Lavender" xml:space="preserve">
+    <value>Лавандовий</value>
+  </data>
+  <data name="LavenderBlush" xml:space="preserve">
+    <value>Лавандовий рум'янець</value>
+  </data>
+  <data name="LawnGreen" xml:space="preserve">
+    <value>Трав'яний зелений</value>
+  </data>
+  <data name="Left" xml:space="preserve">
+    <value>Ліворуч</value>
+  </data>
+  <data name="LemonChiffon" xml:space="preserve">
+    <value>Лимонний шифон</value>
+  </data>
+  <data name="LightBlue" xml:space="preserve">
+    <value>Світло-блакитний</value>
+  </data>
+  <data name="LightCoral" xml:space="preserve">
+    <value>Світло-кораловий</value>
+  </data>
+  <data name="LightCyan" xml:space="preserve">
+    <value>Світло-бірюзовий</value>
+  </data>
+  <data name="LighterText" xml:space="preserve">
+    <value>Світлий</value>
+  </data>
+  <data name="LightGoldenrodYellow" xml:space="preserve">
+    <value>Світло-золотарниковий жовтий</value>
+  </data>
+  <data name="LightGray" xml:space="preserve">
+    <value>Світло-сірий</value>
+  </data>
+  <data name="LightGreen" xml:space="preserve">
+    <value>Світло-зелений</value>
+  </data>
+  <data name="LightPink" xml:space="preserve">
+    <value>Світло-рожевий</value>
+  </data>
+  <data name="LightSalmon" xml:space="preserve">
+    <value>Світло-лососевий</value>
+  </data>
+  <data name="LightSeaGreen" xml:space="preserve">
+    <value>Світло-морська зелень</value>
+  </data>
+  <data name="LightSkyBlue" xml:space="preserve">
+    <value>Світло-небесно-блакитний</value>
+  </data>
+  <data name="LightSlateGray" xml:space="preserve">
+    <value>Світло-грифельний сірий</value>
+  </data>
+  <data name="LightSteelBlue" xml:space="preserve">
+    <value>Світло-сталево-блакитний</value>
+  </data>
+  <data name="LightText" xml:space="preserve">
+    <value>Світлий</value>
+  </data>
+  <data name="LightYellow" xml:space="preserve">
+    <value>Світло-жовтий</value>
+  </data>
+  <data name="Lime" xml:space="preserve">
+    <value>Лайм</value>
+  </data>
+  <data name="LimeGreen" xml:space="preserve">
+    <value>Лаймово-зелений</value>
+  </data>
+  <data name="LinearGradient" xml:space="preserve">
+    <value>Лінійний градієнт</value>
+  </data>
+  <data name="Linen" xml:space="preserve">
+    <value>Лляний</value>
+  </data>
+  <data name="Magenta" xml:space="preserve">
+    <value>Пурпуровий</value>
+  </data>
+  <data name="Margins" xml:space="preserve">
+    <value>Поля</value>
+  </data>
+  <data name="Maroon" xml:space="preserve">
+    <value>Каштановий</value>
+  </data>
+  <data name="MaximizeTooltip" xml:space="preserve">
+    <value>Розгорнути</value>
+  </data>
+  <data name="MediumAquamarine" xml:space="preserve">
+    <value>Середній аквамарин</value>
+  </data>
+  <data name="MediumBlue" xml:space="preserve">
+    <value>Середній синій</value>
+  </data>
+  <data name="MediumOrchid" xml:space="preserve">
+    <value>Середня орхідея</value>
+  </data>
+  <data name="MediumPurple" xml:space="preserve">
+    <value>Середній фіолетовий</value>
+  </data>
+  <data name="MediumSeaGreen" xml:space="preserve">
+    <value>Середньо-морська зелень</value>
+  </data>
+  <data name="MediumSlateBlue" xml:space="preserve">
+    <value>Середньо-грифельно-блакитний</value>
+  </data>
+  <data name="MediumSpringGreen" xml:space="preserve">
+    <value>Середньо-весняний зелений</value>
+  </data>
+  <data name="MediumTurquoise" xml:space="preserve">
+    <value>Середній бірюзовий</value>
+  </data>
+  <data name="MediumVioletRed" xml:space="preserve">
+    <value>Середній фіолетово-червоний</value>
+  </data>
+  <data name="MidnightBlue" xml:space="preserve">
+    <value>Нічне небо</value>
+  </data>
+  <data name="MinimizeTooltip" xml:space="preserve">
+    <value>Згорнути</value>
+  </data>
+  <data name="MintCream" xml:space="preserve">
+    <value>М'ятний кремовий</value>
+  </data>
+  <data name="MistyRose" xml:space="preserve">
+    <value>Туманна троянда</value>
+  </data>
+  <data name="Moccasin" xml:space="preserve">
+    <value>Мокасиновий</value>
+  </data>
+  <data name="msgBoxMargin" xml:space="preserve">
+    <value>Поля перекриваються або виходять за межі паперу. Введіть інші розміри.</value>
+  </data>
+  <data name="Navy" xml:space="preserve">
+    <value>Морський синій</value>
+  </data>
+  <data name="NavajoWhite" xml:space="preserve">
+    <value>Білий навахо</value>
+  </data>
+  <data name="NewText" xml:space="preserve">
+    <value>Новий</value>
+  </data>
+  <data name="NoColorText" xml:space="preserve">
+    <value>Без кольору</value>
+  </data>
+  <data name="NoRecords" xml:space="preserve">
+    <value>Записів не знайдено</value>
+  </data>
+  <data name="OKText" xml:space="preserve">
+    <value>ОК</value>
+  </data>
+  <data name="OldLace" xml:space="preserve">
+    <value>Старе мереживо</value>
+  </data>
+  <data name="Olive" xml:space="preserve">
+    <value>Оливковий</value>
+  </data>
+  <data name="OliveDrab" xml:space="preserve">
+    <value>Тьмяно-оливковий</value>
+  </data>
+  <data name="OliveGreen" xml:space="preserve">
+    <value>Оливково-зелений</value>
+  </data>
+  <data name="Orange" xml:space="preserve">
+    <value>Помаранчевий</value>
+  </data>
+  <data name="OrangeRed" xml:space="preserve">
+    <value>Помаранчево-червоний</value>
+  </data>
+  <data name="Orchid" xml:space="preserve">
+    <value>Орхідея</value>
+  </data>
+  <data name="PageSetup" xml:space="preserve">
+    <value>Параметри сторінки</value>
+  </data>
+  <data name="PaleGoldenrod" xml:space="preserve">
+    <value>Блідо-бірюзовий</value>
+  </data>
+  <data name="PaleGreen" xml:space="preserve">
+    <value>Блідо-фіолетово-червоний</value>
+  </data>
+  <data name="PaleTurquoise" xml:space="preserve">
+    <value>Папайовий кремовий</value>
+  </data>
+  <data name="PaleVioletRed" xml:space="preserve">
+    <value>Персиковий пух</value>
+  </data>
+  <data name="PapayaWhip" xml:space="preserve">
+    <value>Папайовий кремовий</value>
+  </data>
+  <data name="PeachPuff" xml:space="preserve">
+    <value>Персиковий пух</value>
+  </data>
+  <data name="Periwinkle" xml:space="preserve">
+    <value>Барвінковий</value>
+  </data>
+  <data name="Peru" xml:space="preserve">
+    <value>Перу</value>
+  </data>
+  <data name="Pink" xml:space="preserve">
+    <value>Рожевий</value>
+  </data>
+  <data name="Plum" xml:space="preserve">
+    <value>Сливовий</value>
+  </data>
+  <data name="PowderBlue" xml:space="preserve">
+    <value>Блакитно-порошковий</value>
+  </data>
+  <data name="Print" xml:space="preserve">
+    <value>Друк</value>
+  </data>
+  <data name="PrintPreview" xml:space="preserve">
+    <value>Попередній перегляд друку</value>
+  </data>
+  <data name="PrintPreview_AllPages" xml:space="preserve">
+    <value>Друкувати всі сторінки</value>
+  </data>
+  <data name="PrintPreview_AllPages_ToolTip" xml:space="preserve">
+    <value>Усе повністю</value>
+  </data>
+  <data name="PrintPreview_Collated" xml:space="preserve">
+    <value>Впорядковано</value>
+  </data>
+  <data name="PrintPreview_Copies" xml:space="preserve">
+    <value>Копії</value>
+  </data>
+  <data name="PrintPreview_CurrentPage" xml:space="preserve">
+    <value>Друк поточної сторінки</value>
+  </data>
+  <data name="PrintPreview_CurrentPage_ToolTip" xml:space="preserve">
+    <value>Поточна сторінка</value>
+  </data>
+  <data name="PrintPreview_Pages" xml:space="preserve">
+    <value>Сторінки</value>
+  </data>
+  <data name="PrintPreview_Printer" xml:space="preserve">
+    <value>Принтер</value>
+  </data>
+  <data name="PrintPreview_To" xml:space="preserve">
+    <value>До</value>
+  </data>
+  <data name="PrintPreview_UnCollated" xml:space="preserve">
+    <value>Без упорядкування</value>
+  </data>
+  <data name="PrintPreview_UpDown_GreaterThanToolTip" xml:space="preserve">
+    <value>Введене значення має бути більше або дорівнювати</value>
+  </data>
+  <data name="PrintPreview_UpDown_LessThanToolTip" xml:space="preserve">
+    <value>Введене значення має бути менше або дорівнювати</value>
+  </data>
+  <data name="PrintPreview_UpDown_NegativeToolTip" xml:space="preserve">
+    <value>Введене значення має бути додатнім числом</value>
+  </data>
+  <data name="PrintPreview_UpDown_NonNumericToopTip" xml:space="preserve">
+    <value>Введене значення не може містити нечислові символи</value>
+  </data>
+  <data name="PrintPreview_UserPages" xml:space="preserve">
+    <value>Користувацький друк</value>
+  </data>
+  <data name="PrintPreview_UserPages_ToolTip" xml:space="preserve">
+    <value>Введіть конкретні сторінки для друку</value>
+  </data>
+  <data name="Print_MorePaperSizes" xml:space="preserve">
+    <value>Більше розмірів паперу</value>
+  </data>
+  <data name="Print_Orientation_Landscape" xml:space="preserve">
+    <value>Альбомна орієнтація</value>
+  </data>
+  <data name="Print_Orientation_Portrait" xml:space="preserve">
+    <value>Книжкова орієнтація</value>
+  </data>
+  <data name="Print_PageMargin_CustomMargin" xml:space="preserve">
+    <value>Власні поля</value>
+  </data>
+  <data name="Print_PageMargin_Moderate" xml:space="preserve">
+    <value>Помірний</value>
+  </data>
+  <data name="Print_PageMargin_Narrow" xml:space="preserve">
+    <value>Вузький</value>
+  </data>
+  <data name="Print_PageMargin_Normal" xml:space="preserve">
+    <value>Нормальний</value>
+  </data>
+  <data name="Print_PageMargin_Wide" xml:space="preserve">
+    <value>Широкий</value>
+  </data>
+  <data name="Print_PaperSize" xml:space="preserve">
+    <value>Розмір паперу</value>
+  </data>
+  <data name="PropertySupport_ExpressionNotProperty_Exception" xml:space="preserve">
+    <value>Вираз доступу до члена не звертається до властивості.</value>
+  </data>
+  <data name="PropertySupport_NotMemberAccessExpression_Exception" xml:space="preserve">
+    <value>Вираз не є виразом доступу до члена.</value>
+  </data>
+  <data name="PropertySupport_StaticExpression_Exception" xml:space="preserve">
+    <value>Звернена властивість є статичною властивістю.</value>
+  </data>
+  <data name="Purple" xml:space="preserve">
+    <value>Фіолетвоий</value>
+  </data>
+  <data name="QuickPrint" xml:space="preserve">
+    <value>Швидкий друк</value>
+  </data>
+  <data name="RadialGradient" xml:space="preserve">
+    <value>Радіальний градієнт</value>
+  </data>
+  <data name="Radius" xml:space="preserve">
+    <value>Радіус</value>
+  </data>
+  <data name="RecentlyUsedText" xml:space="preserve">
+    <value>Нещодавно використані</value>
+  </data>
+  <data name="Red" xml:space="preserve">
+    <value>Червоний</value>
+  </data>
+  <data name="RedTooltipText" xml:space="preserve">
+    <value>Червоний</value>
+  </data>
+  <data name="RestoreTooltip" xml:space="preserve">
+    <value>Відновити</value>
+  </data>
+  <data name="RGB" xml:space="preserve">
+    <value>RGB</value>
+  </data>
+  <data name="Right" xml:space="preserve">
+    <value>Праворуч</value>
+  </data>
+  <data name="Rose" xml:space="preserve">
+    <value>Рожевий</value>
+  </data>
+  <data name="RosyBrown" xml:space="preserve">
+    <value>Рожево-коричневий</value>
+  </data>
+  <data name="RoyalBlue" xml:space="preserve">
+    <value>Королівський синій</value>
+  </data>
+  <data name="SaddleBrown" xml:space="preserve">
+    <value>Сідлово-коричневий</value>
+  </data>
+  <data name="Salmon" xml:space="preserve">
+    <value>Лососевий</value>
+  </data>
+  <data name="SandyBrown" xml:space="preserve">
+    <value>Піщано-коричневий</value>
+  </data>
+  <data name="SaturationTooltipText" xml:space="preserve">
+    <value>Насичіенсть.</value>
+  </data>
+  <data name="SeaGreen" xml:space="preserve">
+    <value>Морська зелень</value>
+  </data>
+  <data name="SeaShell" xml:space="preserve">
+    <value>Морська мушля</value>
+  </data>
+  <data name="SelectAll" xml:space="preserve">
+    <value>Виділити все</value>
+  </data>
+  <data name="Settings" xml:space="preserve">
+    <value>Налаштування</value>
+  </data>
+  <data name="Sienna" xml:space="preserve">
+    <value>Сієна</value>
+  </data>
+  <data name="Silver" xml:space="preserve">
+    <value>Сріблястий</value>
+  </data>
+  <data name="Sky" xml:space="preserve">
+    <value>Небо</value>
+  </data>
+  <data name="SkyBlue" xml:space="preserve">
+    <value>Небесно-блакитний</value>
+  </data>
+  <data name="SlateBlue" xml:space="preserve">
+    <value>Сланцево-синій</value>
+  </data>
+  <data name="SlateGray" xml:space="preserve">
+    <value>Сланцево-сірий</value>
+  </data>
+  <data name="Snow" xml:space="preserve">
+    <value>Сніжний</value>
+  </data>
+  <data name="Solid" xml:space="preserve">
+    <value>Суцільний</value>
+  </data>
+  <data name="SpellCheckerAddToDictionaryText" xml:space="preserve">
+    <value>Додати до словника</value>
+  </data>
+  <data name="SpellCheckerChangeAllText" xml:space="preserve">
+    <value>Замінити все</value>
+  </data>
+  <data name="SpellCheckerChangeText" xml:space="preserve">
+    <value>Замінити</value>
+  </data>
+  <data name="SpellCheckerCloseText" xml:space="preserve">
+    <value>Закрити</value>
+  </data>
+  <data name="SpellCheckerHeaderText" xml:space="preserve">
+    <value>Перевірка правопису</value>
+  </data>
+  <data name="SpellCheckerIgnoreAllText" xml:space="preserve">
+    <value>Ігнорувати все</value>
+  </data>
+  <data name="SpellCheckerIgnoreOnceText" xml:space="preserve">
+    <value>Ігнорувати один раз</value>
+  </data>
+  <data name="SpellCheckerNotInDictionaryText" xml:space="preserve">
+    <value>Немає в словнику:</value>
+  </data>
+  <data name="SpellCheckerSuggestionsText" xml:space="preserve">
+    <value>Пропозиції:</value>
+  </data>
+  <data name="SpringGreen" xml:space="preserve">
+    <value>Весняно-зелений</value>
+  </data>
+  <data name="StandardText" xml:space="preserve">
+    <value>Стандарт</value>
+  </data>
+  <data name="StartPoint" xml:space="preserve">
+    <value>Початкова точка</value>
+  </data>
+  <data name="SteelBlue" xml:space="preserve">
+    <value>Сталевий синій</value>
+  </data>
+  <data name="Tan" xml:space="preserve">
+    <value>Світло-коричневий</value>
+  </data>
+  <data name="TanColor" xml:space="preserve">
+    <value>Колір засмаги</value>
+  </data>
+  <data name="Teal" xml:space="preserve">
+    <value>Бірюзовий</value>
+  </data>
+  <data name="TextName" xml:space="preserve">
+    <value>Текст</value>
+  </data>
+  <data name="Thistle" xml:space="preserve">
+    <value>Світло-бузковий</value>
+  </data>
+  <data name="Tomato" xml:space="preserve">
+    <value>Томатний</value>
+  </data>
+  <data name="Top" xml:space="preserve">
+    <value>Вгорі</value>
+  </data>
+  <data name="Transparent" xml:space="preserve">
+    <value>Прозорий</value>
+  </data>
+  <data name="Turquoise" xml:space="preserve">
+    <value>Бірюза</value>
+  </data>
+  <data name="UnknownColor" xml:space="preserve">
+    <value>Невідомий колір</value>
+  </data>
+  <data name="ValueTooltipText" xml:space="preserve">
+    <value>Значення/Яскравість.</value>
+  </data>
+  <data name="Violet" xml:space="preserve">
+    <value>Фіолетовий</value>
+  </data>
+  <data name="WeekNumbers" xml:space="preserve">
+    <value>Тижнів у</value>
+  </data>
+  <data name="Wheat" xml:space="preserve">
+    <value>Пшеничний</value>
+  </data>
+  <data name="White" xml:space="preserve">
+    <value>Білий</value>
+  </data>
+  <data name="WhiteSmoke" xml:space="preserve">
+    <value>Білий дим</value>
+  </data>
+  <data name="Width" xml:space="preserve">
+    <value>Ширина</value>
+  </data>
+  <data name="Yellow" xml:space="preserve">
+    <value>Жовтий</value>
+  </data>
+  <data name="YellowGreen" xml:space="preserve">
+    <value>Жовто-зелений</value>
+  </data>
+</root>

@@ -1,8 +1,4 @@
-﻿using Prism.Mvvm;
-using Prism.Regions;
-using Prism.Commands;
-using Prism.Events;
-
+﻿
 namespace UI.ViewModels.TabControl.GenericTab;
 
 public class GenericTabViewModel

@@ -1,7 +1,4 @@
 ﻿using System.Reflection;
-using Prism.Mvvm;
-using Prism.Regions;
-using Prism.Commands;
 
 namespace UI.ViewModels;
 

@@ -3,7 +3,6 @@ using System.Collections.Specialized;
 using Common.Logging;
 using Core.Events.DataGrid;
 using Prism.Mvvm;
-using Prism.Regions;
 using Prism.Commands;
 using Core.Events.DataGrid.Consumables;
 using Core.Services.RepairsDataGrid;

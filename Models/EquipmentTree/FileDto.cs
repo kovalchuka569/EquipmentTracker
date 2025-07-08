@@ -7,6 +7,7 @@
         public int FolderId { get; set; }
         public string TableName { get; set; }
         public string FileType { get; set; }
+        public int TableId { get; set; }
     }
 }
 

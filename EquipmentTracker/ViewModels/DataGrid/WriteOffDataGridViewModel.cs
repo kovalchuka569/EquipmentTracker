@@ -1,5 +1,4 @@
-﻿using Prism.Mvvm;
-using Prism.Regions;
+﻿
 
 using UI.ViewModels.TabControl;
 

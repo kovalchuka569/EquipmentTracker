@@ -1,10 +1,4 @@
 ﻿using System.Collections.ObjectModel;
-using System.Dynamic;
-using System.Text;
-using Prism.Mvvm;
-using Prism.Regions;
-using Prism.Commands;
-using System.Collections.Specialized;
 using System.Drawing;
 using System.Windows;
 using System.Windows.Controls;

@@ -1,7 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using Prism.Mvvm;
-using Prism.Regions;
 using Prism.Commands;
 using System.Windows.Forms;
 using Common.Logging;

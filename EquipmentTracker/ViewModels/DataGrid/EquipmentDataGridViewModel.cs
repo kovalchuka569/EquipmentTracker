@@ -10,12 +10,12 @@ using Core.Services.EquipmentDataGrid;
 using Models.EquipmentDataGrid;
 using Notification.Wpf;
 using Prism.Mvvm;
-using Prism.Regions;
 using Syncfusion.UI.Xaml.Diagram;
 using Syncfusion.UI.Xaml.Grid;
 using Syncfusion.UI.Xaml.ScrollAxis;
 using Syncfusion.Windows.Shared;
 using Point = System.Drawing.Point;
+using DelegateCommand = Prism.Commands.DelegateCommand;
 
 namespace EquipmentTracker.ViewModels.DataGrid;
 
@@ -123,10 +123,10 @@ public class EquipmentDataGridViewModel: BindableBase, INavigationAware
     }
     
     
-    public DelegateCommand<SfDataGrid> EquipmentDataGridLoadedCommand { get; }
-    public DelegateCommand<RowValidatingEventArgs> RowValidatingCommand { get; }
-    public DelegateCommand<RowValidatedEventArgs> RowValidatedCommand { get; }
-    public DelegateCommand<GridDetailsViewExpandingEventArgs> SparePartsLoadingCommand { get; }
+    public Prism.Commands.DelegateCommand<SfDataGrid> EquipmentDataGridLoadedCommand { get; }
+    public Prism.Commands.DelegateCommand<RowValidatingEventArgs> RowValidatingCommand { get; }
+    public Prism.Commands.DelegateCommand<RowValidatedEventArgs> RowValidatedCommand { get; }
+    public Prism.Commands.DelegateCommand<GridDetailsViewExpandingEventArgs> SparePartsLoadingCommand { get; }
     public DelegateCommand RefreshCommand { get; }
     public DelegateCommand OpenSearchPannelCommand { get; }
     public DelegateCommand CloseSearchPannelCommand { get; }
@@ -135,14 +135,14 @@ public class EquipmentDataGridViewModel: BindableBase, INavigationAware
     public DelegateCommand ExcelExportCommand { get; }
     public DelegateCommand PdfExportCommand { get; }
     public DelegateCommand DeleteCommand { get; }
-    public DelegateCommand<SfDataGrid> DetailsViewLoadingCommand { get; set; }
+    public Prism.Commands.DelegateCommand<SfDataGrid> DetailsViewLoadingCommand { get; set; }
     
     // Search pannel command
     public Prism.Commands.DelegateCommand<MouseEventArgs> SearchPannelMouseMoveCommand { get; set; }
     public Prism.Commands.DelegateCommand<MouseButtonEventArgs> SearchPannelMouseDownCommand { get; set; }
     public Prism.Commands.DelegateCommand<MouseButtonEventArgs> SearchPannelMouseUpCommand { get; set; }
     
-    public DelegateCommand<TextChangedEventArgs> SearchTextChangedCommand { get; }
+    public Prism.Commands.DelegateCommand<TextChangedEventArgs> SearchTextChangedCommand { get; }
     public DelegateCommand SearchNextCommand { get; }
     public DelegateCommand SearchPreviousCommand { get; }
     public DelegateCommand ClearSearchCommand { get; }
@@ -155,29 +155,29 @@ public class EquipmentDataGridViewModel: BindableBase, INavigationAware
         _service = service;
         _globalNotificationManager = globalNotificationManager;
 
-        EquipmentDataGridLoadedCommand = new DelegateCommand<SfDataGrid>(OnEquipmentDataGridLoaded);
-        RowValidatingCommand = new DelegateCommand<RowValidatingEventArgs>(async (args) => await OnRowValidating(args));
-        RowValidatedCommand = new DelegateCommand<RowValidatedEventArgs>(async (args) => await OnRowValidated(args));
-        SparePartsLoadingCommand = new DelegateCommand<GridDetailsViewExpandingEventArgs>(OnSparePartsLoading);
-        RefreshCommand = new DelegateCommand(async (o) => await RefreshAsync());
+        EquipmentDataGridLoadedCommand = new Prism.Commands.DelegateCommand<SfDataGrid>(OnEquipmentDataGridLoaded);
+        RowValidatingCommand = new Prism.Commands.DelegateCommand<RowValidatingEventArgs>(async (args) => await OnRowValidating(args));
+        RowValidatedCommand = new Prism.Commands.DelegateCommand<RowValidatedEventArgs>(async (args) => await OnRowValidated(args));
+        SparePartsLoadingCommand = new Prism.Commands.DelegateCommand<GridDetailsViewExpandingEventArgs>(OnSparePartsLoading);
+        RefreshCommand = new DelegateCommand(async () => await RefreshAsync());
         OpenSearchPannelCommand = new DelegateCommand(OnOpenSearchPannel);
         CloseSearchPannelCommand = new DelegateCommand(OnCloseSearchPannel);
-        WriteOffCommand = new DelegateCommand(async (o) => await OnWriteOffEquipment());
-        DeleteCommand = new DelegateCommand(async (o) => await OnDeleteEquipment());
-        DetailsViewLoadingCommand = new DelegateCommand<SfDataGrid>(SparePartsDataGridLoading);
+        WriteOffCommand = new DelegateCommand(async () => await OnWriteOffEquipment());
+        DeleteCommand = new DelegateCommand(async () => await OnDeleteEquipment());
+        DetailsViewLoadingCommand = new Prism.Commands.DelegateCommand<SfDataGrid>(SparePartsDataGridLoading);
         PrintCommand = new DelegateCommand(OnPrint);
         
         // Search pannel command initialization
         SearchPannelMouseDownCommand = new Prism.Commands.DelegateCommand<MouseButtonEventArgs>(OnSearchPannelMouseDown);
         SearchPannelMouseMoveCommand = new Prism.Commands.DelegateCommand<MouseEventArgs>(OnSearchPannelMouseMove);
         SearchPannelMouseUpCommand = new Prism.Commands.DelegateCommand<MouseButtonEventArgs>(OnSearchPannelMouseUp);
-        SearchTextChangedCommand = new DelegateCommand<TextChangedEventArgs>(OnSearchTextChanged);
+        SearchTextChangedCommand = new Prism.Commands.DelegateCommand<TextChangedEventArgs>(OnSearchTextChanged);
         SearchNextCommand = new DelegateCommand(OnSearchNext);
         SearchPreviousCommand = new DelegateCommand(OnSearchPrevious);
         ClearSearchCommand = new DelegateCommand(OnClearSearch);
     }
     
-    private void OnClearSearch(object obj)
+    private void OnClearSearch()
     {
         _equipmentDataGrid.SearchHelper.ClearSearch();
         _equipmentDataGrid.SelectionController.ClearSelections(false);
@@ -185,19 +185,19 @@ public class EquipmentDataGridViewModel: BindableBase, INavigationAware
         SearchType = SearchType.Contains;
     }
     
-    private void OnSearchPrevious(object obj)
+    private void OnSearchPrevious()
     {
         _equipmentDataGrid.SearchHelper.FindPrevious(SearchText);
         _equipmentDataGrid.SelectionController.MoveCurrentCell(_equipmentDataGrid.SearchHelper.CurrentRowColumnIndex);
     }
 
-    private void OnSearchNext(object obj)
+    private void OnSearchNext()
     {
         _equipmentDataGrid.SearchHelper.FindNext(SearchText);
         _equipmentDataGrid.SelectionController.MoveCurrentCell(_equipmentDataGrid.SearchHelper.CurrentRowColumnIndex);
     }
 
-    private void OnPrint(object obj)
+    private void OnPrint()
     {
         _equipmentDataGrid.ShowPrintPreview();
     }
@@ -249,12 +249,12 @@ public class EquipmentDataGridViewModel: BindableBase, INavigationAware
     {
         _isDragging = false;
     }
-    private void OnOpenSearchPannel(object obj)
+    private void OnOpenSearchPannel()
     {
        SearchPannelVisibility = true;
     }
 
-    private void OnCloseSearchPannel(object obj)
+    private void OnCloseSearchPannel()
     {
         SearchPannelVisibility = false;
     }
@@ -265,13 +265,13 @@ public class EquipmentDataGridViewModel: BindableBase, INavigationAware
         if (args.Record is EquipmentItem equipmentItem)
         {
             string sparePartsTableName = $"{_equipmentTableName} ЗЧ";
-            var spareParts = await _service.GetSparePartItemAsync(equipmentItem.Id, sparePartsTableName);
+           // var spareParts = await _service.GetSparePartItemAsync(equipmentItem.Id, sparePartsTableName);
             
             equipmentItem.SpareParts.Clear(); 
-            foreach (var part in spareParts)
-            {
-                equipmentItem.SpareParts.Add(part); 
-            }
+           // foreach (var part in spareParts)
+            //{
+           //     equipmentItem.SpareParts.Add(part); 
+           // }
         }
     }
 
@@ -314,11 +314,11 @@ public class EquipmentDataGridViewModel: BindableBase, INavigationAware
         if (rowData.Id == 0)
         {
             rowData.EquipmentId = SelectedEquipment.Id;
-            rowData.Id = await _service.InsertSparePartAsync(rowData, sparePartsTableName);
+           // rowData.Id = await _service.InsertSparePartAsync(rowData, sparePartsTableName);
         }
         else
         {
-            await _service.UpdateSparePartAsync(rowData, sparePartsTableName);
+           // await _service.UpdateSparePartAsync(rowData, sparePartsTableName);
         }
     }
 
@@ -435,16 +435,16 @@ public class EquipmentDataGridViewModel: BindableBase, INavigationAware
 
     private async Task OnRowValidated(RowValidatedEventArgs args)
     {
-        var rowData = args.RowData as EquipmentItem;
+        var rowData = args.RowData as Models.Equipment.EquipmentItem;
         if (rowData == null) return;
 
         if (rowData.Id == 0)
         {
-            rowData.Id = await _service.InsertEquipmentAsync(rowData, _equipmentTableName);
+           // rowData.Id = await _service.InsertEquipmentAsync(rowData, _equipmentTableName);
         }
         else
         {
-            await _service.UpdateEquipmentAsync(rowData, _equipmentTableName);
+           // await _service.UpdateEquipmentAsync(rowData, _equipmentTableName);
         }
     }
     
@@ -452,7 +452,7 @@ public class EquipmentDataGridViewModel: BindableBase, INavigationAware
     {
         try
         {
-            VisibleColumns = await _service.GetVisibleColumnsAsync(_equipmentTableName);
+           // VisibleColumns = await _service.GetVisibleColumnsAsync(_equipmentTableName);
         }
         catch (Exception e)
         {
@@ -467,7 +467,7 @@ public class EquipmentDataGridViewModel: BindableBase, INavigationAware
         {
             try
             {
-                await _service.WriteOffEquipmentAsync(equipmentItem.Id, _equipmentTableName);
+               // await _service.WriteOffEquipmentAsync(equipmentItem.Id, _equipmentTableName);
                 Equipments.Remove(equipmentItem);
                 _globalNotificationManager.Show("Успішно додано в списані", NotificationType.Success);
             }
@@ -492,7 +492,7 @@ public class EquipmentDataGridViewModel: BindableBase, INavigationAware
                     {
                         try
                         {
-                            await _service.MakeDataCopyAsync(equipmentItem.Id, _equipmentTableName);
+                            //await _service.MakeDataCopyAsync(equipmentItem.Id, _equipmentTableName);
                             Equipments.Remove(equipmentItem);
                             _globalNotificationManager.Show("Успішно видалено!", NotificationType.Success);
                         }
@@ -521,7 +521,7 @@ public class EquipmentDataGridViewModel: BindableBase, INavigationAware
         await Task.Delay(500);
         try
         {
-            Equipments = await _service.GetEquipmentItemsAsync(_equipmentTableName);
+          //  Equipments = await _service.GetEquipmentItemsAsync(_equipmentTableName);
         }
         catch (Exception e)
         {

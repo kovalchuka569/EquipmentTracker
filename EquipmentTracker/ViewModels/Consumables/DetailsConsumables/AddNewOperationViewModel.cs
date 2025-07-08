@@ -1,6 +1,5 @@
 ﻿using System.IO;
 using Prism.Mvvm;
-using Prism.Regions;
 using Prism.Commands;
 using System.Windows.Documents;
 using System.Windows.Media;

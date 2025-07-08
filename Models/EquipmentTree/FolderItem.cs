@@ -13,6 +13,8 @@ namespace Models.EquipmentTree
         private string _imageIcon;
         private bool _isExpanded;
         private string _nameError;
+        private bool _isHighlited;
+        private bool _isVisible = true;
 
         public ObservableCollection<IFileSystemItem> SubItems { get; } = new();
         public FolderItem()
@@ -59,7 +61,9 @@ namespace Models.EquipmentTree
                 OnPropertyChanged();
             }
         }
-        
+
+        public ObservableCollection<IFileSystemItem> Children { get; }
+
         public bool IsExpanded
         {
             get => _isExpanded;
@@ -76,6 +80,26 @@ namespace Models.EquipmentTree
             set
             {
                 _nameError = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool IsHighlited
+        {
+            get => _isHighlited;
+            set
+            {
+                _isHighlited = value;
+                OnPropertyChanged();
+            }
+        }
+        
+        public bool IsVisible
+        {
+            get => _isVisible;
+            set
+            {
+                _isVisible = value;
                 OnPropertyChanged();
             }
         }

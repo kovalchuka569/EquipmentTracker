@@ -2,7 +2,6 @@
 using System.Windows.Forms;
 using Core.Events.DataGrid;
 using Prism.Mvvm;
-using Prism.Regions;
 using Prism.Commands;
 using Core.Events.DataGrid.Consumables;
 using Core.Events.TabControl;

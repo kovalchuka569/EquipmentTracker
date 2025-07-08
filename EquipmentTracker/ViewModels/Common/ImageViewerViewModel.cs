@@ -2,7 +2,6 @@
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Prism.Mvvm;
-using Prism.Regions;
 using Prism.Commands;
 using Core.Events.Common;
 using Core.Services.Common;

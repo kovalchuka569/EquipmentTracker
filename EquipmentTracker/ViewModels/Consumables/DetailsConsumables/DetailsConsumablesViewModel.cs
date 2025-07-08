@@ -1,9 +1,4 @@
-﻿using Prism.Mvvm;
-using Prism.Regions;
-using Prism.Commands;
-
-using Core.Events.DataGrid.Consumables;
-using Prism.Events;
+﻿using Core.Events.DataGrid.Consumables;
 
 namespace UI.ViewModels.Consumables.DetailsConsumables
 {

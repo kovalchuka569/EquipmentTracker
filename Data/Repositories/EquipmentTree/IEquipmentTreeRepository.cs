@@ -1,4 +1,5 @@
-﻿using Models.EquipmentTree;
+﻿using Models.Equipment;
+using Models.EquipmentTree;
 
 namespace Data.Repositories.EquipmentTree
 {

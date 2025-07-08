@@ -1,7 +1,4 @@
-﻿using Prism.Mvvm;
-using Prism.Regions;
-using Prism.Commands;
-using Prism.Unity;
+﻿
 using Syncfusion.SfSkinManager;
 
 namespace UI.ViewModels.Tabs

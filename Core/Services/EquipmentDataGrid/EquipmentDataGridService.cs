@@ -1,7 +1,8 @@
 ﻿using System.Collections.ObjectModel;
 using Common.Logging;
 using Data.Repositories.EquipmentDataGrid;
-using Models.EquipmentDataGrid;
+using Models.Equipment;
+using Syncfusion.Linq;
 
 namespace Core.Services.EquipmentDataGrid;
 
@@ -15,7 +16,7 @@ public class EquipmentDataGridService : IEquipmentDataGridService
         _repository = repository;
     }
     
-    public async Task<Dictionary<string, bool>> GetVisibleColumnsAsync(string equipmentTableName)
+    /*public async Task<Dictionary<string, bool>> GetVisibleColumnsAsync(string equipmentTableName)
     {
         var columnsFromDb = await _repository.GetColumnNamesAsync(equipmentTableName);
 
@@ -174,5 +175,75 @@ public class EquipmentDataGridService : IEquipmentDataGridService
             SparePartSerialNumber = sparePart.SparePartSerialNumber,
         };
         await _repository.UpdateSparePartAsync(sparePartDto, sparePartTableName);
+    }*/
+    
+    // ------------------------------------------------------------------------------------------------
+
+    public async Task<ObservableCollection<ColumnItem>> GetColumnsAsync(int tableId)
+    {
+        var columnsFromDb = await _repository.GetColumnsAsync(tableId);
+        return columnsFromDb.Select(c => new ColumnItem
+        {
+            Id = c.Id,
+            TableId = c.TableId,
+            Settings = c.Settings
+        }).ToObservableCollection();
+    }
+
+    public async Task<List<EquipmentItem>> GetRowsAsync(int tableId)
+    {
+        var equipmentsFromDb = await _repository.GetRowsAsync(tableId);
+        return equipmentsFromDb.Select(e => new EquipmentItem
+        {
+            Id = e.Id,
+            TableId = e.TableId,
+            RowIndex = e.RowIndex,
+            Data = e.Data,
+        }).ToList();
+    }
+
+    public async Task UpdateColumnAsync(ColumnItem column)
+    {
+        var columnDto = new ColumnDto
+        {
+            Id = column.Id,
+            TableId = column.TableId,
+            Settings = column.Settings
+        };
+        await _repository.UpdateColumnAsync(columnDto);
+    }
+
+    public async Task UpdateColumnPositionAsync(Dictionary<int, int> columnPositions, int tableId)
+    {
+        await _repository.UpdateColumnPositionAsync(columnPositions, tableId);
+    }
+
+    public async Task UpdateColumnWidthAsync(Dictionary<int, double> columnWidths, int tableId)
+    {
+        await _repository.UpdateColumnWidthAsync(columnWidths, tableId);
+    }
+
+    public async Task<int> AddColumnAsync(ColumnSettings column, int tableId)
+    {
+        int id = await _repository.CreateColumnAsync(column, tableId);
+        return id;
+    }
+    
+    public async Task<int> AddNewRowAsync(EquipmentItem equipment)
+    {
+        var equipmentDto = new EquipmentDto
+        {
+            Id = equipment.Id,
+            RowIndex = equipment.RowIndex,
+            TableId = equipment.TableId,
+            Data = equipment.Data
+        };
+        
+        return await _repository.AddNewRowAsync(equipmentDto);
+    }
+
+    public async Task UpdateRowsAsync(IDictionary<string, object> rows, int id)
+    {
+        await _repository.UpdateRowsAsync(rows, id);
     }
 }

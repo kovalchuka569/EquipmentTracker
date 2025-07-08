@@ -1,7 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows;
 using Prism.Mvvm;
-using Prism.Regions;
 using Prism.Commands;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -22,6 +21,7 @@ using MaterialDesignThemes.Wpf;
 using Models.EquipmentTree;
 using Notification.Wpf.Classes;
 using Prism.Events;
+using Syncfusion.UI.Xaml.Grid;
 using Syncfusion.UI.Xaml.TreeView.Engine;
 using Syncfusion.UI.Xaml.TreeView.Helpers;
 using UI.ViewModels.TabControl;
@@ -48,8 +48,6 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware, IRegionCle
 
     private string _menuType;
     #endregion
-    
-    
 
     #region Services
 
@@ -70,6 +68,7 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware, IRegionCle
     private bool _isColumnSelectorVisible;
     private bool _progressBarVisibility;
     private bool _isOverlayVisible;
+    private string _searchText;
     
     public bool ColumnSelectorVisibility
     {
@@ -118,7 +117,6 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware, IRegionCle
         get => _editContextMenuItemVisibility;
         set => SetProperty(ref _editContextMenuItemVisibility, value);
     }
-
     public bool EmptyDataTipVisibility
     {
         get => _emptyDataTipVisibility;
@@ -148,7 +146,12 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware, IRegionCle
         get => _isOverlayVisible;
         set => SetProperty(ref _isOverlayVisible, value);
     }
-    
+
+    public string SearchText
+    {
+        get => _searchText;
+        set => SetProperty(ref _searchText, value);
+    }
 
     #endregion
     
@@ -161,7 +164,7 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware, IRegionCle
     public DelegateCommand<TreeViewItemEndEditEventArgs> ItemEndEditCommand { get; }
     public DelegateCommand ContextMenuOpenedCommand { get; }
     public DelegateCommand OpenCommand { get; }
-    
+    public DelegateCommand SearchTextChangedCommand { get; }
     #region Constructor
     public EquipmentTreeViewModel(IEquipmentTreeService service, IEventAggregator eventAggregator)
     {
@@ -178,45 +181,56 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware, IRegionCle
         EditCommand = new DelegateCommand(OnEdit);
         ItemEndEditCommand = new DelegateCommand<TreeViewItemEndEditEventArgs>(OnItemEndEdit);
         ContextMenuOpenedCommand = new DelegateCommand(OnContextMenuOpened);
+        SearchTextChangedCommand = new DelegateCommand(OnSearchTextChanged);
     }
     #endregion
 
-    private void OnOpenFileCommand()
+    private void OnSearchTextChanged()
     {
-        if (SelectedItem is FileItem fileItem)
+        foreach (var item in Items.OfType<FileSystemItemViewModel>())
         {
-            string viewName = string.Empty;
-            switch (fileItem.FileType)
-            {
-                case "equipments table":
-                    viewName = "EquipmentDataGridView";
-                    break;
-
-                case "writeoff":
-                    viewName = "WriteoffDataGridView";
-                    break;
-
-                case "services":
-                    viewName = "ServicesDataGridView";
-                    break;
-
-                case "repairs":
-                    viewName = "RepairsDataGridView";
-                    break;
-            }
-            _eventAggregator.GetEvent<OpenNewTabEvent>().Publish(new OpenNewTabEventArgs
-            {
-                Header = fileItem.Name,
-                Parameters = new Dictionary<string, object>
-                {
-                    { "ViewNameToShow", viewName },
-                    { "EquipmentDataGridView.TableName", fileItem.TableName },
-                    { "RepairsDataGridView.RepairsTableName", fileItem.TableName },
-                    { "ServicesDataGridView.ServicesTableName", fileItem.TableName }
-                }
-            });
+            item.Filter(SearchText);
         }
     }
+
+    private void OnOpenFileCommand()
+        {
+            if (SelectedItem is FileItem fileItem)
+            {
+                string viewName = string.Empty;
+                switch (fileItem.FileType)
+                {
+                    case "equipments table":
+                        viewName = "EquipmentDataGridView";
+                        break;
+
+                    case "writeoff":
+                        viewName = "WriteoffDataGridView";
+                        break;
+
+                    case "services":
+                        viewName = "ServicesDataGridView";
+                        break;
+
+                    case "repairs":
+                        viewName = "RepairsDataGridView";
+                        break;
+                }
+                
+                _eventAggregator.GetEvent<OpenNewTabEvent>().Publish(new OpenNewTabEventArgs
+                {
+                    Header = fileItem.Name,
+                    Parameters = new Dictionary<string, object>
+                    {
+                        { "ViewNameToShow", viewName },
+                        { "EquipmentDataGridView.TableName", fileItem.TableName },
+                        { "EquipmentDataGridView.TableId", fileItem.TableId },
+                        { "RepairsDataGridView.RepairsTableName", fileItem.TableName },
+                        { "ServicesDataGridView.ServicesTableName", fileItem.TableName }
+                    }
+                });
+            }
+        }
     
     private string _oldFolderName;
     private void OnEdit()
@@ -358,7 +372,7 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware, IRegionCle
     {
         ProgressBarVisibility = true;
         await Task.Delay(500);
-        _items = await _service.BuildHierachy(_menuType);
+        _items = await _service.BuildHierarchy(_menuType);
         Items = new ObservableCollection<IFileSystemItem>(_items);
         CheckEmptyData();
         ProgressBarVisibility = false;
@@ -437,7 +451,7 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware, IRegionCle
         string menuType = _menuType;
 
         IsOverlayVisible = true;
-        bool creationStatus = await ShowColumnSelectorAsync(fileName);
+        bool creationStatus = true;
         IsOverlayVisible = false;
 
         if (creationStatus)
@@ -515,6 +529,7 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware, IRegionCle
     {
         EditContextMenuItemVisibility = false;
         AddFolderFileContextMenuItemVisibility = true;
+        
         if (SelectedItem is FileItem)
         {
             OpenContextMenuVisibility = true;
@@ -541,36 +556,6 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware, IRegionCle
         }
     }
     
-   private async Task<bool> ShowColumnSelectorAsync(string fileName)
-   {
-       _tableCreationTcs = new TaskCompletionSource<bool>();
-    
-       var parameters = new NavigationParameters
-       {
-           {"TableName", fileName},
-           {"ScopedRegionManager", _regionManager},
-           {"ScopedEventAggregator", _scopedEventAggregator}
-       };
-       
-       SubscriptionToken subscriptionToken = null;
-       subscriptionToken = _scopedEventAggregator.GetEvent<TableCreatingSuccessfullyEvent>()
-           .Subscribe(isSuccess =>
-               {
-                   _tableCreationTcs.TrySetResult(isSuccess);
-                   if (subscriptionToken != null)
-                   {
-                       _scopedEventAggregator.GetEvent<TableCreatingSuccessfullyEvent>()
-                           .Unsubscribe(subscriptionToken);
-                   }
-               }, 
-               ThreadOption.UIThread, 
-               keepSubscriberReferenceAlive: true);
-       
-       _regionManager.RequestNavigate("ColumnSelectorRegion", "ColumnSelectorView", parameters);
-       
-       var result = await _tableCreationTcs.Task;
-       return result;
-   }
    
     public void OnNavigatedTo(NavigationContext navigationContext)
     {

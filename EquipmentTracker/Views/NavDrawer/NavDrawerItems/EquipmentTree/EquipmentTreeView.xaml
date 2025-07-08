@@ -10,6 +10,7 @@
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:behavior="clr-namespace:Core.Behaviors.SyncfusionTreeView;assembly=Core"
+             xmlns:searchconverter="clr-namespace:EquipmentTracker.ViewModels.DataGrid"
              xmlns:prism="http://prismlibrary.com/"
              xmlns:syncfusionskin="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF"
              syncfusionskin:SfSkinManager.Theme="{syncfusionskin:SkinManagerExtension ThemeName=Windows11Light}">
@@ -17,9 +18,12 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/Syncfusion.Themes.Windows11Light.WPF;component/sflinearprogressbar/sflinearprogressbar.xaml"/>
+                <ResourceDictionary Source="/Syncfusion.Themes.Office2019Colorful.WPF;component/mscontrol/progressbar.xaml"/>
                 <ResourceDictionary Source="/Syncfusion.Themes.Windows11Light.WPF;component/sftreeview/sftreeview.xaml"/>
             </ResourceDictionary.MergedDictionaries>
+            
+            <searchconverter:SearchHighlightConverter x:Key="SearchConverter"/>
+            <searchconverter:SearchTypeEnumToBoolConverter x:Key="SearchTypeToBoolConverter"/>
             <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         </ResourceDictionary>
     </UserControl.Resources>
@@ -30,13 +34,57 @@
         
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
         
         <ProgressBar Grid.Row="0" IsIndeterminate="True" IsEnabled="True" Visibility="{Binding ProgressBarVisibility, Converter={StaticResource BoolToVisibilityConverter}}"/>
-
         
-        <sf:SfTreeView Grid.Row="1" 
+        <Expander Grid.Row="1"
+                  BorderThickness="1"
+                  BorderBrush="LightGray"
+                  Background="#EEE"
+                  IsExpanded="False">
+            
+            <Expander.Header>
+                <TextBlock Text="Фільтри:" FontWeight="DemiBold" Foreground="Gray" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+            </Expander.Header>
+            
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <Grid Grid.Column="0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <TextBlock Grid.Column="0" 
+                                       Text="Пошук:"
+                                       VerticalAlignment="Center"/>
+                            
+                            <TextBox Grid.Column="1" 
+                                     FontSize="15"
+                                     Width="175" 
+                                     Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                                     Margin="3,0,0,0">
+                                
+                                <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="TextChanged">
+                                        <i:InvokeCommandAction Command="{Binding SearchTextChangedCommand}"/>
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                            </TextBox>
+                        </Grid>
+                    </Grid>
+                </StackPanel>
+        </Expander>
+        
+        <sf:SfTreeView Grid.Row="2" 
             x:Name="SfTreeView"
             Style="{StaticResource SyncfusionSfTreeViewStyle}"
             SelectionBackgroundColor="LightGray"
@@ -84,7 +132,9 @@
             
             <sf:SfTreeView.ItemTemplate>
                 <DataTemplate>
-                    <Grid VerticalAlignment="Center"> <Grid.ColumnDefinitions>
+                    <Grid VerticalAlignment="Center" Visibility="{Binding IsVisible, Converter={StaticResource BoolToVisibilityConverter}}">
+                        
+                        <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition/>
                         </Grid.ColumnDefinitions>
@@ -121,6 +171,15 @@
             
                 <sf:SfTreeView.ContextMenu>
                     <ContextMenu>
+                        <MenuItem Header="Пошук" Visibility="{Binding SearchContextMenuItemVisibility, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="Click">
+                                    <i:InvokeCommandAction Command="{Binding ShowSearchPannelCommand}"/>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </MenuItem>
+
+                        
                         <MenuItem Header="Відкрити"
                                   Command="{Binding OpenCommand}"
                                   Visibility="{Binding OpenContextMenuVisibility, Converter={StaticResource BoolToVisibilityConverter}}"/>
@@ -161,7 +220,6 @@
                 </sf:SfTreeView.ContextMenu>
             
         </sf:SfTreeView>
-        
         
         </Grid>
         

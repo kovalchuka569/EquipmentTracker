@@ -11,7 +11,6 @@ using Core.Services.DataGrid;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Mvvm;
-using Prism.Regions;
 using Prism.Commands;
 using Prism.Events;
 using Syncfusion.UI.Xaml.Grid;

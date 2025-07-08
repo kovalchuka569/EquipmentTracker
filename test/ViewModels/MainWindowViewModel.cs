@@ -1,7 +1,5 @@
 ﻿using Prism.Commands;
-using Prism.Events;
-using Prism.Mvvm;
-using Prism.Regions;
+
 using test.Events;
 using test.Views;
 

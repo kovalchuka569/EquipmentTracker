@@ -5,7 +5,6 @@ using Core.Events.TabControl;
 using Core.Services.RepairsDataGrid;
 using Microsoft.Win32;
 using Prism.Mvvm;
-using Prism.Regions;
 using Prism.Commands;
 using Models.RepairsDataGrid;
 using Models.RepairsDataGrid.AddRepair;

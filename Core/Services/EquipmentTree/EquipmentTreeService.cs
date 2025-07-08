@@ -3,6 +3,7 @@ using Common.Logging;
 using Core.Models.Tabs.EquipmentTree;
 using Data.Repositories.EquipmentTree;
 using Microsoft.EntityFrameworkCore;
+using Models.Equipment;
 using Models.EquipmentTree;
 using IFileSystem = Core.Models.Tabs.EquipmentTree.IFileSystem;
 
@@ -19,7 +20,7 @@ public class EquipmentTreeService : IEquipmentTreeService
         _repository = repository;
     }
 
-    public async Task <ObservableCollection<IFileSystemItem>> BuildHierachy(string menuType)
+    public async Task <ObservableCollection<IFileSystemItem>> BuildHierarchy(string menuType)
     {
         var foldersFromDb = await _repository.GetFoldersAsync(menuType);
         var filesFromDb = await _repository.GetFilesAsync(menuType);
@@ -37,7 +38,8 @@ public class EquipmentTreeService : IEquipmentTreeService
             Name = f.Name,
             ParentIdFolder = f.FolderId,
             TableName = f.TableName,
-            FileType = f.FileType
+            FileType = f.FileType,
+            TableId = f.TableId
         }).ToList();
         
         var folderDict = folderItems.ToDictionary(f => f.Id);

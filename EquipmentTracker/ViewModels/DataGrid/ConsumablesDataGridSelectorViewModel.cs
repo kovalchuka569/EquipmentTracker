@@ -1,7 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Dynamic;
 using Prism.Mvvm;
-using Prism.Regions;
 using Prism.Commands;
 using System.Text;
 using System.Collections.Specialized;

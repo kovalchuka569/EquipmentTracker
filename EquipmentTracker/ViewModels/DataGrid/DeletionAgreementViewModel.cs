@@ -1,7 +1,6 @@
 ﻿using Core.Events.DataGrid;
 using Prism.Commands;
 using Prism.Mvvm;
-using Prism.Regions;
 
 namespace EquipmentTracker.ViewModels.DataGrid;
 

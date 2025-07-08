@@ -4,7 +4,6 @@ using Core.Services.Notifications;
 using EquipmentTracker.Properties;
 using Microsoft.EntityFrameworkCore;
 using Prism.Mvvm;
-using Prism.Regions;
 using Prism.Commands;
 using DbContext = Data.AppDbContext.DbContext;
 

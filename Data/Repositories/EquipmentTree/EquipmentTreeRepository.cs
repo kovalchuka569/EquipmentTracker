@@ -1,4 +1,5 @@
 ﻿using Common.Logging;
+using Models.Equipment;
 using Models.EquipmentTree;
 using Npgsql;
 using DbContext = Data.AppDbContext.DbContext;
@@ -63,11 +64,10 @@ namespace Data.Repositories.EquipmentTree
                     {
                         files.Add(new FileDto
                         {
-                            Id = reader.GetInt32(0),
-                            Name = reader.GetString(1),
-                            FolderId = reader.GetInt32(2),
-                            TableName = reader.GetString(4),
-                            FileType = reader.GetString(5),
+                            Id = reader.GetValueOrDefault<int>("id"),
+                            FolderId = reader.GetValueOrDefault<int>("FolderId"),
+                            FileType = reader.GetValueOrDefault<string>("TableName"),
+                            TableId = reader.GetValueOrDefault<int>("table_id")
                         });
                     }
                 }
@@ -109,6 +109,10 @@ namespace Data.Repositories.EquipmentTree
             await using var transaction = await connection.BeginTransactionAsync();
             try
             {
+                string sqlInsertCustomTable = @"INSERT INTO ""public"".""custom_tables"" (""name"") VALUES (@name) RETURNING id;";
+                using var cmd = new NpgsqlCommand(sqlInsertCustomTable, connection, transaction);
+                cmd.Parameters.AddWithValue("@name", name);
+                var newTableId = (int)await cmd.ExecuteScalarAsync();
                 string sql =
                     "INSERT INTO \"public\".\"EquipmentTreeFiles\" (\"Name\", \"FolderId\", \"MenuType\", \"TableName\", \"FileType\") VALUES (@name, @folderId, @menuType, @tableName, @fileType) RETURNING \"id\";";
                 using var cmd1 = new NpgsqlCommand(sql, connection, transaction);
@@ -119,48 +123,6 @@ namespace Data.Repositories.EquipmentTree
                 cmd1.Parameters.AddWithValue("@fileType", "equipments table");
                 var newId = (int)await cmd1.ExecuteScalarAsync();
                 Console.WriteLine(sql);
-
-                string sqlInsertingServiceFolder =
-                    "INSERT INTO \"public\".\"EquipmentTreeFolders\" (\"Name\", \"ParentId\", \"MenuType\") VALUES (@name, @parentId, @menuType) RETURNING \"id\"; ";
-                using var cmd2 = new NpgsqlCommand(sqlInsertingServiceFolder, connection, transaction);
-                cmd2.Parameters.AddWithValue("@name", $"{name} технічні роботи");
-                cmd2.Parameters.AddWithValue("@parentId", folderId);
-                cmd2.Parameters.AddWithValue("@menuType", menuType);
-                var serviceFolderId = (int)await cmd2.ExecuteScalarAsync();
-                Console.WriteLine(sqlInsertingServiceFolder);
-
-                string sqlInsertingWriteOff =
-                    "INSERT INTO \"public\".\"EquipmentTreeFiles\" (\"Name\", \"FolderId\", \"MenuType\", \"TableName\", \"FileType\") VALUES (@name, @folderId, @menuType, @tableName, @fileType); ";
-                using var cmd3 = new NpgsqlCommand(sqlInsertingWriteOff, connection, transaction);
-                cmd3.Parameters.AddWithValue("@name", $"{name} списані");
-                cmd3.Parameters.AddWithValue("@folderId", folderId);
-                cmd3.Parameters.AddWithValue("@menuType", menuType);
-                cmd3.Parameters.AddWithValue("@tableName", name);
-                cmd3.Parameters.AddWithValue("@fileType", "writeoff");
-                await cmd3.ExecuteScalarAsync();
-                Console.WriteLine(sqlInsertingWriteOff);
-
-                string sqlInsertingServiceFile =
-                    "INSERT INTO \"public\".\"EquipmentTreeFiles\" (\"Name\", \"FolderId\", \"MenuType\", \"TableName\", \"FileType\") VALUES (@name, @folderId, @menuType, @tableName, @fileType); ";
-                using var cmd4 = new NpgsqlCommand(sqlInsertingServiceFile, connection, transaction);
-                cmd4.Parameters.AddWithValue("@name", $"{name} обслуговування");
-                cmd4.Parameters.AddWithValue("@folderId", serviceFolderId);
-                cmd4.Parameters.AddWithValue("@menuType", menuType);
-                cmd4.Parameters.AddWithValue("@tableName", $"{name} О");
-                cmd4.Parameters.AddWithValue("@fileType", "services");
-                await cmd4.ExecuteScalarAsync();
-                Console.WriteLine(sqlInsertingServiceFile);
-
-                string sqlInsertingRepairsFile =
-                    "INSERT INTO \"public\".\"EquipmentTreeFiles\" (\"Name\", \"FolderId\", \"MenuType\", \"TableName\", \"FileType\") VALUES (@name, @folderId, @menuType, @tableName, @fileType); ";
-                using var cmd5 = new NpgsqlCommand(sqlInsertingRepairsFile, connection, transaction);
-                cmd5.Parameters.AddWithValue("@name", $"{name} ремонти");
-                cmd5.Parameters.AddWithValue("@folderId", serviceFolderId);
-                cmd5.Parameters.AddWithValue("@menuType", menuType);
-                cmd5.Parameters.AddWithValue("@tableName", $"{name} Р");
-                cmd5.Parameters.AddWithValue("@fileType", "repairs");
-                await cmd5.ExecuteScalarAsync();
-                Console.WriteLine(sqlInsertingRepairsFile);
                 
                 await transaction.CommitAsync();
                 return newId;
@@ -218,7 +180,6 @@ namespace Data.Repositories.EquipmentTree
                     $"ALTER TABLE \"UserTables\".\"{oldName} Р\" RENAME TO \"{newName} Р\"; " + // "Р" means repairs - "(Р)емонти"
                     $"ALTER TABLE \"UserTables\".\"{oldName} РВМ\" RENAME TO \"{newName} РВМ\"; "; // "РВМ" mean repair consumables - "(Р)емонти (В)итрачені (М)атеріали"
                 
-                Console.WriteLine(sql);
                 using var cmd = new NpgsqlCommand(sql, connection, transaction);
                 cmd.Parameters.AddWithValue("@newName", newName);
                 cmd.Parameters.AddWithValue("@newNameGeneralFolder", $"{newName} технічні роботи");

@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using System.Reflection;
 using System.Windows;
+using Syncfusion.SfSkinManager;
 using Syncfusion.Windows.Shared;
 
 namespace UI;

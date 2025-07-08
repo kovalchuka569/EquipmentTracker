@@ -1,0 +1,139 @@
+<UserControl x:Class="EquipmentTracker.Views.Equipment.DataGrid.EquipmentDataGridView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:EquipmentTracker.Views.Equipment.DataGrid"
+             xmlns:converter="clr-namespace:Core.Services.EquipmentDataGrid;assembly=Core"
+             xmlns:searchconverter="clr-namespace:EquipmentTracker.ViewModels.DataGrid"
+             xmlns:grid="clr-namespace:Syncfusion.UI.Xaml.Grid;assembly=Syncfusion.SfGrid.WPF"
+             xmlns:converters="clr-namespace:EquipmentTracker.Views.Equipment.DataGrid.Converters"
+             xmlns:sf="http://schemas.syncfusion.com/wpf"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:syncfusionskin="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF"
+             mc:Ignorable="d"
+             syncfusionskin:SfSkinManager.Theme="{syncfusionskin:SkinManagerExtension ThemeName=Office2019Colorful}"
+             x:Name="UserControl">
+
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding UserControlLoadedCommand}"
+                                  CommandParameter="{Binding ElementName=UserControl}"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Syncfusion.Themes.Office2019Colorful.WPF;component/mscontrol/progressbar.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Syncfusion.Themes.Windows11Light.WPF;component/datetimeedit/datetimeedit.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Syncfusion.Themes.Office2019Colorful.WPF;component/SfDataGrid/SfDataGrid.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Syncfusion.Themes.Office2019Colorful.WPF;component/currencytextbox/currencytextbox.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+            <DataTemplate x:Key="Test">
+                <DataTemplate.Resources>
+                    <converters:NumberFormatConverter x:Key="NumberFormatConverter"/>
+                </DataTemplate.Resources>
+            </DataTemplate>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Border x:Name="ZoomWrapper" Background="Transparent">
+        <Border.LayoutTransform>
+            <ScaleTransform x:Name="MainScaleTransform" ScaleX="1.0" ScaleY="1.0"/>
+        </Border.LayoutTransform>
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            
+            <ProgressBar Grid.Row="0" IsIndeterminate="True"
+                         Visibility="{Binding ProgressBarVisibility, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+            
+            <Grid Grid.Row="1">
+                <grid:SfDataGrid 
+                    x:Name="dataGrid"
+                    ItemsSource="{Binding Equipments}"
+                    AddNewRowText="Двічі натисніть, щоб додати"
+                    AddNewRowPosition="Top"
+                    GroupDropAreaText="Перетягніть сюди, щоб групувати"
+                    ShowGroupDropArea="True"
+                    NewItemPlaceholderPosition="AtBeginning"
+                    AllowResizingHiddenColumns="True"
+                    AllowDraggingRows="True"
+                    BorderThickness="0"
+                    ColumnSizer="SizeToHeader"
+                    AllowDrop="True"
+                    EditTrigger="OnDoubleTap"
+                    LiveDataUpdateMode="AllowDataShaping"
+                    GridValidationMode="None"
+                    IsDynamicItemsSource="True"
+                    RowDropIndicatorMode="Arrow"
+                    SelectionMode="Extended"
+                    AllowDraggingColumns="True"
+                    AllowResizingColumns="True"
+                    Columns="{Binding Columns}"
+                    AutoGenerateColumns="False">
+
+                    <grid:SfDataGrid.HeaderContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="Редагувати характеристику"
+                                      Command="{Binding DataGrid.DataContext.EditColumnCommand}"
+                                      CommandParameter="{Binding}"/>
+                        </ContextMenu>
+                    </grid:SfDataGrid.HeaderContextMenu>
+
+                    <grid:SfDataGrid.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="Додати характеристику" Command="{Binding AddColumnCommand}"/>
+                            <MenuItem Header="Імпорт з Excel" Command="{Binding ImportFromExcelCommand}"/>
+                        </ContextMenu>
+                    </grid:SfDataGrid.ContextMenu>
+
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="CurrentCellValidating">
+                            <i:InvokeCommandAction Command="{Binding CurrentCellValidatingCommand}" PassEventArgsToCommand="True"/>
+                        </i:EventTrigger>
+                        <i:EventTrigger EventName="AddNewRowInitiating">
+                            <i:InvokeCommandAction Command="{Binding AddNewRowInitiatingCommand}" PassEventArgsToCommand="True"/>
+                        </i:EventTrigger>
+                        <i:EventTrigger EventName="CellTapped">
+                            <i:InvokeCommandAction Command="{Binding CellTappedCommand}" PassEventArgsToCommand="True"/>
+                        </i:EventTrigger>
+                        <i:EventTrigger EventName="RowValidated">
+                            <i:InvokeCommandAction Command="{Binding RowValidatedCommand}" PassEventArgsToCommand="True"/>
+                        </i:EventTrigger>
+                        <i:EventTrigger EventName="RowValidating">
+                            <i:InvokeCommandAction Command="{Binding RowValidatingCommand}" PassEventArgsToCommand="True"/>
+                        </i:EventTrigger>
+                        <i:EventTrigger EventName="Loaded">
+                            <i:InvokeCommandAction Command="{Binding EquipmentDataGridLoadedCommand}" CommandParameter="{Binding ElementName=dataGrid}"/>
+                        </i:EventTrigger>
+                        <i:EventTrigger EventName="QueryColumnDragging">
+                            <i:InvokeCommandAction Command="{Binding ColumnDraggingCommand}" PassEventArgsToCommand="True"/>
+                        </i:EventTrigger>
+                        <i:EventTrigger EventName="ResizingColumns">
+                            <i:InvokeCommandAction Command="{Binding ResizingColumnCommand}" PassEventArgsToCommand="True"/>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                </grid:SfDataGrid>
+                
+                <Rectangle Fill="Black"
+                           Opacity="0.5"
+                           Visibility="{Binding IsOverlayVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
+                           Panel.ZIndex="1"/>
+                
+                <ContentControl prism:RegionManager.RegionName="ColumnCreatorRegion"
+                                VerticalAlignment="Center"
+                                HorizontalAlignment="Center"
+                                Panel.ZIndex="2"/>
+                            <ContentControl prism:RegionManager.RegionName="SheetSelectorRegion"
+                                VerticalAlignment="Center" HorizontalAlignment="Center" Panel.ZIndex="2"/>
+            </Grid>
+        </Grid>
+    </Border>
+</UserControl>

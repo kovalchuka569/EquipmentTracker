@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
 namespace Models.EquipmentTree
@@ -11,6 +12,10 @@ namespace Models.EquipmentTree
         private string _imageIcon;
         private string _tableName;
         private string _fileType;
+        private bool _isHighlited;
+        private bool _isVisible = true;
+
+        private int _tableId;
 
         public FileItem()
         {
@@ -37,7 +42,10 @@ namespace Models.EquipmentTree
                 
             }
         }
-    
+
+        public ObservableCollection<IFileSystemItem> Children { get; }
+        public bool IsExpanded { get; set; }
+
         public int ParentIdFolder
         {
             get => _parentIdFolder;
@@ -74,6 +82,36 @@ namespace Models.EquipmentTree
             set
             {
                 _fileType = value;
+                OnPropertyChanged();
+            }
+        }
+        
+        public bool IsHighlited
+        {
+            get => _isHighlited;
+            set
+            {
+                _isHighlited = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool IsVisible
+        {
+            get => _isVisible;
+            set
+            {
+                _isVisible = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public int TableId
+        {
+            get => _tableId;
+            set
+            {
+                _tableId = value;
                 OnPropertyChanged();
             }
         }

@@ -1,7 +1,6 @@
 ﻿using System.Windows;
 using Syncfusion.Windows.Tools.Controls;
 using Prism.Mvvm;
-using Prism.Regions;
 using Prism.Commands;
 
 namespace UI.ViewModels.Notifications.NoifyIcon;

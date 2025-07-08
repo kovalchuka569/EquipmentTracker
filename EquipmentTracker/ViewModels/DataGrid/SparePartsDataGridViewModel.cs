@@ -2,7 +2,6 @@
 using System.Collections.Specialized;
 using System.Dynamic;
 using Prism.Mvvm;
-using Prism.Regions;
 using Prism.Commands;
 using Common.Logging;
 using Core.Events.DataGrid;

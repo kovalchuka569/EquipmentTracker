@@ -4,7 +4,6 @@ using Data.Properties;
 using Microsoft.EntityFrameworkCore;
 using Notification.Wpf;
 using Prism.Mvvm;
-using Prism.Regions;
 using Prism.Commands;
 using DbContext = Data.AppDbContext.DbContext;
 using Common.Logging;

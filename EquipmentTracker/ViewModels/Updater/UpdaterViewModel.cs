@@ -2,7 +2,6 @@
 using System.Reflection;
 using Squirrel;
 using Prism.Mvvm;
-using Prism.Regions;
 using Prism.Commands;
 using System.Threading.Tasks;
 using Notification.Wpf;

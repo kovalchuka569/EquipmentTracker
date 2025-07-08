@@ -11,7 +11,6 @@ using Notification.Wpf;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
-using Prism.Regions;
 using Syncfusion.UI.Xaml.Grid;
 
 namespace EquipmentTracker.ViewModels.DataGrid.Services;

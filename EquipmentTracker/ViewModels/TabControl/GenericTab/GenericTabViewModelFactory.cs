@@ -1,6 +1,4 @@
-﻿using Prism.Events;
-using Prism.Regions;
-
+﻿
 namespace UI.ViewModels.TabControl.GenericTab;
 
 public interface IGenericTabViewModelFactory

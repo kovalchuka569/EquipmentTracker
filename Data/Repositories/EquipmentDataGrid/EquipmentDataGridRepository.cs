@@ -1,10 +1,12 @@
-﻿using System.Collections.ObjectModel;
-using System.Text;
+﻿using System.Text;
 using Common.Logging;
 using Data.AppDbContext;
-using Models.EquipmentDataGrid;
+using Models.Equipment;
+using Models.Equipment.ColumnSpecificSettings;
 using Npgsql;
 using NpgsqlTypes;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Data.Repositories.EquipmentDataGrid;
 
@@ -18,7 +20,7 @@ public class EquipmentDataGridRepository : IEquipmentDataGridRepository
         _logger = logger;
     }
 
-    public async Task<List<string>> GetColumnNamesAsync(string equipmentTableName)
+   /* public async Task<List<string>> GetColumnNamesAsync(string equipmentTableName)
     {
         var columnNames = new List<string>();
         await using var connection = await _context.OpenNewConnectionAsync();
@@ -371,6 +373,258 @@ public class EquipmentDataGridRepository : IEquipmentDataGridRepository
         {
             transaction.Rollback();
             _logger.LogError(e, "Database error updating spare part");
+            throw;
+        }
+    }*/
+    
+   public async Task<List<ColumnDto>> GetColumnsAsync(int tableId)
+   {
+       var rawData = new List<(int Id, int TableId, string SettingsJson)>();
+
+       await using var connection = await _context.OpenNewConnectionAsync();
+       const string sql = @"SELECT * FROM ""public"".""custom_columns"" WHERE ""table_id"" = @tableId";
+       await using var cmd = new NpgsqlCommand(sql, connection);
+       cmd.Parameters.AddWithValue("@tableId", tableId);
+
+       await using var reader = await cmd.ExecuteReaderAsync();
+       while (await reader.ReadAsync())
+       {
+           rawData.Add((
+               reader.GetValueOrDefault<int>("id"),
+               reader.GetValueOrDefault<int>("table_id"),
+               reader.GetValueOrDefault<string>("settings")
+           ));
+       }
+       
+       return await Task.Run(() =>
+       {
+           var result = new List<ColumnDto>(rawData.Count);
+           foreach (var (id, tableId, settingsJson) in rawData)
+           {
+               ColumnSettings settings = null;
+               if (!string.IsNullOrWhiteSpace(settingsJson))
+               {
+                   settings = JsonConvert.DeserializeObject<ColumnSettings>(settingsJson);
+
+                   if (settings?.SpecificSettings is JObject jObj)
+                   {
+                       settings.SpecificSettings = DeserializeSpecificSettings(settings.DataType, jObj);
+                   }
+               }
+
+               result.Add(new ColumnDto
+               {
+                   Id = id,
+                   TableId = tableId,
+                   Settings = settings
+               });
+           }
+
+           return result;
+       });
+   }
+
+    public async Task<List<EquipmentDto>> GetRowsAsync(int tableId)
+    {
+        await using var connection = await _context.OpenNewConnectionAsync();
+        string sql = @"SELECT * FROM ""public"".""custom_data"" WHERE ""table_id"" = @tableId";
+        await using var cmd = new NpgsqlCommand(sql, connection);
+        cmd.Parameters.AddWithValue("@tableId", tableId);
+        await using var reader = await cmd.ExecuteReaderAsync();
+
+        var rawData = new List<(int id, int tableId, int rowIndex, string json)>();
+        while (await reader.ReadAsync())
+        {
+            rawData.Add((
+                reader.GetValueOrDefault<int>("id"),
+                reader.GetValueOrDefault<int>("table_id"),
+                reader.GetValueOrDefault<int>("row_index"),
+                reader.GetValueOrDefault<string>("data")
+            ));
+        }
+        
+        return await Task.Run(() =>
+        {
+            return rawData.Select(row => new EquipmentDto
+            {
+                Id = row.id,
+                TableId = row.tableId,
+                RowIndex = row.rowIndex,
+                Data = string.IsNullOrEmpty(row.json)
+                    ? new Dictionary<string, object>()
+                    : JsonConvert.DeserializeObject<Dictionary<string, object>>(row.json)
+            }).ToList();
+        });
+    }
+
+    public async Task UpdateRowsAsync(IDictionary<string, object> rows, int id)
+    {
+        await using var connection = await _context.OpenNewConnectionAsync();
+        await using var transaction = await connection.BeginTransactionAsync();
+        try
+        {
+            string sql = @"UPDATE ""public"".""custom_data"" SET ""data"" = @data WHERE ""id"" = @id";
+            await using var cmd = new NpgsqlCommand(sql, connection, transaction);
+            cmd.Parameters.AddWithValue("@id", id);
+            var dataJson = JsonConvert.SerializeObject(rows);
+            cmd.Parameters.AddWithValue("@data", NpgsqlDbType.Jsonb, dataJson);
+            await cmd.ExecuteNonQueryAsync();
+            await transaction.CommitAsync();
+            
+        }
+        catch (NpgsqlException e)
+        {
+            await transaction.RollbackAsync();
+            _logger.LogError(e, "Error updating rows");
+            throw;
+        }
+    }
+
+    public async Task UpdateColumnAsync(ColumnDto column)
+    {
+        await using var connection = await _context.OpenNewConnectionAsync();
+        await using var transaction = connection.BeginTransaction();
+        try
+        {
+            string sql = @"UPDATE ""public"".""custom_columns"" SET ""settings"" = @settings WHERE ""id"" = @id";
+            await using var cmd = new NpgsqlCommand(sql, connection, transaction);
+            cmd.Parameters.AddWithValue("@id", column.Id);
+            var settingsJson = JsonConvert.SerializeObject(column.Settings);
+            cmd.Parameters.AddWithValue("@settings", NpgsqlDbType.Jsonb, settingsJson);
+            await cmd.ExecuteNonQueryAsync();
+            await transaction.CommitAsync();
+        }
+        catch (Exception e)
+        {
+            await transaction.RollbackAsync();
+            _logger.LogError(e, "Database error updating column");
+            throw;
+        }
+    }
+
+    private object? DeserializeSpecificSettings(ColumnDataType dataType, JObject jObject)
+    {
+        return dataType switch
+        {
+            ColumnDataType.Text => jObject.ToObject<TextColumnSettings>(),
+            ColumnDataType.Number => jObject.ToObject<NumberColumnSettings>(),
+            ColumnDataType.Boolean => jObject.ToObject<BooleanColumnSettings>(),
+            ColumnDataType.Date => jObject.ToObject<DateColumnSettings>(),
+            ColumnDataType.Currency => jObject.ToObject<CurrencyColumnSettings>(),
+            ColumnDataType.List => jObject.ToObject<ListColumnSettings>(),
+            ColumnDataType.MultilineText => jObject.ToObject<MultilineTextColumnSettings>(),
+            _ => null
+        };
+    }
+
+    public async Task UpdateColumnPositionAsync(Dictionary<int, int> columnPositions, int tableId)
+    {
+        await using var connection = await _context.OpenNewConnectionAsync();
+        await using var transaction = await connection.BeginTransactionAsync();
+        try
+        {
+            string sql = @"UPDATE ""public"".""custom_columns""
+                       SET ""settings"" = jsonb_set(""settings"", '{ColumnPosition}', to_jsonb(@columnPosition), true) 
+                       WHERE ""id"" = @columnId AND ""table_id"" = @tableId; ";
+
+            foreach (var kvp in columnPositions)
+            {
+                int columnId = kvp.Key;
+                int newPosition = kvp.Value;
+            
+                await using var cmd = new NpgsqlCommand(sql, connection, transaction);
+                cmd.Parameters.AddWithValue("@columnId", columnId);
+                cmd.Parameters.AddWithValue("@tableId", tableId);
+                cmd.Parameters.AddWithValue("@columnPosition", newPosition);
+                await cmd.ExecuteNonQueryAsync();
+            }
+            await transaction.CommitAsync();
+        }
+        catch (NpgsqlException e)
+        {
+            await transaction.RollbackAsync();
+            _logger.LogError(e, "Database error updating column position");
+            throw;
+        }
+    }
+
+    public async Task UpdateColumnWidthAsync(Dictionary<int, double> columnWidths, int tableId)
+    {
+        await using var connection = await _context.OpenNewConnectionAsync();
+        await using var transaction = await connection.BeginTransactionAsync();
+        try
+        {
+            string sql = @"UPDATE ""public"".""custom_columns""
+                       SET ""settings"" = jsonb_set(""settings"", '{ColumnWidth}', to_jsonb(@columnWidth), true) 
+                       WHERE ""id"" = @columnId AND ""table_id"" = @tableId; ";
+
+            foreach (var kvp in columnWidths)
+            {
+                int columnId = kvp.Key;
+                double newWidth = kvp.Value;
+                await using var cmd = new NpgsqlCommand(sql, connection, transaction);
+                cmd.Parameters.AddWithValue("@columnId", columnId);
+                cmd.Parameters.AddWithValue("@tableId", tableId);
+                cmd.Parameters.AddWithValue("@columnWidth", newWidth);
+                await cmd.ExecuteNonQueryAsync();
+            }
+            await transaction.CommitAsync();
+        }
+        catch (NpgsqlException e)
+        {
+            await transaction.RollbackAsync();
+            _logger.LogError(e, "Database error updating column width");
+            throw;
+        }
+    }
+
+    public async Task<int> CreateColumnAsync(ColumnSettings column, int tableId)
+    {
+        await using var connection = await _context.OpenNewConnectionAsync();
+        await using var transaction = await connection.BeginTransactionAsync();
+        try
+        {
+            string sql = @"INSERT INTO ""public"".""custom_columns"" (""table_id"", ""settings"") VALUES (@tableId, @settings::jsonb) RETURNING id;";
+            
+            string settingsJson = JsonConvert.SerializeObject(column);
+            await using var cmd = new NpgsqlCommand(sql, connection, transaction);
+            cmd.Parameters.AddWithValue("tableId", tableId);
+            cmd.Parameters.AddWithValue("settings", settingsJson);
+            
+            var result = await cmd.ExecuteScalarAsync();
+            await transaction.CommitAsync();
+            
+            return Convert.ToInt32(result);
+        }
+        catch (NpgsqlException e)
+        {
+            await transaction.RollbackAsync();
+            _logger.LogError(e, "Database error creating column");
+            throw;
+        }
+    }
+
+    public async Task<int> AddNewRowAsync(EquipmentDto equipment)
+    {
+        await using var connection = await _context.OpenNewConnectionAsync();
+        await using var transaction = await connection.BeginTransactionAsync();
+
+        try
+        {
+            string sql = @"INSERT INTO ""public"".""custom_data"" (""table_id"", ""data"", ""row_index"") VALUES (@tableId, @data::jsonb, @rowIndex) RETURNING id;";
+            string dataJson = JsonConvert.SerializeObject(equipment.Data);
+            await using var cmd = new NpgsqlCommand(sql, connection, transaction);
+            cmd.Parameters.AddWithValue("tableId", equipment.TableId);
+            cmd.Parameters.AddWithValue("data", dataJson);
+            cmd.Parameters.AddWithValue("rowIndex", equipment.RowIndex);
+            var result = await cmd.ExecuteScalarAsync();
+            await transaction.CommitAsync();   
+            return Convert.ToInt32(result);
+        }
+        catch (Exception e)
+        {
+            await transaction.RollbackAsync();
+            _logger.LogError(e, "Database error creating equipment");
             throw;
         }
     }
