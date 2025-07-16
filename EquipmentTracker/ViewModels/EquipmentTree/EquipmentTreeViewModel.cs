@@ -1,44 +1,24 @@
-﻿using System.Collections.ObjectModel;
-using System.Windows;
-using Prism.Mvvm;
-using Prism.Commands;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using Core.Events;
-using Core.Events.EquipmentTree;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using Core.Events.TabControl;
-using Core.Models.EquipmentTree;
-using Core.Models.Tabs.EquipmentTree;
 using Core.Services.EquipmentTree;
 using Syncfusion.UI.Xaml.TreeView;
-
-
-using Notification.Wpf;
-
-using Data.Entities;
 using MaterialDesignThemes.Wpf;
 using Models.EquipmentTree;
-using Notification.Wpf.Classes;
-using Prism.Events;
-using Syncfusion.UI.Xaml.Grid;
+using Models.NavDrawer;
 using Syncfusion.UI.Xaml.TreeView.Engine;
-using Syncfusion.UI.Xaml.TreeView.Helpers;
 using UI.ViewModels.TabControl;
 using DelegateCommand = Prism.Commands.DelegateCommand;
-using Application = System.Windows.Application;
 
 namespace UI.ViewModels.EquipmentTree;
 
-public class EquipmentTreeViewModel : BindableBase, INavigationAware, IRegionCleanup
+public class EquipmentTreeViewModel : BindableBase, INavigationAware, IRegionMemberLifetime, IDestructible
 {
     #region Properties
     private readonly IEquipmentTreeService _service;
     private readonly IEventAggregator _eventAggregator;
     private IEventAggregator _scopedEventAggregator;
     private IRegionManager _regionManager;
-    private bool _isFirstRegionInitialized;
-    private bool _isSecondRegionInitialized;
 
     
     private SfTreeView _sfTreeView;
@@ -46,35 +26,26 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware, IRegionCle
     private bool _columnSelectorVisibility = false;
 
 
-    private string _menuType;
+    private MenuType _menuType;
     #endregion
 
     #region Services
 
     private ObservableCollection<IFileSystemItem> _items = new();
     private IFileSystemItem _selectedItem;
-    private string _columnSelectorRegionName;
-    private TaskCompletionSource<bool> _tableCreationTcs;
     private SnackbarMessageQueue _messageQueue = new();
     
     //Context menu items visibility
-    private bool _openContextMenuVisibility;
-    private bool _addFolderFileContextMenuItemVisibility;
-    private bool _addFileContextMenuVisibility;
-    private bool _addFileContextMenuItemVisibility;
-    private bool _editContextMenuItemVisibility;
-
+    public bool OpenContextMenuVisibility => SelectedItem is FileItem;
+    public bool ConnectionsContextMenuVisibility => SelectedItem is FileItem;
+    public bool ConnectEquipmentContextMenuVisibility => SelectedItem is FileItem {FileFormat: FileFormat.RepairsSheet or FileFormat.ServicesSheet or FileFormat.WriteOffSheet};
+    public bool CreateContextMenuItemVisibility => SelectedItem is not FileItem;
+    public bool EditContextMenuItemVisibility => SelectedItem is FileItem or FolderItem;
+    
     private bool _emptyDataTipVisibility;
-    private bool _isColumnSelectorVisible;
     private bool _progressBarVisibility;
     private bool _isOverlayVisible;
     private string _searchText;
-    
-    public bool ColumnSelectorVisibility
-    {
-        get => _columnSelectorVisibility;
-        set => SetProperty(ref _columnSelectorVisibility, value);
-    }
 
     public ObservableCollection<IFileSystemItem> Items
     {
@@ -85,38 +56,9 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware, IRegionCle
     public IFileSystemItem SelectedItem
     {
         get => _selectedItem;
-        set => SetProperty(ref _selectedItem, value);
-    }
-    
-    public string ColumnSelectorRegionName
-    {
-        get => _columnSelectorRegionName;
-        set => SetProperty(ref _columnSelectorRegionName, value);
+        set { SetProperty(ref _selectedItem, value); RaiseContextMenuItemsVisibilityChanged();}
     }
 
-    public bool OpenContextMenuVisibility
-    {
-        get => _openContextMenuVisibility;
-        set => SetProperty(ref _openContextMenuVisibility, value);
-    }
-
-    public bool AddFolderFileContextMenuItemVisibility
-    {
-        get => _addFolderFileContextMenuItemVisibility;
-        set => SetProperty(ref _addFolderFileContextMenuItemVisibility, value);
-    }
-
-    public bool AddFileContextMenuItemVisibility
-    {
-        get => _addFileContextMenuItemVisibility;
-        set => SetProperty(ref _addFolderFileContextMenuItemVisibility, value);
-    }
-
-    public bool EditContextMenuItemVisibility
-    {
-        get => _editContextMenuItemVisibility;
-        set => SetProperty(ref _editContextMenuItemVisibility, value);
-    }
     public bool EmptyDataTipVisibility
     {
         get => _emptyDataTipVisibility;
@@ -127,12 +69,6 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware, IRegionCle
     {
         get => _messageQueue;
         set => SetProperty(ref _messageQueue, value);
-    }
-
-    public bool IsColumnSelectorVisible
-    {
-        get => _isColumnSelectorVisible;
-        set => SetProperty(ref _isColumnSelectorVisible, value);
     }
 
     public bool ProgressBarVisibility
@@ -159,13 +95,18 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware, IRegionCle
     public DelegateCommand<NodeExpandedCollapsedEventArgs> NodeExpandedCommand { get; }
     public DelegateCommand<NodeExpandedCollapsedEventArgs> NodeCollapsedCommand { get; }
     public DelegateCommand AddFolderCommand { get; }
-    public DelegateCommand AddFileCommand { get; }
     public DelegateCommand EditCommand { get; }
     public DelegateCommand<TreeViewItemEndEditEventArgs> ItemEndEditCommand { get; }
     public DelegateCommand ContextMenuOpenedCommand { get; }
     public DelegateCommand OpenCommand { get; }
-    public DelegateCommand SearchTextChangedCommand { get; }
-    #region Constructor
+    public DelegateCommand AddEquipmentsFileCommand { get; }
+    public DelegateCommand AddRepairsFileCommand { get; }
+    public DelegateCommand AddServicesFileCommand { get; }
+    public DelegateCommand AddWriteOffFileCommand { get; }
+    public DelegateCommand AddEquipmentsSummaryReportCommand { get; }
+    public DelegateCommand AddRepairsSummaryReportCommand { get; }
+    public DelegateCommand AddServicesSummaryReportCommand { get; }
+    public DelegateCommand AddWriteOffSummaryReportCommand { get; }
     public EquipmentTreeViewModel(IEquipmentTreeService service, IEventAggregator eventAggregator)
     {
         _scopedEventAggregator = new EventAggregator();
@@ -176,85 +117,183 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware, IRegionCle
         NodeExpandedCommand = new DelegateCommand<NodeExpandedCollapsedEventArgs>(OnNodeExpandedCollapsed);
         NodeCollapsedCommand = new DelegateCommand<NodeExpandedCollapsedEventArgs>(OnNodeExpandedCollapsed);
         AddFolderCommand = new DelegateCommand(OnAddFolder);
-        AddFileCommand = new DelegateCommand(OnAddFile);
         OpenCommand = new DelegateCommand(OnOpenFileCommand);
         EditCommand = new DelegateCommand(OnEdit);
         ItemEndEditCommand = new DelegateCommand<TreeViewItemEndEditEventArgs>(OnItemEndEdit);
         ContextMenuOpenedCommand = new DelegateCommand(OnContextMenuOpened);
-        SearchTextChangedCommand = new DelegateCommand(OnSearchTextChanged);
+        AddEquipmentsFileCommand = new DelegateCommand(OnAddEquipmentsFile);
+        /*AddRepairsFileCommand = new DelegateCommand(OnAddRepairsFile);
+        AddServicesFileCommand = new DelegateCommand(OnAddServicesFile);
+        AddWriteOffFileCommand = new DelegateCommand(OnAddWriteOffFile);*/
+        AddEquipmentsSummaryReportCommand = new DelegateCommand(OnAddEquipmentsSummaryFile);
+        AddRepairsSummaryReportCommand = new DelegateCommand(OnAddRepairsSummaryFile);
+        AddServicesSummaryReportCommand = new DelegateCommand(OnAddServicesSummaryFile);
+        AddWriteOffSummaryReportCommand = new DelegateCommand(OnAddWriteOffSummaryFile);
     }
-    #endregion
 
-    private void OnSearchTextChanged()
+    // Summaries
+    private async void OnAddEquipmentsSummaryFile()
     {
-        foreach (var item in Items.OfType<FileSystemItemViewModel>())
+        await AddSummaryFile(SummaryFormat.EquipmentsSummary);
+    }
+    private async void OnAddRepairsSummaryFile()
+    {
+        await AddSummaryFile(SummaryFormat.RepairsSummary);
+    }
+    private async void OnAddServicesSummaryFile()
+    {
+        await AddSummaryFile(SummaryFormat.ServicesSummary);
+    }
+    private async void OnAddWriteOffSummaryFile()
+    {
+        await AddSummaryFile(SummaryFormat.WriteOffSummary);
+    }
+    
+    // Equipments
+    private async void OnAddEquipmentsFile()
+    {
+       await AddEquipmentFile(FileFormat.EquipmentSheet);
+    }
+    
+    
+
+    private async Task AddEquipmentFile(FileFormat fileFormat)
+    {
+        var folder = SelectedItem as FolderItem;
+        string baseName = GetBaseNameFromFileFormat(fileFormat);
+        var siblingNames = folder.SubItems.OfType<FileItem>().Select(f => f.Name).ToList();
+        string uniqueName = await _service.GenerateUniqueFileFolderNameAsync(baseName, siblingNames);
+
+        int tableId = await _service.CreateEquipmentTableAsync();
+        
+        var newFile = new FileItem
         {
-            item.Filter(SearchText);
+            ParentIdFolder = folder.Id,
+            Name = uniqueName,
+            TableId = tableId,
+            Id = await _service.CreateFileAsync(uniqueName, fileFormat, folder.Id, tableId, _menuType),
+            FileFormat = fileFormat,
+        };
+        folder.AddFile(newFile);
+        SelectedItem = newFile;
+        OnEdit();
+    }
+    
+    private async Task AddSummaryFile(SummaryFormat summaryFormat)
+    {
+        var folder = SelectedItem as FolderItem;
+        string baseName = GetBaseNameFromSummaryFormat(summaryFormat);
+        var siblingNames = folder.SubItems.OfType<FileItem>().Select(f => f.Name).ToList();
+        string uniqueName = await _service.GenerateUniqueFileFolderNameAsync(baseName, siblingNames);
+
+        int summaryId = await _service.CreateSummaryAsync(summaryFormat);
+        
+        var newFile = new FileItem
+        {
+            ParentIdFolder = folder.Id,
+            Name = uniqueName,
+            SummaryId = summaryId,
+            Id = await _service.CreateSummaryFileAsync(uniqueName, folder.Id, summaryId, _menuType),
+            FileFormat = FileFormat.Summary,
+        };
+        folder.AddFile(newFile);
+        SelectedItem = newFile;
+        OnEdit();
+    }
+
+    private string GetBaseNameFromFileFormat(FileFormat fileFormat)
+    {
+        switch (fileFormat)
+        {
+            case FileFormat.EquipmentSheet:
+                return "Нове обладнання";
+            case FileFormat.RepairsSheet:
+                return "Нові ремонти";
+            case FileFormat.WriteOffSheet:
+                return "Списані";
+            case FileFormat.ServicesSheet:
+                return "Нові обслуговування";
         }
+        return string.Empty;
+    }
+    
+    private string GetBaseNameFromSummaryFormat(SummaryFormat summaryFormat)
+    {
+        switch (summaryFormat)
+        {
+            case SummaryFormat.EquipmentsSummary:
+                return "Загальний звіт обладнання";
+            case SummaryFormat.RepairsSummary:
+                return "Загальний звіт ремонти";
+            case SummaryFormat.WriteOffSummary:
+                return "Загальний звіт списане обладнання";
+            case SummaryFormat.ServicesSummary:
+                return "Загальний звіт обслуговування";
+        }
+        return string.Empty;
+    }
+
+    private void RaiseContextMenuItemsVisibilityChanged()
+    {
+        OnPropertyChanged(new PropertyChangedEventArgs(nameof(OpenContextMenuVisibility)));
+        OnPropertyChanged(new PropertyChangedEventArgs(nameof(ConnectEquipmentContextMenuVisibility)));
+        OnPropertyChanged(new PropertyChangedEventArgs(nameof(ConnectionsContextMenuVisibility)));
+        OnPropertyChanged(new PropertyChangedEventArgs(nameof(CreateContextMenuItemVisibility)));
+        OnPropertyChanged(new PropertyChangedEventArgs(nameof(EditContextMenuItemVisibility)));
     }
 
     private void OnOpenFileCommand()
+    {
+        if (SelectedItem is FileItem fileItem)
         {
-            if (SelectedItem is FileItem fileItem)
+            string viewName = string.Empty;
+            switch (fileItem.FileFormat)
             {
-                string viewName = string.Empty;
-                switch (fileItem.FileType)
-                {
-                    case "equipments table":
-                        viewName = "EquipmentDataGridView";
-                        break;
+                case FileFormat.EquipmentSheet:
+                    viewName = "EquipmentDataGridView";
+                    break;
 
-                    case "writeoff":
-                        viewName = "WriteoffDataGridView";
-                        break;
+                case FileFormat.WriteOffSheet:
+                    viewName = "WriteoffDataGridView";
+                    break;
 
-                    case "services":
-                        viewName = "ServicesDataGridView";
-                        break;
+                case FileFormat.ServicesSheet:
+                    viewName = "ServicesDataGridView";
+                    break;
 
-                    case "repairs":
-                        viewName = "RepairsDataGridView";
-                        break;
-                }
-                
-                _eventAggregator.GetEvent<OpenNewTabEvent>().Publish(new OpenNewTabEventArgs
-                {
-                    Header = fileItem.Name,
-                    Parameters = new Dictionary<string, object>
-                    {
-                        { "ViewNameToShow", viewName },
-                        { "EquipmentDataGridView.TableName", fileItem.TableName },
-                        { "EquipmentDataGridView.TableId", fileItem.TableId },
-                        { "RepairsDataGridView.RepairsTableName", fileItem.TableName },
-                        { "ServicesDataGridView.ServicesTableName", fileItem.TableName }
-                    }
-                });
+                case FileFormat.RepairsSheet:
+                    viewName = "RepairsDataGridView";
+                    break;
+                case FileFormat.Summary:
+                    viewName = "SummarySheetView";
+                    break;
             }
+            
+            _eventAggregator.GetEvent<OpenNewTabEvent>().Publish(new OpenNewTabEventArgs
+            {
+                Header = fileItem.Name,
+                Parameters = new Dictionary<string, object>
+                {
+                    { "ViewNameToShow", viewName },
+                    { "EquipmentDataGridView.TableId", fileItem.TableId },
+                    { "RepairsDataGridView.TableId", fileItem.TableId },
+                    { "ServicesDataGridView.TableId", fileItem.TableId },
+                    { "SummarySheetView.SummaryId", fileItem.SummaryId },
+                }
+            });
         }
+    }
     
-    private string _oldFolderName;
+    private string _oldFileSystemItemName;
     private void OnEdit()
     {
         var node = FindNodeByContent(_sfTreeView.Nodes, SelectedItem);
         if (node != null)
         {
             _sfTreeView.BeginEdit(node);
-            if (SelectedItem is FolderItem folder)
+            if (SelectedItem is IFileSystemItem fileSystemItem)
             {
-                _oldFolderName = folder.Name;
-            }
-        }
-    }
-    
-    private IEnumerable<FolderItem> GetAllFolderItems(IEnumerable<IFileSystemItem> items)
-    {
-        foreach (var folder in items.OfType<FolderItem>())
-        {
-            yield return folder;
-
-            foreach (var subFolder in GetAllFolderItems(folder.SubItems))
-            {
-                yield return subFolder;
+                _oldFileSystemItemName = fileSystemItem.Name;
             }
         }
     }
@@ -284,72 +323,39 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware, IRegionCle
         }
         return true;
     }
-    
-    private async void OnItemEndEdit(TreeViewItemEndEditEventArgs args)
+       private async void OnItemEndEdit(TreeViewItemEndEditEventArgs args)
     {
-        if (args.Node.Content is FolderItem folder)
+        if (args.Node.Content is not IFileSystemItem editedItem) return;
+
+        string oldName = _oldFileSystemItemName;
+        string requestedName = editedItem.Name;
+        
+        if (!ValidateName(requestedName, oldName))
         {
-            string oldName = _oldFolderName;
-            string newName = folder.Name;
-
-            if (!ValidateName(newName, oldName))
-            {
-                folder.Name = _oldFolderName;
-                return;
-            }
-
-            var folderNames = GetAllFolderItems(Items)
-                .Where(f => f.Id != folder.Id)
-                .Select(f => f.Name)
-                .ToList();
-
-            string uniqueName = await _service.GenerateUniqueFileFolderNameAsync(newName, folderNames);
-
-            bool hasFiles = folder.SubItems.OfType<FileItem>().Any();
-
-            if (uniqueName != folder.Name)
-            {
-                if (hasFiles)
-                {
-                    RenameAllSubFileItems(folder, oldName, uniqueName);
-                    await _service.RenameChildsAsync(folder.Id, uniqueName, oldName, _menuType);
-                }
-
-                folder.Name = uniqueName;
-                await _service.RenameFolderAsync(folder.Id, uniqueName);
-            }
-            else if (hasFiles)
-            {
-                RenameAllSubFileItems(folder, oldName, folder.Name);
-                await _service.RenameChildsAsync(folder.Id, folder.Name, oldName, _menuType);
-                await _service.RenameFolderAsync(folder.Id, folder.Name);
-            }
-            else
-            {
-                await _service.RenameFolderAsync(folder.Id, folder.Name);
-            }
+            editedItem.Name = oldName;
+            return;
         }
+        
+        var parentNode = args.Node.ParentNode;
+        var siblingNames = parentNode?.ChildNodes
+            .Select(n => (IFileSystemItem)n.Content)
+            .Where(it => !ReferenceEquals(it, editedItem))
+            .Select(it => it.Name)
+            .ToList() ?? new List<string>();
+
+        string uniqueName = await _service.GenerateUniqueFileFolderNameAsync(requestedName, siblingNames);
+
+        if (uniqueName == oldName)
+            return;
+        
+        editedItem.Name = uniqueName;
+        
+        if (editedItem is FileItem file)
+            await _service.RenameFileAsync(file.Id, uniqueName);
+        else if (editedItem is FolderItem folder)
+            await _service.RenameFolderAsync(folder.Id, uniqueName);
     }
-    
-    private void RenameAllSubFileItems(IFileSystemItem item, string oldName, string newName)
-    {
-        if (item is FileItem file && file.Name.Contains(oldName))
-        {
-            file.Name = file.Name.Replace(oldName, newName);
-        }
-        else if (item is FolderItem folder)
-        {
-            if (folder.Name.Contains(oldName))
-            {
-                folder.Name = folder.Name.Replace(oldName, newName);
-            }
-
-            foreach (var subItem in folder.SubItems)
-            {
-                RenameAllSubFileItems(subItem, oldName, newName);
-            }
-        }
-    }
+       
 
     private TreeViewNode FindNodeByContent(TreeViewNodeCollection nodes, object content)
     {
@@ -372,8 +378,7 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware, IRegionCle
     {
         ProgressBarVisibility = true;
         await Task.Delay(500);
-        _items = await _service.BuildHierarchy(_menuType);
-        Items = new ObservableCollection<IFileSystemItem>(_items);
+        Items = await _service.BuildHierarchy(_menuType);
         CheckEmptyData();
         ProgressBarVisibility = false;
     }
@@ -413,7 +418,7 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware, IRegionCle
         string baseName = "Нова папка";
         var folderNames = GetAllFolderNames(Items).ToList();
         string uniqueName = await _service.GenerateUniqueFileFolderNameAsync(baseName, folderNames);
-        int newId = await _service.InsertFolderAsync(uniqueName, parentId, _menuType);
+        int newId = await _service.CreateFolderAsync(uniqueName, parentId, _menuType);
         var newFolder = new FolderItem
         {
             Name = uniqueName,
@@ -444,59 +449,6 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware, IRegionCle
         CheckEmptyData();
     }
 
-    private async void OnAddFile()
-    {
-        int folderId = SelectedItem is FolderItem folderItem ? folderItem.Id : 0;
-        string fileName = SelectedItem.Name;
-        string menuType = _menuType;
-
-        IsOverlayVisible = true;
-        bool creationStatus = true;
-        IsOverlayVisible = false;
-
-        if (creationStatus)
-        {
-            int newId = await _service.InsertFileAsync(fileName, folderId, menuType);
-            var newFile = new FileItem
-            {
-                Name = fileName,
-                FileType = "equipments table",
-                TableName = $"{fileName}",
-                Id = newId
-            };
-            var newFolder = new FolderItem
-            {
-                Name = $"{fileName} технічні роботи",
-            };
-            var newServiceFile = new FileItem
-            {
-                Name = $"{fileName} обслуговування",
-                TableName = $"{fileName} О",
-                FileType = "services",
-            };
-            var newRepairsFile = new FileItem
-            {
-                Name = $"{fileName} ремонти",
-                TableName = $"{fileName} Р",
-                FileType = "repairs",
-            };
-            var newWriteOffFile = new FileItem
-            {
-                Name = $"{fileName} списані",
-                TableName = $"{fileName}",
-                FileType = "writeoff",
-            };
-            if (SelectedItem is FolderItem folder)
-            {
-                folder.AddFile(newFile);
-                folder.AddFile(newWriteOffFile);
-                folder.AddFolder(newFolder);
-                newFolder.AddFile(newServiceFile);
-                newFolder.AddFile(newRepairsFile);
-            }
-        }
-    }
-    
     private TreeViewNode FindTreeNode(SfTreeView treeView, FolderItem folder)
     {
         foreach (var node in treeView.Nodes)
@@ -527,33 +479,6 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware, IRegionCle
 
     private void OnContextMenuOpened()
     {
-        EditContextMenuItemVisibility = false;
-        AddFolderFileContextMenuItemVisibility = true;
-        
-        if (SelectedItem is FileItem)
-        {
-            OpenContextMenuVisibility = true;
-            EditContextMenuItemVisibility = false;
-            AddFolderFileContextMenuItemVisibility = false;
-        }
-        if (SelectedItem is FolderItem folderItem)
-        {
-            EditContextMenuItemVisibility = true;
-            AddFolderFileContextMenuItemVisibility = true;  
-            if (folderItem.Name.Contains("обслуговування", StringComparison.OrdinalIgnoreCase))
-            {
-                EditContextMenuItemVisibility = false;
-                AddFolderFileContextMenuItemVisibility = false;
-            }
-            if (folderItem.SubItems.Any(child => child is FileItem))
-            {
-                AddFolderFileContextMenuItemVisibility = false;
-            }
-            if (folderItem.SubItems.Any(child => child is FolderItem))
-            {
-                AddFileContextMenuItemVisibility = false;
-            }
-        }
     }
     
    
@@ -563,8 +488,7 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware, IRegionCle
         {
             _regionManager = scopedRegionManager;
         }
-        _menuType = navigationContext.Parameters["MenuType"] as string;
-        ColumnSelectorRegionName = navigationContext.Parameters.GetValue<string>("ColumnSelectorRegionName");
+        _menuType = navigationContext.Parameters.GetValue<MenuType>("MenuType");
         LoadTreeAsync();
     }
     
@@ -573,10 +497,12 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware, IRegionCle
 
     public void OnNavigatedFrom(NavigationContext navigationContext)
     {
+        Console.WriteLine("OnNavigatedFrom");
     }
 
-    public void CleanupRegions()
+    public bool KeepAlive => false;
+    public void Destroy()
     {
-        _regionManager.Regions.Remove(ColumnSelectorRegionName);
+        Console.WriteLine("Destroy");
     }
 }

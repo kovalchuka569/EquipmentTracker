@@ -1,7 +1,10 @@
-﻿
+
+using EquipmentTracker.Common;
+using Prism;
+
 namespace UI.ViewModels.TabControl.GenericTab;
 
-public class GenericTabViewModel
+public class GenericTabViewModel : IDestructible
 {
     public IRegionManager ViewRegionManager { get; }
     private IEventAggregator _scopedEventAggregator;
@@ -64,5 +67,12 @@ public class GenericTabViewModel
                 _viewNameToShow = Parameters["ViewNameToShow"] as string; 
             }
         }
+    }
+
+    public void Destroy()
+    {
+        RegionCleaner.CleanUpRegions(ViewRegionManager);
+        _scopedEventAggregator = null;
+        Parameters = null;
     }
 }

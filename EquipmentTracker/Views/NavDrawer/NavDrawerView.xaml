@@ -17,6 +17,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/Syncfusion.Themes.Windows11Light.WPF;component/sfnavigationdrawer/primarysfnavigationdrawer.xaml"/>
             </ResourceDictionary.MergedDictionaries>
+            <local:HeaderToMenuTypeConverter x:Key="HeaderToMenuTypeConverter"/>
         </ResourceDictionary>
     </UserControl.Resources>
     
@@ -26,7 +27,8 @@
                                Style="{StaticResource SyncfusionPrimarySfNavigationDrawerStyle}"
                                DisplayMode="Expanded"
                                IsOpen="False">
-            <sf:SfNavigationDrawer.ToggleButtonContentTemplate>
+            
+                <sf:SfNavigationDrawer.ToggleButtonContentTemplate>
                 <DataTemplate>
                     <Label HorizontalAlignment="Center" VerticalAlignment="Center"
                            Content="Odyssey" Foreground="White" FontFamily="pack://application:,,,/Resources/Fonts/#Tylaco" FontSize="25" Margin="0,0,30,0"/>
@@ -39,7 +41,7 @@
                 
                 <sf:NavigationItem Header="Виробниче обладнання" FontSize="14" FontWeight="DemiBold"
                                    Style="{StaticResource SyncfusionPrimaryDefaultNavigationItemStyle}"
-                                   Command="{Binding NavigateToTabControlExt}" CommandParameter="Виробниче обладнання" Height="40">
+                                   Command="{Binding NavigateToTabControlExt}" CommandParameter="{Binding Header, RelativeSource={RelativeSource Self}, Converter={StaticResource HeaderToMenuTypeConverter}}" Height="40">
                     <sf:NavigationItem.Icon>
                         <Image Source="pack://application:,,,/Views/NavDrawer/Assets/prod_equipment_light.png" Width="25" Height="25"/>
                     </sf:NavigationItem.Icon>
@@ -49,7 +51,7 @@
                 
                 <sf:NavigationItem Header="Інструменти" FontSize="14" FontWeight="DemiBold"
                                    Style="{StaticResource SyncfusionPrimaryDefaultNavigationItemStyle}"
-                                   Command="{Binding NavigateToTabControlExt}" CommandParameter="Інструменти" Height="40">
+                                   Command="{Binding NavigateToTabControlExt}" CommandParameter="{Binding Header, RelativeSource={RelativeSource Self}, Converter={StaticResource HeaderToMenuTypeConverter}}" Height="40">
                     <sf:NavigationItem.Icon>
                         <Image Source="pack://application:,,,/Views/NavDrawer/Assets/tools_light.png" Width="25" Height="25"/>
                     </sf:NavigationItem.Icon>
@@ -59,7 +61,7 @@
                 
                 <sf:NavigationItem Header="Меблі" FontSize="14" FontWeight="DemiBold"
                                    Style="{StaticResource SyncfusionPrimaryDefaultNavigationItemStyle}"
-                                   Command="{Binding NavigateToTabControlExt}" CommandParameter="Меблі" Height="40">
+                                   Command="{Binding NavigateToTabControlExt}" CommandParameter="{Binding Header, RelativeSource={RelativeSource Self}, Converter={StaticResource HeaderToMenuTypeConverter}}" Height="40">
                     <sf:NavigationItem.Icon>
                         <Image Source="pack://application:,,,/Views/NavDrawer/Assets/furniture_light.png" Width="25" Height="25"/>
                     </sf:NavigationItem.Icon>
@@ -69,7 +71,7 @@
                 
                 <sf:NavigationItem Header="Офісна техніка" FontSize="14" FontWeight="DemiBold"
                                    Style="{StaticResource SyncfusionPrimaryDefaultNavigationItemStyle}"
-                                   Command="{Binding NavigateToTabControlExt}" CommandParameter="Офісна техніка" Height="40">
+                                   Command="{Binding NavigateToTabControlExt}" CommandParameter="{Binding Header, RelativeSource={RelativeSource Self}, Converter={StaticResource HeaderToMenuTypeConverter}}" Height="40">
                     <sf:NavigationItem.Icon>
                         <Image Source="pack://application:,,,/Views/NavDrawer/Assets/office_technique_light.png" Width="25" Height="25"/>
                     </sf:NavigationItem.Icon>
@@ -79,7 +81,7 @@
                 
                 <sf:NavigationItem Header="Розхідні матеріали" FontSize="14" FontWeight="DemiBold"
                                    Style="{StaticResource SyncfusionPrimaryDefaultNavigationItemStyle}"
-                                   Command="{Binding NavigateToTabControlExt}" CommandParameter="Розхідні матеріали" Height="40">
+                                   Command="{Binding NavigateToTabControlExt}" CommandParameter="{Binding Header, RelativeSource={RelativeSource Self}, Converter={StaticResource HeaderToMenuTypeConverter}}" Height="40">
                     <sf:NavigationItem.Icon>
                         <Image Source="pack://application:,,,/Views/NavDrawer/Assets/consumables_light.png" Width="25" Height="25"/>
                     </sf:NavigationItem.Icon>
@@ -96,7 +98,7 @@
                 
                 <sf:NavigationItem Header="Історія" FontSize="14" FontWeight="DemiBold"
                                    Style="{StaticResource SyncfusionPrimaryDefaultNavigationItemStyle}"
-                                   Command="{Binding NavigateToTabControlExt}"  CommandParameter="Облік" Height="40">
+                                   Command="{Binding NavigateToTabControlExt}"  CommandParameter="{Binding Header, RelativeSource={RelativeSource Self}, Converter={StaticResource HeaderToMenuTypeConverter}}" Height="40">
                     <sf:NavigationItem.Icon>
                         <Image Source="pack://application:,,,/Views/NavDrawer/Assets/history_light.png" Width="25" Height="25"/>
                     </sf:NavigationItem.Icon>
@@ -106,7 +108,7 @@
                 
                 <sf:NavigationItem Header="Календар" FontSize="14" FontWeight="DemiBold"
                                    Style="{StaticResource SyncfusionPrimaryDefaultNavigationItemStyle}"
-                                   Command="{Binding NavigateToTabControlExt}" CommandParameter="Календар" Height="40">
+                                   Command="{Binding NavigateToTabControlExt}" CommandParameter="{Binding Header, RelativeSource={RelativeSource Self}, Converter={StaticResource HeaderToMenuTypeConverter}}" Height="40">
                     <sf:NavigationItem.Icon>
                         <Image Source="pack://application:,,,/Views/NavDrawer/Assets/scheduler_light.png" Width="25" Height="25"/>
                     </sf:NavigationItem.Icon>
@@ -116,7 +118,7 @@
                 
                 <sf:NavigationItem Header="Налаштування" FontSize="14" FontWeight="DemiBold"
                                    Style="{StaticResource SyncfusionPrimaryDefaultNavigationItemStyle}"
-                                   Command="{Binding NavigateToTabControlExt}" CommandParameter="Налаштування" Margin="0,0,0,10" >
+                                   Command="{Binding NavigateToTabControlExt}" CommandParameter="{Binding Header, RelativeSource={RelativeSource Self}, Converter={StaticResource HeaderToMenuTypeConverter}}" Margin="0,0,0,10" >
                     <sf:NavigationItem.Icon>
                         <Image Source="pack://application:,,,/Views/NavDrawer/Assets/settings_light.png" Width="25" Height="25"/>
                     </sf:NavigationItem.Icon>

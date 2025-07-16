@@ -3,6 +3,7 @@ using System.Collections.Specialized;
 using System.Dynamic;
 using System.Windows;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
@@ -24,15 +25,26 @@ using Syncfusion.UI.Xaml.Grid;
 using Syncfusion.UI.Xaml.Grid.Helpers;
 using Syncfusion.Windows.Shared;
 using Syncfusion.XPS;
-using UI.ViewModels.Equipment.DataGrid.TemplateCreators;
+using EquipmentTracker.ViewModels.Equipment.DataGrid.TemplateCreators;
+using Syncfusion.Data;
+using Syncfusion.Linq;
+using Syncfusion.Windows.Controls;
+using Syncfusion.Windows.Controls.Grid;
+using Syncfusion.XlsIO.Implementation;
+using Syncfusion.XlsIO.Implementation.PivotTables;
 using ColorConverter = System.Windows.Media.ColorConverter;
+using Columns = Syncfusion.UI.Xaml.Grid.Columns;
+using CurrentCellValidatingEventArgs = Syncfusion.UI.Xaml.Grid.CurrentCellValidatingEventArgs;
 using DelegateCommand = Prism.Commands.DelegateCommand;
+using FilterBehavior = Syncfusion.Data.FilterBehavior;
+using FilterElement = Syncfusion.UI.Xaml.Grid.FilterElement;
+using FilterType = Syncfusion.Data.FilterType;
 using FontFamily = System.Drawing.FontFamily;
 using SolidColorBrush = System.Windows.Media.SolidColorBrush;
 
-namespace UI.ViewModels.Equipment.DataGrid;
+namespace EquipmentTracker.ViewModels.Equipment.DataGrid;
 
-public class EquipmentDataGridViewModel : BindableBase, INavigationAware
+public class EquipmentDataGridViewModel : BindableBase, INavigationAware, IDestructible
 {
     private readonly IEquipmentDataGridService _equipmentDataGridService;
     private readonly NotificationManager _notificationManager;
@@ -68,7 +80,7 @@ public class EquipmentDataGridViewModel : BindableBase, INavigationAware
         _scopedRegionManager.Regions["ColumnCreatorRegion"].ActiveViews.Any() ||
         _scopedRegionManager.Regions["SheetSelectorRegion"].ActiveViews.Any();
 
-    public Columns Columns { get; } = new();
+    public Columns Columns { get; set; } = new();
 
     public async void OnNavigatedTo(NavigationContext navigationContext)
     {
@@ -87,8 +99,7 @@ public class EquipmentDataGridViewModel : BindableBase, INavigationAware
                     _baseGridCellStyle = baseCellStyle;
                 }
             }
-
-            Console.WriteLine("OnNavigatedTo");
+            
             if (_scopedRegionManager.Regions.ContainsRegionWithName("ColumnCreatorRegion"))
             {
                 _scopedRegionManager.Regions["ColumnCreatorRegion"].ActiveViews.CollectionChanged += OnActiveViewsChanged;
@@ -139,6 +150,7 @@ public class EquipmentDataGridViewModel : BindableBase, INavigationAware
     public Prism.Commands.DelegateCommand<UserControl> UserControlLoadedCommand { get; }
     public Prism.Commands.DelegateCommand<CurrentCellValidatingEventArgs> CurrentCellEndEditCommand { get; }
     public DelegateCommand ImportFromExcelCommand { get; }
+    public Prism.Commands.DelegateCommand<GridFilterItemsPopulatedEventArgs> FilterItemsPopulatedCommand { get; }
 
     public EquipmentDataGridViewModel(IEquipmentDataGridService equipmentDataGridService,
         NotificationManager notificationManager)
@@ -158,6 +170,27 @@ public class EquipmentDataGridViewModel : BindableBase, INavigationAware
         UserControlLoadedCommand = new Prism.Commands.DelegateCommand<UserControl>(OnUserControlLoaded);
         CurrentCellEndEditCommand = new Prism.Commands.DelegateCommand<CurrentCellValidatingEventArgs>(OnCurrentCellEndEdit);
         ImportFromExcelCommand = new DelegateCommand(async () => await OnImportFromExcelAsync());
+        FilterItemsPopulatedCommand = new Prism.Commands.DelegateCommand<GridFilterItemsPopulatedEventArgs>(OnFilterItemsPopulated);
+    }
+
+    private void OnFilterItemsPopulated(GridFilterItemsPopulatedEventArgs e)
+    {
+        if (!_columnItemMap.TryGetValue(e.Column, out var columnItem))
+            return;
+
+        // Apply date format for filter popup
+        if (columnItem.Settings.DataType == ColumnDataType.Date)
+        {
+            var dateSettings = columnItem.Settings.SpecificSettings as DateColumnSettings;
+            var format= dateSettings?.DateFormat ?? "dd.MM.yyyy";
+            foreach (var item in e.ItemsSource)
+            {
+                if (DateTime.TryParse(item.DisplayText, out DateTime parsedDate))
+                {
+                    item.DisplayText = parsedDate.ToString(format);
+                }
+            }
+        }
     }
 
     private async Task OnImportFromExcelAsync()
@@ -173,11 +206,10 @@ public class EquipmentDataGridViewModel : BindableBase, INavigationAware
         try
         {
             ProgressBarVisibility = true;
-            // открыть диалог выбора листа
             var wbSheets = GetExcelSheetNames(dlg.FileName);
             string? selectedSheet = null;
-int headerRow = 1;
-int headerCol = 1;
+            int headerRow = 1;
+            int headerCol = 1;
             if (wbSheets.Count > 1)
             {
                 var tcs = new TaskCompletionSource<(string sheet,int row,int col)?>();
@@ -218,7 +250,6 @@ int headerCol = 1;
 
     private void OnCurrentCellEndEdit(CurrentCellValidatingEventArgs e)
     {
-        Console.WriteLine("OnCurrentCellEndEdit");
     }
 
     private void OnUserControlLoaded(UserControl userControl)
@@ -520,6 +551,10 @@ int headerCol = 1;
         
         var column = new GridTemplateColumn
         {
+            HeaderTemplate = headerTemplate.CreateHeaderTemplate(settings),
+            HeaderStyle = headerStyle.CreateHeaderStyle(settings, _baseGridHeaderStyle),
+            CellTemplate = cellTemplate.CreateCellTemplate(settings),
+            EditTemplate = editTemplate.CreateEditTemplate(settings),
             HeaderText = settings.HeaderText,
             MappingName = settings.MappingName,
             AllowFiltering = settings.AllowFiltering,
@@ -527,11 +562,24 @@ int headerCol = 1;
             AllowGrouping = settings.AllowGrouping,
             AllowEditing = !settings.IsReadOnly,
             Width = settings.ColumnWidth,
-            HeaderTemplate = headerTemplate.CreateHeaderTemplate(settings),
-            HeaderStyle = headerStyle.CreateHeaderStyle(settings, _baseGridHeaderStyle),
-            CellTemplate = cellTemplate.CreateCellTemplate(settings),
-            EditTemplate = editTemplate.CreateEditTemplate(settings)
         };
+        // Устанавливаем DataType для корректных фильтров
+        switch (settings.DataType)
+        {
+            case ColumnDataType.Number:
+            case ColumnDataType.Currency:
+                column.ColumnMemberType = typeof(double);
+                break;
+            case ColumnDataType.Boolean:
+                column.ColumnMemberType = typeof(bool);
+                break;
+            case ColumnDataType.Date:
+                column.ColumnMemberType = typeof(DateTime);
+                break;
+            default:
+                column.ColumnMemberType = typeof(string);
+                break;
+        }
         return column;
     }
     private static List<string> GetExcelSheetNames(string filePath)
@@ -543,5 +591,31 @@ int headerCol = 1;
         var list = wb.Worksheets.Select(ws => ws.Name).ToList();
         wb.Close();
         return list;
+    }
+
+    public void Destroy()
+    {
+        if (_scopedRegionManager != null)
+        {
+            if (_scopedRegionManager.Regions.ContainsRegionWithName("ColumnCreatorRegion"))
+                _scopedRegionManager.Regions["ColumnCreatorRegion"].ActiveViews.CollectionChanged -= OnActiveViewsChanged;
+
+            if (_scopedRegionManager.Regions.ContainsRegionWithName("SheetSelectorRegion"))
+                _scopedRegionManager.Regions["SheetSelectorRegion"].ActiveViews.CollectionChanged -= OnActiveViewsChanged;
+        }
+
+        if (_sfDataGrid != null)
+            _sfDataGrid.RowDragDropController.Dropped -= RowDragDropControllerOnDropped;
+
+        _columnItemMap.Clear();
+        _columnMappingNameIdMap.Clear();
+        _columnItemMap.Clear();
+        Columns = new ();
+        Equipments = new();
+        _sfDataGrid = null;
+        _userControl = null;
+        _baseGridHeaderStyle = null;
+        _baseGridCellStyle = null;
+        _scopedRegionManager = null;
     }
 }

@@ -1,14 +1,14 @@
-﻿using System.Collections.ObjectModel;
-using Prism.Commands;
-using Prism.Events;
+using System.Collections.ObjectModel;
 using Core.Events.TabControl;
 using Models.TabControl;
 using UI.ViewModels.TabControl.GenericTab;
 using UI.Views.TabControl;
 using System.Collections.Specialized;
+using Prism;
+using System.Windows;
 
 
-namespace UI.ViewModels.TabControl;
+namespace EquipmentTracker.ViewModels.TabControl;
 
 public class TabControlViewModel : BindableBase
 {
@@ -56,6 +56,15 @@ public class TabControlViewModel : BindableBase
 
     private void TabItems_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
+        if (e.Action is NotifyCollectionChangedAction.Remove or NotifyCollectionChangedAction.Replace || e.Action == NotifyCollectionChangedAction.Reset)
+        {
+            var oldItems = e.OldItems ?? new System.Collections.ArrayList();
+            foreach (TabControlItem oldItem in oldItems)
+            {
+                if (oldItem is not null)
+                    RemoveTabItem(oldItem);
+            }
+        }
         RaisePropertyChanged(nameof(AreTabsEmpty));
     }
 
@@ -82,19 +91,21 @@ public class TabControlViewModel : BindableBase
     {
         if (SelectedTabItem is TabControlItem tabControlItem)
         {
-            TabItems.Remove(tabControlItem);
+            RemoveTabItem(tabControlItem);
         }
     }
     
     
     private void OnCloseThis(TabControlItem tabControlItem)
     { 
-        TabItems.Remove(tabControlItem);
+        RemoveTabItem(tabControlItem);
     }
 
     private void OnCloseAll()
     {
-        TabItems.Clear();
+        var allTabs = TabItems.ToList();
+        foreach (var tab in allTabs)
+            RemoveTabItem(tab);
     }
 
     private void OnCloseAllButThis(TabControlItem tabControlItem)
@@ -103,9 +114,16 @@ public class TabControlViewModel : BindableBase
 
         foreach (var tab in itemsToRemove)
         {
-            TabItems.Remove(tab);
+            RemoveTabItem(tab);
         }
 
         SelectedTabItem = tabControlItem;
+    }
+
+    private void RemoveTabItem(TabControlItem tab)
+    {
+        if (tab.GenericTab is FrameworkElement fe && fe.DataContext is IDestructible destructible)
+             destructible.Destroy();
+        TabItems.Remove(tab);
     }
 }

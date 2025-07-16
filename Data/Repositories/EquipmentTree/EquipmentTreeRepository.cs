@@ -1,7 +1,9 @@
 ﻿using Common.Logging;
 using Models.Equipment;
 using Models.EquipmentTree;
+using Models.NavDrawer;
 using Npgsql;
+using NpgsqlTypes;
 using DbContext = Data.AppDbContext.DbContext;
 
 namespace Data.Repositories.EquipmentTree
@@ -18,25 +20,25 @@ namespace Data.Repositories.EquipmentTree
         }
         
         
-        public async Task<List<FolderDto>> GetFoldersAsync(string menuType)
+        public async Task<List<FolderDto>> GetFoldersAsync(MenuType menuType)
         {
             var folders = new List<FolderDto>();
             try
             {
                 await using var connection = await _context.OpenNewConnectionAsync();
-                string sql = "SELECT * FROM \"public\".\"EquipmentTreeFolders\" WHERE \"MenuType\" = @menuType";
-                using var cmd = new NpgsqlCommand(sql, connection);
-                cmd.Parameters.AddWithValue("@menuType", menuType);
-                using (var reader = await cmd.ExecuteReaderAsync())
+                string sql = @"SELECT * FROM ""public"".""folders"" WHERE ""menu_type"" = @menuType;";
+                await using var cmd = new NpgsqlCommand(sql, connection);
+                cmd.Parameters.AddWithValue("@menuType", (int)menuType);
+                await using (var reader = await cmd.ExecuteReaderAsync())
                 {
                     while (await reader.ReadAsync())
                     {
                         folders.Add(new FolderDto
                         {
-                            Id = reader.GetInt32(0),
-                            Name = reader.GetString(1),
-                            ParentId = reader.IsDBNull(2) ? (int?)null : reader.GetInt32(2),
-                            MenuType = reader.GetString(3)
+                            Id = reader.GetValueOrDefault<int>("id"),
+                            Name = reader.GetValueOrDefault<string>("name"),
+                            ParentId = reader.GetValueOrDefault<int>("parent_id"),
+                            MenuType = reader.GetValueOrDefault<MenuType>("menu_type")
                         });
                     }
                 }
@@ -49,24 +51,26 @@ namespace Data.Repositories.EquipmentTree
             }
         }
 
-        public async Task<List<FileDto>> GetFilesAsync(string menuType)
+        public async Task<List<FileDto>> GetFilesAsync(MenuType menuType)
         {
             var files = new List<FileDto>();
             try
             {
-                using var connection = await _context.OpenNewConnectionAsync();
-                string sql = "SELECT * FROM \"public\".\"EquipmentTreeFiles\" WHERE \"MenuType\" = @menuType";
-                using var cmd = new NpgsqlCommand(sql, connection);
-                cmd.Parameters.AddWithValue("@menuType", menuType);
-                using (var reader = await cmd.ExecuteReaderAsync())
+                await using var connection = await _context.OpenNewConnectionAsync();
+                string sql = @"SELECT * FROM ""public"".""files"" WHERE ""menu_type"" = @menuType";
+                await using var cmd = new NpgsqlCommand(sql, connection);
+                cmd.Parameters.AddWithValue("@menuType", (int)menuType);
+               await using (var reader = await cmd.ExecuteReaderAsync())
                 {
                     while (await reader.ReadAsync())
                     {
                         files.Add(new FileDto
                         {
                             Id = reader.GetValueOrDefault<int>("id"),
-                            FolderId = reader.GetValueOrDefault<int>("FolderId"),
-                            FileType = reader.GetValueOrDefault<string>("TableName"),
+                            Name = reader.GetValueOrDefault<string>("name"),
+                            FolderId = reader.GetValueOrDefault<int>("folder_id"),
+                            FileFormat = reader.GetValueOrDefault<FileFormat>("file_format"),
+                            SummaryId = reader.GetValueOrDefault<int>("summary_id"),
                             TableId = reader.GetValueOrDefault<int>("table_id")
                         });
                     }
@@ -74,56 +78,116 @@ namespace Data.Repositories.EquipmentTree
                 return files;
             }
             catch (NpgsqlException e)
-            {
+            {   
                 _logger.LogError(e.Message, "Database error getting files");
                 throw;
             }
         }
 
-        public async Task<int> InsertFolderAsync(string name, int? parentId, string menuType)
-        {
-            using var connection = await _context.OpenNewConnectionAsync();
-            using var transaction = await connection.BeginTransactionAsync();
-            try
-            {
-                string sql = "INSERT INTO \"public\".\"EquipmentTreeFolders\" (\"Name\", \"ParentId\", \"MenuType\") VALUES (@name, @parentId, @menuType) RETURNING \"id\";";
-                using var cmd = new NpgsqlCommand(sql, connection, transaction);
-                cmd.Parameters.AddWithValue("@name", name);
-                cmd.Parameters.AddWithValue("@parentId", parentId);
-                cmd.Parameters.AddWithValue("@menuType", menuType);
-                var newId = (int)await cmd.ExecuteScalarAsync();
-                transaction.Commit();
-                return newId;
-            }
-            catch (NpgsqlException e)
-            {
-                transaction.Rollback();
-                _logger.LogError(e.Message, "Database error inserting folder");
-                throw;
-            }
-        }
-
-        public async Task<int> InsertFileAsync(string name, int folderId, string menuType)
+        public async Task<int> CreateFolderAsync(string name, int? parentId, MenuType menuType)
         {
             await using var connection = await _context.OpenNewConnectionAsync();
             await using var transaction = await connection.BeginTransactionAsync();
             try
             {
-                string sqlInsertCustomTable = @"INSERT INTO ""public"".""custom_tables"" (""name"") VALUES (@name) RETURNING id;";
-                using var cmd = new NpgsqlCommand(sqlInsertCustomTable, connection, transaction);
+                string sql = @"INSERT INTO ""public"".""folders"" (""name"", ""parent_id"", ""menu_type"") VALUES (@name, @parentId, @menuType) RETURNING ""id"";";
+                await using var cmd = new NpgsqlCommand(sql, connection, transaction);
                 cmd.Parameters.AddWithValue("@name", name);
-                var newTableId = (int)await cmd.ExecuteScalarAsync();
-                string sql =
-                    "INSERT INTO \"public\".\"EquipmentTreeFiles\" (\"Name\", \"FolderId\", \"MenuType\", \"TableName\", \"FileType\") VALUES (@name, @folderId, @menuType, @tableName, @fileType) RETURNING \"id\";";
-                using var cmd1 = new NpgsqlCommand(sql, connection, transaction);
-                cmd1.Parameters.AddWithValue("@name", name);
-                cmd1.Parameters.AddWithValue("@folderId", folderId);
-                cmd1.Parameters.AddWithValue("@menuType", menuType);
-                cmd1.Parameters.AddWithValue("@tableName", name);
-                cmd1.Parameters.AddWithValue("@fileType", "equipments table");
-                var newId = (int)await cmd1.ExecuteScalarAsync();
-                Console.WriteLine(sql);
-                
+                cmd.Parameters.AddWithValue("@parentId", parentId);
+                cmd.Parameters.AddWithValue("@menuType", (int)menuType);
+                var newId = (int)await cmd.ExecuteScalarAsync();
+                await transaction.CommitAsync();
+                return newId;
+            }
+            catch (NpgsqlException e)
+            {
+                await transaction.RollbackAsync();
+                _logger.LogError(e.Message, "Database error inserting folder");
+                throw;
+            }
+        }
+
+        public async Task<int> CreateEquipmentTableAsync()
+        {
+            await using var connection = await _context.OpenNewConnectionAsync();
+            await using var transaction = await connection.BeginTransactionAsync();
+            try
+            {
+                string sql = @"INSERT INTO ""public"".""custom_tables"" (""code"") VALUES (@code) RETURNING ""id"";";
+                await using var cmd = new NpgsqlCommand(sql, connection, transaction);
+                cmd.Parameters.AddWithValue("@code", NpgsqlDbType.Uuid, Guid.NewGuid());
+                var newId = (int)await cmd.ExecuteScalarAsync();
+                await transaction.CommitAsync();
+                return newId;
+            }
+            catch (NpgsqlException e)
+            {
+                await transaction.RollbackAsync();
+                _logger.LogError(e.Message, "Database error creating table");
+                throw;
+            }
+        }
+
+        public async Task<int> CreateSummaryAsync(SummaryFormat summaryFormat)
+        {
+            await using var connection = await _context.OpenNewConnectionAsync();
+            await using var transaction = await connection.BeginTransactionAsync();
+            try
+            {
+                string sql = @"INSERT INTO ""public"".""summaries"" (""summary_format"") VALUES (@summaryFormat) RETURNING ""id"";";
+                await using var cmd = new NpgsqlCommand(sql, connection, transaction);
+                cmd.Parameters.AddWithValue("@summaryFormat", (int)summaryFormat);
+                var newId = (int)await cmd.ExecuteScalarAsync();
+                await transaction.CommitAsync();
+                return newId;
+            }
+            catch (NpgsqlException e)
+            {
+                await transaction.RollbackAsync();
+                _logger.LogError(e.Message, "Database error creating summary");
+                throw;
+            }
+        }
+        
+        public async Task<int> CreateSummaryFileAsync(string name, int folderId, int summaryId, MenuType menuType)
+        {
+            await using var connection = await _context.OpenNewConnectionAsync();
+            await using var transaction = await connection.BeginTransactionAsync();
+            try
+            {
+                string sqlCreateTable = @"INSERT INTO ""public"".""files"" (""name"", ""file_format"", ""folder_id"", ""summary_id"", ""menu_type"") VALUES (@name, @fileFormat, @folderId, @summaryId, @menuType) RETURNING ""id"";";
+                using var cmd = new NpgsqlCommand(sqlCreateTable, connection, transaction);
+                cmd.Parameters.AddWithValue("@name", name);
+                cmd.Parameters.AddWithValue("@fileFormat", (int)FileFormat.Summary);
+                cmd.Parameters.AddWithValue("@folderId", folderId);
+                cmd.Parameters.AddWithValue("@summaryId", summaryId);
+                cmd.Parameters.AddWithValue("@menuType", (int)menuType);
+                var newId = (int)await cmd.ExecuteScalarAsync();
+                await transaction.CommitAsync();
+                return newId;
+            }
+            catch (NpgsqlException e)
+            {
+                await transaction.RollbackAsync();
+                _logger.LogError(e.Message, "Database error inserting summary file");
+                throw;
+            }
+        }
+
+        public async Task<int> CreateFileAsync(string name, FileFormat fileFormat, int folderId, int tableId, MenuType menuType)
+        {
+            await using var connection = await _context.OpenNewConnectionAsync();
+            await using var transaction = await connection.BeginTransactionAsync();
+            try
+            {
+                string sqlCreateTable = @"INSERT INTO ""public"".""files"" (""name"", ""file_format"", ""folder_id"", ""table_id"", ""menu_type"") VALUES (@name, @fileFormat, @folderId, @tableId, @menuType) RETURNING ""id"";";
+                using var cmd = new NpgsqlCommand(sqlCreateTable, connection, transaction);
+                cmd.Parameters.AddWithValue("@name", name);
+                cmd.Parameters.AddWithValue("@fileFormat", (int)fileFormat);
+                cmd.Parameters.AddWithValue("@folderId", folderId);
+                cmd.Parameters.AddWithValue("@tableId", tableId);
+                cmd.Parameters.AddWithValue("@menuType", (int)menuType);
+                var newId = (int)await cmd.ExecuteScalarAsync();
                 await transaction.CommitAsync();
                 return newId;
             }
@@ -147,63 +211,41 @@ namespace Data.Repositories.EquipmentTree
             await using var transaction = await connection.BeginTransactionAsync();
             try
             {
-                string sql = "UPDATE \"public\".\"EquipmentTreeFolders\" SET \"Name\" = @name WHERE \"id\" = @id";
-                using var cmd = new NpgsqlCommand(sql, connection, transaction);
+                string sql = @"UPDATE ""public"".""folders"" SET ""name"" = @name WHERE ""id"" = @id";
+                await using var cmd = new NpgsqlCommand(sql, connection, transaction);
                 cmd.Parameters.AddWithValue("@name", newName);
                 cmd.Parameters.AddWithValue("@id", folderId);
                 await cmd.ExecuteNonQueryAsync();
-                transaction.Commit();
+                await transaction.CommitAsync();
             }
-            catch (Exception e)
+            catch (NpgsqlException e)
             {
-                transaction.Rollback();
+                await transaction.RollbackAsync();
                 _logger.LogError(e.Message, "Database error renaming folder");
                 throw;
             }
         }
-
-        public async Task RenameChildsAsync(int folderId, string newName, string oldName, string menuType)
+        
+        public async Task RenameFileAsync(int fileId, string newName)
         {
             await using var connection = await _context.OpenNewConnectionAsync();
             await using var transaction = await connection.BeginTransactionAsync();
             try
             {
-                string sql =
-                    "UPDATE \"public\".\"EquipmentTreeFiles\" SET \"Name\" = @newName, \"TableName\" = @newName WHERE \"Name\" = @oldName AND \"MenuType\" = @menuType; " +
-                    "UPDATE \"public\".\"EquipmentTreeFolders\" SET \"Name\" = @newNameGeneralFolder WHERE \"Name\" = @oldNameGeneralFolder AND \"MenuType\" = @menuType; " +
-                    "UPDATE \"public\".\"EquipmentTreeFiles\" SET \"Name\" = @newNameWriteOff, \"TableName\" = @newName WHERE \"Name\" = @oldNameWriteOff AND \"MenuType\" = @menuType; " +
-                    "UPDATE \"public\".\"EquipmentTreeFiles\" SET \"Name\" = @newNameServices, \"TableName\" = @newTableNameServices WHERE \"Name\" = @oldNameServices AND \"MenuType\" = @menuType; " +
-                    "UPDATE \"public\".\"EquipmentTreeFiles\" SET \"Name\" = @newNameRepairs, \"TableName\" = @newTableNameRepairs WHERE \"Name\" = @oldNameRepairs AND \"MenuType\" = @menuType; " +
-                    $"ALTER TABLE \"UserTables\".\"{oldName}\" RENAME TO \"{newName}\"; " +
-                    $"ALTER TABLE \"UserTables\".\"{oldName} О\" RENAME TO \"{newName} О\"; " + // "О" means services - "(О)бслуговування"
-                    $"ALTER TABLE \"UserTables\".\"{oldName} ОВМ\" RENAME TO \"{newName} ОВМ\"; " + // "ОВМ" mean service consumables - "(О)бслуговування (В)итрачені (М)атеріали"
-                    $"ALTER TABLE \"UserTables\".\"{oldName} Р\" RENAME TO \"{newName} Р\"; " + // "Р" means repairs - "(Р)емонти"
-                    $"ALTER TABLE \"UserTables\".\"{oldName} РВМ\" RENAME TO \"{newName} РВМ\"; "; // "РВМ" mean repair consumables - "(Р)емонти (В)итрачені (М)атеріали"
-                
-                using var cmd = new NpgsqlCommand(sql, connection, transaction);
-                cmd.Parameters.AddWithValue("@newName", newName);
-                cmd.Parameters.AddWithValue("@newNameGeneralFolder", $"{newName} технічні роботи");
-                cmd.Parameters.AddWithValue("@newNameWriteOff", $"{newName} списані");
-                cmd.Parameters.AddWithValue("@newNameServices", $"{newName} обслуговування");
-                cmd.Parameters.AddWithValue("@newTableNameServices", $"{newName} О");
-                cmd.Parameters.AddWithValue("@newNameRepairs", $"{newName} ремонти");
-                cmd.Parameters.AddWithValue("@newTableNameRepairs", $"{newName} Р");
-                cmd.Parameters.AddWithValue("@oldName", oldName);
-                cmd.Parameters.AddWithValue("@oldNameGeneralFolder", $"{oldName} технічні роботи");
-                cmd.Parameters.AddWithValue("@oldNameWriteOff", $"{oldName} списані");
-                cmd.Parameters.AddWithValue("@oldNameServices", $"{oldName} обслуговування");
-                cmd.Parameters.AddWithValue("@oldNameRepairs", $"{oldName} ремонти");
-                cmd.Parameters.AddWithValue("@menuType", menuType);
+                string sql = @"UPDATE ""public"".""files"" SET ""name"" = @name WHERE ""id"" = @id";
+                await using var cmd = new NpgsqlCommand(sql, connection, transaction);
+                cmd.Parameters.AddWithValue("@name", newName);
+                cmd.Parameters.AddWithValue("@id", fileId);
                 await cmd.ExecuteNonQueryAsync();
-                transaction.Commit();
-                
-                
+                await transaction.CommitAsync();
             }
             catch (NpgsqlException e)
             {
-                _logger.LogError(e.Message, "Database error renaming childs");
+                await transaction.RollbackAsync();
+                _logger.LogError(e.Message, "Database error renaming file");
                 throw;
             }
         }
+        
     }
 }

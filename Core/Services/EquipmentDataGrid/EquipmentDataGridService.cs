@@ -213,6 +213,16 @@ public class EquipmentDataGridService : IEquipmentDataGridService
         await _repository.UpdateColumnAsync(columnDto);
     }
 
+    public async Task<string> GetMappingName(string headerText)
+    {
+       return await _repository.GetMappingName(headerText);
+    }
+
+    public async Task UpdateHeaderTextInDictionaryAsync(string headerText, string mappingName)
+    {
+        await _repository.UpdateHeaderTextInDictionaryAsync(headerText, mappingName);
+    }
+
     public async Task UpdateColumnPositionAsync(Dictionary<int, int> columnPositions, int tableId)
     {
         await _repository.UpdateColumnPositionAsync(columnPositions, tableId);

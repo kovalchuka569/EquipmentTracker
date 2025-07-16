@@ -1,15 +1,19 @@
 ﻿using Models.Equipment;
 using Models.EquipmentTree;
+using Models.NavDrawer;
 
 namespace Data.Repositories.EquipmentTree
 {
     public interface IEquipmentTreeRepository
     {
-        Task<List<FolderDto>> GetFoldersAsync(string menuType);
-        Task<List<FileDto>> GetFilesAsync(string menuType);
-        Task<int> InsertFolderAsync(string name, int? parentId, string menuType);
-        Task<int> InsertFileAsync(string name, int folderId, string menuType);
+        Task<List<FolderDto>> GetFoldersAsync(MenuType menuType);
+        Task<List<FileDto>> GetFilesAsync(MenuType menuType);
+        Task<int> CreateEquipmentTableAsync();
+        Task<int> CreateSummaryAsync(SummaryFormat summaryFormat);
+        Task<int> CreateSummaryFileAsync(string name, int folderId, int summaryId, MenuType menuType);
+        Task<int> CreateFolderAsync(string name, int? parentId, MenuType menuType);
+        Task<int> CreateFileAsync(string name, FileFormat fileFormat, int folderId, int tableId, MenuType menuType);
         Task RenameFolderAsync(int folderId, string newName);
-        Task RenameChildsAsync(int folderId, string newName, string oldName, string menuType);
+        Task RenameFileAsync(int fileId, string newName);
     }
 }

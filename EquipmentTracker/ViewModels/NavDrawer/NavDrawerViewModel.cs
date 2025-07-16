@@ -1,9 +1,6 @@
-﻿using Core.Events.NavDrawer;
+﻿
 using Core.Events.TabControl;
-using Core.Events.Themes;
-using Prism.Commands;
-using Prism.Events;
-using Prism.Mvvm;
+using Models.NavDrawer;
 
 
 namespace UI.ViewModels.NavDrawer
@@ -12,111 +9,68 @@ namespace UI.ViewModels.NavDrawer
     {
         private readonly IEventAggregator _eventAggregator;
         
-        public DelegateCommand<string> NavigateToTabControlExt { get; }
+        public DelegateCommand<object> NavigateToTabControlExt { get; }
 
         public NavDrawerViewModel(IEventAggregator eventAggregator)
         {
             _eventAggregator = eventAggregator;
             
-            NavigateToTabControlExt = new DelegateCommand<string>(OnNavigateToTabControlExt);
+            NavigateToTabControlExt = new DelegateCommand<object>(OnNavigateToTabControlExt);
         }
 
-        private void OnNavigateToTabControlExt(string parameter)
+        private void OnNavigateToTabControlExt(object menuType)
         {
-            switch (parameter)
+            if (menuType is MenuType type)
             {
-                case "Виробниче обладнання":
-                    _eventAggregator.GetEvent<OpenNewTabEvent>().Publish(new OpenNewTabEventArgs
-                    {
-                        Header = "Виробниче обладнання",
-                        Parameters = new Dictionary<string, object>
-                        {
-                            {"ViewNameToShow", "EquipmentTreeView"},
-                            {"EquipmentTreeView.MenuType", "Виробниче обладнання"}
-                        }
-                    });
-                    break;
+                string viewName = GetViewName(type);
+                string header = GetHeader(type);
+                var parameters = new Dictionary<string, object>()
+                {
+                    { "ViewNameToShow", viewName },
+                    { "EquipmentTreeView.MenuType", type }
+                };
                 
-                case "Інструменти":
-                    _eventAggregator.GetEvent<OpenNewTabEvent>().Publish(new OpenNewTabEventArgs
-                    {
-                        Header = "Інструменти",
-                        Parameters = new Dictionary<string, object>
-                        {
-                            {"ViewNameToShow", "EquipmentTreeView"},
-                            {"EquipmentTreeView.MenuType", "Інструменти"}
-                        }
-                    });
-                    break;
-                
-                case "Меблі":
-                    _eventAggregator.GetEvent<OpenNewTabEvent>().Publish(new OpenNewTabEventArgs
-                    {
-                        Header = "Меблі",
-                        Parameters = new Dictionary<string, object>
-                        {
-                            {"ViewNameToShow", "EquipmentTreeView"},
-                            {"EquipmentTreeView.MenuType", "Меблі"}
-                        }
-                    });
-                    break;
-                
-                case "Офісна техніка":
-                    _eventAggregator.GetEvent<OpenNewTabEvent>().Publish(new OpenNewTabEventArgs
-                    {
-                        Header = "Офісна техніка",
-                        Parameters = new Dictionary<string, object>
-                        {
-                            {"ViewNameToShow", "EquipmentTreeView"},
-                            {"EquipmentTreeView.MenuType", "Офісна техніка"}
-                        }
-                    });
-                    break;
-                
-                case "Розхідні матеріали":
-                    _eventAggregator.GetEvent<OpenNewTabEvent>().Publish(new OpenNewTabEventArgs
-                    {
-                        Header = "Розхідні матеріали",
-                        Parameters = new Dictionary<string, object>
-                        {
-                            {"ViewNameToShow", "ConsumablesTreeView"},
-                        }
-                    });
-                    break;
-                
-                case "Облік":
-                    _eventAggregator.GetEvent<OpenNewTabEvent>().Publish(new OpenNewTabEventArgs
-                    {
-                        Header = "Історія",
-                        Parameters = new Dictionary<string, object>
-                        {
-                            {"ViewNameToShow", "AccountingView"},
-                        }
-                    });
-                    break;
-                
-                case "Налаштування":
-                    _eventAggregator.GetEvent<OpenNewTabEvent>().Publish(new OpenNewTabEventArgs
-                    {
-                        Header = "Облік",
-                        Parameters = new Dictionary<string, object>
-                        {
-                            {"ViewNameToShow", "SettingsView"},
-                        }
-                    });
-                    break;
-                
-                case "Календар":
-                    _eventAggregator.GetEvent<OpenNewTabEvent>().Publish(new OpenNewTabEventArgs
-                    {
-                        Header = "Календар",
-                        Parameters = new Dictionary<string, object>
-                        {
-                            {"ViewNameToShow", "SchedulerView"},
-                        }
-                    });
-                    break;
+                _eventAggregator.GetEvent<OpenNewTabEvent>().Publish(new OpenNewTabEventArgs
+                {
+                    Header = header,
+                    Parameters = parameters
+                });
             }
+        }
+        
+        private string GetHeader(MenuType type)
+        {
+            return type switch
+            {
+                MenuType.Prod => "Виробниче обладнання",
+                MenuType.Tools => "Інструменти",
+                MenuType.Furniture => "Меблі",
+                MenuType.Office => "Офісна техніка",
+                MenuType.Cars => "Автопарк",
+                MenuType.Consumables => "Розхідні матеріали",
+                MenuType.History => "Історія",
+                MenuType.Scheduler => "Календар",
+                MenuType.Settings => "Налаштування",
+                _ => "Невідомо"
+            };
+        }
+        
+        private string GetViewName(MenuType type)
+        {
+            return type switch
+            {
+                MenuType.Prod or
+                    MenuType.Tools or
+                    MenuType.Furniture or
+                    MenuType.Office or
+                    MenuType.Cars => "EquipmentTreeView",
+
+                MenuType.Consumables => "ConsumablesTreeView",
+                MenuType.History => "AccountingView",
+                MenuType.Scheduler => "SchedulerView",
+                MenuType.Settings => "SettingsView",
+                _ => "UnknownView"
+            };
         }
     }
 }

@@ -19,6 +19,21 @@ public interface IEquipmentDataGridService
     Task<ObservableCollection<ColumnItem>> GetColumnsAsync(int tableId);
     Task<List<EquipmentItem>> GetRowsAsync(int tableId);
     Task UpdateColumnAsync(ColumnItem column);
+    
+    /// <summary>
+    /// Searches the database for an existing MappingName
+    /// </summary>
+    /// <param name="headerText">HeaderText</param>
+    /// <returns>Existing MappingName if match found or new MappingName if match not found</returns>
+    Task<string> GetMappingName(string headerText);
+    
+    /// <summary>
+    /// Update header_text in header dictionary
+    /// </summary>
+    /// <param name="headerText">HeaderText</param>
+    /// <param name="mappingName">MappingName</param>
+    Task UpdateHeaderTextInDictionaryAsync(string headerText, string mappingName);
+    
     Task UpdateColumnPositionAsync(Dictionary<int, int> columnPosition, int tableId);
     Task UpdateColumnWidthAsync(Dictionary<int, double> columnWidths, int tableId);
     Task<int> AddColumnAsync(ColumnSettings column, int tableId);

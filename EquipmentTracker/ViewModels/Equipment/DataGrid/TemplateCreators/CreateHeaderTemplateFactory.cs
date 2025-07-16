@@ -2,7 +2,7 @@
 using System.Windows.Markup;
 using Models.Equipment;
 
-namespace UI.ViewModels.Equipment.DataGrid.TemplateCreators;
+namespace EquipmentTracker.ViewModels.Equipment.DataGrid.TemplateCreators;
 
 public class CreateHeaderTemplateFactory
 {

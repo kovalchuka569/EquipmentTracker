@@ -457,6 +457,59 @@ public class EquipmentDataGridRepository : IEquipmentDataGridRepository
         });
     }
 
+    public async Task<string> GetMappingName(string headerText)
+    {
+        await using var connection = await _context.OpenNewConnectionAsync();
+        const string selectSql = @"SELECT ""mapping_name"" FROM ""public"".""header_dictionary"" WHERE ""header_text"" = @headerText LIMIT 1;";
+        await using (var selectCmd = new NpgsqlCommand(selectSql, connection))
+        {
+            selectCmd.Parameters.AddWithValue("@headerText", headerText.Trim());
+            var scalar = await selectCmd.ExecuteScalarAsync();
+            if(scalar is string exisiting)
+                return exisiting;
+        }
+        
+        var newMappingName = Guid.NewGuid().ToString("N");
+        const string insertSql = @"INSERT INTO ""public"".""header_dictionary"" (""header_text"", ""mapping_name"") VALUES (@headerText, @mappingName);";
+        await using var transaction = await connection.BeginTransactionAsync();
+        try
+        {
+            await using var cmd = new NpgsqlCommand(insertSql, connection, transaction);
+            cmd.Parameters.AddWithValue("@headerText", headerText.Trim());
+            cmd.Parameters.AddWithValue("@mappingName", newMappingName);
+            await cmd.ExecuteNonQueryAsync();
+            await transaction.CommitAsync();
+            return newMappingName;
+        }
+        catch (NpgsqlException e)
+        {
+            await transaction.RollbackAsync();
+            _logger.LogError(e, "Error while inserting header dictionary");
+            throw;
+        }
+    }
+
+    public async Task UpdateHeaderTextInDictionaryAsync(string headerText, string mappingName)
+    {
+        await using var connection = await _context.OpenNewConnectionAsync();
+        await using var transaction = await connection.BeginTransactionAsync();
+        try
+        {
+            const string sql = @"UPDATE ""public"".""header_dictionary"" SET ""header_text"" = @headerText WHERE ""mapping_name"" = @mappingName;";
+            await using var cmd = new NpgsqlCommand(sql, connection, transaction);
+            cmd.Parameters.AddWithValue("@headerText", headerText.Trim());
+            cmd.Parameters.AddWithValue("@mappingName", mappingName);
+            await cmd.ExecuteNonQueryAsync();
+            await transaction.CommitAsync();
+        }
+        catch (NpgsqlException e)
+        {
+            await transaction.RollbackAsync();
+            _logger.LogError(e, "Error while updating header dictionary");
+            throw;
+        }
+    }
+
     public async Task UpdateRowsAsync(IDictionary<string, object> rows, int id)
     {
         await using var connection = await _context.OpenNewConnectionAsync();

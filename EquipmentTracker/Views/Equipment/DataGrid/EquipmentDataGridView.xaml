@@ -95,6 +95,9 @@
                     </grid:SfDataGrid.ContextMenu>
 
                     <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="FilterItemsPopulated">
+                            <i:InvokeCommandAction Command="{Binding FilterItemsPopulatedCommand}" PassEventArgsToCommand="True"/>
+                        </i:EventTrigger>
                         <i:EventTrigger EventName="CurrentCellValidating">
                             <i:InvokeCommandAction Command="{Binding CurrentCellValidatingCommand}" PassEventArgsToCommand="True"/>
                         </i:EventTrigger>

@@ -8,11 +8,11 @@ using Core.Services.EquipmentDataGrid;
 using Core.Services.EquipmentTree;
 using Core.Services.RepairsDataGrid;
 using Core.Services.ServicesDataGrid;
+using Core.Services.Summary;
 using UI.ViewModels.Tabs;
 using UI.ViewModels.TabControl;
 using UI.Views.NavDrawer.NavDrawerItems.EquipmentTree;
 using UI.ViewModels.DataGrid;
-using UI.Views.NavDrawer.NavDrawerItems.EquipmentTree.ColumnSelector;
 using Data.Repositories.Common.DataGridColumns;
 using Data.Repositories.Consumables;
 using Data.Repositories.Consumables.Operations;
@@ -21,13 +21,14 @@ using Data.Repositories.EquipmentDataGrid;
 using Data.Repositories.EquipmentTree;
 using Data.Repositories.Repairs;
 using Data.Repositories.Services;
+using Data.Repositories.Summary;
 using EquipmentTracker.ViewModels.DataGrid;
 using EquipmentTracker.ViewModels.DataGrid.Services;
+using EquipmentTracker.ViewModels.SummarySheet;
+using EquipmentTracker.ViewModels.TabControl;
 using EquipmentTracker.Views.DataGrid;
 using EquipmentTracker.Views.DataGrid.Services;
 using EquipmentTracker.Views.Equipment.DataGrid;
-using UI.Interfaces.Factory;
-using UI.Services.Factory;
 using UI.ViewModels.Common;
 using UI.ViewModels.Consumables;
 using UI.ViewModels.Consumables.DetailsConsumables;
@@ -50,9 +51,10 @@ using UI.ViewModels.Equipment.DataGrid;
 using UI.Views.DataGrid.Services;
 using EquipmentTracker.Views.Equipment.DataGrid;
 using EquipmentTracker.Views.Equipment.Dialogs;
+using EquipmentTracker.Views.SummarySheet;
 using UI.ViewModels.Equipment.DataGrid;
 using EquipmentDataGridView = EquipmentTracker.Views.Equipment.DataGrid.EquipmentDataGridView;
-using EquipmentDataGridViewModel = UI.ViewModels.Equipment.DataGrid.EquipmentDataGridViewModel;
+using EquipmentDataGridViewModel = EquipmentTracker.ViewModels.Equipment.DataGrid.EquipmentDataGridViewModel;
 
 namespace UI.Modules;
 
@@ -84,9 +86,6 @@ public class TabControlModule : IModule
         containerRegistry.Register<IEquipmentTreeService, EquipmentTreeService>(); // Service
         containerRegistry.Register<IEquipmentTreeRepository, EquipmentTreeRepository>(); // Repository
         
-        // Column selector in Equipment tree
-        containerRegistry.RegisterForNavigation<ColumnSelectorView, ColumnSelectorViewModel>();
-        
         // Data grid
         containerRegistry.RegisterForNavigation<DataGridView, DataGridViewModel>(); // View, ViewModel
         
@@ -98,7 +97,13 @@ public class TabControlModule : IModule
         // Deletion agreement
         containerRegistry.RegisterForNavigation<DeletionAgreementView, DeletionAgreementViewModel>();
         
-        containerRegistry.Register<IDataGridViewModelFactory, DataGridViewModelFactory>(); // Factory for ViewModel
+        containerRegistry.RegisterForNavigation<SummarySheetView, SummarySheetViewModel>();
+        containerRegistry.RegisterForNavigation<SummaryColumnTreeView, SummaryColumnTreeViewModel>();
+        containerRegistry.RegisterForNavigation<SummaryDataGridView, SummaryDataGridViewModel>();
+
+        containerRegistry.Register<ISummaryService, SummaryService>();
+        containerRegistry.Register<ISummaryRepository, SummaryRepository>();
+        
         containerRegistry.Register<IDataGridService, DataGridService>(); // Service for DataGrid
         containerRegistry.Register<ISparePartsService, SparePartsService>(); // Service for SpareParts
         containerRegistry.Register<IDataGridColumnService, DataGridColumnService>(); // Service for columns SfDataGrid

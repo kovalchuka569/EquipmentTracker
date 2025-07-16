@@ -1,11 +1,12 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using Prism.Mvvm;
 
 namespace Models.EquipmentTree
 {
-    public class FolderItem : IFileSystemItem,  INotifyPropertyChanged
+    public class FolderItem : BindableBase, IFileSystemItem
     {
         private string _name;
         private int _id;
@@ -17,6 +18,8 @@ namespace Models.EquipmentTree
         private bool _isVisible = true;
 
         public ObservableCollection<IFileSystemItem> SubItems { get; } = new();
+
+        public ObservableCollection<IFileSystemItem> Children => SubItems;
         public FolderItem()
         {
             _imageIcon = "Assets/folder.png";
@@ -25,85 +28,52 @@ namespace Models.EquipmentTree
         public int Id
         {
             get => _id;
-            set
-            {
-                _id = value;
-                OnPropertyChanged();
-            }
+            set => SetProperty(ref _id, value);
         }
 
         public string Name
         {
             get => _name;
-            set
-            {
-                _name = value;
-                OnPropertyChanged();
-            }
+            set => SetProperty(ref _name, value);
         }
         
         public int? ParentId
         {
             get => _parentId;
-            set
-            {
-                _parentId = value;
-                OnPropertyChanged();
-            }
+            set => SetProperty(ref _parentId, value);
         }
         
         public string ImageIcon
         {
             get => _imageIcon;
-            set
-            {
-                _imageIcon = value;
-                OnPropertyChanged();
-            }
+            set => SetProperty(ref _imageIcon, value);
         }
-
-        public ObservableCollection<IFileSystemItem> Children { get; }
 
         public bool IsExpanded
         {
             get => _isExpanded;
-            set
-            {
-                _isExpanded = value;
-                OnPropertyChanged();
-            }
+            set => SetProperty(ref _isExpanded, value);
         }
         
         public string NameError
         {
             get => _nameError;
-            set
-            {
-                _nameError = value;
-                OnPropertyChanged();
-            }
+            set => SetProperty(ref _nameError, value);
         }
 
         public bool IsHighlited
         {
             get => _isHighlited;
-            set
-            {
-                _isHighlited = value;
-                OnPropertyChanged();
-            }
+            set => SetProperty(ref _isHighlited, value);
         }
         
         public bool IsVisible
         {
             get => _isVisible;
-            set
-            {
-                _isVisible = value;
-                OnPropertyChanged();
-            }
+            set => SetProperty(ref _isVisible, value);
         }
-        
+        public bool HaveConnects => true;
+
         public void AddFile(FileItem file)
         {
             SubItems.Add(file);
@@ -114,12 +84,9 @@ namespace Models.EquipmentTree
             SubItems.Add(folder);
         }
 
-        public event PropertyChangedEventHandler? PropertyChanged;
+
         
-        public void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+
         
     }
 }

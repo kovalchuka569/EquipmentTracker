@@ -23,6 +23,8 @@ public class FileSystemItemViewModel : IFileSystemItem, INotifyPropertyChanged
         set { _isVisible = value; OnPropertyChanged(nameof(IsVisible)); }
     }
 
+    public bool HaveConnects { get; }
+
     public event PropertyChangedEventHandler PropertyChanged;
     protected void OnPropertyChanged(string name) =>
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));

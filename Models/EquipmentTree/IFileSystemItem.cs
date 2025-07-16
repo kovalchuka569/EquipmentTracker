@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 
 namespace Models.EquipmentTree
 {
@@ -8,5 +8,6 @@ namespace Models.EquipmentTree
         ObservableCollection<IFileSystemItem> Children { get; }
         bool IsExpanded { get; set; }
         bool IsVisible { get; set; }
+        bool HaveConnects { get; }
     }
 }

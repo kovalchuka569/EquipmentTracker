@@ -1,125 +1,96 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using Prism.Mvvm;
 
 namespace Models.EquipmentTree
 {
-    public class FileItem : IFileSystemItem, INotifyPropertyChanged
+    public class FileItem : BindableBase, IFileSystemItem
     {
         private int _id;
         private string _name;
         private int _parentIdFolder;
         private string _imageIcon;
-        private string _tableName;
-        private string _fileType;
+        private FileFormat _fileFormat;
+        private int? _summaryId;
         private bool _isHighlited;
         private bool _isVisible = true;
 
-        private int _tableId;
+        private int? _tableId;
+        private Dictionary<string, int> _connections = new();
 
-        public FileItem()
-        {
-            _imageIcon = "Assets/file.png";
-        }
+        public ObservableCollection<IFileSystemItem> Children { get; } = new();
+        
+        // Показывает наличие связей: для Equipments всегда true, иначе зависит от Connections.
+        public bool HaveConnects => FileFormat == FileFormat.EquipmentSheet || FileFormat == FileFormat.Summary || Connections.Any();
         
         public int Id
         {
             get => _id;
-            set
-            {
-                _id = value;
-                OnPropertyChanged();
-            }
+            set => SetProperty(ref _id, value);
         }
 
         public string Name
         {
             get => _name;
-            set
-            {
-                _name = value;
-                OnPropertyChanged();
-                
-            }
+            set => SetProperty(ref _name, value);
         }
-
-        public ObservableCollection<IFileSystemItem> Children { get; }
+        
         public bool IsExpanded { get; set; }
 
         public int ParentIdFolder
         {
             get => _parentIdFolder;
-            set
-            {
-                _parentIdFolder = value;
-                OnPropertyChanged();
-            }
+            set => SetProperty(ref _parentIdFolder, value);
         }
-    
-        public string ImageIcon
+
+        public Dictionary<string, int> Connections
         {
-            get => _imageIcon;
+            get => _connections;
             set
             {
-                _imageIcon = value;
-                OnPropertyChanged();
+                if (SetProperty(ref _connections, value))
+                    RaisePropertyChanged(nameof(HaveConnects));
             }
         }
 
-        public string TableName
+        public string ImageIcon => _fileFormat switch
         {
-            get => _tableName;
-            set
-            {
-                _tableName = value;
-                OnPropertyChanged();
-            }
+            FileFormat.EquipmentSheet or FileFormat.RepairsSheet or FileFormat.ServicesSheet or FileFormat.WriteOffSheet => "Assets/file.png",
+            FileFormat.Summary => "Assets/summary.png",
+            _ => String.Empty
+        };
+
+        public FileFormat FileFormat
+        {
+            get => _fileFormat;
+            set => SetProperty(ref _fileFormat, value);
         }
 
-        public string FileType
+        public int? SummaryId
         {
-            get => _fileType;
-            set
-            {
-                _fileType = value;
-                OnPropertyChanged();
-            }
+            get => _summaryId;
+            set => SetProperty(ref _summaryId, value);
         }
         
         public bool IsHighlited
         {
             get => _isHighlited;
-            set
-            {
-                _isHighlited = value;
-                OnPropertyChanged();
-            }
+            set => SetProperty(ref _isHighlited, value);
         }
 
         public bool IsVisible
         {
             get => _isVisible;
-            set
-            {
-                _isVisible = value;
-                OnPropertyChanged();
-            }
+            set => SetProperty(ref _isVisible, value);
         }
 
-        public int TableId
+        public int? TableId
         {
             get => _tableId;
-            set
-            {
-                _tableId = value;
-                OnPropertyChanged();
-            }
+            set => SetProperty(ref _tableId, value);
         }
         
-        public event PropertyChangedEventHandler? PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string propertyName = null!)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+
     }
 }

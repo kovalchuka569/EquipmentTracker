@@ -21,7 +21,6 @@ namespace Data.AppDbContext
         {
             _logger = logger;
             _options = options;
-            _logger.LogInformation("Created DbContext!");
         }
         
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -50,13 +49,11 @@ namespace Data.AppDbContext
             try
             {
                 var connectionString = Database.GetDbConnection().ConnectionString;
-
                 var connection = new NpgsqlConnection(connectionString);
                 await connection.OpenAsync();
-
                 return connection;
             }
-            catch (Exception ex)
+            catch (NpgsqlException ex)
             {
                 _logger.LogError(ex, "Error opening database connection.");
                 throw;
@@ -69,17 +66,6 @@ namespace Data.AppDbContext
         }
         
         public DbSet<User> Users { get; set; }
-        
-        // Categories equipment
-        public DbSet<CategoryProductionEquipment> CategoriesProductionEquipment { get; set; }
-        public DbSet<CategoryFurniture> CategoriesFurniture { get; set; }
-        public DbSet<CategoryOfficeTechnique> CategoriesOfficeTechnique { get; set; }
-        public DbSet<CategoryTool> CategoriesTool { get; set; }
-        
-        public DbSet<FileEntity>Files { get; set; }
-        
-        public DbSet<Log> Logs { get; set; }
-        
         
     }
 }

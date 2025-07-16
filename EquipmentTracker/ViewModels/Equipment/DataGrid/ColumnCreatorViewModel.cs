@@ -9,6 +9,7 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using Core.Services.EquipmentDataGrid;
 using Models.Equipment;
 using Models.Equipment.ColumnCreator;
 using Models.Equipment.ColumnSpecificSettings;
@@ -29,6 +30,7 @@ public class ColumnCreatorViewModel : BindableBase, INavigationAware, IDisposabl
     private Action<ColumnEditingResult> _columnEditingCallback;
     private IRegionManager _scopedRegionManager;
     private Style _baseGridHeaderStyle;
+    private readonly IEquipmentDataGridService _equipmentDataGridService;
     public Columns PreviewColumn { get; } = new();
     
     public ObservableCollection<ExpandoObject> PreviewItems { get; } = new();
@@ -380,8 +382,10 @@ public class ColumnCreatorViewModel : BindableBase, INavigationAware, IDisposabl
     public DelegateCommand<string> RemoveValueCommand { get; }
     public DelegateCommand UpdatePreviewCommand { get; }
     public DelegateCommand SaveColumnCommand { get; }
-    public ColumnCreatorViewModel()
+    public ColumnCreatorViewModel(IEquipmentDataGridService equipmentDataGridService)
     {
+        _equipmentDataGridService = equipmentDataGridService;
+        
         CloseColumnCreatorCommand = new DelegateCommand(OnCloseColumnCreator);
         AddNewValueCommand = new DelegateCommand(OnAddNewValue);
         RemoveValueCommand= new DelegateCommand<string> (OnRemoveValue);
@@ -408,7 +412,7 @@ public class ColumnCreatorViewModel : BindableBase, INavigationAware, IDisposabl
         }
     }
 
-    private void CreatingColumn()
+    private async void CreatingColumn()
     {
         var columnSettings = new ColumnSettings
         {
@@ -581,7 +585,7 @@ public class ColumnCreatorViewModel : BindableBase, INavigationAware, IDisposabl
                 break;
         }
     }
-
+    
     private void LoadEditingProperties()
     {
         IsDataTypeComboBoxEnabled = !_isEditing;
@@ -625,6 +629,7 @@ public class ColumnCreatorViewModel : BindableBase, INavigationAware, IDisposabl
     private void LoadDefaultProperties()
     {
         SelectedColumnType = ComboBoxConfig.ColumnTypes.FirstOrDefault(x => x.ColumnDataType == ColumnDataType.Text);
+        HeaderText = "Назва заголовку";
         _mappingName = Guid.NewGuid().ToString("N");
         
         // Text
@@ -662,13 +667,11 @@ public class ColumnCreatorViewModel : BindableBase, INavigationAware, IDisposabl
         HeaderBackgroundColor = Colors.LightGray;
         HeaderForegroundColor = Colors.Black;
         HeaderBorderColor = Colors.Gray;
-
-        HeaderText = "Назва заголовку";
         
         // Font 
         SelectedHeaderFontFamily = ComboBoxConfig.FontFamilies.FirstOrDefault(x => x.FontFamily == "Segoe UI");
         SelectedHeaderFontSize = ComboBoxConfig.FontSizes.FirstOrDefault(x => x.FontSize == 14);
-        SelectedHeaderFontWeight = ComboBoxConfig.FontWeights.FirstOrDefault(x => x.FontWeight == FontWeights.Bold);
+        SelectedHeaderFontWeight = ComboBoxConfig.FontWeights.FirstOrDefault(x => x.FontWeight == FontWeights.Thin);
         
         // Alignment
         SelectedHeaderHorizontalAlignment = ComboBoxConfig.HorizontalAlignments.FirstOrDefault(x => x.Alignment == HorizontalAlignment.Center);
@@ -684,7 +687,6 @@ public class ColumnCreatorViewModel : BindableBase, INavigationAware, IDisposabl
         
         // Currency
         SelectedCurrency = ComboBoxConfig.Currencies.First(x => x.Currency == "");
-        
         LoadPreview();
     }
     

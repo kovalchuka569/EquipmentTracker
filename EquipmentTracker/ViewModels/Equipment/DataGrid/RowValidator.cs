@@ -4,7 +4,7 @@ using Models.Equipment.ColumnCreator;
 using Models.Equipment.ColumnSpecificSettings;
 using Syncfusion.UI.Xaml.Grid;
 
-namespace UI.ViewModels.Equipment.DataGrid;
+namespace EquipmentTracker.ViewModels.Equipment.DataGrid;
 
 public class RowValidator
 {

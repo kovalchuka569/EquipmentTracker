@@ -9,6 +9,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <Folder Include="Models\Equipment\" />
       <Folder Include="Services\TabControlExt\" />
       <Folder Include="Services\TaskDialog\" />
     </ItemGroup>

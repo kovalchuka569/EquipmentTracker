@@ -8,7 +8,7 @@ using Models.Equipment;
 using Models.Equipment.ColumnCreator;
 using Syncfusion.XlsIO;
 
-namespace UI.ViewModels.Equipment.DataGrid.Import;
+namespace EquipmentTracker.ViewModels.Equipment.DataGrid.Import;
 
 /// <summary>
 /// Handles importing data from an Excel file and inserting it into the equipment data-grid.
@@ -38,7 +38,7 @@ public sealed class EquipmentExcelImporter
         await using var stream = File.OpenRead(filePath);
         var workbook = application.Workbooks.Open(stream);
         var sheet = sheetName == null ? workbook.Worksheets[0] : workbook.Worksheets.First(ws => string.Equals(ws.Name, sheetName, StringComparison.OrdinalIgnoreCase));
-
+        sheet.Calculate();
         // Map Excel column index -> ColumnItem starting from headerCol
         var map = new Dictionary<int, ColumnItem>();
         var lastCol = sheet.UsedRange.LastColumn;
@@ -60,17 +60,30 @@ public sealed class EquipmentExcelImporter
             bool hasValue = false;
             foreach (var (colIndex, columnItem) in map)
             {
-                var raw = sheet.Range[r, colIndex].Value;
-                if (raw == null)
+                var cell = sheet.Range[r, colIndex];
+                object? raw = cell.CalculatedValue;
+                if (raw == null || (raw is string s1 && string.IsNullOrWhiteSpace(s1)))
+                {
+                    if (cell.HasFormulaNumberValue)
+                        raw = cell.FormulaNumberValue;
+                    else if (cell.HasFormulaDateTime)
+                        raw = cell.FormulaDateTime;
+                    else if (cell.HasFormulaStringValue)
+                        raw = cell.FormulaStringValue;
+                    else
+                        raw = cell.Value;
+                }
+                if (raw == null || (raw is string s2 && string.IsNullOrWhiteSpace(s2)))
                     continue;
                 hasValue = true;
                 var converted = ConvertCell(raw, columnItem.Settings.DataType);
-                dataDict[columnItem.Settings.MappingName] = converted!;
+                if (converted is { } conv)
+                    dataDict[columnItem.Settings.MappingName] = conv;
             }
             if (!hasValue)
             {
                 emptyStreak++;
-                if (emptyStreak >= 50) // assume end of data
+                if (emptyStreak >= 20)
                     break;
                 skipped++;
                 continue;

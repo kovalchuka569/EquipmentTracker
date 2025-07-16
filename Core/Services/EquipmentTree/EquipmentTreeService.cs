@@ -1,11 +1,8 @@
 ﻿using System.Collections.ObjectModel;
 using Common.Logging;
-using Core.Models.Tabs.EquipmentTree;
 using Data.Repositories.EquipmentTree;
-using Microsoft.EntityFrameworkCore;
-using Models.Equipment;
 using Models.EquipmentTree;
-using IFileSystem = Core.Models.Tabs.EquipmentTree.IFileSystem;
+using Models.NavDrawer;
 
 namespace Core.Services.EquipmentTree;
 
@@ -20,7 +17,7 @@ public class EquipmentTreeService : IEquipmentTreeService
         _repository = repository;
     }
 
-    public async Task <ObservableCollection<IFileSystemItem>> BuildHierarchy(string menuType)
+    public async Task <ObservableCollection<IFileSystemItem>> BuildHierarchy(MenuType menuType)
     {
         var foldersFromDb = await _repository.GetFoldersAsync(menuType);
         var filesFromDb = await _repository.GetFilesAsync(menuType);
@@ -37,8 +34,8 @@ public class EquipmentTreeService : IEquipmentTreeService
             Id = f.Id,
             Name = f.Name,
             ParentIdFolder = f.FolderId,
-            TableName = f.TableName,
-            FileType = f.FileType,
+            FileFormat = f.FileFormat,
+            SummaryId = f.SummaryId,
             TableId = f.TableId
         }).ToList();
         
@@ -66,11 +63,26 @@ public class EquipmentTreeService : IEquipmentTreeService
             .Where(f => f.ParentId == 0));
     }
 
-    public async Task<int> InsertFolderAsync(string name, int? parentId, string menuType)
+    public async Task<int> CreateEquipmentTableAsync()
+    {
+       return await _repository.CreateEquipmentTableAsync();
+    }
+
+    public async Task<int> CreateSummaryAsync(SummaryFormat summaryFormat)
+    {
+        return await _repository.CreateSummaryAsync(summaryFormat);
+    }
+
+    public async Task<int> CreateSummaryFileAsync(string name, int folderId, int summaryId, MenuType menuType)
+    {
+       return await _repository.CreateSummaryFileAsync(name, folderId, summaryId, menuType);
+    }
+
+    public async Task<int> CreateFolderAsync(string name, int? parentId, MenuType menuType)
     {
         try
         {
-           return await _repository.InsertFolderAsync(name, parentId, menuType);
+           return await _repository.CreateFolderAsync(name, parentId, menuType);
         }
         catch (Exception e)
         {
@@ -79,11 +91,11 @@ public class EquipmentTreeService : IEquipmentTreeService
         }
     }
 
-    public async Task<int> InsertFileAsync(string name, int folderId, string menuType)
+    public async Task<int> CreateFileAsync(string name, FileFormat fileFormat, int folderId, int tableId, MenuType menuType)
     {
         try
         {
-            return await _repository.InsertFileAsync(name, folderId, menuType);
+            return await _repository.CreateFileAsync(name, fileFormat, folderId, tableId, menuType);
         }
         catch (Exception e)
         {
@@ -121,16 +133,8 @@ public class EquipmentTreeService : IEquipmentTreeService
         }
     }
 
-    public async Task RenameChildsAsync(int folderId, string newName, string oldName, string menuType)
+    public async Task RenameFileAsync(int fileId, string newName)
     {
-        try
-        {
-            await _repository.RenameChildsAsync(folderId, newName, oldName, menuType);
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e, "System error renaming childs");
-            throw;
-        }
+        await _repository.RenameFileAsync(fileId, newName);
     }
 }

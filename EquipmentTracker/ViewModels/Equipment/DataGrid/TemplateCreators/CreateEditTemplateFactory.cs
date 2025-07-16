@@ -6,7 +6,7 @@ using System.Windows.Markup;
 using Models.Equipment;
 using Models.Equipment.ColumnSpecificSettings;
 
-namespace UI.ViewModels.Equipment.DataGrid.TemplateCreators;
+namespace EquipmentTracker.ViewModels.Equipment.DataGrid.TemplateCreators;
 
 public class CreateEditTemplateFactory
 {

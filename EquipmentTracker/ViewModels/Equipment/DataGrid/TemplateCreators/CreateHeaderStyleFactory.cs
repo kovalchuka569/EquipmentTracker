@@ -4,7 +4,7 @@ using Models.Equipment;
 using Syncfusion.UI.Xaml.Grid;
 using SolidColorBrush = System.Windows.Media.SolidColorBrush;
 
-namespace UI.ViewModels.Equipment.DataGrid.TemplateCreators;
+namespace EquipmentTracker.ViewModels.Equipment.DataGrid.TemplateCreators;
 
 public class CreateHeaderStyleFactory
 {

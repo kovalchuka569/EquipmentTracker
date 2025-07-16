@@ -18,6 +18,21 @@ public interface IEquipmentDataGridRepository
     
     Task<List<ColumnDto>> GetColumnsAsync(int tableId);
     Task<List<EquipmentDto>> GetRowsAsync(int tableId);
+    
+    /// <summary>
+    /// Searches the database for an existing MappingName
+    /// </summary>
+    /// <param name="headerText">HeaderText</param>
+    /// <returns>Existing MappingName if match found or new MappingName if match not found</returns>
+    Task<string?> GetMappingName(string headerText);
+    
+    /// <summary>
+    /// Update header_text in header dictionary
+    /// </summary>
+    /// <param name="headerText">HeaderText</param>
+    /// <param name="mappingName">MappingName</param>
+    Task UpdateHeaderTextInDictionaryAsync(string headerText, string mappingName);
+    
     Task UpdateRowsAsync(IDictionary<string, object> rows, int id);
     Task UpdateColumnAsync(ColumnDto column);
     Task UpdateColumnPositionAsync(Dictionary<int, int> columnPositions, int tableId);
