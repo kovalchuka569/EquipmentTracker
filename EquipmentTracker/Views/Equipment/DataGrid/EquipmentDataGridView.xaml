@@ -7,14 +7,16 @@
              xmlns:converter="clr-namespace:Core.Services.EquipmentDataGrid;assembly=Core"
              xmlns:searchconverter="clr-namespace:EquipmentTracker.ViewModels.DataGrid"
              xmlns:grid="clr-namespace:Syncfusion.UI.Xaml.Grid;assembly=Syncfusion.SfGrid.WPF"
-             xmlns:converters="clr-namespace:EquipmentTracker.Views.Equipment.DataGrid.Converters"
              xmlns:sf="http://schemas.syncfusion.com/wpf"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:prism="http://prismlibrary.com/"
              xmlns:syncfusionskin="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF"
+             xmlns:controls="clr-namespace:EquipmentTracker.Common.Controls"
+             xmlns:converters="clr-namespace:EquipmentTracker.Common.Converters"
              mc:Ignorable="d"
              syncfusionskin:SfSkinManager.Theme="{syncfusionskin:SkinManagerExtension ThemeName=Office2019Colorful}"
-             x:Name="UserControl">
+             x:Name="UserControl"
+             Style="{DynamicResource LoadUserControlAnimationBottomToTop}">
 
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Loaded">
@@ -27,62 +29,93 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/Syncfusion.Themes.Office2019Colorful.WPF;component/mscontrol/progressbar.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Syncfusion.Themes.Office2019Colorful.WPF;component/mscontrol/datagrid.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/Syncfusion.Themes.Windows11Light.WPF;component/datetimeedit/datetimeedit.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/Syncfusion.Themes.Office2019Colorful.WPF;component/SfDataGrid/SfDataGrid.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Syncfusion.Themes.Windows11Light.WPF;component/sfdatapager/sfdatapager.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/Syncfusion.Themes.Office2019Colorful.WPF;component/currencytextbox/currencytextbox.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Common/Styles/LoadAnimationStyle.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
-            <DataTemplate x:Key="Test">
-                <DataTemplate.Resources>
-                    <converters:NumberFormatConverter x:Key="NumberFormatConverter"/>
-                </DataTemplate.Resources>
-            </DataTemplate>
+            
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <Border x:Name="ZoomWrapper" Background="Transparent">
-        <Border.LayoutTransform>
-            <ScaleTransform x:Name="MainScaleTransform" ScaleX="1.0" ScaleY="1.0"/>
-        </Border.LayoutTransform>
+    <Border Background="Transparent">
 
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             
-            <ProgressBar Grid.Row="0" IsIndeterminate="True"
+            <ProgressBar Grid.Row="0" 
+                         Value="{Binding ImportProgress}"
+                         Visibility="{Binding IsImporting, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+            
+            <ProgressBar Grid.Row="0" 
+                         IsIndeterminate="True"
                          Visibility="{Binding ProgressBarVisibility, Converter={StaticResource BooleanToVisibilityConverter}}"/>
             
-            <Grid Grid.Row="1">
-                <grid:SfDataGrid 
-                    x:Name="dataGrid"
-                    ItemsSource="{Binding Equipments}"
-                    AddNewRowText="Двічі натисніть, щоб додати"
-                    AddNewRowPosition="Top"
-                    GroupDropAreaText="Перетягніть сюди, щоб групувати"
-                    ShowGroupDropArea="True"
-                    NewItemPlaceholderPosition="AtBeginning"
-                    AllowResizingHiddenColumns="True"
-                    AllowDraggingRows="True"
-                    BorderThickness="0"
-                    ColumnSizer="SizeToHeader"
-                    AllowDrop="True"
-                    EditTrigger="OnDoubleTap"
-                    LiveDataUpdateMode="AllowDataShaping"
-                    GridValidationMode="None"
-                    IsDynamicItemsSource="True"
-                    RowDropIndicatorMode="Arrow"
-                    SelectionMode="Extended"
-                    AllowDraggingColumns="True"
-                    AllowResizingColumns="True"
-                    Columns="{Binding Columns}"
-                    AutoGenerateColumns="False">
+            <controls:DataGridToolBar Grid.Row="1"
+                                      GridSearchHelper="{Binding SearchHelper, ElementName=SfDataGrid}"
+                                      PrintCommand="{Binding PrintCommand}"
+                                      ExcelExportCommand="{Binding ExportToExcelCommand}"
+                                      PdfExportCommand="{Binding ExportToPdfCommand}"
+                                      ExcelImportCommand="{Binding ExcelImportCommand}"
+                                      Margin="5,5,5,0"/>
+            
+                    <Grid Grid.Row="2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        
+                            <grid:SfDataGrid 
+                                Grid.Row="0"
+                                x:Name="SfDataGrid"
+                                SelectedItems="{Binding SelectedItems, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                ItemsSource="{Binding ElementName=SfDataPager, Path=PagedSource}"
+                                Columns="{Binding Columns}"
+                                FrozenColumnCount="{Binding FrozenColumnCount}"
+                                AddNewRowText="Двічі натисніть, щоб додати"
+                                AddNewRowPosition="Top"
+                                GroupDropAreaText="Перетягніть сюди, щоб групувати"
+                                ShowGroupDropArea="True"
+                                EnableDataVirtualization="True"
+                                ScrollMode="Async"
+                                CanMaintainScrollPosition="True"
+                                NewItemPlaceholderPosition="AtBeginning"
+                                AllowResizingHiddenColumns="True"
+                                AllowSelectionOnPointerPressed="True"
+                                ShowRowHeader="True"
+                                AllowDraggingRows="True"
+                                BorderThickness="0"
+                                ColumnSizer="None"
+                                EditTrigger="OnDoubleTap"
+                                LiveDataUpdateMode="AllowDataShaping"
+                                GridCopyOption="CopyData"
+                                GridPasteOption="PasteData"
+                                AllowDeleting="True"
+                                SelectionUnit="Row"
+                                GridValidationMode="None"
+                                IsDynamicItemsSource="True"
+                                ShowBusyIndicator="True"
+                                SelectionMode="Extended"
+                                AllowDraggingColumns="True"
+                                AllowResizingColumns="True"
+                                AutoGenerateColumns="False">
 
-                    <grid:SfDataGrid.HeaderContextMenu>
+                             <grid:SfDataGrid.HeaderContextMenu>
                         <ContextMenu>
                             <MenuItem Header="Редагувати характеристику"
                                       Command="{Binding DataGrid.DataContext.EditColumnCommand}"
+                                      CommandParameter="{Binding}"/>
+                            
+                            <MenuItem Header="Видалити"  
+                                      Command="{Binding DataGrid.DataContext.RemoveColumnCommand}"
                                       CommandParameter="{Binding}"/>
                         </ContextMenu>
                     </grid:SfDataGrid.HeaderContextMenu>
@@ -90,11 +123,19 @@
                     <grid:SfDataGrid.ContextMenu>
                         <ContextMenu>
                             <MenuItem Header="Додати характеристику" Command="{Binding AddColumnCommand}"/>
-                            <MenuItem Header="Імпорт з Excel" Command="{Binding ImportFromExcelCommand}"/>
+                            
+                            <MenuItem Header="Видалити" Command="{Binding RemoveRowCommand}"
+                                      Visibility="{Binding DeleteRowContextMenuItemVisibility, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                         </ContextMenu>
                     </grid:SfDataGrid.ContextMenu>
 
                     <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="SelectionChanged">
+                            <i:InvokeCommandAction Command="{Binding SelectionChangedCommand}" PassEventArgsToCommand="True"/>
+                        </i:EventTrigger>
+                        <i:EventTrigger EventName="RecordDeleting">
+                            <i:InvokeCommandAction Command="{Binding ButtonRemoveRowCommand}" PassEventArgsToCommand="True"/>
+                        </i:EventTrigger>
                         <i:EventTrigger EventName="FilterItemsPopulated">
                             <i:InvokeCommandAction Command="{Binding FilterItemsPopulatedCommand}" PassEventArgsToCommand="True"/>
                         </i:EventTrigger>
@@ -114,7 +155,7 @@
                             <i:InvokeCommandAction Command="{Binding RowValidatingCommand}" PassEventArgsToCommand="True"/>
                         </i:EventTrigger>
                         <i:EventTrigger EventName="Loaded">
-                            <i:InvokeCommandAction Command="{Binding EquipmentDataGridLoadedCommand}" CommandParameter="{Binding ElementName=dataGrid}"/>
+                            <i:InvokeCommandAction Command="{Binding EquipmentDataGridLoadedCommand}" CommandParameter="{Binding ElementName=SfDataGrid}"/>
                         </i:EventTrigger>
                         <i:EventTrigger EventName="QueryColumnDragging">
                             <i:InvokeCommandAction Command="{Binding ColumnDraggingCommand}" PassEventArgsToCommand="True"/>
@@ -123,20 +164,30 @@
                             <i:InvokeCommandAction Command="{Binding ResizingColumnCommand}" PassEventArgsToCommand="True"/>
                         </i:EventTrigger>
                     </i:Interaction.Triggers>
-                </grid:SfDataGrid>
+                    </grid:SfDataGrid>
+                    
+                    <sf:SfDataPager Grid.Row="1" PageSize="34" x:Name="SfDataPager" Source="{Binding Equipments}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    </Grid>
                 
-                <Rectangle Fill="Black"
+                
+                <TextBlock Grid.Row="2" Grid.RowSpan="2" Text="Характеристики відсутні" Visibility="{Binding ColumnsEmptyTipVisibility, Converter={StaticResource BooleanToVisibilityConverter}}" VerticalAlignment="Center" HorizontalAlignment="Center" FontFamily="Segoe UI" Foreground="Gray" FontSize="14"/>
+                <TextBlock Grid.Row="2" Grid.RowSpan="2" Panel.ZIndex="1" Text="Записи відсутні" Visibility="{Binding DataEmptyTipVisibility, Converter={StaticResource BooleanToVisibilityConverter}}" VerticalAlignment="Center" HorizontalAlignment="Center" FontFamily="Segoe UI" Foreground="Gray" FontSize="14"/>
+            
+                <Rectangle Grid.Row="0" Grid.RowSpan="3"
+                           Fill="Black"
                            Opacity="0.5"
                            Visibility="{Binding IsOverlayVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
                            Panel.ZIndex="1"/>
                 
-                <ContentControl prism:RegionManager.RegionName="ColumnCreatorRegion"
+                <ContentControl Grid.Row="0" Grid.RowSpan="3"
+                                prism:RegionManager.RegionName="ColumnCreatorRegion"
                                 VerticalAlignment="Center"
                                 HorizontalAlignment="Center"
                                 Panel.ZIndex="2"/>
-                            <ContentControl prism:RegionManager.RegionName="SheetSelectorRegion"
+                
+                <ContentControl Grid.Row="0" Grid.RowSpan="3"
+                                prism:RegionManager.RegionName="SheetSelectorRegion"
                                 VerticalAlignment="Center" HorizontalAlignment="Center" Panel.ZIndex="2"/>
-            </Grid>
-        </Grid>
+                </Grid>
     </Border>
 </UserControl>
