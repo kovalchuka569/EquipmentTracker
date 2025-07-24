@@ -1,393 +1,39 @@
-﻿using System.Text;
+﻿
 using Common.Logging;
-using Data.AppDbContext;
+using Data.ApplicationDbContext;
 using Models.Equipment;
 using Models.Equipment.ColumnSpecificSettings;
 using Npgsql;
 using NpgsqlTypes;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 
 namespace Data.Repositories.EquipmentDataGrid;
 
 public class EquipmentDataGridRepository : IEquipmentDataGridRepository
 {
-    private readonly DbContext _context;
+    private readonly AppDbContext _context;
     private readonly IAppLogger<EquipmentDataGridRepository> _logger;
-    public EquipmentDataGridRepository(DbContext context, IAppLogger<EquipmentDataGridRepository> logger)
+    public EquipmentDataGridRepository(AppDbContext context, IAppLogger<EquipmentDataGridRepository> logger)
     {
         _context = context;
         _logger = logger;
     }
-
-   /* public async Task<List<string>> GetColumnNamesAsync(string equipmentTableName)
-    {
-        var columnNames = new List<string>();
-        await using var connection = await _context.OpenNewConnectionAsync();
-        
-        string sql = $@"SELECT column_name FROM information_schema.columns WHERE 
-                                                        table_schema = 'UserTables' AND 
-                                                        table_name = '{equipmentTableName}'; ";
-            
-        await using var cmd = new NpgsqlCommand(sql, connection);
-        await using var reader = await cmd.ExecuteReaderAsync();
-        
-        while (await reader.ReadAsync())
-        {
-            columnNames.Add(reader.GetString(0));
-        }
-            
-        return columnNames;
-    }
-
-    public async Task<List<EquipmentDto>> GetEquipmentListAsync(string equipmentTableName)
-    {
-        var equipmentList = new List<EquipmentDto>();
-
-    using var connection = await _context.OpenNewConnectionAsync();
-    string sql = $@"SELECT * FROM ""UserTables"".""{equipmentTableName}"" WHERE ""IsWriteOff"" = false AND ""CopyOfData"" = false;";
     
-    await using var cmd = new NpgsqlCommand(sql, connection);
-    await using var reader = await cmd.ExecuteReaderAsync();
-    
-    var availableColumns = Enumerable.Range(0, reader.FieldCount)
-                                     .Select(reader.GetName)
-                                     .ToHashSet();
-
-    while (await reader.ReadAsync())
-    {
-        var dto = new EquipmentDto
-        {
-            Id = reader.GetValueOrDefault<int>("id"),
-            InventoryNumber = TryGet<string>(reader, availableColumns, "Інвентарний номер"),
-            Brand = TryGet<string>(reader, availableColumns, "Бренд"),
-            Model = TryGet<string>(reader, availableColumns, "Модель"),
-            Category = TryGet<string>(reader, availableColumns, "Категорія"),
-            SerialNumber = TryGet<string>(reader, availableColumns, "Серійний номер"),
-            Class = TryGet<string>(reader, availableColumns, "Клас"),
-            Year = TryGet<int>(reader, availableColumns, "Рік"),
-            Height = TryGet<decimal>(reader, availableColumns, "Висота (см)"),
-            Width = TryGet<decimal>(reader, availableColumns, "Ширина (см)"),
-            Length = TryGet<decimal>(reader, availableColumns, "Довжина (см)"),
-            Weight = TryGet<decimal>(reader, availableColumns, "Вага (кг)"),
-            Floor = TryGet<string>(reader, availableColumns, "Поверх"),
-            Department = TryGet<string>(reader, availableColumns, "Відділ"),
-            Room = TryGet<string>(reader, availableColumns, "Кімната"),
-            Consumption = TryGet<decimal>(reader, availableColumns, "Споживання (кв/год)"),
-            Voltage = TryGet<decimal>(reader, availableColumns, "Напруга (В)"),
-            Water = TryGet<decimal>(reader, availableColumns, "Вода (л/год)"),
-            Air = TryGet<decimal>(reader, availableColumns, "Повітря (л/год)"),
-            BalanceCost = TryGet<decimal>(reader, availableColumns, "Балансова вартість (грн)"),
-            Notes = TryGet<string>(reader, availableColumns, "Нотатки"),
-            ResponsiblePerson = TryGet<string>(reader, availableColumns, "Відповідальний"),
-        };
-
-        equipmentList.Add(dto);
-    }
-
-    return equipmentList;
-    }
-    
-    private static T? TryGet<T>(NpgsqlDataReader reader, HashSet<string> columns, string columnName)
-    {
-        return columns.Contains(columnName) ? reader.GetValueOrDefault<T>(columnName) : default;
-    }
-
-    public async Task<int> InsertEquipmentAsync(EquipmentDto equipment, string equipmentTableName)
-    {
-        var columns = await GetColumnNamesAsync(equipmentTableName);
-        
-        var columnNames = new List<string>();
-        var paramNames = new List<string>();
-        var parameters = new List<NpgsqlParameter>();
-        
-        foreach (var column in columns)
-        {
-            if (column.ToLower() == "id") 
-                continue; 
-            
-            object? value = column.ToLower() switch
-            {
-                "інвентарний номер" => equipment.InventoryNumber,
-                "бренд" => equipment.Brand,
-                "модель" => equipment.Model,
-                "категорія" => equipment.Category,
-                "серійний номер" => equipment.SerialNumber,
-                "клас" => equipment.Class,
-                "рік" => equipment.Year,
-                "висота (см)" => equipment.Height,
-                "ширина (см)" => equipment.Width,
-                "довжина (см)" => equipment.Length,
-                "вага (кг)" => equipment.Weight,
-                "поверх" => equipment.Floor,
-                "відділ" => equipment.Department,
-                "кімната" => equipment.Room,
-                "споживання (кв/год)" => equipment.Consumption,
-                "напруга (в) " => equipment.Voltage,
-                "вода (л/год)" => equipment.Water,
-                "повітря (л/год)" => equipment.Air,
-                "балансова вартість (грн)" => equipment.BalanceCost,
-                "нотатки" => equipment.Notes,
-                "відповідальний" => equipment.ResponsiblePerson,
-                "iswriteoff" => false,
-                "copyofdata" => false,
-                _ => DBNull.Value,
-            };
-            columnNames.Add($@"""{column}""");
-            var paramName = "@" + column.Replace(" ", "_").Replace("(", "").Replace(")", "").Replace("/", "_");
-            paramNames.Add(paramName);
-            parameters.Add(new NpgsqlParameter(paramName, value ?? DBNull.Value));
-        }
-
-        var sql = new StringBuilder();
-        sql.Append($@"INSERT INTO ""UserTables"".""{equipmentTableName}"" (");
-        sql.Append(string.Join(", ", columnNames));
-        sql.Append(") VALUES (");
-        sql.Append(string.Join(", ", paramNames));
-        sql.Append(@") RETURNING ""id"";");
-        
-        await using var connection = await _context.OpenNewConnectionAsync();
-        await using var transaction = connection.BeginTransaction();
-
-        try
-        {
-            await using var cmd = new NpgsqlCommand(sql.ToString(), connection, transaction);
-            cmd.Parameters.AddRange(parameters.ToArray());
-            var newId= (int)await cmd.ExecuteScalarAsync();
-            transaction.Commit();
-            return newId;
-        }
-        catch (Exception e)
-        {
-            transaction.Rollback();
-            _logger.LogError(e, "Database error inserting equipment");
-            throw;
-        }
-    }
-
-    public async Task UpdateEquipmentAsync(EquipmentDto equipment, string equipmentTableName)
-    {
-        var columns = await GetColumnNamesAsync(equipmentTableName);
-
-        var columnNames = new List<string>();
-        var paramNames   = new List<string>();
-        var parameters   = new List<NpgsqlParameter>();
-
-
-        foreach (var column in columns)
-        {
-            if (column.ToLower() == "id") 
-                continue;
-
-            object? value = column.ToLower() switch
-            {
-                "інвентарний номер" => equipment.InventoryNumber,
-                "бренд" => equipment.Brand,
-                "модель" => equipment.Model,
-                "категорія" => equipment.Category,
-                "серійний номер" => equipment.SerialNumber,
-                "клас" => equipment.Class,
-                "рік" => equipment.Year,
-                "висота (см)" => equipment.Height,
-                "ширина (см)" => equipment.Width,
-                "довжина (см)" => equipment.Length,
-                "вага (кг)" => equipment.Weight,
-                "поверх" => equipment.Floor,
-                "відділ" => equipment.Department,
-                "кімната" => equipment.Room,
-                "споживання (кв/год)" => equipment.Consumption,
-                "напруга (в)" => equipment.Voltage,
-                "вода (л/год)" => equipment.Water,
-                "повітря (л/год)" => equipment.Air,
-                "балансова вартість (грн)" => equipment.BalanceCost,
-                "нотатки" => equipment.Notes,
-                "відповідальний" => equipment.ResponsiblePerson,
-                "iswriteoff" => false,
-                "copyofdata" => false,
-                _ => DBNull.Value,
-            };
-            
-            columnNames.Add($@"""{column}""");
-            
-            var safeName = column
-                .Replace(" ", "_")
-                .Replace("(", "")
-                .Replace(")", "")
-                .Replace("/", "_");
-            var paramName = "@" + safeName;
-            
-            paramNames.Add(paramName);
-            parameters.Add(new NpgsqlParameter(paramName, value ?? DBNull.Value));
-        }
-        parameters.Add(new NpgsqlParameter("@id", equipment.Id));
-        
-        var setClauses = columnNames
-            .Select((col, idx) => $"{col} = {paramNames[idx]}")
-            .ToList();
-
-        var sql = new StringBuilder();
-        sql.Append($@"UPDATE ""UserTables"".""{equipmentTableName}"" SET ");
-        sql.Append(string.Join(", ", setClauses));
-        sql.Append(@" WHERE ""id"" = @id");
-
-        await using var connection = await _context.OpenNewConnectionAsync();
-        await using var transaction = connection.BeginTransaction();
-
-        try
-        {
-            await using var cmd = new NpgsqlCommand(sql.ToString(), connection, transaction);
-            cmd.Parameters.AddRange(parameters.ToArray());
-
-            await cmd.ExecuteNonQueryAsync();
-            transaction.Commit();
-            
-
-        }
-        catch (NpgsqlException e)
-        {
-            transaction.Rollback();
-            _logger.LogError(e, "Database error updating equipment");
-            throw;
-        }
-    }
-
-    public async Task WriteOffEquipmentAsync(int equipmentId, string equipmentTableName)
-    {
-        await using var connection = await _context.OpenNewConnectionAsync();
-        await using var transaction = connection.BeginTransaction();
-        try
-        {
-            string sql = $@"UPDATE ""UserTables"".""{equipmentTableName}"" SET ""IsWriteOff"" = true WHERE ""id"" = @id";
-            await using var cmd = new NpgsqlCommand(sql, connection, transaction);
-            cmd.Parameters.AddWithValue("@id", equipmentId);
-            await cmd.ExecuteNonQueryAsync();
-            transaction.Commit();
-        }
-        catch (NpgsqlException e)
-        {
-            transaction.Rollback();
-            _logger.LogError(e, "Database error writeoff equipment");
-            throw;
-        }
-    }
-
-    public async Task MakeDataCopyAsync(int equipmentId, string equipmentTableName)
-    {
-        await using var connection = await _context.OpenNewConnectionAsync();
-        await using var transaction = connection.BeginTransaction();
-        try
-        {
-            string sql = $@"UPDATE ""UserTables"".""{equipmentTableName}"" SET ""CopyOfData"" = true WHERE ""id"" = @id";
-            await using var cmd = new NpgsqlCommand(sql, connection, transaction);
-            cmd.Parameters.Add(new NpgsqlParameter("@id", equipmentId));
-            await cmd.ExecuteNonQueryAsync();
-            transaction.Commit();
-        }
-        catch (NpgsqlException e)
-        {
-            transaction.Rollback();
-            _logger.LogError(e, "Database error while make copy of equipment data");
-            throw;
-        }
-    }
-
-    public async Task<List<SparePartDto>> GetSparePartListAsync(int equipmentId, string sparePartTableName)
-    {
-        var sparePartsFromDb = new List<SparePartDto>();
-        await using var connection = await _context.OpenNewConnectionAsync();
-        string sql = $@"SELECT * FROM ""UserTables"".""{sparePartTableName}"" WHERE ""EquipmentId"" = @equipmentId; ";
-        await using var cmd = new NpgsqlCommand(sql, connection);
-        cmd.Parameters.Add(new NpgsqlParameter("@equipmentId", equipmentId));
-        using var reader = await cmd.ExecuteReaderAsync();
-        while (await reader.ReadAsync())
-        {
-            sparePartsFromDb.Add(new SparePartDto
-            {
-                Id = reader.GetValueOrDefault<int>("id"),
-                EquipmentId = reader.GetValueOrDefault<int>("EquipmentId"),
-                SparePartName = reader.GetValueOrDefault<string>("Назва"),
-                SparePartCategory = reader.GetValueOrDefault<string>("Категорія"),
-                SparePartQuantity = reader.GetValueOrDefault<decimal>("Кількість"),
-                SparePartUnit = reader.GetValueOrDefault<string>("Одиниця"),
-                SparePartSerialNumber = reader.GetValueOrDefault<string>("Серійний номер"),
-                SparePartNotes = reader.GetValueOrDefault<string>("Примітки")
-            });
-        }
-        return sparePartsFromDb;
-    }
-
-    public async Task<int> InsertSparePartAsync(SparePartDto sparePart, string sparePartTableName)
-    {
-        await using var connection = await _context.OpenNewConnectionAsync();
-        await using var transaction = connection.BeginTransaction();
-        try
-        {
-            string sql = $@"INSERT INTO ""UserTables"".""{sparePartTableName}"" (""EquipmentId"", ""Назва"", ""Кількість"", ""Одиниця"", ""Серійний номер"", ""Примітки"", ""Категорія"") 
-                        VALUES (@equipmentId, @name, @quantity, @unit, @serialNumber, @notes, @category) RETURNING ""id""; ";
-            await using var cmd = new NpgsqlCommand(sql, connection, transaction);
-            cmd.Parameters.AddWithValue("@equipmentId", sparePart.EquipmentId);
-            cmd.Parameters.AddWithValue("@name", sparePart.SparePartName);
-            cmd.Parameters.AddWithNullableValue("@quantity", (decimal?)sparePart.SparePartQuantity, NpgsqlDbType.Numeric);
-            cmd.Parameters.AddWithValue("@unit", sparePart.SparePartUnit);
-            cmd.Parameters.AddWithNullableValue("@serialNumber", sparePart.SparePartSerialNumber, NpgsqlDbType.Text);
-            cmd.Parameters.AddWithNullableValue("@notes", sparePart.SparePartNotes, NpgsqlDbType.Text);
-            cmd.Parameters.AddWithNullableValue("@category", sparePart.SparePartCategory, NpgsqlDbType.Text);
-            var newId = (int)await cmd.ExecuteScalarAsync();
-            transaction.Commit();
-            return newId;
-        }
-        catch (NpgsqlException e)
-        {
-            transaction.Rollback();
-            _logger.LogError(e, "Database error inserting spare part");
-            throw;
-        }
-    }
-
-    public async Task UpdateSparePartAsync(SparePartDto sparePart, string sparePartTableName)
-    {
-        await using var connection = await _context.OpenNewConnectionAsync();
-        await using var transaction = connection.BeginTransaction();
-        try
-        {
-            string sql = $@"UPDATE ""UserTables"".""{sparePartTableName}"" SET 
-                                                            ""Назва"" = @name,
-                                                            ""Кількість"" = @quantity,
-                                                            ""Одиниця"" = @unit,
-                                                            ""Серійний номер"" = @serialNumber,
-                                                            ""Примітки"" = @notes,
-                                                            ""Категорія"" = @category 
-                                                            WHERE ""id"" = @id; ";
-            await using var cmd = new NpgsqlCommand(sql, connection, transaction);
-            cmd.Parameters.AddWithValue("@id", sparePart.Id);
-            cmd.Parameters.AddWithValue("@name", sparePart.SparePartName);
-            cmd.Parameters.AddWithNullableValue("@quantity", (decimal?)sparePart.SparePartQuantity, NpgsqlDbType.Numeric);
-            cmd.Parameters.AddWithValue("@unit", sparePart.SparePartUnit);
-            cmd.Parameters.AddWithNullableValue("@serialNumber", sparePart.SparePartSerialNumber, NpgsqlDbType.Text);
-            cmd.Parameters.AddWithNullableValue("@notes", sparePart.SparePartNotes, NpgsqlDbType.Text);
-            cmd.Parameters.AddWithNullableValue("@category", sparePart.SparePartCategory, NpgsqlDbType.Text);
-            await cmd.ExecuteNonQueryAsync();
-            transaction.Commit();
-        }
-        catch (NpgsqlException e)
-        {
-            transaction.Rollback();
-            _logger.LogError(e, "Database error updating spare part");
-            throw;
-        }
-    }*/
-    
-   public async Task<List<ColumnDto>> GetColumnsAsync(int tableId)
+   public async Task<List<ColumnDto>> GetColumnsAsync(int tableId, CancellationToken cancellationToken)
    {
        var rawData = new List<(int Id, int TableId, string SettingsJson)>();
 
-       await using var connection = await _context.OpenNewConnectionAsync();
-       const string sql = @"SELECT * FROM ""public"".""custom_columns"" WHERE ""table_id"" = @tableId";
+       await using var connection = await _context.OpenNewConnectionAsync(cancellationToken);
+       const string sql = @"SELECT * FROM ""public"".""custom_columns"" 
+                            WHERE ""table_id"" = @tableId 
+                            AND ""deleted"" = false";
        await using var cmd = new NpgsqlCommand(sql, connection);
        cmd.Parameters.AddWithValue("@tableId", tableId);
 
-       await using var reader = await cmd.ExecuteReaderAsync();
-       while (await reader.ReadAsync())
+       await using var reader = await cmd.ExecuteReaderAsync(cancellationToken);
+       while (await reader.ReadAsync(cancellationToken))
        {
            rawData.Add((
                reader.GetValueOrDefault<int>("id"),
@@ -396,134 +42,124 @@ public class EquipmentDataGridRepository : IEquipmentDataGridRepository
            ));
        }
        
-       return await Task.Run(() =>
+       var result = new List<ColumnDto>(rawData.Count);
+       foreach (var (id, tablId, settingsJson) in rawData)
        {
-           var result = new List<ColumnDto>(rawData.Count);
-           foreach (var (id, tableId, settingsJson) in rawData)
+           ColumnSettings settings = null;
+           if (!string.IsNullOrWhiteSpace(settingsJson))
            {
-               ColumnSettings settings = null;
-               if (!string.IsNullOrWhiteSpace(settingsJson))
-               {
-                   settings = JsonConvert.DeserializeObject<ColumnSettings>(settingsJson);
+               settings = JsonConvert.DeserializeObject<ColumnSettings>(settingsJson);
 
-                   if (settings?.SpecificSettings is JObject jObj)
-                   {
-                       settings.SpecificSettings = DeserializeSpecificSettings(settings.DataType, jObj);
-                   }
+               if (settings?.SpecificSettings is JObject jObj)
+               {
+                   settings.SpecificSettings = DeserializeSpecificSettings(settings.DataType, jObj);
                }
-
-               result.Add(new ColumnDto
-               {
-                   Id = id,
-                   TableId = tableId,
-                   Settings = settings
-               });
            }
 
-           return result;
-       });
+           result.Add(new ColumnDto
+           {
+               Id = id,
+               TableId = tablId,
+               Settings = settings
+           });
+       }
+       return result;
    }
 
-    public async Task<List<EquipmentDto>> GetRowsAsync(int tableId)
+    public async Task<List<RowItem>> GetRowsAsync(int tableId, CancellationToken cancellationToken)
     {
-        await using var connection = await _context.OpenNewConnectionAsync();
-        string sql = @"SELECT * FROM ""public"".""custom_data"" WHERE ""table_id"" = @tableId";
+        await using var connection = await _context.OpenNewConnectionAsync(cancellationToken);
+        string sql = @"SELECT
+                       r.""id"" as ""row_id"", 
+                       json_object_agg(col.""settings"" ->> 'MappingName', c.""value"") AS row_data
+                       FROM ""public"".""equipment_rows"" r 
+                       JOIN ""public"".""equipment_cells"" c ON r.""id"" = c.""row_id"" 
+                       JOIN ""public"".""custom_columns"" col ON c.""column_id"" = col.""id"" 
+                       WHERE r.""table_id"" = @tableId
+                       AND r.""deleted"" = false
+                       AND c.""deleted"" = false
+                       AND col.""deleted"" = false
+                       GROUP BY r.""id""
+                       ORDER BY r.""position""; ";
         await using var cmd = new NpgsqlCommand(sql, connection);
         cmd.Parameters.AddWithValue("@tableId", tableId);
-        await using var reader = await cmd.ExecuteReaderAsync();
-
-        var rawData = new List<(int id, int tableId, int rowIndex, string json)>();
-        while (await reader.ReadAsync())
+        await using var reader = await cmd.ExecuteReaderAsync(cancellationToken);
+        
+        var rawRowData = new List<(int Id, string Json)>();
+        while (await reader.ReadAsync(cancellationToken))
         {
-            rawData.Add((
-                reader.GetValueOrDefault<int>("id"),
-                reader.GetValueOrDefault<int>("table_id"),
-                reader.GetValueOrDefault<int>("row_index"),
-                reader.GetValueOrDefault<string>("data")
+            rawRowData.Add((
+                reader.GetValueOrDefault<int>("row_id"),
+                reader.GetValueOrDefault<string>("row_data")
             ));
         }
         
-        return await Task.Run(() =>
+        var tasks = rawRowData.Select(async x => new RowItem
         {
-            return rawData.Select(row => new EquipmentDto
-            {
-                Id = row.id,
-                TableId = row.tableId,
-                RowIndex = row.rowIndex,
-                Data = string.IsNullOrEmpty(row.json)
-                    ? new Dictionary<string, object>()
-                    : JsonConvert.DeserializeObject<Dictionary<string, object>>(row.json)
-            }).ToList();
-        });
-    }
-
-    public async Task<string> GetMappingName(string headerText)
-    {
-        await using var connection = await _context.OpenNewConnectionAsync();
-        const string selectSql = @"SELECT ""mapping_name"" FROM ""public"".""header_dictionary"" WHERE ""header_text"" = @headerText LIMIT 1;";
-        await using (var selectCmd = new NpgsqlCommand(selectSql, connection))
-        {
-            selectCmd.Parameters.AddWithValue("@headerText", headerText.Trim());
-            var scalar = await selectCmd.ExecuteScalarAsync();
-            if(scalar is string exisiting)
-                return exisiting;
-        }
+            Id = x.Id,
+            Data = await Task.Run(() => JsonConvert.DeserializeObject<Dictionary<string, object?>>(x.Json), cancellationToken)
+        }).ToList();
         
-        var newMappingName = Guid.NewGuid().ToString("N");
-        const string insertSql = @"INSERT INTO ""public"".""header_dictionary"" (""header_text"", ""mapping_name"") VALUES (@headerText, @mappingName);";
-        await using var transaction = await connection.BeginTransactionAsync();
-        try
-        {
-            await using var cmd = new NpgsqlCommand(insertSql, connection, transaction);
-            cmd.Parameters.AddWithValue("@headerText", headerText.Trim());
-            cmd.Parameters.AddWithValue("@mappingName", newMappingName);
-            await cmd.ExecuteNonQueryAsync();
-            await transaction.CommitAsync();
-            return newMappingName;
-        }
-        catch (NpgsqlException e)
-        {
-            await transaction.RollbackAsync();
-            _logger.LogError(e, "Error while inserting header dictionary");
-            throw;
-        }
+        var result = await Task.WhenAll(tasks);
+        
+        return new List<RowItem>(result);
     }
-
-    public async Task UpdateHeaderTextInDictionaryAsync(string headerText, string mappingName)
+    
+    public async Task UpdateRowAsync(int rowId, int tableId, Dictionary<string, object?> updatedRowData)
     {
         await using var connection = await _context.OpenNewConnectionAsync();
         await using var transaction = await connection.BeginTransactionAsync();
         try
         {
-            const string sql = @"UPDATE ""public"".""header_dictionary"" SET ""header_text"" = @headerText WHERE ""mapping_name"" = @mappingName;";
-            await using var cmd = new NpgsqlCommand(sql, connection, transaction);
-            cmd.Parameters.AddWithValue("@headerText", headerText.Trim());
-            cmd.Parameters.AddWithValue("@mappingName", mappingName);
-            await cmd.ExecuteNonQueryAsync();
-            await transaction.CommitAsync();
-        }
-        catch (NpgsqlException e)
-        {
-            await transaction.RollbackAsync();
-            _logger.LogError(e, "Error while updating header dictionary");
-            throw;
-        }
-    }
-
-    public async Task UpdateRowsAsync(IDictionary<string, object> rows, int id)
-    {
-        await using var connection = await _context.OpenNewConnectionAsync();
-        await using var transaction = await connection.BeginTransactionAsync();
-        try
-        {
-            string sql = @"UPDATE ""public"".""custom_data"" SET ""data"" = @data WHERE ""id"" = @id";
-            await using var cmd = new NpgsqlCommand(sql, connection, transaction);
-            cmd.Parameters.AddWithValue("@id", id);
-            var dataJson = JsonConvert.SerializeObject(rows);
-            cmd.Parameters.AddWithValue("@data", NpgsqlDbType.Jsonb, dataJson);
-            await cmd.ExecuteNonQueryAsync();
-            await transaction.CommitAsync();
+            var columns = new Dictionary<string, int>();
             
+            const string getColumnsSql = @"SELECT ""id"", ""settings"" ->> 'MappingName' AS ""mapping_name""  FROM ""public"".""custom_columns"" WHERE ""table_id"" = @tableId;";
+            var getColumnsCommand = new NpgsqlCommand(getColumnsSql, connection, transaction);
+            getColumnsCommand.Parameters.AddWithValue("@tableId", tableId);
+            await using var reader = await getColumnsCommand.ExecuteReaderAsync();
+            
+            while (await reader.ReadAsync())
+            {
+                var mappingName = reader.GetValueOrDefault<string>("mapping_name");
+                var columnId = reader.GetValueOrDefault<int>("id");
+                columns[mappingName] = columnId;
+            }
+
+            await reader.CloseAsync();
+
+            foreach (var kv in updatedRowData)
+            {
+                if (!columns.TryGetValue(kv.Key, out var columnId))
+                    throw new Exception($"Column with MappingName '{kv.Key}' not found.");
+                
+                const string checkCellSql = @"SELECT COUNT(*) FROM ""public"".""equipment_cells"" WHERE ""row_id"" = @rowId AND ""column_id"" = @columnId; ";
+                
+                var checkCellCmd = new NpgsqlCommand(checkCellSql, connection, transaction);
+                checkCellCmd.Parameters.AddWithValue("@rowId", rowId);
+                checkCellCmd.Parameters.AddWithValue("@columnId", columnId);
+                
+                var exists = (long)await checkCellCmd.ExecuteScalarAsync() > 0;
+
+                if (exists)
+                {
+                    const string updateCellSql = @"UPDATE ""public"".""equipment_cells"" SET ""value"" = @value WHERE ""row_id"" = @rowId AND ""column_id"" = @columnId; ";
+                    var updateCellCmd = new NpgsqlCommand(updateCellSql, connection, transaction);
+                    updateCellCmd.Parameters.AddWithValue("@rowId", rowId);
+                    updateCellCmd.Parameters.AddWithValue("@columnId", columnId);
+                    updateCellCmd.Parameters.AddWithValue("@value", kv.Value?.ToString() ?? string.Empty);
+                    await updateCellCmd.ExecuteNonQueryAsync();
+                }
+                else
+                {
+                    const string insertCellSql = @"INSERT INTO ""public"".""equipment_cells"" (""row_id"", ""column_id"", ""value"") VALUES (@rowId, @columnId, @value); ";
+                    var insertCellCmd = new NpgsqlCommand(insertCellSql, connection, transaction);
+                    insertCellCmd.Parameters.AddWithValue("@rowId", rowId);
+                    insertCellCmd.Parameters.AddWithValue("@columnId", columnId);
+                    insertCellCmd.Parameters.AddWithValue("@value", kv.Value?.ToString() ?? string.Empty);
+                    await insertCellCmd.ExecuteNonQueryAsync();
+                }
+            }
+            await transaction.CommitAsync();
         }
         catch (NpgsqlException e)
         {
@@ -555,21 +191,6 @@ public class EquipmentDataGridRepository : IEquipmentDataGridRepository
         }
     }
 
-    private object? DeserializeSpecificSettings(ColumnDataType dataType, JObject jObject)
-    {
-        return dataType switch
-        {
-            ColumnDataType.Text => jObject.ToObject<TextColumnSettings>(),
-            ColumnDataType.Number => jObject.ToObject<NumberColumnSettings>(),
-            ColumnDataType.Boolean => jObject.ToObject<BooleanColumnSettings>(),
-            ColumnDataType.Date => jObject.ToObject<DateColumnSettings>(),
-            ColumnDataType.Currency => jObject.ToObject<CurrencyColumnSettings>(),
-            ColumnDataType.List => jObject.ToObject<ListColumnSettings>(),
-            ColumnDataType.MultilineText => jObject.ToObject<MultilineTextColumnSettings>(),
-            _ => null
-        };
-    }
-
     public async Task UpdateColumnPositionAsync(Dictionary<int, int> columnPositions, int tableId)
     {
         await using var connection = await _context.OpenNewConnectionAsync();
@@ -584,6 +205,8 @@ public class EquipmentDataGridRepository : IEquipmentDataGridRepository
             {
                 int columnId = kvp.Key;
                 int newPosition = kvp.Value;
+                
+                Console.WriteLine($"COLUMN ID: {columnId}, NEW POSITION: {newPosition}");
             
                 await using var cmd = new NpgsqlCommand(sql, connection, transaction);
                 cmd.Parameters.AddWithValue("@columnId", columnId);
@@ -657,28 +280,195 @@ public class EquipmentDataGridRepository : IEquipmentDataGridRepository
         }
     }
 
-    public async Task<int> AddNewRowAsync(EquipmentDto equipment)
+    public async Task<int> InsertRowAsync(int tableId, int position, Dictionary<string, object?> newRowData, CancellationToken ct)
     {
-        await using var connection = await _context.OpenNewConnectionAsync();
-        await using var transaction = await connection.BeginTransactionAsync();
+        await using var connection = await _context.OpenNewConnectionAsync(ct);
+        await using var transaction = await connection.BeginTransactionAsync(ct);
 
         try
         {
-            string sql = @"INSERT INTO ""public"".""custom_data"" (""table_id"", ""data"", ""row_index"") VALUES (@tableId, @data::jsonb, @rowIndex) RETURNING id;";
-            string dataJson = JsonConvert.SerializeObject(equipment.Data);
-            await using var cmd = new NpgsqlCommand(sql, connection, transaction);
-            cmd.Parameters.AddWithValue("tableId", equipment.TableId);
-            cmd.Parameters.AddWithValue("data", dataJson);
-            cmd.Parameters.AddWithValue("rowIndex", equipment.RowIndex);
-            var result = await cmd.ExecuteScalarAsync();
-            await transaction.CommitAsync();   
-            return Convert.ToInt32(result);
+            const string insertRowSql = @"INSERT INTO ""public"".""equipment_rows"" (""table_id"", ""position"") VALUES (@tableId, @position) RETURNING id;";
+            var insertCommand = new NpgsqlCommand(insertRowSql, connection, transaction);
+            insertCommand.Parameters.AddWithValue("@tableId", tableId);
+            insertCommand.Parameters.AddWithValue("@position", position);
+            var rowId = (int) await insertCommand.ExecuteScalarAsync();
+
+            var columns = new Dictionary<string, int>();
+            
+            const string getColumnsSql = @"SELECT ""id"", ""settings"" ->> 'MappingName' AS ""mapping_name""  FROM ""public"".""custom_columns"" WHERE ""table_id"" = @tableId;";
+            var getColumnsCommand = new NpgsqlCommand(getColumnsSql, connection, transaction);
+            getColumnsCommand.Parameters.AddWithValue("@tableId", tableId);
+            await using var reader = await getColumnsCommand.ExecuteReaderAsync(ct);
+            
+            while (await reader.ReadAsync(ct))
+            {
+                var mappingName = reader.GetValueOrDefault<string>("mapping_name");
+                var columnId = reader.GetValueOrDefault<int>("id");
+                columns[mappingName] = columnId;
+            }
+
+            await reader.CloseAsync();
+
+            foreach (var kv in newRowData)
+            {
+                if (!columns.TryGetValue(kv.Key, out var columnId))
+                    throw new Exception($"Column with MappingName '{kv.Key}' not found.");
+                
+                var insertCellSql = @"INSERT INTO ""public"".""equipment_cells"" (""row_id"", ""column_id"", ""value"") VALUES (@rowId, @columnId, @value);";
+                var insertCellCommand = new NpgsqlCommand(insertCellSql, connection, transaction);
+                insertCellCommand.Parameters.AddWithValue("@rowId", rowId);
+                insertCellCommand.Parameters.AddWithValue("@columnId", columnId);
+                insertCellCommand.Parameters.AddWithValue("@value", kv.Value?.ToString() ?? string.Empty);
+                await insertCellCommand.ExecuteNonQueryAsync(ct);
+            }
+            await transaction.CommitAsync(ct);
+            
+            return rowId;
         }
         catch (Exception e)
         {
-            await transaction.RollbackAsync();
+            await transaction.RollbackAsync(ct);
             _logger.LogError(e, "Database error creating equipment");
             throw;
         }
+    }
+
+    public async Task<List<int>> InsertRowsAsync(int tableId, List<(int position, Dictionary<string, object?> data)> rows, CancellationToken ct)
+    {
+        await using var connection = await _context.OpenNewConnectionAsync(ct);
+        await using var transaction = await connection.BeginTransactionAsync(ct);
+
+        try
+        {
+            const string insertRowsAsync = @"INSERT INTO ""public"".""equipment_rows"" (""table_id"", ""position"") VALUES (@tableId, @position) RETURNING ""id"";";
+            var insertRowsCommand = new NpgsqlCommand(insertRowsAsync, connection, transaction);
+            var newRowsIds = new List<int>();
+            foreach (var row in rows)
+            {
+                insertRowsCommand.Parameters.AddWithValue("@tableId", tableId);
+                insertRowsCommand.Parameters.AddWithValue("@position", row.position);
+                var rowId = (int)await insertRowsCommand.ExecuteScalarAsync(ct);
+                newRowsIds.Add(rowId);
+            }
+
+            const string getColumnIds = @"SELECT ""id"", ""settings"" ->> 'MappingName' AS ""mapping_name"" FROM ""public"".""custom_columns"" WHERE ""settings"" ->> 'MappingName' = ANY(@mappingNames);";
+            var getColumnsCommand = new NpgsqlCommand(getColumnIds, connection, transaction);
+            var mappingNames = rows.SelectMany(r => r.data.Select(d => d.Key)).ToList();
+            getColumnsCommand.Parameters.AddWithValue("@mappingNames", mappingNames);
+            var columnMap = new Dictionary<string, int>();
+            await using var reader = await getColumnsCommand.ExecuteReaderAsync(ct);
+            while (await reader.ReadAsync(ct))
+            {
+                var id = reader.GetValueOrDefault<int>("id");
+                var mappingName = reader.GetValueOrDefault<string>("mapping_name");
+                columnMap[mappingName] = id;
+            }
+            await reader.CloseAsync();
+
+            const string insertCellsAsync = @"INSERT INTO ""public"".""equipment_cells"" (""row_id"", ""column_id"", ""value"") VALUES (@rowId, @columnId, @value)";
+            var insertCellsCommand = new NpgsqlCommand(insertCellsAsync, connection, transaction);
+            
+            for (int i = 0; i < rows.Count; i++)
+            {
+                var rowId = newRowsIds[i];
+                var rowData = rows[i].data;
+
+                foreach (var kvp in rowData)
+                {
+                    var mappingName = kvp.Key;
+                    var value = kvp.Value;
+                    columnMap.TryGetValue(mappingName, out var columnId);
+                    
+                    insertCellsCommand.Parameters.Clear();
+                    insertCellsCommand.Parameters.AddWithValue("@rowId", rowId);
+                    insertCellsCommand.Parameters.AddWithValue("@columnId", columnId);
+                    insertCellsCommand.Parameters.AddWithValue("@value", value ?? DBNull.Value);
+                    await insertCellsCommand.ExecuteNonQueryAsync(ct);
+                }
+            }
+            await transaction.CommitAsync(ct);
+            return newRowsIds;
+        }
+        catch (Exception e)
+        {
+            await transaction.RollbackAsync(ct);
+            throw;
+        }
+    }
+
+    public async Task RemoveItemsAsync(List<int> rowsIds, CancellationToken ct)
+    {
+        await using var connection = await _context.OpenNewConnectionAsync(ct);
+        await using var transaction = await connection.BeginTransactionAsync(ct);
+
+        try
+        {
+            const string removeCellsSql = @"UPDATE ""public"".""equipment_cells"" 
+                                                   SET ""deleted"" = true
+                                                   WHERE ""row_id"" = ANY(@rowsIds)";
+            await using var removeCellsCmd = new NpgsqlCommand(removeCellsSql, connection, transaction);
+            removeCellsCmd.Parameters.AddWithValue("@rowsIds", rowsIds);
+            await removeCellsCmd.ExecuteNonQueryAsync(ct);
+
+            const string removeRowsSql = @"UPDATE ""public"".""equipment_rows""
+                                           SET ""deleted"" = true 
+                                           WHERE ""id"" = ANY(@rowsIds)";
+            
+            await using var removeRowsCmd = new NpgsqlCommand(removeRowsSql, connection, transaction);
+            removeRowsCmd.Parameters.AddWithValue("@rowsIds", rowsIds);
+            await removeRowsCmd.ExecuteNonQueryAsync(ct);
+            
+            await transaction.CommitAsync(ct);
+        }
+        catch (Exception)
+        {
+            await transaction.RollbackAsync(ct);
+            throw;
+        }
+    }
+
+    public async Task RemoveColumnAsync(int columnId, CancellationToken ct)
+    {
+        await using var connection = await _context.OpenNewConnectionAsync(ct);
+        await using var transaction = await connection.BeginTransactionAsync(ct);
+
+        try
+        {
+            const string removeCellsSql = @"UPDATE ""public"".""equipment_cells"" 
+                                            SET ""deleted"" = true
+                                            WHERE ""column_id"" = @columnId";
+            await using var removeCellsCmd = new NpgsqlCommand(removeCellsSql, connection, transaction);
+            removeCellsCmd.Parameters.AddWithValue("@columnId", columnId);
+            await removeCellsCmd.ExecuteNonQueryAsync(ct);
+
+            const string removeColumnSql = @"UPDATE ""public"".""custom_columns"" 
+                                             SET ""deleted"" = true 
+                                             WHERE ""id"" = @columnId";
+            await using var removeColumnCmd = new NpgsqlCommand(removeColumnSql, connection, transaction);
+            removeColumnCmd.Parameters.AddWithValue("@columnId", columnId);
+            await removeColumnCmd.ExecuteNonQueryAsync(ct);
+            
+            await transaction.CommitAsync(ct);
+        }
+        catch (Exception e)
+        {
+            await transaction.RollbackAsync(ct);
+            throw;
+        }
+    }
+    
+    private static object? DeserializeSpecificSettings(ColumnDataType dataType, JObject jObject)
+    {
+        return dataType switch
+        {
+            ColumnDataType.Text => jObject.ToObject<TextColumnSettings>(),
+            ColumnDataType.Number => jObject.ToObject<NumberColumnSettings>(),
+            ColumnDataType.Boolean => jObject.ToObject<BooleanColumnSettings>(),
+            ColumnDataType.Date => jObject.ToObject<DateColumnSettings>(),
+            ColumnDataType.Currency => jObject.ToObject<CurrencyColumnSettings>(),
+            ColumnDataType.List => jObject.ToObject<ListColumnSettings>(),
+            ColumnDataType.MultilineText => jObject.ToObject<MultilineTextColumnSettings>(),
+            _ => null
+        };
     }
 }

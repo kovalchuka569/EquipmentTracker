@@ -1,16 +1,16 @@
 ﻿using Common.Logging;
+using Data.ApplicationDbContext;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
-using DbContext = Data.AppDbContext.DbContext;
 
 namespace Data.Repositories.Common.DataGridColumns
 {
     public class DataGridColumnRepository : IDataGridColumnRepository
     {
         private IAppLogger<DataGridColumnRepository> _logger;
-        private DbContext _context;
+        private AppDbContext _context;
 
-        public DataGridColumnRepository(IAppLogger<DataGridColumnRepository> logger, DbContext context)
+        public DataGridColumnRepository(IAppLogger<DataGridColumnRepository> logger, AppDbContext context)
         {
             _logger = logger;
             _context = context;

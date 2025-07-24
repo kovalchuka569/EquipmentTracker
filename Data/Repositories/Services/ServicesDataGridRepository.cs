@@ -1,17 +1,17 @@
 ﻿using Common.Logging;
+using Data.ApplicationDbContext;
 using Microsoft.EntityFrameworkCore;
 using Models.RepairsDataGrid.ServicesDataGrid;
 using Npgsql;
-using DbContext = Data.AppDbContext.DbContext;
 
 namespace Data.Repositories.Services;
 
 public class ServicesDataGridRepository : IServicesDataGridReposotory
 {
-    private readonly AppDbContext.DbContext _context;
+    private readonly AppDbContext _context;
     private readonly IAppLogger<ServicesDataGridRepository> _logger;
 
-    public ServicesDataGridRepository(DbContext context, IAppLogger<ServicesDataGridRepository> logger)
+    public ServicesDataGridRepository(AppDbContext context, IAppLogger<ServicesDataGridRepository> logger)
     {
         _context = context;
         _logger = logger;

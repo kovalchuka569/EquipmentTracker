@@ -2,7 +2,7 @@
 using System.Text;
 using System.Windows.Documents;
 using Common.Logging;
-using Data.AppDbContext;
+using Data.ApplicationDbContext;
 using Models.ConsumablesDataGrid;
 using Models.RepairsDataGrid.AddRepair;
 using Npgsql;
@@ -12,10 +12,10 @@ namespace Data.Repositories.Repairs;
 
 public class AddRepairRepository : IAddRepairRepository
 {
-    private readonly DbContext _context;
+    private readonly AppDbContext _context;
     private readonly IAppLogger<AddRepairRepository> _logger;
 
-    public AddRepairRepository(DbContext context, IAppLogger<AddRepairRepository> logger)
+    public AddRepairRepository(AppDbContext context, IAppLogger<AddRepairRepository> logger)
     {
         _context = context;
         _logger = logger;

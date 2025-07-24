@@ -5,7 +5,6 @@ using Common.Logging;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using NpgsqlTypes;
-using DbContext = Data.AppDbContext.DbContext;
 
 namespace Data.Repositories.Consumables.Operations
 {

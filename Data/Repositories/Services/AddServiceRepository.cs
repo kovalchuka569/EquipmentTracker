@@ -1,5 +1,5 @@
 ﻿using Common.Logging;
-using Data.AppDbContext;
+using Data.ApplicationDbContext;
 using Models.RepairsDataGrid.AddRepair;
 using Models.RepairsDataGrid.AddService;
 using Models.RepairsDataGrid.ServicesDataGrid;
@@ -10,10 +10,10 @@ namespace Data.Repositories.Services;
 
 public class AddServiceRepository : IAddServiceRepository
 {
-    private readonly DbContext _context;
+    private readonly AppDbContext _context;
     private readonly IAppLogger<AddServiceRepository> _logger;
 
-    public AddServiceRepository(DbContext context, IAppLogger<AddServiceRepository> logger)
+    public AddServiceRepository(AppDbContext context, IAppLogger<AddServiceRepository> logger)
     {
         _context = context;
         _logger = logger;

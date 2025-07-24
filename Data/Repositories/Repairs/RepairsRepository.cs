@@ -1,6 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using Common.Logging;
-using Data.AppDbContext;
+using Data.ApplicationDbContext;
 using Models.RepairsDataGrid;
 using Models.RepairsDataGrid.AddRepair;
 using Models.RepairsDataGrid.AddService;
@@ -10,10 +10,10 @@ namespace Data.Repositories.Repairs;
  
 public class RepairsRepository : IRepairsRepository
 {
-    private readonly DbContext _context;
+    private readonly AppDbContext _context;
     private readonly IAppLogger<RepairsRepository> _logger;
 
-    public RepairsRepository(DbContext context, IAppLogger<RepairsRepository> logger)
+    public RepairsRepository(AppDbContext context, IAppLogger<RepairsRepository> logger)
     {
         _context = context;
         _logger = logger;

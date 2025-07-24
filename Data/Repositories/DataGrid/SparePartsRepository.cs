@@ -3,19 +3,19 @@ using System.Data;
 using System.Dynamic;
 using System.Globalization;
 using Common.Logging;
+using Data.ApplicationDbContext;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using NpgsqlTypes;
-using DbContext = Data.AppDbContext.DbContext;
 
 namespace Data.Repositories.DataGrid
 {
     public class SparePartsRepository : ISparePartsRepository
     {
-        private readonly DbContext _context;
+        private readonly AppDbContext _context;
         private readonly IAppLogger<SparePartsRepository> _logger;
 
-        public SparePartsRepository(DbContext context, IAppLogger<SparePartsRepository> logger)
+        public SparePartsRepository(AppDbContext context, IAppLogger<SparePartsRepository> logger)
         {
             _context = context;
             _logger = logger;

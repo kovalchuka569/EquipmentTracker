@@ -1,19 +1,19 @@
 ﻿using Common.Logging;
+using Data.ApplicationDbContext;
 using Models.Equipment;
 using Models.EquipmentTree;
 using Models.NavDrawer;
 using Npgsql;
 using NpgsqlTypes;
-using DbContext = Data.AppDbContext.DbContext;
 
 namespace Data.Repositories.EquipmentTree
 {
     public class EquipmentTreeRepository : IEquipmentTreeRepository
     {
         private readonly IAppLogger<EquipmentTreeRepository> _logger;
-        private readonly DbContext _context;
+        private readonly AppDbContext _context;
         
-        public EquipmentTreeRepository(IAppLogger<EquipmentTreeRepository> logger, DbContext context)
+        public EquipmentTreeRepository(IAppLogger<EquipmentTreeRepository> logger, AppDbContext context)
         {
             _logger = logger;
             _context = context;
@@ -26,7 +26,9 @@ namespace Data.Repositories.EquipmentTree
             try
             {
                 await using var connection = await _context.OpenNewConnectionAsync();
-                string sql = @"SELECT * FROM ""public"".""folders"" WHERE ""menu_type"" = @menuType;";
+                const string sql = @"SELECT * FROM ""public"".""folders"" 
+                                     WHERE ""menu_type"" = @menuType 
+                                     AND ""deleted"" = false";
                 await using var cmd = new NpgsqlCommand(sql, connection);
                 cmd.Parameters.AddWithValue("@menuType", (int)menuType);
                 await using (var reader = await cmd.ExecuteReaderAsync())
@@ -57,7 +59,9 @@ namespace Data.Repositories.EquipmentTree
             try
             {
                 await using var connection = await _context.OpenNewConnectionAsync();
-                string sql = @"SELECT * FROM ""public"".""files"" WHERE ""menu_type"" = @menuType";
+                string sql = @"SELECT * FROM ""public"".""files"" 
+                               WHERE ""menu_type"" = @menuType 
+                               AND ""deleted"" = false";
                 await using var cmd = new NpgsqlCommand(sql, connection);
                 cmd.Parameters.AddWithValue("@menuType", (int)menuType);
                await using (var reader = await cmd.ExecuteReaderAsync())

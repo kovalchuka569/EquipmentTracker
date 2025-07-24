@@ -7,7 +7,6 @@ using Npgsql;
 using Syncfusion.UI.Xaml.Grid;
 using Syncfusion.Windows.Controls;
 using DataRow = System.Data.DataRow;
-using DbContext = Data.AppDbContext.DbContext;
 
 namespace Data.Repositories.Consumables
 {

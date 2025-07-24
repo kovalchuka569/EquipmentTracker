@@ -1,6 +1,4 @@
-﻿using System.Windows.Controls;
-
-namespace Data.Repositories.Common.DataGridColumns
+﻿namespace Data.Repositories.Common.DataGridColumns
 {
     public interface IDataGridColumnRepository
     {

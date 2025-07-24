@@ -1,14 +1,14 @@
-﻿using Data.Entities;
+﻿using Data.ApplicationDbContext;
+using Data.Entities;
 using Microsoft.EntityFrameworkCore;
-using DbContext = Data.AppDbContext.DbContext;
 
 namespace Data.Repositories
 {
     public class UserRepository: IUserRepository
     {
-        private readonly DbContext _context;
+        private readonly AppDbContext _context;
 
-        public UserRepository(DbContext context)
+        public UserRepository(AppDbContext context)
         {
             _context = context;
         }
