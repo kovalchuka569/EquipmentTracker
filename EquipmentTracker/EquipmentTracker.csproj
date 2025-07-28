@@ -42,11 +42,15 @@
       <PackageReference Include="Extended.Wpf.Toolkit" Version="4.7.25104.5739" />
       <PackageReference Include="MaterialDesignColors" Version="5.2.1" />
       <PackageReference Include="MaterialDesignThemes" Version="5.2.1" />
-      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.6" />
-      <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.6" />
-      <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.6" />
-      <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.6" />
-      <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.6" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.7" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.7">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.7" />
+      <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.7" />
+      <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.7" />
+      <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.7" />
       <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
       <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
       <PackageReference Include="Notification.Wpf" Version="8.0.0" />
@@ -81,6 +85,15 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Resource Include="Common\Controls\Assets\clear.png" />
+      <Resource Include="Common\Controls\Assets\excel.png" />
+      <Resource Include="Common\Controls\Assets\export.png" />
+      <Resource Include="Common\Controls\Assets\filter.png" />
+      <Resource Include="Common\Controls\Assets\left.png" />
+      <Resource Include="Common\Controls\Assets\pdf.png" />
+      <Resource Include="Common\Controls\Assets\print.png" />
+      <Resource Include="Common\Controls\Assets\right.png" />
+      <Resource Include="Common\Controls\Assets\search.png" />
       <Resource Include="Views\NavDrawer\NavDrawerItems\EquipmentTree\Assets\file.png" />
       <Resource Include="Views\NavDrawer\NavDrawerItems\EquipmentTree\Assets\folder.png" />
       <Resource Include="Views\NavDrawer\NavDrawerItems\EquipmentTree\Assets\opened_folder.png" />
@@ -195,6 +208,42 @@
       <Resource Include="Views\SummarySheet\Assets\opened_folder.png" />
       <None Remove="Views\SummarySheet\Assets\column.png" />
       <Resource Include="Views\SummarySheet\Assets\column.png" />
+      <Page Remove="Common\Styles\DefaultSummaryCellStyle.xaml" />
+      <None Remove="Views\SummarySheet\Assets\search.png" />
+      <None Remove="Views\SummarySheet\Assets\search-interface-symbol.png" />
+      <None Remove="Views\SummarySheet\Assets\close.png" />
+      <None Remove="Views\SummarySheet\Assets\icons8-close-50.png" />
+      <None Remove="Views\SummarySheet\Assets\icons8-filter-50.png" />
+      <None Remove="Views\SummarySheet\Assets\icons8-right-50.png" />
+      <None Remove="Views\SummarySheet\Assets\icons8-left-50.png" />
+      <None Remove="Views\SummarySheet\Assets\icons8-search-50.png" />
+      <None Remove="Views\SummarySheet\Assets\icons8-left-50 (1).png" />
+      <None Remove="Views\SummarySheet\Assets\icons8-right-50 (1).png" />
+      <None Remove="Views\SummarySheet\Assets\icons8-search-50 (2).png" />
+      <None Remove="Views\SummarySheet\Assets\print.png" />
+      <None Remove="Views\SummarySheet\Assets\icons8-печать-30.png" />
+      <None Remove="Views\SummarySheet\Assets\export.png" />
+      <None Remove="Views\SummarySheet\Assets\icons8-pdf-48.png" />
+      <None Remove="Views\SummarySheet\Assets\icons8-microsoft-excel-48.png" />
+      <Page Update="Common\Controls\DataGridToolBar.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <None Remove="Common\Controls\Assets\icons8-download-48.png" />
+      <Resource Include="Common\Controls\Assets\import.png" />
+      <None Remove="Common\Controls\Assets\close.png" />
+      <Resource Include="Common\Controls\Assets\close.png" />
+      <None Remove="Common\Controls\Assets\icons8-attention-24.png" />
+      <None Remove="Common\Controls\Assets\icons8-attention-64.png" />
+      <Resource Include="Common\Controls\Assets\attention.png" />
+      <Page Update="Common\Controls\RemovalAgreement.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <None Remove="Common\Controls\Assets\icons8-information-50.png" />
+      <Resource Include="Common\Controls\Assets\information.png" />
     </ItemGroup>
 
     <ItemGroup>

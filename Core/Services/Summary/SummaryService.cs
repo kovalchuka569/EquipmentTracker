@@ -10,7 +10,10 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using Core.Services.EquipmentDataGrid;
 using Models.Equipment;
+using Models.Equipment.ColumnSettings;
+using Newtonsoft.Json;
 using NuGet;
+using Syncfusion.XPS;
 using ColumnDto = Models.Summary.ColumnTree.ColumnDto;
 using ColumnItem = Models.Summary.ColumnTree.ColumnItem;
 using FileDto = Models.Summary.ColumnTree.FileDto;
@@ -104,119 +107,6 @@ public class SummaryService : ISummaryService
         }
         return new ObservableCollection<ISummaryFileSystemItem>(
             folderItems.Values.Where(f => f.ParentId == 0));
-    }
-
-    public async Task<Columns> GetMergedColumnsAsync(int summaryId,SummaryFormat format)
-    {
-        var columnIds = await _summaryRepository.GetEquipmentSelectedColumnsIds(summaryId);
-        var cellTemplate = new CreateCellTemplateFactory();
-        var columnItems = new List<global::Models.Summary.DataGrid.ColumnItem>();
-        switch (format)
-        {
-            case SummaryFormat.EquipmentsSummary:
-                columnItems = await _summaryRepository.GetColumnItemsForEquipmentsAsync(columnIds);
-                //await _summaryRepository.InsertEquipmentSummary(columnIds, summaryId);
-                break;
-        }
-        
-        var columns = new Columns();
-        
-        foreach (var colItem in columnItems)
-        {
-            var gridColumn = new CustomGridTemplateColumn
-            {
-                Id = colItem.Id,
-                HeaderText = colItem.ColumnSettings.HeaderText,
-                MappingName = colItem.ColumnSettings.MappingName,
-                TableId = colItem.TableId,
-                CellTemplate = cellTemplate.CreateCellTemplate(colItem.ColumnSettings),
-                ColumnMemberType = GetColumnMemberType(colItem.ColumnSettings.DataType)
-            };
-            columns.Add(gridColumn);
-        }
-        
-        return MergeColumns(columns);
-    }
-
-    private static Columns MergeColumns(Columns columns)
-    {
-        var grouped = columns.GroupBy(c => c.HeaderText).ToList();
-        var result = new Columns();
-
-        foreach (var group in grouped)
-        {
-            if (group.Count() > 1)
-            {
-                var message = $"Знайденно дублювання характеристики: \"{group.Key}\". Об'єднати значення?";
-                var resultMessage = MessageBox.Show(message, "Об'єднання значень", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                if (resultMessage == MessageBoxResult.Yes)
-                {
-                    result.Add(group.First());
-                }
-                else
-                {
-                    result.AddRange(group);
-                }
-            }
-            else
-            {
-                result.Add(group.First());
-            }
-        }
-
-        return result;
-    }
-
-    private static Type GetColumnMemberType(ColumnDataType dataType)
-    {
-        switch (dataType)
-        {
-            case ColumnDataType.Date:
-                return typeof(DateTime);
-            case ColumnDataType.Boolean:
-                return typeof(bool);
-            case ColumnDataType.Currency:
-                return typeof(double);
-            case ColumnDataType.Hyperlink:
-                return typeof(string);
-            case ColumnDataType.List:
-                return typeof(string);
-            case ColumnDataType.Number:
-                return typeof(double);
-            case ColumnDataType.Text:
-                return typeof(string);
-            case ColumnDataType.MultilineText:
-                return typeof(string);
-        }
-        return typeof(string);
-    }
-
-    public async Task<ObservableCollection<ExpandoObject>> GetDataAsync(List<int> tableIds, SummaryFormat format)
-    {
-        var rawRows = new List<Dictionary<string, object>>();
-        switch (format)
-        {
-            case SummaryFormat.EquipmentsSummary:
-                rawRows = await _summaryRepository.GetDataForEquipmentsAsync(tableIds);
-                break;
-        }
-        var collection = new ObservableCollection<ExpandoObject>();
-        foreach (var dictRow in rawRows)
-        {
-            dynamic expando = new ExpandoObject();
-            var expandoDict = (IDictionary<string, object>)expando;
-            foreach (var kv in dictRow)
-            {
-                expandoDict[kv.Key] = kv.Value;
-            }
-            collection.Add(expando);
-        }
-        return collection;
-    }
-
-    public async Task<List<(string, string)>> GetTableNamesForEquipmentSummaryAsync(List<int> columnIds)
-    {
-       return await _summaryRepository.GetTableNamesForEquipmentSummaryAsync(columnIds);
     }
     
     public void SelectItemAndChildren(ISummaryFileSystemItem? item)
@@ -352,5 +242,258 @@ public class SummaryService : ISummaryService
         }
 
         return result;
+    }
+
+    public async Task<List<DuplicateColumnInfo>> GetPotentialDuplicateColumnInfosAsync(int summaryId)
+    {
+        var allSelectedColumnsMetadata = await _summaryRepository.GetEquipmentReportColumnsMetadata(summaryId);
+        var potentialDuplicates = new List<DuplicateColumnInfo>();
+        var uniqueColumnKeysForComparison  = new Dictionary<string, ReportColumnMetadata>();
+
+        foreach (var currentMetadata in allSelectedColumnsMetadata)
+        {
+            bool shooldConsiderForAsking = !currentMetadata.MergedIntoColumnId.HasValue && !currentMetadata.IsMergeDecisionMade.HasValue;
+            
+            if (!shooldConsiderForAsking)
+            {
+                continue;
+            }
+            
+            var columnUniqueKey = currentMetadata.HeaderText;
+
+            if (uniqueColumnKeysForComparison .TryGetValue(columnUniqueKey, out var existingColumn))
+            {
+                potentialDuplicates.Add(new DuplicateColumnInfo
+                {
+                    ExistingColumn = existingColumn,
+                    DuplicateColumn = currentMetadata
+                });
+            }
+            else
+            {
+                uniqueColumnKeysForComparison .Add(columnUniqueKey, currentMetadata);
+            }
+        }
+        return potentialDuplicates;
+    }
+
+    public async Task<bool> ResolveDuplicateAndNotifyUserAsync(List<DuplicateColumnInfo> duplicatesToResolve)
+    {
+        bool changesMade = false;
+        foreach (var duplicateInfo in duplicatesToResolve)
+        {
+            string message = $"У звіті виявлено дві характеристики з однаковим заголовком: \n\n" +
+                             $"- Вихідна характеристика: '{duplicateInfo.ExistingColumn.HeaderText}' (з листа '{duplicateInfo.ExistingColumn.EquipmentSheetName}')\n" +
+                             $"- Дублікат: '{duplicateInfo.DuplicateColumn.HeaderText}' (з листа '{duplicateInfo.DuplicateColumn.EquipmentSheetName}')\n\n" +
+                             $"Об'єднати в одну характеристику?";
+            MessageBoxResult result = MessageBox.Show(message, "Об'єднання значень", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            bool userAcceptedMerge = (result == MessageBoxResult.Yes);
+
+            if (userAcceptedMerge)
+            {
+                await _summaryRepository.UpdateEquipmentSummaryMergedStatus(duplicateInfo.DuplicateColumn.EquipmentSummaryEntryId, duplicateInfo.ExistingColumn.CustomColumnId, true, true);
+                changesMade = true;
+            }
+            else
+            {
+                await _summaryRepository.UpdateEquipmentSummaryMergedStatus(
+                    duplicateInfo.DuplicateColumn.EquipmentSummaryEntryId,
+                    null, 
+                    false, 
+                    true); 
+                changesMade = true;
+            }
+        }
+
+        return changesMade;
+    }
+
+    private List<InternalGridColumnDefinition> GetProcessedInternalColumns(List<ReportColumnMetadata> allSelectedColumnsMetadata)
+    {
+        var displayColumnsInternal = new List<InternalGridColumnDefinition>();
+        var targetColumnMap = new Dictionary<int, InternalGridColumnDefinition>();
+        var uniqueHeaderTextMap = new Dictionary<string, InternalGridColumnDefinition>();
+
+        foreach (var currentMetadata in allSelectedColumnsMetadata.Where(m => !m.MergedIntoColumnId.HasValue))
+        {
+            var columnUniqueKey = currentMetadata.HeaderText;
+
+            if (!uniqueHeaderTextMap.ContainsKey(columnUniqueKey))
+            {
+                var newInternalColumn = new InternalGridColumnDefinition
+                {
+                    CustomColumnId = currentMetadata.CustomColumnId,
+                    HeaderText = currentMetadata.HeaderText,
+                    MappingName = currentMetadata.MappingName,
+                    EquipmentSheetName = currentMetadata.EquipmentSheetName,
+                    CustomTableId = currentMetadata.TableId,
+                    OriginalCustomColumnIds = new List<int> { currentMetadata.CustomColumnId },
+                    OriginalMappingNames = new List<string> { currentMetadata.MappingName },
+                    IsMergedTarget = false,
+                    ColumnSettings = currentMetadata.ColumnSettings
+                };
+                displayColumnsInternal.Add(newInternalColumn);
+                targetColumnMap.Add(newInternalColumn.CustomColumnId, newInternalColumn);
+                uniqueHeaderTextMap.Add(columnUniqueKey, newInternalColumn);
+            }
+            else
+            {
+                var newInternalColumn = new InternalGridColumnDefinition
+                {
+                    CustomColumnId = currentMetadata.CustomColumnId,
+                    HeaderText = currentMetadata.HeaderText,
+                    MappingName = currentMetadata.MappingName,
+                    EquipmentSheetName = currentMetadata.EquipmentSheetName,
+                    CustomTableId = currentMetadata.TableId,
+                    OriginalCustomColumnIds = new List<int> { currentMetadata.CustomColumnId },
+                    OriginalMappingNames = new List<string> { currentMetadata.MappingName },
+                    IsMergedTarget = false,
+                    ColumnSettings = currentMetadata.ColumnSettings
+                };
+                displayColumnsInternal.Add(newInternalColumn);
+                targetColumnMap.Add(newInternalColumn.CustomColumnId, newInternalColumn);
+            }
+        }
+
+        foreach (var currentMetadata in allSelectedColumnsMetadata.Where(m => m.MergedIntoColumnId.HasValue))
+        {
+            if (targetColumnMap.TryGetValue(currentMetadata.MergedIntoColumnId.Value, out var targetColumn))
+            {
+                targetColumn.OriginalCustomColumnIds.Add(currentMetadata.CustomColumnId);
+                targetColumn.OriginalMappingNames.Add(currentMetadata.MappingName);
+                targetColumn.IsMergedTarget = true;
+            }
+        }
+
+        return displayColumnsInternal;
+    }
+
+
+    public async Task<List<ReportGridColumn>> GetReportGridColumnsAsync(int summaryId, CancellationToken ct = default)
+    {
+        var allSelectedColumnsMetadata = await _summaryRepository.GetEquipmentReportColumnsMetadata(summaryId, ct);
+        var processedInternalColumns = GetProcessedInternalColumns(allSelectedColumnsMetadata);
+
+        return processedInternalColumns.Select(c => new ReportGridColumn
+        {
+            HeaderText = c.HeaderText,
+            MappingName = c.MappingName,
+            ColumnSettings = c.ColumnSettings
+        }).ToList();
+    }
+
+    public async Task<List<ReportStackedHeaderRowDefinition>> GetStackedHeaderRowsDefinitionsAsync(int summaryId, CancellationToken ct = default)
+    {
+        var allSelectedColumnsMetadata = await _summaryRepository.GetEquipmentReportColumnsMetadata(summaryId, ct);
+        var processedInternalColumns = GetProcessedInternalColumns(allSelectedColumnsMetadata);
+
+        var finalStackedHeaderRows = new List<ReportStackedHeaderRowDefinition>();
+
+        // Группируем колонки по имени листа (EquipmentSheetName)
+        var groupedNonMergedColumns = processedInternalColumns
+            .Where(c => !c.IsMergedTarget)
+            .GroupBy(c => c.EquipmentSheetName);
+
+        foreach (var sheetGroup in groupedNonMergedColumns)
+        {
+            var stackedRowDefinition = new ReportStackedHeaderRowDefinition();
+
+            var stackedColumnDefinition = new ReportStackedHeaderColumnDefinition
+            {
+                HeaderText = sheetGroup.Key,
+                MappingName = $"Sheet_{sheetGroup.Key.Replace(" ", "")}_Details",
+                ChildColumnMappingNames = sheetGroup.Select(c => c.MappingName).ToList()
+            };
+
+            stackedRowDefinition.StackedColumns.Add(stackedColumnDefinition);
+            finalStackedHeaderRows.Add(stackedRowDefinition);
+        }
+
+        return finalStackedHeaderRows;
+    }
+
+    public async Task<ObservableCollection<ExpandoObject>> GetReportItemsAsync(int summaryId, CancellationToken ct = default)
+    {
+       var allSelectedColumnsMetadata = await _summaryRepository.GetEquipmentReportColumnsMetadata(summaryId, ct);
+       var internalProcessedColumns = GetProcessedInternalColumns(allSelectedColumnsMetadata);
+       var customTableIdsToFetchData = allSelectedColumnsMetadata.Select(m => m.TableId).Distinct().ToList();
+
+       if (!customTableIdsToFetchData.Any())
+           return new ObservableCollection<ExpandoObject>();
+       
+       var allRawData = await _summaryRepository.GetRawDataForEquipmentsAsync(customTableIdsToFetchData, ct);
+
+       var list = new List<ExpandoObject>();
+
+       foreach (var rawDataEntry in allRawData)
+       {
+           ct.ThrowIfCancellationRequested();
+
+           dynamic row = new ExpandoObject();
+           var rowDictionary = (IDictionary<string, object>)row;
+
+           var parsedJson = JsonConvert.DeserializeObject<Dictionary<string, object>>(rawDataEntry.RowDataJsonb);
+           if (parsedJson is null) continue;
+
+           foreach (var colDef in internalProcessedColumns)
+               rowDictionary[colDef.MappingName] = null;
+
+           foreach (var colDef in internalProcessedColumns)
+           {
+               object? value = null;
+
+               if (colDef.IsMergedTarget)
+               {
+                   var merged = colDef.OriginalMappingNames
+                       .Where(parsedJson.ContainsKey)
+                       .Select(n => parsedJson[n])
+                       .Where(v => v != null)
+                       .ToList();
+                   value = AggregateValuesForMergedColumn(merged);
+               }
+               else
+               {
+                   if (parsedJson.TryGetValue(colDef.OriginalMappingNames.FirstOrDefault() ?? "", out var v))
+                       value = v;
+               }
+
+               rowDictionary[colDef.MappingName] = value;
+           }
+
+           list.Add(row);
+       }
+       return new ObservableCollection<ExpandoObject>(list);
+    }
+    
+    private object AggregateValuesForMergedColumn(List<object> values)
+    {
+        if (!values.Any())
+        {
+            return null;
+        }
+        var stringValues = values.Where(v => v != null)
+            .Select(v => v.ToString())
+            .Where(s => !string.IsNullOrWhiteSpace(s))
+            .Distinct()
+            .ToList();
+
+        if (stringValues.Any())
+        {
+            return string.Join(", ", stringValues);
+        }
+        return null;
+    }
+        
+    private class InternalGridColumnDefinition
+    {
+        public int CustomColumnId { get; set; }
+        public string HeaderText { get; set; } 
+        public string MappingName { get; set; } 
+        public string EquipmentSheetName { get; set; }
+        public int CustomTableId { get; set; }
+        public List<int> OriginalCustomColumnIds { get; set; } = new List<int>();
+        public List<string> OriginalMappingNames { get; set; } = new List<string>();
+        public bool IsMergedTarget { get; set; } = false;
+        public ColumnSettingsDisplayModel ColumnSettings { get; set; } = new();
     }
 }

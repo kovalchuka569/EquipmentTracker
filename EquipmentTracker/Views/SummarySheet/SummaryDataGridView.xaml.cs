@@ -1,5 +1,6 @@
 ﻿using System.Windows.Controls;
 using System.Windows.Input;
+using Syncfusion.UI.Xaml.Grid;
 
 namespace EquipmentTracker.Views.SummarySheet;
 
@@ -27,4 +28,5 @@ public partial class SummaryDataGridView : UserControl
             e.Handled = true;
         }
     }
+    
 }

@@ -1,30 +1,36 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using Models.Enums;
 using Prism.Mvvm;
 
 namespace Models.EquipmentTree
 {
     public class FileItem : BindableBase, IFileSystemItem
     {
-        private int _id;
+        private Guid _id;
         private string _name;
-        private int _parentIdFolder;
+        private Guid? _folderId;
         private string _imageIcon;
         private FileFormat _fileFormat;
-        private int? _summaryId;
+        private MenuType _menuType;
+        private Guid? _summaryId;
+        private Guid? _equipmentSheetId;
         private bool _isHighlited;
         private bool _isVisible = true;
 
-        private int? _tableId;
+        private Guid? _tableId;
         private Dictionary<string, int> _connections = new();
 
         public ObservableCollection<IFileSystemItem> Children { get; } = new();
         
-        // Показывает наличие связей: для Equipments всегда true, иначе зависит от Connections.
-        public bool HaveConnects => FileFormat == FileFormat.EquipmentSheet || FileFormat == FileFormat.Summary || Connections.Any();
+        public bool HaveConnects => FileFormat == FileFormat.EquipmentSheet || FileFormat == FileFormat.SummaryEquipment 
+                                                                            || FileFormat == FileFormat.SummaryRepairs 
+                                                                            || FileFormat == FileFormat.SummaryServices 
+                                                                            || FileFormat == FileFormat.SummaryWriteOff 
+                                                                            || Connections.Any();
         
-        public int Id
+        public Guid Id
         {
             get => _id;
             set => SetProperty(ref _id, value);
@@ -38,10 +44,10 @@ namespace Models.EquipmentTree
         
         public bool IsExpanded { get; set; }
 
-        public int ParentIdFolder
+        public Guid? FolderId
         {
-            get => _parentIdFolder;
-            set => SetProperty(ref _parentIdFolder, value);
+            get => _folderId;
+            set => SetProperty(ref _folderId, value);
         }
 
         public Dictionary<string, int> Connections
@@ -57,7 +63,7 @@ namespace Models.EquipmentTree
         public string ImageIcon => _fileFormat switch
         {
             FileFormat.EquipmentSheet or FileFormat.RepairsSheet or FileFormat.ServicesSheet or FileFormat.WriteOffSheet => "Assets/file.png",
-            FileFormat.Summary => "Assets/summary.png",
+            FileFormat.SummaryEquipment or FileFormat.SummaryRepairs or FileFormat.SummaryServices or FileFormat.SummaryWriteOff  => "Assets/summary.png",
             _ => String.Empty
         };
 
@@ -67,10 +73,22 @@ namespace Models.EquipmentTree
             set => SetProperty(ref _fileFormat, value);
         }
 
-        public int? SummaryId
+        public MenuType MenuType
+        {
+            get => _menuType;
+            set => SetProperty(ref _menuType, value);
+        }
+
+        public Guid? SummaryId
         {
             get => _summaryId;
             set => SetProperty(ref _summaryId, value);
+        }
+
+        public Guid? EquipmentSheetId
+        {
+            get => _equipmentSheetId;
+            set => SetProperty(ref _equipmentSheetId, value);
         }
         
         public bool IsHighlited
@@ -85,7 +103,7 @@ namespace Models.EquipmentTree
             set => SetProperty(ref _isVisible, value);
         }
 
-        public int? TableId
+        public Guid? TableId
         {
             get => _tableId;
             set => SetProperty(ref _tableId, value);

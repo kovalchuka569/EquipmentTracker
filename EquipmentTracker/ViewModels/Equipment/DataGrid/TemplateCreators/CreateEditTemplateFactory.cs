@@ -4,13 +4,14 @@ using System.Security;
 using System.Windows;
 using System.Windows.Markup;
 using Models.Equipment;
+using Models.Equipment.ColumnSettings;
 using Models.Equipment.ColumnSpecificSettings;
 
 namespace EquipmentTracker.ViewModels.Equipment.DataGrid.TemplateCreators;
 
 public class CreateEditTemplateFactory
 {
-    public DataTemplate CreateEditTemplate(ColumnSettings settings)
+    public DataTemplate CreateEditTemplate(ColumnSettingsDisplayModel settings)
     {
         string mappingName = settings.MappingName;
         
@@ -86,7 +87,7 @@ public class CreateEditTemplateFactory
 
     private DataTemplate CreateEditListTemplate(ListColumnSettings listColumnSettings, string mappingName)
     {
-        ObservableCollection<string> items = listColumnSettings.ListValues;
+        List<string> items = listColumnSettings.ListValues;
         string comboBoxItems = string.Join("", items.Select(item => 
             $"<ComboBoxItem Content=\"{SecurityElement.Escape(item)}\"/>"));
         

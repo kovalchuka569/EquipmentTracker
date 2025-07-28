@@ -1,6 +1,7 @@
 using Common.Logging;
 using Data.ApplicationDbContext;
 using Models.Equipment;
+using Models.Equipment.ColumnSettings;
 using Models.Equipment.ColumnSpecificSettings;
 using Models.EquipmentTree;
 using Models.Summary.DataGrid;
@@ -196,7 +197,7 @@ public class SummaryRepository : ISummaryRepository
             reportColumnMetadata.UserAcceptedMerge = reader.GetValueOrDefault<bool>("user_accepted_merge");
             reportColumnMetadata.IsMergeDecisionMade = reader.GetValueOrDefault<bool?>("is_merge_decision_made");
             
-            var columnSettings = JsonConvert.DeserializeObject<ColumnSettings>(reader.GetValueOrDefault<string>("column_settings"));
+            var columnSettings = JsonConvert.DeserializeObject<ColumnSettingsDisplayModel>(reader.GetValueOrDefault<string>("column_settings"));
             if (columnSettings != null && columnSettings.SpecificSettings is JObject jObject)
             {
                 columnSettings.SpecificSettings = DeserializeSpecificSettings(columnSettings.DataType, jObject);

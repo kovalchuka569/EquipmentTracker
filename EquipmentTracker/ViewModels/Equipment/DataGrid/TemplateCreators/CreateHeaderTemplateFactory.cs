@@ -1,12 +1,13 @@
 ﻿using System.Windows;
 using System.Windows.Markup;
 using Models.Equipment;
+using Models.Equipment.ColumnSettings;
 
 namespace EquipmentTracker.ViewModels.Equipment.DataGrid.TemplateCreators;
 
 public class CreateHeaderTemplateFactory
 {
-    public DataTemplate CreateHeaderTemplate(ColumnSettings settings)
+    public DataTemplate CreateHeaderTemplate(ColumnSettingsDisplayModel settings)
     {
         string xamlTemplate =
             $@"<DataTemplate 

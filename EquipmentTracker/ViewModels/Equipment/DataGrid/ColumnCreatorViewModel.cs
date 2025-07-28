@@ -12,6 +12,7 @@ using System.Windows.Media;
 using Core.Services.EquipmentDataGrid;
 using Models.Equipment;
 using Models.Equipment.ColumnCreator;
+using Models.Equipment.ColumnSettings;
 using Models.Equipment.ColumnSpecificSettings;
 using Prism.Commands;
 using Prism.Mvvm;
@@ -29,8 +30,7 @@ public class ColumnCreatorViewModel : BindableBase, INavigationAware, IDisposabl
     private Action<ColumnCreationResult> _columnCreationCallback;
     private Action<ColumnEditingResult> _columnEditingCallback;
     private IRegionManager _scopedRegionManager;
-    private Style _baseGridHeaderStyle;
-    private readonly IEquipmentDataGridService _equipmentDataGridService;
+    private readonly IEquipmentSheetService _equipmentSheetService;
     public Columns PreviewColumn { get; } = new();
     
     public ObservableCollection<ExpandoObject> PreviewItems { get; } = new();
@@ -82,13 +82,6 @@ public class ColumnCreatorViewModel : BindableBase, INavigationAware, IDisposabl
         }
         
         // Individual selectors
-        
-        private ComboBoxRegularExpression _selectedRegularExpression;
-        public ComboBoxRegularExpression SelectedRegularExpression
-        {
-            get => _selectedRegularExpression;
-            set => SetProperty(ref _selectedRegularExpression, value);
-        }
         
         private ComboBoxDateFormat _selectedDateFormat;
         public ComboBoxDateFormat SelectedDateFormat
@@ -275,7 +268,18 @@ public class ColumnCreatorViewModel : BindableBase, INavigationAware, IDisposabl
     
     private double _columnWidth;
 
-    public ObservableCollection<string> ListValues { get; set; } = new();
+    private List<string> _listValues = new();
+    public List<string> ListValues
+    {
+        get => _listValues;
+        set
+        {
+            if (SetProperty(ref _listValues, value))
+            {
+                RaisePropertyChanged(nameof(NullListValueVisibility));
+            }
+        }
+    }
     
     private string _newValue;
     public string NewValue
@@ -284,12 +288,7 @@ public class ColumnCreatorViewModel : BindableBase, INavigationAware, IDisposabl
         set => SetProperty(ref _newValue, value);
     }
 
-    private bool _nullListValueVisibility = true;
-    public bool NullListValueVisibility
-    {
-        get => _nullListValueVisibility;
-        set => SetProperty(ref _nullListValueVisibility, value);
-    }
+    public bool NullListValueVisibility => !ListValues.Any();
 
     private double _topBorderThickness;
     public double TopBorderThickness
@@ -319,13 +318,6 @@ public class ColumnCreatorViewModel : BindableBase, INavigationAware, IDisposabl
         set => SetProperty(ref _bottomBorderThickness, value);
     }
 
-    private string _errorContent;
-    public string ErrorContent
-    {
-        get => _errorContent;
-        set => SetProperty(ref _errorContent, value);
-    }
-
     private bool _isDataTypeComboBoxEnabled = true;
     public bool IsDataTypeComboBoxEnabled
     {
@@ -335,7 +327,6 @@ public class ColumnCreatorViewModel : BindableBase, INavigationAware, IDisposabl
     
     private bool _isEditing;
     private ColumnItem _editingColumn;
-    private int _editingColumnId;
     private string _mappingName;
     
     public void OnNavigatedTo(NavigationContext navigationContext)
@@ -350,10 +341,6 @@ public class ColumnCreatorViewModel : BindableBase, INavigationAware, IDisposabl
         {   
             _scopedRegionManager = scopedRegionManager;
         }
-        if (navigationContext.Parameters["BaseHeaderStyle"] is Style baseHeaderStyle)
-        {   
-            _baseGridHeaderStyle = baseHeaderStyle;
-        }
         if (navigationContext.Parameters["EditingColumnItem"] is ColumnItem editingColumnItem)
         {
             _editingColumn = editingColumnItem;
@@ -364,11 +351,6 @@ public class ColumnCreatorViewModel : BindableBase, INavigationAware, IDisposabl
             _columnEditingCallback = editingCallback;
             LoadEditingProperties();
         }
-        
-        ListValues.CollectionChanged += (sender, args) =>
-        {
-            NullListValueVisibility = ListValues.Count == 0;
-        };
     }
 
     public bool IsNavigationTarget(NavigationContext navigationContext) => true;
@@ -382,9 +364,9 @@ public class ColumnCreatorViewModel : BindableBase, INavigationAware, IDisposabl
     public DelegateCommand<string> RemoveValueCommand { get; }
     public DelegateCommand UpdatePreviewCommand { get; }
     public DelegateCommand SaveColumnCommand { get; }
-    public ColumnCreatorViewModel(IEquipmentDataGridService equipmentDataGridService)
+    public ColumnCreatorViewModel(IEquipmentSheetService equipmentSheetService)
     {
-        _equipmentDataGridService = equipmentDataGridService;
+        _equipmentSheetService = equipmentSheetService;
         
         CloseColumnCreatorCommand = new DelegateCommand(OnCloseColumnCreator);
         AddNewValueCommand = new DelegateCommand(OnAddNewValue);
@@ -414,7 +396,7 @@ public class ColumnCreatorViewModel : BindableBase, INavigationAware, IDisposabl
 
     private async void CreatingColumn()
     {
-        var columnSettings = new ColumnSettings
+        var columnSettings = new ColumnSettingsDisplayModel()
         {
             DataType = SelectedColumnType.ColumnDataType,
 
@@ -494,7 +476,6 @@ public class ColumnCreatorViewModel : BindableBase, INavigationAware, IDisposabl
         {
             ColumnDataType.Text => new TextColumnSettings
             {
-                RegularExpressionPattern = SelectedRegularExpression.RegularExpressionPattern,
                 MaxLength = MaxTextLength,
                 MinLength = MinTextLength,
             },
@@ -537,7 +518,6 @@ public class ColumnCreatorViewModel : BindableBase, INavigationAware, IDisposabl
             case ColumnDataType.Text:
                 if (settings is TextColumnSettings textColumnSettings)
                 {
-                    SelectedRegularExpression = ComboBoxConfig.RegularExpressions.FirstOrDefault(x => x.RegularExpressionPattern == textColumnSettings.RegularExpressionPattern);
                     MinTextLength = textColumnSettings.MinLength;
                     MaxTextLength = textColumnSettings.MaxLength;
                 }
@@ -574,7 +554,7 @@ public class ColumnCreatorViewModel : BindableBase, INavigationAware, IDisposabl
                 if (settings is ListColumnSettings listColumnSettings)
                 {
                     ListValues = listColumnSettings.ListValues;
-                    NullListValueVisibility = ListValues.Count == 0;
+                    RaisePropertyChanged(nameof(NullListValueVisibility));
                 }
                 break;
             case ColumnDataType.MultilineText:
@@ -633,7 +613,6 @@ public class ColumnCreatorViewModel : BindableBase, INavigationAware, IDisposabl
         _mappingName = Guid.NewGuid().ToString("N");
         
         // Text
-        SelectedRegularExpression = ComboBoxConfig.RegularExpressions.First();
         MinTextLength = 0;
         MaxTextLength = 100;
         
@@ -853,7 +832,7 @@ public class ColumnCreatorViewModel : BindableBase, INavigationAware, IDisposabl
         {
             VisualTree = headerTextBlockFactory
         };
-        var headerStyle = new Style(typeof(GridHeaderCellControl), _baseGridHeaderStyle);
+        var headerStyle = new Style(typeof(GridHeaderCellControl));
         headerStyle.Setters.Add(new Setter(GridHeaderCellControl.BorderThicknessProperty, new Thickness(LeftBorderThickness, TopBorderThickness, RightBorderThickness, BottomBorderThickness)));
         headerStyle.Setters.Add(new Setter(GridHeaderCellControl.FontSizeProperty, SelectedHeaderFontSize.FontSize));
         headerStyle.Setters.Add(new Setter(GridHeaderCellControl.FontWeightProperty, SelectedHeaderFontWeight.FontWeight));

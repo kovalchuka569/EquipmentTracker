@@ -1,6 +1,8 @@
-﻿namespace Models.Equipment.ColumnSpecificSettings;
+﻿using Models.Table;
 
-public class NumberColumnSettings
+namespace Models.Equipment.ColumnSpecificSettings;
+
+public class NumberColumnSettings : ColumnSpecificSettingsBase
 {
     public int CharactersAfterComma { get; set; }
     public double MinValue { get; set; }

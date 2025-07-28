@@ -41,6 +41,7 @@
                 <Image Source="about_dark.png" Width="16" Height="16" VerticalAlignment="Center" HorizontalAlignment="Center"/>
             </Button>
         </local:VersionTemplate>
+        
     </sf:ChromelessWindow.Resources>
   
     <!--On default view-->

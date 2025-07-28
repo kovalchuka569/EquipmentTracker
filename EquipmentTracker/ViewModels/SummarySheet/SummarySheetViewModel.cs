@@ -4,18 +4,26 @@ using EquipmentTracker.Common;
 using EquipmentTracker.Constants.Common;
 using Models.EquipmentTree;
 using EquipmentTracker.Constants.Summary;
+using EquipmentTracker.Events.Summary;
 
 namespace EquipmentTracker.ViewModels.SummarySheet;
 
 public class SummarySheetViewModel : BindableBase, INavigationAware, IDestructible
 {
+    private bool _isInitialized;
     public async void OnNavigatedTo(NavigationContext navigationContext)
     {
+        if(_isInitialized) return;
+        
         GetNavigationParameters(navigationContext.Parameters);
+        
+        SubscribeToEvents();
         
         await GetSummaryFormatAsync();
         
         NavigateTreeAndGrid();
+        
+        _isInitialized = true;
     }
     public bool IsNavigationTarget(NavigationContext navigationContext) => true;
     public void OnNavigatedFrom(NavigationContext navigationContext) {}
@@ -31,6 +39,14 @@ public class SummarySheetViewModel : BindableBase, INavigationAware, IDestructib
         get => _progressbarVisibility;
         set => SetProperty(ref _progressbarVisibility, value);
     }
+
+    private bool _isOverlayVisible;
+    public bool IsOverlayVisible
+    {
+        get => _isOverlayVisible;
+        set => SetProperty(ref _isOverlayVisible, value);
+    }
+    
 
     // Constructor
     public SummarySheetViewModel(ISummaryService summaryService, IAppLogger<SummarySheetViewModel> logger)
@@ -52,6 +68,11 @@ public class SummarySheetViewModel : BindableBase, INavigationAware, IDestructib
         }
     }
     
+    private void ShowOverlay(bool isVisible)
+    {
+        IsOverlayVisible = isVisible;
+    }
+    
     private void NavigateTreeAndGrid()
     {
         if (_scopedRegionManager is null || _scopedEventAggregator is null) return;
@@ -61,7 +82,8 @@ public class SummarySheetViewModel : BindableBase, INavigationAware, IDestructib
             { NavigationConstants.ScopedRegionManager, _scopedRegionManager },
             { NavigationConstants.ScopedEventAggregator, _scopedEventAggregator },
             { SummaryNavigationConstants.SummaryId, _summaryId },
-            { SummaryNavigationConstants.SummaryFormat, _summaryFormat }
+            { SummaryNavigationConstants.SummaryFormat, _summaryFormat },
+            { SummaryNavigationConstants.SummaryName, _summaryName },
         };
         
         _scopedRegionManager.RequestNavigate(SummaryRegionConstants.SummaryColumnTreeRegion, SummaryViewConstants.SummaryColumnTreeView, parameters);
@@ -73,6 +95,7 @@ public class SummarySheetViewModel : BindableBase, INavigationAware, IDestructib
     private IRegionManager? _scopedRegionManager;
     private EventAggregator? _scopedEventAggregator;
     private int _summaryId;
+    private string _summaryName;
     private SummaryFormat _summaryFormat;
     private void GetNavigationParameters(INavigationParameters parameters)
     {
@@ -88,13 +111,29 @@ public class SummarySheetViewModel : BindableBase, INavigationAware, IDestructib
         {
             _summaryId = summaryId;
         }
+        if (parameters[SummaryNavigationConstants.SummaryName] is string summaryName)
+        {
+            _summaryName = summaryName;
+        }
+    }
+
+    private void SubscribeToEvents()
+    {
+        _scopedEventAggregator?.GetEvent<ShowSheetOverlayEvent>().Subscribe(ShowOverlay);
+    }
+
+    private void UnsubscribeFromEvents()
+    {
+        _scopedEventAggregator?.GetEvent<ShowSheetOverlayEvent>().Unsubscribe(ShowOverlay);
     }
 
     // Destroyer
     public void Destroy()
     {
+        UnsubscribeFromEvents();
         RegionCleaner.CleanUpRegions(_scopedRegionManager);
         _scopedRegionManager = null;
         _scopedEventAggregator = null;
     }
+    
 }

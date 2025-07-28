@@ -373,7 +373,7 @@
     <value>Зелений жовтий</value>
   </data>
   <data name="Height" xml:space="preserve">
-    <value>Висота</value>
+    <value>Вис.</value>
   </data>
   <data name="Honeydew" xml:space="preserve">
     <value>Медовий</value>
@@ -412,7 +412,7 @@
     <value>Трав'яний зелений</value>
   </data>
   <data name="Left" xml:space="preserve">
-    <value>Ліворуч</value>
+    <value>Лів.:</value>
   </data>
   <data name="LemonChiffon" xml:space="preserve">
     <value>Лимонний шифон</value>
@@ -700,7 +700,7 @@
     <value>Фіолетвоий</value>
   </data>
   <data name="QuickPrint" xml:space="preserve">
-    <value>Швидкий друк</value>
+    <value>Експрес</value>
   </data>
   <data name="RadialGradient" xml:space="preserve">
     <value>Радіальний градієнт</value>
@@ -724,7 +724,7 @@
     <value>RGB</value>
   </data>
   <data name="Right" xml:space="preserve">
-    <value>Праворуч</value>
+    <value>Прав.:</value>
   </data>
   <data name="Rose" xml:space="preserve">
     <value>Рожевий</value>
@@ -871,7 +871,7 @@
     <value>Білий дим</value>
   </data>
   <data name="Width" xml:space="preserve">
-    <value>Ширина</value>
+    <value>Шир.</value>
   </data>
   <data name="Yellow" xml:space="preserve">
     <value>Жовтий</value>

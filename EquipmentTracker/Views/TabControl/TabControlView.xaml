@@ -63,42 +63,52 @@
                 <Setter Property="Opacity" Value="0"/>
             </Style>
 
-            <DataTemplate x:Key="AnimatedContentTemplate">
-                <ContentPresenter Content="{Binding GenericTab}" Style="{StaticResource {x:Type ContentPresenter}}"/>
-            </DataTemplate>
+                <DataTemplate x:Key="ContentTemplate">
+                    <ContentPresenter Content="{Binding GenericTab}" Style="{StaticResource {x:Type ContentPresenter}}"/>
+                </DataTemplate>
 
         </ResourceDictionary>
     </UserControl.Resources>
 
     <Grid>
-        <sf:TabControlExt  CloseButtonType="IndividualOnMouseOver"
-                           IsDisableUnloadTabItemExtContent="True"
+        <sf:TabControlExt  CloseButtonType="Individual"
                            IsSynchronizedWithCurrentItem="True"
-                           TabItemHeaderStyle="Fill"
+                           TabItemHeaderStyle="Underline"
+                           EnableAutoScroll="False"
                            EnableLabelEdit="False"
                            CloseMode="Delete"
                            IsLazyLoaded="True"
-                           HotTrackingEnabled="True"
                            IsCustomTabItemContextMenuEnabled="True"
                            AllowDragDrop="True"
                            ItemsSource="{Binding TabItems}"
                            SelectedItem="{Binding SelectedTabItem}"
-                           ContentTemplate="{StaticResource AnimatedContentTemplate}"
-                           DefaultContextMenuItemVisibility="Collapsed">
-
+                           ContentTemplate="{StaticResource ContentTemplate}"
+                           TabItemLayout="MultiLine"
+                           DefaultContextMenuItemVisibility="Collapsed"
+                           IsDisableUnloadTabItemExtContent="False">
+            
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="TabClosing">
+                    <i:InvokeCommandAction Command="{Binding TabClosingCommand}"
+                                           PassEventArgsToCommand="True"/>
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+            
             <sf:TabControlExt.ItemTemplate>
                 <DataTemplate>
                     <TextBlock Text="{Binding Header}" />
                 </DataTemplate>
             </sf:TabControlExt.ItemTemplate>
 
-            <sf:TabControlExt.ItemContainerStyle>
+                <sf:TabControlExt.ItemContainerStyle>
                 <Style TargetType="sf:TabItemExt" BasedOn="{StaticResource SyncfusionTabItemExtStyle}">
                     
+                    <Setter Property="AllowPin" Value="True"/>
+                    <Setter Property="ShowPin" Value="True"/>
                     <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
                     <Setter Property="RenderTransform">
                         <Setter.Value>
-                            <TranslateTransform X="-60"/>
+                            <TranslateTransform X="-70"/>
                         </Setter.Value>
                     </Setter>
                     <Setter Property="Opacity" Value="0"/>
@@ -114,19 +124,30 @@
                     </Setter>
                     
                     <Style.Triggers>
+                        
                         <EventTrigger RoutedEvent="FrameworkElement.Loaded">
                             <BeginStoryboard>
                                 <Storyboard>
                                     <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)"
-                                                     From="-60" To="0" Duration="0:0:0.3"/>
+                                                     From="-70" To="0" Duration="0:0:0.4"/>
                                     <DoubleAnimation Storyboard.TargetProperty="Opacity"
-                                                     From="0" To="1" Duration="0:0:0.3"/>
+                                                     From="0" To="1" Duration="0:0:0.4"/>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                        
+                        <EventTrigger RoutedEvent="sf:TabControlExt.TabClosing">
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)"
+                                                     From="0" To="70" Duration="0:0:0.4"/>
+                                    <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                     From="1" To="0" Duration="0:0:0.4"/>
                                 </Storyboard>
                             </BeginStoryboard>
                         </EventTrigger>
                         
                     </Style.Triggers>
-                    
                     
 
                 </Style>

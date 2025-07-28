@@ -1,50 +1,57 @@
 ﻿using System.Collections.ObjectModel;
 using Common.Logging;
 using Data.Repositories.EquipmentTree;
+using Data.Repositories.Interfaces;
+using Data.Repositories.Interfaces.EquipmentSheet;
+using Data.Repositories.Interfaces.SummarySheet;
+using Models.Entities.EquipmentSheet;
+using Models.Entities.FileSystem;
+using Models.Entities.SummarySheet;
 using Models.EquipmentTree;
-using Models.NavDrawer;
+using Models.Enums;
+using Data.UnitOfWork;
 
 namespace Core.Services.EquipmentTree;
 
-public class EquipmentTreeService : IEquipmentTreeService
-{
-    private IAppLogger<EquipmentTreeService> _logger;
-    private IEquipmentTreeRepository _repository;
-    
-    public EquipmentTreeService(IAppLogger<EquipmentTreeService> logger, IEquipmentTreeRepository repository )
+public class EquipmentTreeService(IAppLogger<EquipmentTreeService> logger, IEquipmentTreeRepository repository, 
+    IFoldersRepository foldersRepository, 
+    IFilesRepository filesRepository,
+    IEquipmentSheetRepository equipmentSheetRepository,
+    ISummarySheetsRepository summarySheetRepository,
+    IUnitOfWork unitOfWork)
+    : IEquipmentTreeService
+{                   
+    public async Task<ObservableCollection<IFileSystemItem>> BuildHierarchy(MenuType menuType)
     {
-        _logger = logger;
-        _repository = repository;
-    }
-
-    public async Task <ObservableCollection<IFileSystemItem>> BuildHierarchy(MenuType menuType)
-    {
-        var foldersFromDb = await _repository.GetFoldersAsync(menuType);
-        var filesFromDb = await _repository.GetFilesAsync(menuType);
+        await unitOfWork.EnsureInitializedForReadAsync();
+        
+        var foldersFromDb = await unitOfWork.FoldersRepository.GetListByMenuTypeAsync(menuType);
+        var filesFromDb = await unitOfWork.FilesRepository.GetListByMenuTypeAsync(menuType);
 
         var folderItems = foldersFromDb.Select(f => new FolderItem
         {
             Id = f.Id,
             Name = f.Name,
-            ParentId = f.ParentId
+            FolderId = f.FolderId
         }).ToList();
 
         var fileItems = filesFromDb.Select(f => new FileItem
         {
             Id = f.Id,
             Name = f.Name,
-            ParentIdFolder = f.FolderId,
+            FolderId = f.FolderId,
             FileFormat = f.FileFormat,
-            SummaryId = f.SummaryId,
-            TableId = f.TableId
+            EquipmentSheetId = (f as EquipmentFileEntity)?.EquipmentSheetId,
+            SummaryId = (f as SummaryFileEntity)?.SummarySheetId
         }).ToList();
+        
         
         var folderDict = folderItems.ToDictionary(f => f.Id);
         
         // Adding files in folders
         foreach (var file in fileItems)
         {
-            if (folderDict.TryGetValue(file.ParentIdFolder, out var parentFolder))
+            if (file.FolderId.HasValue && folderDict.TryGetValue(file.FolderId.Value, out var parentFolder))
             {
                 parentFolder.AddFile(file);
             }
@@ -53,61 +60,95 @@ public class EquipmentTreeService : IEquipmentTreeService
         // Adding SubFolders
         foreach (var folder in folderItems)
         {
-            if (folder.ParentId != 0 && folderDict.TryGetValue(folder.ParentId.Value, out var parentFolder))
+            if (folder.FolderId is not null && folderDict.TryGetValue(folder.FolderId.Value, out var parentFolder))
             {
                 parentFolder.AddFolder(folder);
             }
         }
 
         return new ObservableCollection<IFileSystemItem>(folderItems
-            .Where(f => f.ParentId == 0));
+            .Where(f => f.FolderId is null));
     }
 
-    public async Task<int> CreateEquipmentTableAsync()
+    public async Task CreateFolderAsync(FolderItem folderItem, CancellationToken ct)
     {
-       return await _repository.CreateEquipmentTableAsync();
-    }
-
-    public async Task<int> CreateSummaryAsync(SummaryFormat summaryFormat)
-    {
-        return await _repository.CreateSummaryAsync(summaryFormat);
-    }
-
-    public async Task<int> CreateSummaryFileAsync(string name, int folderId, int summaryId, MenuType menuType)
-    {
-       return await _repository.CreateSummaryFileAsync(name, folderId, summaryId, menuType);
-    }
-
-    public async Task<int> CreateFolderAsync(string name, int? parentId, MenuType menuType)
-    {
-        try
+        var fileEntity = new FolderEntity
         {
-           return await _repository.CreateFolderAsync(name, parentId, menuType);
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e, "System error building hierachy");
-            throw;
-        }
+            Id = folderItem.Id,
+            Name = folderItem.Name,
+            FolderId = folderItem.FolderId,
+            MenuType = folderItem.MenuType,
+        };
+        await unitOfWork.BeginTransactionAsync(ct);
+        await unitOfWork.FoldersRepository.AddAsync(fileEntity, ct);
+        await unitOfWork.CommitAsync(ct);
     }
 
-    public async Task<int> CreateFileAsync(string name, FileFormat fileFormat, int folderId, int tableId, MenuType menuType)
+    public async Task CreateFileAsync(FileItem fileItem, FileFormat fileFormat, CancellationToken ct)
     {
-        try
+        Guid newSheetId = Guid.NewGuid();
+        await unitOfWork.BeginTransactionAsync(ct);
+        switch (fileFormat)
         {
-            return await _repository.CreateFileAsync(name, fileFormat, folderId, tableId, menuType);
+            case FileFormat.EquipmentSheet:
+                var newEquipmentSheet = new EquipmentSheetEntity
+                {
+                    Id = newSheetId,
+                    Deleted = false
+                };
+                await unitOfWork.EquipmentSheetRepository.AddAsync(newEquipmentSheet, ct);
+
+                var newEquipmentFileEntity = new EquipmentFileEntity
+                {
+                    Id = fileItem.Id,
+                    FolderId = fileItem.FolderId,
+                    Name = fileItem.Name,
+                    FileFormat = fileFormat,
+                    MenuType = fileItem.MenuType,
+                    EquipmentSheetId = newSheetId,
+                };
+                await unitOfWork.FilesRepository.AddAsync(newEquipmentFileEntity, ct);
+                break;
+            
+            case FileFormat.SummaryEquipment:
+                var newSummarySheetEntity = new SummarySheetEntity
+                {
+                    Id = newSheetId,
+                    Deleted = false
+                };
+                await unitOfWork.SummarySheetRepository.AddAsync(newSummarySheetEntity, ct);
+
+                var newSummaryFileEntity = new SummaryFileEntity
+                {
+                    Id = fileItem.Id,
+                    FolderId = fileItem.FolderId,
+                    Name = fileItem.Name,
+                    FileFormat = fileFormat,
+                    MenuType = fileItem.MenuType,
+                    SummarySheetId = newSheetId
+                };
+                await unitOfWork.FilesRepository.AddAsync(newSummaryFileEntity, ct);
+                break;
+            default:
+                    var newDefaultFileEntity = new FileEntity
+                    {
+                        Id = fileItem.Id,
+                        FolderId = fileItem.FolderId,
+                        Name = fileItem.Name,
+                        FileFormat = fileFormat,
+                        MenuType = fileItem.MenuType,
+                    };
+                    await unitOfWork.FilesRepository.AddAsync(newDefaultFileEntity, ct);
+                break;
         }
-        catch (Exception e)
-        {
-            _logger.LogError(e, "System error inserting folder");
-            throw;
-        }
+        await unitOfWork.CommitAsync(ct);
     }
 
-    public async Task<string> GenerateUniqueFileFolderNameAsync(string baseName, List<string> existingNames)
+
+    public string GenerateUniqueFileFolderName(string baseName, List<string> existingNames)
     {
-        if(!existingNames.Contains(baseName)) return baseName;
-        
+        if (!existingNames.Contains(baseName)) return baseName;
+
         int counter = 1;
         string newName;
         do
@@ -118,23 +159,17 @@ public class EquipmentTreeService : IEquipmentTreeService
         return newName;
     }
 
-
-
-    public async Task RenameFolderAsync(int folderId, string newName)
+    public async Task RenameFolderAsync(Guid folderId, string newName, CancellationToken ct)
     {
-        try
-        {
-            await _repository.RenameFolderAsync(folderId, newName);
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e, "System error renaming folder");
-            throw;
-        }
+        await unitOfWork.BeginTransactionAsync(ct);
+        await unitOfWork.FoldersRepository.RenameAsync(folderId, newName, ct);
+        await unitOfWork.CommitAsync(ct);
     }
 
-    public async Task RenameFileAsync(int fileId, string newName)
+    public async Task RenameFileAsync(Guid fileId, string newName, CancellationToken ct)
     {
-        await _repository.RenameFileAsync(fileId, newName);
+        await unitOfWork.BeginTransactionAsync(ct);
+        await unitOfWork.FilesRepository.RenameAsync(fileId, newName, ct);
+        await unitOfWork.CommitAsync(ct);
     }
 }

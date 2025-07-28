@@ -1,26 +1,36 @@
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Dynamic;
-using System.Windows;
 using Common.Logging;
 using Core.Services.Summary;
+using Data.Repositories.Summary;
+using EquipmentTracker.Common.DataGridExport;
 using EquipmentTracker.Constants.Common;
 using EquipmentTracker.Constants.Summary;
 using EquipmentTracker.Events.Summary;
 using Models.EquipmentTree;
 using Models.Summary.DataGrid;
+using Notification.Wpf;
 using Syncfusion.UI.Xaml.Grid;
+using Syncfusion.UI.Xaml.Grid.Helpers;
+using IDialogService = EquipmentTracker.Common.DialogService.IDialogService;
 
 namespace EquipmentTracker.ViewModels.SummarySheet;
 
 public class SummaryDataGridViewModel : BindableBase, INavigationAware, IDestructible
 {
-    public void OnNavigatedTo(NavigationContext navigationContext)
+    private bool _isInitialised;
+    public async void OnNavigatedTo(NavigationContext navigationContext)
     {
+        if(_isInitialised) return;
+        
         GetNavigationParameters(navigationContext.Parameters);
         
         SubscribeToEvents();
         
-        Reload();
+        await LoadSummaryData();
+        
+        _isInitialised = true;
     }
 
     public bool IsNavigationTarget(NavigationContext navigationContext) => true;
@@ -29,9 +39,11 @@ public class SummaryDataGridViewModel : BindableBase, INavigationAware, IDestruc
     // DI
     private readonly ISummaryService _summaryService;
     private readonly IAppLogger<SummaryDataGridViewModel> _logger;
+    private readonly NotificationManager _notificationManager;
+    private readonly ISummaryRepository _summaryRepository;
+    private readonly IDialogService _dialogService;
     
     // UI data
-    private List<int> _columnIds = new();
     private SfDataGrid _sfDataGrid;
     private Columns _columns = new();
     public Columns Columns
@@ -47,6 +59,26 @@ public class SummaryDataGridViewModel : BindableBase, INavigationAware, IDestruc
         set => SetProperty(ref _items, value);
     }
 
+    private ObservableCollection<ExpandoObject> _selectedItems = new();
+    public ObservableCollection<ExpandoObject> SelectedItems
+    {
+        get => _selectedItems;
+        set
+        {
+            if (SetProperty(ref _selectedItems, value))
+            {
+                Console.WriteLine("Selected items changed: " + SelectedItems.Count);
+            }
+        }
+    }
+
+    private StackedHeaderRows _stackedHeaderRows = new();
+    public StackedHeaderRows StackedHeaderRows
+    {
+        get => _stackedHeaderRows;
+        set => SetProperty(ref _stackedHeaderRows, value);
+    }
+
     private bool _progressbarVisibility;
     public bool ProgressbarVisibility
     {
@@ -55,20 +87,78 @@ public class SummaryDataGridViewModel : BindableBase, INavigationAware, IDestruc
     }
     
     // Commands
-    public DelegateCommand<SfDataGrid> SfDataGridLoadedCommand { get; }
+    public DelegateCommand<SfDataGrid> SfDataGridLoadedCommand { get; set; }
+    public DelegateCommand<CurrentCellRequestNavigateEventArgs> HyperlinkNavigateCommand { get; set; }
+    public DelegateCommand ExportToExcelCommand { get; set; }
+    public DelegateCommand ExportToPdfCommand { get; set; }
+    public DelegateCommand PrintCommand { get; set; }
     
     // Constructor
-    public SummaryDataGridViewModel(ISummaryService summaryService, IAppLogger<SummaryDataGridViewModel> logger)
+    public SummaryDataGridViewModel(ISummaryService summaryService, 
+        IAppLogger<SummaryDataGridViewModel> logger, 
+        NotificationManager notificationManager, 
+        IDialogService dialogService,
+        ISummaryRepository summaryRepository)
     {
         _summaryService = summaryService;
         _logger = logger;
+        _notificationManager = notificationManager;
+        _dialogService = dialogService;
+        _summaryRepository = summaryRepository;
         
         SfDataGridLoadedCommand = new DelegateCommand<SfDataGrid>(OnSfDataGridLoaded);
+        HyperlinkNavigateCommand = new DelegateCommand<CurrentCellRequestNavigateEventArgs>(OnHyperlinkNavigate);
+        ExportToExcelCommand = new DelegateCommand(OnExportToExcel);
+        ExportToPdfCommand = new DelegateCommand(OnExportToPdf);
+        PrintCommand = new DelegateCommand(OnPrint);
+    }
+
+    private void OnPrint()
+    {
+        _sfDataGrid.PrintSettings.PrintManagerBase = new PrintManager(_sfDataGrid);
+        _sfDataGrid.ShowPrintPreview();
+    }
+
+    private void OnExportToExcel()
+    {
+        ExcelExportManager.ExportToExcel(_sfDataGrid, _summaryName, _notificationManager);
+    }
+
+    private void OnExportToPdf()
+    {
+        PdfExportManager.ExportToPdf(_sfDataGrid, _summaryName, _notificationManager);
     }
 
     private void OnSfDataGridLoaded(SfDataGrid sfDataGrid)
     {
         _sfDataGrid = sfDataGrid;
+    }
+    
+
+    private void OnHyperlinkNavigate(CurrentCellRequestNavigateEventArgs e)
+    {
+        e.Handled = true;
+        try
+        {
+            string url = e.NavigateText;
+            
+            if (Uri.TryCreate(url, UriKind.Absolute, out Uri validUri))
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = validUri.ToString(),
+                    UseShellExecute = true
+                });
+            }
+            else
+            {
+                _notificationManager.Show("Невідомий формат посилання: " + url, NotificationType.Information);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to navigate to hyperlink");
+        }
     }
 
     private async void Reload()
@@ -76,7 +166,60 @@ public class SummaryDataGridViewModel : BindableBase, INavigationAware, IDestruc
         ProgressbarVisibility = true;
         try
         {
-            await LoadColumns();
+            await LoadSummaryData();
+        }
+        finally
+        {
+            await Task.Delay(300);
+            ProgressbarVisibility = false;
+        }
+    }
+
+    private async Task LoadSummaryData()
+    {
+        ProgressbarVisibility = true;
+        try
+        {
+            var duplicatesToResolve = await _summaryService.GetPotentialDuplicateColumnInfosAsync(_summaryId); 
+
+            if (duplicatesToResolve.Any())
+            {
+                await ResolveDuplicateAndNotifyUserAsync(duplicatesToResolve);
+            }
+            
+            var columnDefinitions = await _summaryService.GetReportGridColumnsAsync(_summaryId);
+            Columns.Clear();
+            var columnFactory = new GridColumnFactory();
+            foreach (var col in columnDefinitions)
+            {
+                Columns.Add(columnFactory.GetColumn(col.ColumnSettings, col.HeaderText, col.MappingName));
+            }
+    
+            Items = await _summaryService.GetReportItemsAsync(_summaryId);
+            
+            
+            var stackedHeaderRowDefinitions = await _summaryService.GetStackedHeaderRowsDefinitionsAsync(_summaryId);
+            StackedHeaderRows.Clear();
+            foreach (var rowDef in stackedHeaderRowDefinitions)
+            {
+                var newStackedHeaderRow = new StackedHeaderRow();
+                foreach (var colDef in rowDef.StackedColumns)
+                {
+                    newStackedHeaderRow.StackedColumns.Add(new StackedColumn
+                    {
+                        HeaderText = colDef.HeaderText,
+                        MappingName = colDef.MappingName,
+                        ChildColumns = string.Join(",", colDef.ChildColumnMappingNames),
+                    });
+                }
+                StackedHeaderRows.Add(newStackedHeaderRow);
+            }
+            _sfDataGrid.RefreshColumns();
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Failed to load summary data");
+            throw;
         }
         finally
         {
@@ -85,51 +228,45 @@ public class SummaryDataGridViewModel : BindableBase, INavigationAware, IDestruc
         }
     }
     
-    private async Task LoadColumns()
+    private async Task<bool> ResolveDuplicateAndNotifyUserAsync(List<DuplicateColumnInfo> duplicatesToResolve)
     {
-        try
+        bool changesMade = false;
+        string title = "У звіті виявлено дві характеристики з однаковим заголовком";
+        foreach (var duplicateInfo in duplicatesToResolve)
         {
-            Columns = await _summaryService.GetMergedColumnsAsync(_summaryId, _summaryFormat);
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e, "Error loading columns");
-            throw;
-        }
-    }
-    
-    
-    private async Task LoadRowsAsync()
-    {
-        var tableIds = Columns
-            .OfType<CustomGridTemplateColumn>()
-            .Select(c => c.TableId)
-            .Distinct()
-            .ToList();
+            string message = $"- Вихідна характеристика: '{duplicateInfo.ExistingColumn.HeaderText}' (з листа '{duplicateInfo.ExistingColumn.EquipmentSheetName}')\n" +
+                             $"- Дублікат: '{duplicateInfo.DuplicateColumn.HeaderText}' (з листа '{duplicateInfo.DuplicateColumn.EquipmentSheetName}')\n\n" +
+                             $"Об'єднати в одну характеристику?";
 
-        var rows = await _summaryService.GetDataAsync(tableIds, _summaryFormat);
-        foreach (var row in rows)
-            Items.Add(row);
-    }
-    
-    private void ApplyMergesToItems(Dictionary<string, string> mergeMap)
-    {
-        foreach (dynamic dyn in Items)
-        {
-            var dict = (IDictionary<string, object>)dyn;
-            foreach (var (src, dst) in mergeMap)
+            _scopedEventAggregator.GetEvent<ShowSheetOverlayEvent>().Publish(true);
+            bool result = await _dialogService.ShowInformationAgreementAsync(title, message, "Об'єднати", "Залишити окремо");
+            _scopedEventAggregator.GetEvent<ShowSheetOverlayEvent>().Publish(false);
+
+            if (result)
             {
-                if (dict.TryGetValue(src, out var val) && val is not null)
-                    dict[dst] = val;
+                await _summaryRepository.UpdateEquipmentSummaryMergedStatus(duplicateInfo.DuplicateColumn.EquipmentSummaryEntryId, duplicateInfo.ExistingColumn.CustomColumnId, true, true);
+                changesMade = true;
+            }
+            else
+            {
+                await _summaryRepository.UpdateEquipmentSummaryMergedStatus(
+                    duplicateInfo.DuplicateColumn.EquipmentSummaryEntryId,
+                    null, 
+                    false, 
+                    true); 
+                changesMade = true;
             }
         }
-    }
 
+        return changesMade;
+    }
+    
     // Navigation context data
     private IRegionManager _scopedRegionManager;
     private EventAggregator _scopedEventAggregator;
     private int _summaryId;
     private SummaryFormat _summaryFormat;
+    private string _summaryName;
     private void GetNavigationParameters(INavigationParameters parameters)
     {
         if (parameters[NavigationConstants.ScopedRegionManager] is IRegionManager scopedRegionManager)
@@ -148,12 +285,25 @@ public class SummaryDataGridViewModel : BindableBase, INavigationAware, IDestruc
         {
             _summaryFormat = summaryFormat;
         }
+        if (parameters[SummaryNavigationConstants.SummaryName] is string summaryName)
+        {
+            _summaryName = summaryName;
+        }
     }
 
     public void Destroy()
     {
-        Columns = new Columns();
-        Items = new ObservableCollection<ExpandoObject>();
+        if (StackedHeaderRows != null)
+            StackedHeaderRows.Clear(); 
+        else
+            StackedHeaderRows = new StackedHeaderRows();  
+        
+        Items.Clear(); 
+        Items = new ObservableCollection<ExpandoObject>(); 
+
+        Columns.Clear(); 
+        Columns = new Columns(); 
+
         UnsubscribeFromEvents();
     }
     

@@ -1,8 +1,9 @@
-﻿namespace Models.Equipment.ColumnSpecificSettings;
+﻿using Models.Table;
 
-public class TextColumnSettings
+namespace Models.Equipment.ColumnSpecificSettings;
+
+public class TextColumnSettings : ColumnSpecificSettingsBase
 {
-    public string RegularExpressionPattern { get; set; }
     public long MaxLength { get; set; }
     public long MinLength { get; set; }
 }

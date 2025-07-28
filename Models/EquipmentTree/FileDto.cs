@@ -1,4 +1,6 @@
-﻿namespace Models.EquipmentTree
+﻿using Models.Enums;
+
+namespace Models.EquipmentTree
 {
     public class FileDto
     {

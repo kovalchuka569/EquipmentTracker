@@ -1,4 +1,7 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Collections.ObjectModel;
+using System.Dynamic;
+using System.Text.RegularExpressions;
+using EquipmentTracker.Common;
 using Models.Equipment;
 using Models.Equipment.ColumnCreator;
 using Models.Equipment.ColumnSpecificSettings;
@@ -15,33 +18,39 @@ public class RowValidator
     }
 
     private readonly Dictionary<GridColumnBase, ColumnItem> _columnItemMap;
+    private readonly ObservableCollection<ExpandoObject> _rows;
 
-    public RowValidator(Dictionary<GridColumnBase, ColumnItem> columnItemMap)
+    public RowValidator(Dictionary<GridColumnBase, ColumnItem> columnItemMap, ObservableCollection<ExpandoObject> rows)
     {
         _columnItemMap = columnItemMap;
+        _rows = rows;
     }
 
     public ValidationResult ValidateRow(object rowData)
     {
         var result = new ValidationResult();
 
-        if (rowData is not EquipmentRow equipmentRow)
+        if (rowData is not ExpandoObject equipmentRow)
         {
             return result;
         }
         
-        var rowDict = equipmentRow.Data as IDictionary<string, object>;
+        var rowDict = equipmentRow as IDictionary<string, object>;
 
         foreach (var kvp in _columnItemMap)
         {
             var column = kvp.Key;
             var columnItem = kvp.Value;
             
+            if (column == null || columnItem?.Settings == null) 
+                continue;
+            
             string mappingName = column.MappingName;
             string headerText = column.HeaderText;
 
             if (rowDict.TryGetValue(mappingName, out var cellValue))
             {
+                
                 var validationError = ValidateCellByDataType(columnItem, cellValue, headerText);
 
                 if (validationError != null)
@@ -49,11 +58,17 @@ public class RowValidator
                     result.IsValid = false;
                     result.ErrorMessages[mappingName] = validationError;
                 }
+                
+                if (columnItem.Settings.IsUnique && !IsValueUnique(mappingName, cellValue, rowDict))
+                {
+                    result.IsValid = false;
+                    result.ErrorMessages[mappingName] = $"Значення для '{headerText}' має бути унікальним";
+                }
             }
             else if (columnItem.Settings.IsRequired)
             {
                 result.IsValid = false;
-                result.ErrorMessages[mappingName] = $"Поле '{headerText}' обов'язкове для заповнення";
+                result.ErrorMessages[mappingName] = $"Значення для '{headerText}' обов'язкове для заповнення";
             }
             
         }
@@ -84,18 +99,15 @@ public class RowValidator
 
         if (textSettings.MaxLength > 0 && strValue.Length > textSettings.MaxLength)
         {
-            return $"Значення '{headerText}' не може бути довше {textSettings.MaxLength} символів";
+            return
+                $"Значення для '{headerText}' не може бути довше {TextLengthMessage((int)textSettings.MaxLength)} \n" +
+                   $"Поточна довжина {TextLengthMessage(strValue.Length)}";
         }
 
         if (textSettings.MinLength > 0 && strValue.Length < textSettings.MinLength)
         {
-            return $"Значення '{headerText}' не може бути коротше {textSettings.MinLength} символів";
-        }
-        if (!string.IsNullOrEmpty(textSettings.RegularExpressionPattern) &&
-            !Regex.IsMatch(strValue, textSettings.RegularExpressionPattern))
-        {
-            string hint = GetRegexHint(textSettings.RegularExpressionPattern);
-            return $"Значення не відповідає встановленому формату. {hint}";
+            return $"Значення для '{headerText}' не може бути коротше {TextLengthMessage((int)textSettings.MinLength)} \n" +
+                   $"Поточна довжина {TextLengthMessage(strValue.Length)}";
         }
         return null;
     }
@@ -107,37 +119,59 @@ public class RowValidator
 
         if (multilineTextSettings.MaxLength > 0 && strValue.Length > multilineTextSettings.MaxLength)
         {
-            return $"Значення '{headerText}' не може бути довше {multilineTextSettings.MaxLength} символів";
+            return $"Значення для '{headerText}' не може бути довше {TextLengthMessage((int)multilineTextSettings.MaxLength)}" +
+                   $"Поточна довжина {TextLengthMessage(strValue.Length)}";
         }
         return null;
     }
 
     private string ValidateNumberColumn(ColumnItem columnItem, object cellValue, string headerText)
     {
-        double doubleValue = Convert.ToDouble(cellValue);
+        if (cellValue == null) return null;
+        
+        if (!double.TryParse(cellValue.ToString(), out double doubleValue))
+        {
+            return $"Значення для '{headerText}' має бути числом";
+        }
         var numberSettings = columnItem.Settings.SpecificSettings as NumberColumnSettings;
         if (columnItem.Settings.IsRequired && doubleValue == 0)
         {
-            return $"Поле '{headerText}' обов'язкове для заповнення";
+            return $"'{headerText}' є обов'язковим для заповнення";
         }
         if (numberSettings.MinValue > 0 && doubleValue < numberSettings.MinValue)
         {
-            return $"Значення в полі '{headerText}' не може бути меншим за {numberSettings.MinValue}";
+            return $"Значення для '{headerText}' не може бути меншим за {numberSettings.MinValue}";
         }
         if (numberSettings.MaxValue > 0 && doubleValue > numberSettings.MaxValue)
         {
-            return $"Значення в полі '{headerText}' не може бути більшим за {numberSettings.MaxValue}";
+            return $"Значення для '{headerText}' не може бути більшим за {numberSettings.MaxValue}";
         }
         return null;
     }
-
-    private string GetRegexHint(string regexPattern)
+    
+    private bool IsValueUnique(string mappingName, object? value, IDictionary<string, object> currentRow)
     {
-        var regexInfo = ComboBoxRegularExpression.GetComboBoxRegularExpressions().FirstOrDefault(r => r.RegularExpressionPattern == regexPattern);
-        if (regexInfo != null)
+        foreach (var row in _rows)
         {
-            return $"{regexInfo.RegularExpressionTitle}. Приклад: {regexInfo.Example}";
+            if (row is IDictionary<string, object> rowDict)
+            {
+                if (ReferenceEquals(rowDict, currentRow))
+                    continue; 
+
+                if (rowDict.TryGetValue(mappingName, out var existingValue))
+                {
+                    if (Equals(existingValue, value))
+                    {
+                        return false;
+                    }
+                }
+            }
         }
-        return "Перевірте правильність введених даних";
+        return true;
+    }
+    
+    private string TextLengthMessage(int length)
+    {
+        return PluralizedHelper.GetPluralizedText(length, "символ", "символи", "символів");
     }
 }

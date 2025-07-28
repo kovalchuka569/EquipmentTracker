@@ -6,4 +6,5 @@ public class CustomGridTemplateColumn : GridTemplateColumn
 {
     public int Id { get; set; }
     public int TableId { get; set; }
+    public int GroupId { get; set; }
 }

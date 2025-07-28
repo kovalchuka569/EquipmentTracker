@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.Dynamic;
 using Common.Logging;
 using Core.Events.DataGrid;
-using Data.AppDbContext;
 using Data.Repositories.Consumables;
 using Models.ConsumablesDataGrid;
 using Npgsql;

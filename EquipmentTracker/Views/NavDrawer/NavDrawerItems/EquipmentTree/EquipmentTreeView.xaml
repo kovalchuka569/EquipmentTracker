@@ -13,13 +13,15 @@
              xmlns:prism="http://prismlibrary.com/"
              xmlns:local="clr-namespace:UI.Views.NavDrawer.NavDrawerItems.EquipmentTree"
              xmlns:syncfusionskin="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF"
-             syncfusionskin:SfSkinManager.Theme="{syncfusionskin:SkinManagerExtension ThemeName=Windows11Light}">
+             syncfusionskin:SfSkinManager.Theme="{syncfusionskin:SkinManagerExtension ThemeName=Windows11Light}"
+             Style="{DynamicResource LoadUserControlAnimationBottomToTop}">
     
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/Syncfusion.Themes.Office2019Colorful.WPF;component/mscontrol/progressbar.xaml"/>
                 <ResourceDictionary Source="/Syncfusion.Themes.Windows11Light.WPF;component/sftreeview/sftreeview.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Common/Styles/LoadAnimationStyle.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
             <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>

@@ -1,11 +1,10 @@
-﻿using Prism.Commands;
-using Syncfusion.UI.Xaml.Diagram.Stencil;
+﻿using Models.Equipment.ColumnSettings;
 
 namespace Models.Equipment;
 
 public class ColumnItem
 {
-    public int Id { get; set; }
-    public int TableId { get; set; }
-    public ColumnSettings Settings { get; set; }
+    public Guid Id { get; set; }
+    public Guid EquipmentSheetId { get; set; }
+    public ColumnSettingsDisplayModel Settings { get; set; }
 }

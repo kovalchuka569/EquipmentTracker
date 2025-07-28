@@ -1,6 +1,8 @@
-﻿namespace Models.Equipment.ColumnSpecificSettings;
+﻿using Models.Table;
 
-public class DateColumnSettings
+namespace Models.Equipment.ColumnSpecificSettings;
+
+public class DateColumnSettings : ColumnSpecificSettingsBase
 {
     public string DateFormat { get; set; }
 }

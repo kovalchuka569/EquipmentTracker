@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
 using System.Windows.Data;
-using Models.NavDrawer;
+using Models.Enums;
 
 namespace UI.Views.NavDrawer;
 

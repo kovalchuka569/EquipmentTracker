@@ -2,7 +2,7 @@
 using Data.ApplicationDbContext;
 using Models.Equipment;
 using Models.EquipmentTree;
-using Models.NavDrawer;
+using Models.Enums;
 using Npgsql;
 using NpgsqlTypes;
 
@@ -162,7 +162,7 @@ namespace Data.Repositories.EquipmentTree
                 string sqlCreateTable = @"INSERT INTO ""public"".""files"" (""name"", ""file_format"", ""folder_id"", ""summary_id"", ""menu_type"") VALUES (@name, @fileFormat, @folderId, @summaryId, @menuType) RETURNING ""id"";";
                 using var cmd = new NpgsqlCommand(sqlCreateTable, connection, transaction);
                 cmd.Parameters.AddWithValue("@name", name);
-                cmd.Parameters.AddWithValue("@fileFormat", (int)FileFormat.Summary);
+                cmd.Parameters.AddWithValue("@fileFormat", (int)FileFormat.SummaryEquipment);
                 cmd.Parameters.AddWithValue("@folderId", folderId);
                 cmd.Parameters.AddWithValue("@summaryId", summaryId);
                 cmd.Parameters.AddWithValue("@menuType", (int)menuType);

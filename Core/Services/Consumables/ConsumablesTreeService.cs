@@ -3,7 +3,6 @@ using Common.Logging;
 using Core.Models.Consumables;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
-using DbContext = Data.AppDbContext.DbContext;
 
 namespace Core.Services.Consumables
 {

@@ -17,13 +17,16 @@ using Data.Repositories.Common.DataGridColumns;
 using Data.Repositories.Consumables;
 using Data.Repositories.Consumables.Operations;
 using Data.Repositories.DataGrid;
-using Data.Repositories.EquipmentDataGrid;
 using Data.Repositories.EquipmentTree;
 using Data.Repositories.Repairs;
 using Data.Repositories.Services;
 using Data.Repositories.Summary;
+using EquipmentTracker.Common.Controls;
+using EquipmentTracker.Factories.Implementations.Syncfusion;
+using EquipmentTracker.Factories.Interfaces;
 using EquipmentTracker.ViewModels.DataGrid;
 using EquipmentTracker.ViewModels.DataGrid.Services;
+using EquipmentTracker.ViewModels.Equipment;
 using EquipmentTracker.ViewModels.SummarySheet;
 using EquipmentTracker.ViewModels.TabControl;
 using EquipmentTracker.Views.DataGrid;
@@ -53,8 +56,11 @@ using EquipmentTracker.Views.Equipment.DataGrid;
 using EquipmentTracker.Views.Equipment.Dialogs;
 using EquipmentTracker.Views.SummarySheet;
 using UI.ViewModels.Equipment.DataGrid;
+using DialogService = EquipmentTracker.Common.DialogService.DialogService;
 using EquipmentDataGridView = EquipmentTracker.Views.Equipment.DataGrid.EquipmentDataGridView;
 using EquipmentDataGridViewModel = EquipmentTracker.ViewModels.Equipment.DataGrid.EquipmentDataGridViewModel;
+using EquipmentSheetView = EquipmentTracker.Views.Equipment.EquipmentSheetView;
+using IDialogService = EquipmentTracker.Common.DialogService.IDialogService;
 
 namespace UI.Modules;
 
@@ -68,14 +74,20 @@ public class TabControlModule : IModule
     
     public void RegisterTypes(IContainerRegistry containerRegistry)
     {
+        containerRegistry.RegisterForNavigation<EquipmentSheetView, EquipmentSheetViewModel>();
+        
+        containerRegistry.RegisterSingleton<IDialogService, DialogService>();
+        
         // Tab control (user control)
         containerRegistry.RegisterForNavigation<TabControlView, TabControlViewModel>();
         
         // Generic tab 
-        containerRegistry.Register<IGenericTabViewModelFactory, GenericTabViewModelFactory>();
+        containerRegistry.RegisterSingleton<IGenericTabViewModelFactory, GenericTabViewModelFactory>();
         containerRegistry.RegisterForNavigation<GenericTabView, GenericTabViewModel>();
         
         #region Tabs
+        
+        containerRegistry.RegisterSingleton<IDialogService, DialogService>();
         
         // Image Viewer
         containerRegistry.RegisterForNavigation<ImageViewerView, ImageViewerViewModel>();
@@ -83,17 +95,16 @@ public class TabControlModule : IModule
         
         // Equipment tree
         containerRegistry.RegisterForNavigation<EquipmentTreeView, EquipmentTreeViewModel>(); // View, ViewModel
-        containerRegistry.Register<IEquipmentTreeService, EquipmentTreeService>(); // Service
-        containerRegistry.Register<IEquipmentTreeRepository, EquipmentTreeRepository>(); // Repository
+        containerRegistry.RegisterScoped<IEquipmentTreeService, EquipmentTreeService>(); // Service
+        containerRegistry.Register<IEquipmentTreeRepository, EquipmentTreeRepository>(); // RepositoryF
         
         // Data grid
         containerRegistry.RegisterForNavigation<DataGridView, DataGridViewModel>(); // View, ViewModel
         
-        containerRegistry.RegisterForNavigation<EquipmentDataGridView, EquipmentDataGridViewModel>(); // View, ViewModel
         containerRegistry.RegisterForNavigation<ColumnCreatorView, ColumnCreatorViewModel>();
         containerRegistry.RegisterForNavigation<SheetSelectorView, SheetSelectorViewModel>();
-        containerRegistry.Register<IEquipmentDataGridService, EquipmentDataGridService>(); // Service
-        containerRegistry.Register<IEquipmentDataGridRepository, EquipmentDataGridRepository>(); // Repository
+        containerRegistry.RegisterScoped<IEquipmentSheetService, EquipmentSheetService>(); // Service
+        containerRegistry.Register<IGridColumnFactory, SyncfusionGridColumnFactory>();
         // Deletion agreement
         containerRegistry.RegisterForNavigation<DeletionAgreementView, DeletionAgreementViewModel>();
         

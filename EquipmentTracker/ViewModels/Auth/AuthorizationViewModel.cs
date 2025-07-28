@@ -1,11 +1,11 @@
 ﻿using Core.Models.Auth;
 using Core.Services.Auth;
 using Core.Services.Notifications;
+using Data.ApplicationDbContext;
 using EquipmentTracker.Properties;
 using Microsoft.EntityFrameworkCore;
 using Prism.Mvvm;
 using Prism.Commands;
-using DbContext = Data.AppDbContext.DbContext;
 
 namespace UI.ViewModels.Auth
 {
@@ -17,7 +17,7 @@ namespace UI.ViewModels.Auth
         #region Properties
         private readonly IRegionManager _regionManager;
         private readonly BusyIndicatorService _busyIndicatorService;
-        private readonly DbContext _dbContext;
+        private readonly AppDbContext _dbContext;
         
 
         private string _username;
@@ -110,7 +110,7 @@ namespace UI.ViewModels.Auth
         /// <param name="regionManager">The region manager for navigating between views.</param>
         /// <param name="authService">The service responsible for user authentication.</param>
         /// <param name="busyIndicatorService">The service for showing busy indicators during long operations.</param>
-        public AuthorizationViewModel(IRegionManager regionManager, BusyIndicatorService busyIndicatorService, DbContext dbContext)
+        public AuthorizationViewModel(IRegionManager regionManager, BusyIndicatorService busyIndicatorService, AppDbContext dbContext)
         {
             try
             {

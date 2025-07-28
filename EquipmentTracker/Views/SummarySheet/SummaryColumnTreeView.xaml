@@ -13,6 +13,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/Syncfusion.Themes.Windows11Light.WPF;component/sftreeview/sftreeview.xaml"/>
                 <ResourceDictionary Source="/Syncfusion.Themes.Windows11Light.WPF;component/mscontrol/button.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Common/Styles/LoadAnimationStyle.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
             <sf:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter"/>

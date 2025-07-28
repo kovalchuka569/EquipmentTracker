@@ -29,6 +29,7 @@ using Models.Equipment.ColumnSpecificSettings;
 using Notification.Wpf;
 using Syncfusion.UI.Xaml.Grid;
 using EquipmentTracker.ViewModels.Equipment.DataGrid.TemplateCreators;
+using Models.Equipment.ColumnSettings;
 using Syncfusion.UI.Xaml.Grid.Helpers;
 using Syncfusion.Windows.Controls.Grid;
 using Syncfusion.Windows.Shared;
@@ -43,24 +44,24 @@ namespace EquipmentTracker.ViewModels.Equipment.DataGrid;
 
 public class EquipmentDataGridViewModel : BindableBase, INavigationAware, IDestructible, IRegionMemberLifetime
 {
-    private readonly IEquipmentDataGridService _equipmentDataGridService;
+    private readonly IEquipmentSheetService _equipmentSheetService;
     private readonly NotificationManager _notificationManager;
     private readonly IAppLogger<EquipmentDataGridViewModel> _logger;
     private readonly IDialogService _dialogService;
     private IRegionManager _scopedRegionManager;
-    private int _tableId;
+    private Guid _tableId;
     private string _equipmentSheetName;
 
-    private readonly Dictionary<string, int> _columnMappingNameIdMap = new();
+    private readonly Dictionary<string, Guid> _columnMappingNameIdMap = new();
     private readonly Dictionary<GridColumnBase, ColumnItem> _columnItemMap = new();
 
-    private Dictionary<ExpandoObject, int> _equipmentIds = new();
+    private Dictionary<ExpandoObject, Guid> _equipmentIds = new();
     
     private Columns _columns = new();
-    private ObservableCollection<ExpandoObject> _equipments = new();
+    private ObservableCollection<RowItem> _equipments = new();
     private ObservableCollection<object> _selectedItems = new();
 
-    public ObservableCollection<ExpandoObject> Equipments
+    public ObservableCollection<RowItem> Equipments
     {
         get => _equipments;
         set => SetProperty(ref _equipments, value);
@@ -78,7 +79,6 @@ public class EquipmentDataGridViewModel : BindableBase, INavigationAware, IDestr
     }
 
     private int _frozenColumnCount;
-
     public int FrozenColumnCount
     {
         get => _frozenColumnCount;
@@ -86,7 +86,6 @@ public class EquipmentDataGridViewModel : BindableBase, INavigationAware, IDestr
     }
 
     private bool _progressBarVisibility;
-
     public bool ProgressBarVisibility
     {
         get => _progressBarVisibility;
@@ -137,8 +136,7 @@ public class EquipmentDataGridViewModel : BindableBase, INavigationAware, IDestr
 
     private SfDataGrid _sfDataGrid;
     private UserControl _userControl;
-
-
+    
     private Style _baseGridHeaderStyle;
     private Style _baseGridCellStyle;
 
@@ -187,7 +185,7 @@ public class EquipmentDataGridViewModel : BindableBase, INavigationAware, IDestr
                 }
             }
             
-            if (navigationContext.Parameters["TableId"] is int tableId)
+            if (navigationContext.Parameters["TableId"] is Guid tableId)
             {
                 _tableId = tableId;
             }
@@ -245,12 +243,12 @@ public class EquipmentDataGridViewModel : BindableBase, INavigationAware, IDestr
 
     public Prism.Commands.DelegateCommand<GridSelectionChangedEventArgs> SelectionChangedCommand { get; set; }
 
-    public EquipmentDataGridViewModel(IEquipmentDataGridService equipmentDataGridService,
+    public EquipmentDataGridViewModel(IEquipmentSheetService equipmentSheetService,
         NotificationManager notificationManager,
         IDialogService dialogService,
         IAppLogger<EquipmentDataGridViewModel> logger)
     {
-        _equipmentDataGridService = equipmentDataGridService;
+        _equipmentSheetService = equipmentSheetService;
         _notificationManager = notificationManager;
         _dialogService = dialogService;
         _logger = logger;
@@ -307,7 +305,7 @@ public class EquipmentDataGridViewModel : BindableBase, INavigationAware, IDestr
         var itemsToRemove = SelectedItems.Cast<ExpandoObject>().ToList();
         if (itemsToRemove.Count == 0) return false;
 
-        List<int> idsToRemove = itemsToRemove.Select(x => _equipmentIds[x]).ToList();
+        List<Guid> idsToRemove = itemsToRemove.Select(x => _equipmentIds[x]).ToList();
         int removeItemsCount = itemsToRemove.Count;
         string deletedRecordCountText =
             PluralizedHelper.GetPluralizedText(removeItemsCount, "запис", "записи", "записів");
@@ -318,18 +316,18 @@ public class EquipmentDataGridViewModel : BindableBase, INavigationAware, IDestr
         return await ExecuteRemoval(itemsToRemove, idsToRemove, deletedRecordCountText, cts);
     }
 
-    private async Task<bool> ExecuteRemoval(List<ExpandoObject> itemsToRemove, List<int> idsToRemove,
+    private async Task<bool> ExecuteRemoval(List<ExpandoObject> itemsToRemove, List<Guid> idsToRemove,
         string deletedRecordCountText, CancellationTokenSource cts)
     {
         ProgressBarVisibility = true;
         try
         {
-            await _equipmentDataGridService.RemoveItemsAsync(idsToRemove, cts.Token);
+            await _equipmentSheetService.RemoveItemsAsync(idsToRemove, cts.Token);
 
             foreach (var item in itemsToRemove)
             {
                 cts.Token.ThrowIfCancellationRequested();
-                Equipments.Remove(item);
+              //  Equipments.Remove(item);
             }
 
             SelectedItems.Clear();
@@ -378,7 +376,7 @@ public class EquipmentDataGridViewModel : BindableBase, INavigationAware, IDestr
         using var cts = new CancellationTokenSource();
         var columnItem = _columnItemMap[contextInfo.Column];
         string columnHeaderText = columnItem.Settings.HeaderText;
-        int columnId = columnItem.Id;
+        Guid columnId = columnItem.Id;
 
         string title = "Видалення";
         string message = $"Ви впевнені що хочете видалити характеристику '{columnHeaderText}' ? \n" +
@@ -394,7 +392,7 @@ public class EquipmentDataGridViewModel : BindableBase, INavigationAware, IDestr
             ProgressBarVisibility = true;
             try
             {
-                await _equipmentDataGridService.RemoveColumnAsync(columnId, cts.Token);
+                await _equipmentSheetService.RemoveColumnAsync(columnId, cts.Token);
                 Columns.Remove(contextInfo.Column);
                 _notificationManager.Show($"Успішно видалено характеристику '{columnHeaderText}'",
                     NotificationType.Success);
@@ -517,7 +515,7 @@ public class EquipmentDataGridViewModel : BindableBase, INavigationAware, IDestr
             }
             
             var importer = new EquipmentExcelImporter(
-                _equipmentDataGridService,
+                _equipmentSheetService,
                 _columnItemMap.Values,
                 _tableId
             );
@@ -526,8 +524,7 @@ public class EquipmentDataGridViewModel : BindableBase, INavigationAware, IDestr
                 filePath: dlg.FileName,
                 sheetName: selectedSheet,
                 headerRow: headerRow,
-                headerCol: headerCol,
-                progress: progress
+                headerCol: headerCol
             );
             
             await LoadRowsAsync();
@@ -631,37 +628,37 @@ public class EquipmentDataGridViewModel : BindableBase, INavigationAware, IDestr
 
     private void OnRowValidating(RowValidatingEventArgs e)
     {
-        var validator = new RowValidator(_columnItemMap, Equipments);
-        var validationResult = validator.ValidateRow(e.RowData);
+      // var validator = new RowValidator(_columnItemMap, Equipments);
+       // var validationResult = validator.ValidateRow(e.RowData);
         
-        e.IsValid = validationResult.IsValid;
+        //e.IsValid = validationResult.IsValid;
 
-        foreach (var error in validationResult.ErrorMessages)
-        {
-            string columnMappingName = error.Key; 
-            string errorMessage = error.Value;  
-            e.ErrorMessages.Add(columnMappingName, errorMessage);
-        }
+        //foreach (var error in validationResult.ErrorMessages)
+        //{
+        //    string columnMappingName = error.Key; 
+         //   string errorMessage = error.Value;  
+         //   e.ErrorMessages.Add(columnMappingName, errorMessage);
+       // }
     }
 
 
     private async void OnRowValidated(RowValidatedEventArgs e)
     {
-        if (e.RowData is ExpandoObject rowData)
+        /*if (e.RowData is ExpandoObject rowData)
         {
             var rowDict = (IDictionary<string, object?>)rowData;
             
-            int id = 0;
-            if (_equipmentIds.TryGetValue(rowData, out var existingId))
+            Guid id;
+            if (_equipmentIds.TryGetValue(rowData, out Guid existingId))
             {
                 id = existingId;
             }
             
-            bool isNew = id == 0;
+            bool isNew = id == null;
             
             if (isNew)
             {
-                int newId = await _equipmentDataGridService.InsertRowAsync(
+                Guid newId = await _equipmentDataGridService.InsertRowAsync(
                     _tableId,
                     e.RowIndex,
                     new Dictionary<string, object?>(rowDict)
@@ -677,7 +674,7 @@ public class EquipmentDataGridViewModel : BindableBase, INavigationAware, IDestr
                     new Dictionary<string, object?>(rowDict)
                 );
             }
-        }
+        }*/
     }
 
     private void OnEditColumn(GridColumnContextMenuInfo contextInfo)
@@ -702,7 +699,7 @@ public class EquipmentDataGridViewModel : BindableBase, INavigationAware, IDestr
             var editedColumnId = result.Column.Id;
             var shouldBePinned = result.Column.Settings.IsPinned;
             
-            await _equipmentDataGridService.UpdateColumnAsync(result.Column);
+            await _equipmentSheetService.UpdateColumnAsync(result.Column);
             
             await ReloadAllColumns();
             
@@ -840,12 +837,12 @@ public class EquipmentDataGridViewModel : BindableBase, INavigationAware, IDestr
             if (!result.IsSuccessful)
                 return;
 
-            int newColumnPosition = _columnMappingNameIdMap.Values.Any() ? _columnMappingNameIdMap.Values.Max() + 1 : 0;
-            result.ColumnSettings.ColumnPosition = newColumnPosition;
+           // int newColumnPosition = _columnMappingNameIdMap.Values.Any() ? _columnMappingNameIdMap.Values.Max() + 1 : 0;
+           // result.ColumnSettings.ColumnPosition = newColumnPosition;
             var columnItem = new ColumnItem
             {
-                Id = await _equipmentDataGridService.AddColumnAsync(result.ColumnSettings, _tableId),
-                TableId = _tableId,
+                Id = await _equipmentSheetService.AddColumnAsync(result.ColumnSettings, _tableId),
+                EquipmentSheetId = _tableId,
                 Settings = result.ColumnSettings
             };
             var column = CreateColumn(result.ColumnSettings);
@@ -884,11 +881,11 @@ public class EquipmentDataGridViewModel : BindableBase, INavigationAware, IDestr
         {
             if (args.Reason == QueryColumnDraggingReason.Dropped)
             {
-                var columnPositions = new Dictionary<int, int>();
+                var columnPositions = new Dictionary<Guid, int>();
                 for (int i = 0; i < sfDataGrid.Columns.Count; i++)
                 {
                     var column = sfDataGrid.Columns[i];
-                    if (_columnMappingNameIdMap.TryGetValue(column.MappingName, out int columnId))
+                    if (_columnMappingNameIdMap.TryGetValue(column.MappingName, out Guid columnId))
                     {
                         columnPositions[columnId] = i;
                         var item = _columnItemMap[column];
@@ -899,14 +896,14 @@ public class EquipmentDataGridViewModel : BindableBase, INavigationAware, IDestr
                     }
                 }
 
-                await _equipmentDataGridService.UpdateColumnPositionAsync(columnPositions, _tableId);
+                await _equipmentSheetService.UpdateColumnPositionAsync(columnPositions, _tableId);
             }
         }
     }
 
     private async void OnResizingColumn(ResizingColumnsEventArgs args)
     {
-        if (args.OriginalSender is SfDataGrid sfDataGrid)
+       /* if (args.OriginalSender is SfDataGrid sfDataGrid)
         {
             if (args.Reason == ColumnResizingReason.Resized)
             {
@@ -914,7 +911,7 @@ public class EquipmentDataGridViewModel : BindableBase, INavigationAware, IDestr
 
                 foreach (var column in sfDataGrid.Columns)
                 {
-                    if (_columnMappingNameIdMap.TryGetValue(column.MappingName, out int columnId))
+                    if (_columnMappingNameIdMap.TryGetValue(column.MappingName, out Guid columnId))
                     {
                         columnWidths[columnId] = column.Width;
                     }
@@ -922,12 +919,12 @@ public class EquipmentDataGridViewModel : BindableBase, INavigationAware, IDestr
 
                 await _equipmentDataGridService.UpdateColumnWidthAsync(columnWidths, _tableId);
             }
-        }
+        }*/
     }
 
     private async Task LoadColumnsAsync()
     { 
-        var columnsDefinitions = await _equipmentDataGridService.GetColumnsAsync(_tableId);
+       /* var columnsDefinitions = await _equipmentDataGridService.GetColumnsAsync(_tableId);
         var orderedColumns = columnsDefinitions.OrderBy(c => c.Settings.ColumnPosition).ToList();
 
         var processed = await Task.Run(() =>
@@ -956,13 +953,13 @@ public class EquipmentDataGridViewModel : BindableBase, INavigationAware, IDestr
             }
         }
     
-        FrozenColumnCount = orderedColumns.Count(c => c.Settings.IsPinned);
+        FrozenColumnCount = orderedColumns.Count(c => c.Settings.IsPinned);*/
         
     }
 
     private async Task LoadRowsAsync()
     {
-        var rowsData = await _equipmentDataGridService.GetRowsAsync(_tableId);
+      /*  var rowsData = await _equipmentDataGridService.GetRowsAsync(_tableId);
         
         var columns = await _equipmentDataGridService.GetColumnsAsync(_tableId);
         var columnTypes = columns.ToDictionary(
@@ -994,7 +991,7 @@ public class EquipmentDataGridViewModel : BindableBase, INavigationAware, IDestr
         
         Equipments = new ObservableCollection<ExpandoObject>(processedData.tempProcessedList);
             
-        _equipmentIds = new Dictionary<ExpandoObject, int>(processedData.tempEquipmentIdsMap);
+        _equipmentIds = new Dictionary<ExpandoObject, int>(processedData.tempEquipmentIdsMap);*/
         
     }
     
@@ -1023,7 +1020,7 @@ public class EquipmentDataGridViewModel : BindableBase, INavigationAware, IDestr
     }
     
 
-    private GridColumn CreateColumn(ColumnSettings settings)
+    private GridColumn CreateColumn(ColumnSettingsDisplayModel settings)
     {
         var headerTemplate = new CreateHeaderTemplateFactory();
         var headerStyle = new CreateHeaderStyleFactory();

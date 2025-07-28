@@ -1,11 +1,16 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using Common.Logging;
 using Core.Events.TabControl;
 using Core.Services.EquipmentTree;
+using EquipmentTracker.Constants.Common;
+using EquipmentTracker.Constants.Equipment;
 using Syncfusion.UI.Xaml.TreeView;
 using MaterialDesignThemes.Wpf;
+using Models.Constants;
 using Models.EquipmentTree;
-using Models.NavDrawer;
+using Models.Enums;
+using Notification.Wpf;
 using Syncfusion.UI.Xaml.TreeView.Engine;
 using UI.ViewModels.TabControl;
 using DelegateCommand = Prism.Commands.DelegateCommand;
@@ -15,8 +20,10 @@ namespace UI.ViewModels.EquipmentTree;
 public class EquipmentTreeViewModel : BindableBase, INavigationAware, IRegionMemberLifetime, IDestructible
 {
     #region Properties
-    private readonly IEquipmentTreeService _service;
+    private IEquipmentTreeService _service;
     private readonly IEventAggregator _eventAggregator;
+    private readonly IAppLogger<EquipmentTreeViewModel> _logger;
+    private readonly NotificationManager _notificationManager;
     private IEventAggregator _scopedEventAggregator;
     private IRegionManager _regionManager;
 
@@ -107,99 +114,151 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware, IRegionMem
     public DelegateCommand AddRepairsSummaryReportCommand { get; }
     public DelegateCommand AddServicesSummaryReportCommand { get; }
     public DelegateCommand AddWriteOffSummaryReportCommand { get; }
-    public EquipmentTreeViewModel(IEquipmentTreeService service, IEventAggregator eventAggregator)
+    public EquipmentTreeViewModel(IEventAggregator eventAggregator, IAppLogger<EquipmentTreeViewModel> logger, NotificationManager notificationManager)
     {
         _scopedEventAggregator = new EventAggregator();
         _eventAggregator = eventAggregator;
-        _service = service;
+        _logger = logger;
+        _notificationManager = notificationManager;
 
         SfTreeViewLoadedCommand = new DelegateCommand<SfTreeView>(OnSfTreeViewLoaded);
         NodeExpandedCommand = new DelegateCommand<NodeExpandedCollapsedEventArgs>(OnNodeExpandedCollapsed);
         NodeCollapsedCommand = new DelegateCommand<NodeExpandedCollapsedEventArgs>(OnNodeExpandedCollapsed);
-        AddFolderCommand = new DelegateCommand(OnAddFolder);
+        AddFolderCommand = new DelegateCommand(async () => await OnAddFolder());
         OpenCommand = new DelegateCommand(OnOpenFileCommand);
         EditCommand = new DelegateCommand(OnEdit);
         ItemEndEditCommand = new DelegateCommand<TreeViewItemEndEditEventArgs>(OnItemEndEdit);
         ContextMenuOpenedCommand = new DelegateCommand(OnContextMenuOpened);
         AddEquipmentsFileCommand = new DelegateCommand(OnAddEquipmentsFile);
-        /*AddRepairsFileCommand = new DelegateCommand(OnAddRepairsFile);
-        AddServicesFileCommand = new DelegateCommand(OnAddServicesFile);
-        AddWriteOffFileCommand = new DelegateCommand(OnAddWriteOffFile);*/
         AddEquipmentsSummaryReportCommand = new DelegateCommand(OnAddEquipmentsSummaryFile);
         AddRepairsSummaryReportCommand = new DelegateCommand(OnAddRepairsSummaryFile);
         AddServicesSummaryReportCommand = new DelegateCommand(OnAddServicesSummaryFile);
         AddWriteOffSummaryReportCommand = new DelegateCommand(OnAddWriteOffSummaryFile);
     }
-
-    // Summaries
+    
     private async void OnAddEquipmentsSummaryFile()
     {
-        await AddSummaryFile(SummaryFormat.EquipmentsSummary);
+        await OnAddFile(FileFormat.SummaryEquipment);
     }
     private async void OnAddRepairsSummaryFile()
     {
-        await AddSummaryFile(SummaryFormat.RepairsSummary);
+        await OnAddFile(FileFormat.SummaryRepairs);
     }
     private async void OnAddServicesSummaryFile()
     {
-        await AddSummaryFile(SummaryFormat.ServicesSummary);
+        await OnAddFile(FileFormat.SummaryServices);
     }
     private async void OnAddWriteOffSummaryFile()
     {
-        await AddSummaryFile(SummaryFormat.WriteOffSummary);
+        await OnAddFile(FileFormat.SummaryWriteOff);
     }
     
-    // Equipments
     private async void OnAddEquipmentsFile()
     {
-       await AddEquipmentFile(FileFormat.EquipmentSheet);
+        await OnAddFile(FileFormat.EquipmentSheet);
     }
-    
-    
 
-    private async Task AddEquipmentFile(FileFormat fileFormat)
+    private async Task OnAddFile(FileFormat fileFormat)
     {
         var folder = SelectedItem as FolderItem;
         string baseName = GetBaseNameFromFileFormat(fileFormat);
         var siblingNames = folder.SubItems.OfType<FileItem>().Select(f => f.Name).ToList();
-        string uniqueName = await _service.GenerateUniqueFileFolderNameAsync(baseName, siblingNames);
-
-        int tableId = await _service.CreateEquipmentTableAsync();
-        
+        string uniqueName = _service.GenerateUniqueFileFolderName(baseName, siblingNames);
+        Guid id = Guid.NewGuid();
         var newFile = new FileItem
         {
-            ParentIdFolder = folder.Id,
+            Id = id,
+            FolderId = folder.Id,
             Name = uniqueName,
-            TableId = tableId,
-            Id = await _service.CreateFileAsync(uniqueName, fileFormat, folder.Id, tableId, _menuType),
             FileFormat = fileFormat,
+            MenuType = _menuType,
         };
+
+        using var cts = new CancellationTokenSource();
+        try
+        {
+            await _service.CreateFileAsync(newFile, fileFormat, cts.Token);
+        }
+        catch (OperationCanceledException)
+        {
+            _notificationManager.Show("Створення файлу скасовано", NotificationType.Warning);
+            _logger.LogWarning("File creation was cancelled.");
+        }
+        catch (Exception e)
+        {
+            _notificationManager.Show("Помилка створення файлу", NotificationType.Error);
+            _logger.LogError($"Failed to create file: {e.Message}");
+            throw;
+        }
+        
         folder.AddFile(newFile);
         SelectedItem = newFile;
         OnEdit();
     }
     
-    private async Task AddSummaryFile(SummaryFormat summaryFormat)
+    private async Task OnAddFolder()
     {
-        var folder = SelectedItem as FolderItem;
-        string baseName = GetBaseNameFromSummaryFormat(summaryFormat);
-        var siblingNames = folder.SubItems.OfType<FileItem>().Select(f => f.Name).ToList();
-        string uniqueName = await _service.GenerateUniqueFileFolderNameAsync(baseName, siblingNames);
-
-        int summaryId = await _service.CreateSummaryAsync(summaryFormat);
-        
-        var newFile = new FileItem
+        Guid? folderId = SelectedItem is FolderItem folderItem ? folderItem.Id : null;
+        string baseName = "Нова папка";
+        var folderNames = GetAllFolderNames(Items).ToList();
+        string uniqueName = _service.GenerateUniqueFileFolderName(baseName, folderNames);
+        Guid newId = Guid.NewGuid();
+        var newFolder = new FolderItem
         {
-            ParentIdFolder = folder.Id,
             Name = uniqueName,
-            SummaryId = summaryId,
-            Id = await _service.CreateSummaryFileAsync(uniqueName, folder.Id, summaryId, _menuType),
-            FileFormat = FileFormat.Summary,
+            Id = newId,
+            MenuType = _menuType,
+            FolderId = folderId,
         };
-        folder.AddFile(newFile);
-        SelectedItem = newFile;
+        
+
+        if (SelectedItem is FolderItem parentFolder)
+        {
+            parentFolder.AddFolder(newFolder);
+            ExpandFolder(newFolder);
+        }
+        else
+        {
+            Items.Add(newFolder);
+        }
+        
+        using var cts = new CancellationTokenSource();
+
+        try
+        {
+            await _service.CreateFolderAsync(newFolder, cts.Token);
+        }
+        catch (OperationCanceledException)
+        {
+            _notificationManager.Show("Додавання папки скасовано");
+            _logger.LogError("Creation of folder was cancelled.");
+        }
+        catch (Exception e)
+        {
+            _notificationManager.Show("Помилка додавання папки");
+            _logger.LogError($"Failed to create folder: {e.Message}");
+            throw;
+        }
+        
+        SelectedItem = newFolder;
+        
         OnEdit();
+        CheckEmptyData();
     }
+
+    private void ExpandFolder(FolderItem folder)
+    {
+        var parentNode = FindTreeNode(_sfTreeView, folder);
+        if (!parentNode.IsExpanded)
+        {
+            _sfTreeView.ExpandNode(parentNode);
+            if (parentNode.Content is FolderItem folderItem)
+            {
+                folderItem.ImageIcon = "Assets/opened_folder.png";
+            }
+        }
+    }
+    
 
     private string GetBaseNameFromFileFormat(FileFormat fileFormat)
     {
@@ -213,22 +272,12 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware, IRegionMem
                 return "Списані";
             case FileFormat.ServicesSheet:
                 return "Нові обслуговування";
-        }
-        return string.Empty;
-    }
-    
-    private string GetBaseNameFromSummaryFormat(SummaryFormat summaryFormat)
-    {
-        switch (summaryFormat)
-        {
-            case SummaryFormat.EquipmentsSummary:
-                return "Загальний звіт обладнання";
-            case SummaryFormat.RepairsSummary:
-                return "Загальний звіт ремонти";
-            case SummaryFormat.WriteOffSummary:
-                return "Загальний звіт списане обладнання";
-            case SummaryFormat.ServicesSummary:
-                return "Загальний звіт обслуговування";
+            case FileFormat.SummaryEquipment:
+                return "Новий загальний лист обладннання";
+            case FileFormat.SummaryRepairs:
+                return "Новий загальний лист ремонтів";
+            case FileFormat.SummaryServices:
+                return "Новий загальний лист обслуговування";
         }
         return string.Empty;
     }
@@ -250,7 +299,7 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware, IRegionMem
             switch (fileItem.FileFormat)
             {
                 case FileFormat.EquipmentSheet:
-                    viewName = "EquipmentDataGridView";
+                    viewName = "EquipmentSheetView";
                     break;
 
                 case FileFormat.WriteOffSheet:
@@ -264,10 +313,12 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware, IRegionMem
                 case FileFormat.RepairsSheet:
                     viewName = "RepairsDataGridView";
                     break;
-                case FileFormat.Summary:
+                case FileFormat.SummaryEquipment:
                     viewName = "SummarySheetView";
                     break;
             }
+            
+            Console.WriteLine(fileItem.TableId);
             
             _eventAggregator.GetEvent<OpenNewTabEvent>().Publish(new OpenNewTabEventArgs
             {
@@ -275,10 +326,12 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware, IRegionMem
                 Parameters = new Dictionary<string, object>
                 {
                     { "ViewNameToShow", viewName },
-                    { "EquipmentDataGridView.TableId", fileItem.TableId },
+                    { $"EquipmentSheetView.{EquipmentSheetConstants.EquipmentSheetId}", fileItem.EquipmentSheetId },
                     { "RepairsDataGridView.TableId", fileItem.TableId },
                     { "ServicesDataGridView.TableId", fileItem.TableId },
                     { "SummarySheetView.SummaryId", fileItem.SummaryId },
+                    { "SummarySheetView.SummaryName", fileItem.Name },
+                    {$"{ViewNameConstants.EquipmentDataGridView}.{EquipmentConstants.EquipmentSheetName}",fileItem.Name}
                 }
             });
         }
@@ -311,16 +364,6 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware, IRegionMem
             MessageQueue.Enqueue("Максимальна довжина 55 символів!");
             return false;
         }
-        string[] forbiddenSubstrings = { "--", ";", "'", "\"", "/*", "*/", "@@", "char", "nchar", "varchar", "nvarchar", "alter", "begin", "cast", "create", "cursor", "declare", "delete", "drop", "end", "exec", "execute", "fetch", "insert", "kill", "open", "select", "sys", "sysobjects", "syscolumns", "table", "update" };
-
-        foreach (var item in forbiddenSubstrings)
-        {
-            if (newName.IndexOf(item, StringComparison.OrdinalIgnoreCase) >= 0)
-            {
-                MessageQueue.Enqueue("Назва містить заборонені символи або слова!");
-                return false;
-            }
-        }
         return true;
     }
        private async void OnItemEndEdit(TreeViewItemEndEditEventArgs args)
@@ -343,7 +386,7 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware, IRegionMem
             .Select(it => it.Name)
             .ToList() ?? new List<string>();
 
-        string uniqueName = await _service.GenerateUniqueFileFolderNameAsync(requestedName, siblingNames);
+        string uniqueName = _service.GenerateUniqueFileFolderName(requestedName, siblingNames);
 
         if (uniqueName == oldName)
             return;
@@ -377,7 +420,6 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware, IRegionMem
     private async void LoadTreeAsync()
     {
         ProgressBarVisibility = true;
-        await Task.Delay(500);
         Items = await _service.BuildHierarchy(_menuType);
         CheckEmptyData();
         ProgressBarVisibility = false;
@@ -412,43 +454,6 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware, IRegionMem
                 new[] { folder.Name }.Concat(GetAllFolderNames(folder.SubItems)));
     }
 
-    private async void OnAddFolder()
-    {
-        int? parentId = SelectedItem is FolderItem folderItem ? folderItem.Id : 0;
-        string baseName = "Нова папка";
-        var folderNames = GetAllFolderNames(Items).ToList();
-        string uniqueName = await _service.GenerateUniqueFileFolderNameAsync(baseName, folderNames);
-        int newId = await _service.CreateFolderAsync(uniqueName, parentId, _menuType);
-        var newFolder = new FolderItem
-        {
-            Name = uniqueName,
-            Id = newId
-        };
-
-        if (SelectedItem is FolderItem parentFolder)
-        {
-            parentFolder.AddFolder(newFolder);
-            var parentNode = FindTreeNode(_sfTreeView, parentFolder);
-
-            if (parentNode != null && !parentNode.IsExpanded)
-            {
-                _sfTreeView.ExpandNode(parentNode);
-                if (parentNode.Content is FolderItem folder)
-                {
-                    folder.ImageIcon = "Assets/opened_folder.png";
-                }
-            }
-        }
-        else
-        {
-            Items.Add(newFolder);
-        }
-        
-        SelectedItem = newFolder;
-        OnEdit();
-        CheckEmptyData();
-    }
-
     private TreeViewNode FindTreeNode(SfTreeView treeView, FolderItem folder)
     {
         foreach (var node in treeView.Nodes)
@@ -480,16 +485,23 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware, IRegionMem
     private void OnContextMenuOpened()
     {
     }
-    
-   
+
+
+    private bool _isInitialized = false;
     public void OnNavigatedTo(NavigationContext navigationContext)
     {
-        if (navigationContext.Parameters["ScopedRegionManager"] is IRegionManager scopedRegionManager)
+        if (!_isInitialized)
         {
-            _regionManager = scopedRegionManager;
+            var tabScopedServiceProvider = navigationContext.Parameters.GetValue<IScopedProvider>("TabScopedServiceProvider");
+            _service = tabScopedServiceProvider.Resolve<IEquipmentTreeService>();
+            if (navigationContext.Parameters["ScopedRegionManager"] is IRegionManager scopedRegionManager)
+            {
+                _regionManager = scopedRegionManager;
+            }
+            _menuType = navigationContext.Parameters.GetValue<MenuType>("MenuType");
+            LoadTreeAsync();
+            _isInitialized = true;
         }
-        _menuType = navigationContext.Parameters.GetValue<MenuType>("MenuType");
-        LoadTreeAsync();
     }
     
 
@@ -500,7 +512,7 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware, IRegionMem
         Console.WriteLine("OnNavigatedFrom");
     }
 
-    public bool KeepAlive => false;
+    public bool KeepAlive => true;
     public void Destroy()
     {
         Console.WriteLine("Destroy");

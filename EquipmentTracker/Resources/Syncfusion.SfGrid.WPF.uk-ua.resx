@@ -39,7 +39,7 @@
         <value>(Порожні значення)</value>
     </data>
     <data name="Bottom" xml:space="preserve">
-        <value>Останній :</value>
+        <value>Знизу:</value>
     </data>
     <data name="Cancel" xml:space="preserve">
         <value>Відміна</value>
@@ -126,13 +126,13 @@
         <value>Перетягніть сюди заголовок стовпця, щоб згрупувати його</value>
     </data>
     <data name="Left" xml:space="preserve">
-        <value>Ліворуч :</value>
+        <value>Зліва:</value>
     </data>
     <data name="LandScapeOrientation" xml:space="preserve">
         <value>Вертикальна орієнтація</value>
     </data>
     <data name="Height" xml:space="preserve">
-        <value>Висота :</value>
+        <value>Вис.:</value>
     </data>
     <data name="LessThan" xml:space="preserve">
         <value>Менше</value>
@@ -201,10 +201,10 @@
         <value>Попередній перегляд друку</value>
     </data>
     <data name="QuickPrint" xml:space="preserve">
-        <value>Швидкий друк</value>
+        <value>Експрес</value>
     </data>
     <data name="Right" xml:space="preserve">
-        <value>Праворуч :</value>
+        <value>Зправа:</value>
     </data>
     <data name="RowErrorMessage" xml:space="preserve">
         <value>Рядок, що містить помилку</value>
@@ -243,12 +243,12 @@
         <value>Текстові фільтри</value>
     </data>
     <data name="Top" xml:space="preserve">
-        <value>Верх :</value>
+        <value>Зверху:</value>
     </data>
     <data name="Wide" xml:space="preserve">
         <value>Широкий</value>
     </data>
     <data name="Width" xml:space="preserve">
-        <value>Ширина :</value>
+        <value>Шир.:</value>
     </data>
 </root>

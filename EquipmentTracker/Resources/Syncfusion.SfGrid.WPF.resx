@@ -154,7 +154,7 @@
     <comment>Text for Blank filters</comment>
   </data>
   <data name="Bottom" xml:space="preserve">
-    <value>Останній :</value>
+    <value>Знизу:</value>
     <comment>Text for Bottom</comment>
   </data>
   <data name="Cancel" xml:space="preserve">
@@ -246,7 +246,7 @@
     <comment>Text for GroupDropArea</comment>
   </data>
   <data name="Height" xml:space="preserve">
-    <value>Висота :</value>
+    <value>Вис.:</value>
     <comment>Text for Height of page size in PrintDialog</comment>
   </data>
   <data name="LandScapeOrientation" xml:space="preserve">
@@ -254,7 +254,7 @@
     <comment>Text for LandScape Orientation of Print Dialog window</comment>
   </data>
   <data name="Left" xml:space="preserve">
-    <value>Ліворуч :</value>
+    <value>Зліва:</value>
     <comment>Text for Left margin of PrintDialog</comment>
   </data>
 
@@ -339,11 +339,11 @@
     <comment>Text for PrintPreview in PrintDialog </comment>
   </data>
   <data name="QuickPrint" xml:space="preserve">
-    <value>Швидкий друк</value>
+    <value>Експрес</value>
     <comment>Text for Quick Print option in PrintDialog</comment>
   </data>
   <data name="Right" xml:space="preserve">
-    <value>Праворуч :</value>
+    <value>Зправа:</value>
     <comment>Text for Right margin of PrintDialog</comment>
   </data>
   <data name="RowErrorMessage" xml:space="preserve">
@@ -395,7 +395,7 @@
     <comment>Text for TextFilters</comment>
   </data>
   <data name="Top" xml:space="preserve">
-    <value>Верх :</value>
+    <value>Зверху:</value>
     <comment>Text for Top margin of PrintDialog</comment>
   </data>
   <data name="Wide" xml:space="preserve">
@@ -403,7 +403,7 @@
     <comment>Text for Wide margin in PrintDialog</comment>
   </data>
   <data name="Width" xml:space="preserve">
-    <value>Ширина :</value>
+    <value>Шир.:</value>
     <comment>Text for Width of page size in PrintDialog</comment>
   </data>
   <data name="CantDropHere" xml:space="preserve">

@@ -8,61 +8,125 @@
              xmlns:local="clr-namespace:EquipmentTracker.Views.SummarySheet"
              xmlns:sf="http://schemas.syncfusion.com/wpf"
              xmlns:prism="http://prismlibrary.com/"
-             mc:Ignorable="d" AllowDrop="True">
+             xmlns:grid="clr-namespace:Syncfusion.UI.Xaml.Grid;assembly=Syncfusion.SfGrid.WPF"
+             xmlns:converters="clr-namespace:EquipmentTracker.Common.Converters"
+             xmlns:controls="clr-namespace:EquipmentTracker.Common.Controls"
+             mc:Ignorable="d">
     
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/Syncfusion.Themes.Office2019Colorful.WPF;component/sfdatagrid/sfdatagrid.xaml"/>
+                <ResourceDictionary Source="/Syncfusion.Themes.Office2019Colorful.WPF;component/mscontrol/textbox.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Common/Styles/LoadAnimationStyle.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+            <converters:InverseStringToVisibilityConverter x:Key="InverseStringToVisibilityConverter"/> 
+            
+            <Style TargetType="grid:PrintGridCell">
+                <Setter Property="Background" Value="Yellow"/>
+            </Style>
+            
+            <Style TargetType="sf:GridStackedHeaderCellControl" x:Name="StackedHeaderStyle" BasedOn="{StaticResource SyncfusionGridStackedHeaderCellControlStyle}">
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate>
+                            <Border Background="LightGray" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderBrush="Gray" BorderThickness="1">
+                                <Grid VerticalAlignment="Center" HorizontalAlignment="Center">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    
+                                    <Image Grid.Column="0" Source="Assets/file.png" Width="20" Height="20"/>
+                                    
+                                    <TextBlock Grid.Column="1" Text="{Binding Content, RelativeSource={RelativeSource TemplatedParent}}" Margin="5,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                </Grid>
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            
         </ResourceDictionary>
     </UserControl.Resources>
     
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         
         <ProgressBar Grid.Row="0" IsIndeterminate="True" Visibility="{Binding ProgressbarVisibility, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+      
+        <controls:DataGridToolBar Grid.Row="1" 
+                                  Style="{StaticResource LoadUserControlAnimationRightToLeftWithoutOpacity}"
+                                 GridSearchHelper="{Binding SearchHelper, ElementName=SfDataGrid}" 
+                                 ExcelExportCommand="{Binding ExportToExcelCommand}" 
+                                 PdfExportCommand="{Binding ExportToPdfCommand}" 
+                                 PrintCommand="{Binding PrintCommand}"
+                                 ImportButtonVisibility="Collapsed"
+                                 Margin="5,5,5,0">
+            
+        </controls:DataGridToolBar>
         
-            <sf:SfDataGrid Grid.Row="1"
-            x:Name="SfDataGrid"
-            Columns="{Binding Columns}"
-            ItemsSource="{Binding Items}"
-            AllowResizingColumns="True"
-            AllowResizingHiddenColumns="True"
-            ScrollMode="Async"
-            EnableDataVirtualization="True"
-            AllowGrouping="True"
-            AllowFiltering="True"
-            AllowSorting="True"
-            IsDynamicItemsSource="True"
-            UseDrawing="Default"
-            ShowGroupDropArea="True"
-            IsGroupDropAreaExpanded="True"
-            AutoGenerateColumns="False"
-            GroupDropAreaText="Перетягніть сюди для групування">
+        
+            <sf:SfDataGrid Grid.Row="2"
+                            x:Name="SfDataGrid"
+                            Columns="{Binding Columns}"
+                            ItemsSource="{Binding Items}"
+                            StackedHeaderRows="{Binding StackedHeaderRows}"
+                            SelectionUnit="Row"
+                            SelectionMode="Extended"
+                            AllowResizingColumns="True"
+                            AllowResizingHiddenColumns="True"
+                            AllowDraggingColumns="True"
+                            NavigationMode="Cell"
+                            ColumnSizer="Auto"
+                            FontFamily="Segoe UI"
+                            EnableDataVirtualization="True"
+                            ShowBusyIndicator="True"
+                            AllowGrouping="True"
+                            AllowFiltering="True"
+                            AllowSorting="True"
+                            IsDynamicItemsSource="True"
+                            ShowGroupDropArea="True"
+                            IsGroupDropAreaExpanded="False"
+                            AutoGenerateColumns="False"
+                            GroupDropAreaText="Перетягніть сюди для групування">
+                
+                    <sf:SfDataGrid.Resources>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="TextWrapping" Value="Wrap"/>
+                        <Setter Property="TextAlignment" Value="Center"/>
+                        <Setter Property="VerticalAlignment" Value="Center"/>
+                    </Style>
+                </sf:SfDataGrid.Resources>
+                
+                    <sf:SfDataGrid.GroupDropAreaStyle>
+                    <Style TargetType="sf:GroupDropArea" BasedOn="{StaticResource SyncfusionGroupDropAreaStyle}">
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="BorderThickness" Value="0"/>
+                    </Style>
+                </sf:SfDataGrid.GroupDropAreaStyle>
+                
+                    <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="Loaded">
+                        <i:InvokeCommandAction Command="{Binding SfDataGridLoadedCommand}"
+                                               CommandParameter="{Binding ElementName=SfDataGrid}"/>
+                    </i:EventTrigger>
+                    <i:EventTrigger EventName="CurrentCellRequestNavigate">
+                        <i:InvokeCommandAction Command="{Binding HyperlinkNavigateCommand}"
+                                               PassEventArgsToCommand="True"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
             
-            <sf:SfDataGrid.LayoutTransform>
-                <ScaleTransform x:Name="MainScaleTransform" ScaleX="1.0" ScaleY="1.0"/>
-            </sf:SfDataGrid.LayoutTransform>
-            
-            <i:Interaction.Triggers>
-                <i:EventTrigger EventName="Loaded">
-                    <i:InvokeCommandAction Command="{Binding SfDataGridLoadedCommand}" CommandParameter="{Binding ElementName=SfDataGrid}"/>
-                </i:EventTrigger>
-            </i:Interaction.Triggers>
-        </sf:SfDataGrid>
+                <sf:SfDataGrid.LayoutTransform>
+                    <ScaleTransform x:Name="MainScaleTransform" ScaleX="1.0" ScaleY="1.0"/>
+                </sf:SfDataGrid.LayoutTransform>
+
+            </sf:SfDataGrid>
     </Grid>
-    
-    <i:Interaction.Triggers>
-        <i:EventTrigger EventName="DragOver">
-            <i:InvokeCommandAction Command="{Binding DragOverCommand}" PassEventArgsToCommand="True" />
-        </i:EventTrigger>
-        <i:EventTrigger EventName="Drop">
-            <i:InvokeCommandAction Command="{Binding DropCommand}" PassEventArgsToCommand="True" />
-        </i:EventTrigger>
-    </i:Interaction.Triggers>
 </UserControl>

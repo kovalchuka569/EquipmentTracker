@@ -1,13 +1,14 @@
 ﻿using System.Windows;
 using System.Windows.Markup;
 using Models.Equipment;
+using Models.Equipment.ColumnSettings;
 using Models.Equipment.ColumnSpecificSettings;
 
 namespace Core.Services.EquipmentDataGrid;
 
 public class CreateCellTemplateFactory
 {
-     public DataTemplate CreateCellTemplate(ColumnSettings settings)
+     public DataTemplate CreateCellTemplate(ColumnSettingsDisplayModel settings)
     {
         DataTemplate template;
         switch (settings.DataType)
@@ -43,7 +44,7 @@ public class CreateCellTemplateFactory
         return template;
     }
     
-    private DataTemplate CreateBooleanCellTemplate(ColumnSettings settings)
+    private DataTemplate CreateBooleanCellTemplate(ColumnSettingsDisplayModel settings)
     {
         string xamlTemplate =
             $@"<DataTemplate 
@@ -58,7 +59,7 @@ public class CreateCellTemplateFactory
         return (DataTemplate)XamlReader.Parse(xamlTemplate);
     }
     
-    private DataTemplate CreateCurrencyCellTemplate(ColumnSettings settings)
+    private DataTemplate CreateCurrencyCellTemplate(ColumnSettingsDisplayModel settings)
     {
         var currencyColumnSettings = settings.SpecificSettings as CurrencyColumnSettings;
         string symbol = currencyColumnSettings?.CurrencySymbol ?? "$";
@@ -85,7 +86,7 @@ public class CreateCellTemplateFactory
         return  (DataTemplate)XamlReader.Parse(xamlTemplate);
     }
     
-    private DataTemplate CreateListCellTemplate(ColumnSettings settings)
+    private DataTemplate CreateListCellTemplate(ColumnSettingsDisplayModel settings)
     {
         string xamlTemplate =
             $@"<DataTemplate 
@@ -100,11 +101,13 @@ public class CreateCellTemplateFactory
         return (DataTemplate)XamlReader.Parse(xamlTemplate);
     }
     
-    private DataTemplate CreateDateCellTemplate(ColumnSettings settings)
+    private DataTemplate CreateDateCellTemplate(ColumnSettingsDisplayModel settings)
     {
         var dateSettings = settings.SpecificSettings as DateColumnSettings;
         
         string format = $"{{}}{{0:{dateSettings.DateFormat}}}" ?? "MM/dd/yyyy";
+        
+        Console.WriteLine(format);
         
         string xamlTemplate = 
             $@"<DataTemplate 
@@ -120,7 +123,7 @@ public class CreateCellTemplateFactory
     }
     
     
-    private DataTemplate CreateHyperlinkCellTemplate(ColumnSettings settings)
+    private DataTemplate CreateHyperlinkCellTemplate(ColumnSettingsDisplayModel settings)
     {
         string xamlTemplate = 
             $@"<DataTemplate 
@@ -135,7 +138,7 @@ public class CreateCellTemplateFactory
         return (DataTemplate)XamlReader.Parse(xamlTemplate);
     }
     
-    private DataTemplate CreateNumberCellTemplate(ColumnSettings settings)
+    private DataTemplate CreateNumberCellTemplate(ColumnSettingsDisplayModel settings)
     {
         var numberColumnSettings = settings.SpecificSettings as NumberColumnSettings;
         string stringFormat = $"{{0:F{numberColumnSettings.CharactersAfterComma}}}";
@@ -152,7 +155,7 @@ public class CreateCellTemplateFactory
         return (DataTemplate)XamlReader.Parse(xamlTemplate);
     }
     
-    private DataTemplate CreateTextCellTemplate(ColumnSettings settings)
+    private DataTemplate CreateTextCellTemplate(ColumnSettingsDisplayModel settings)
     {
         string xamlTemplate = 
             $@"<DataTemplate 
@@ -167,7 +170,7 @@ public class CreateCellTemplateFactory
         return (DataTemplate)XamlReader.Parse(xamlTemplate);
     }
     
-    private DataTemplate CreateMultilineTextCellTemplate(ColumnSettings settings)
+    private DataTemplate CreateMultilineTextCellTemplate(ColumnSettingsDisplayModel settings)
     {
         string xamlTemplate = 
             $@"<DataTemplate 
@@ -182,7 +185,7 @@ public class CreateCellTemplateFactory
         return (DataTemplate)XamlReader.Parse(xamlTemplate);
     }
     
-    private DataTemplate CreateDefaultCellTemplate(ColumnSettings settings)
+    private DataTemplate CreateDefaultCellTemplate(ColumnSettingsDisplayModel settings)
     {
         string xamlTemplate = 
             $@"<DataTemplate 

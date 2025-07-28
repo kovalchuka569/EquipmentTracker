@@ -1,35 +1,43 @@
 
-using EquipmentTracker.Common;
-using Prism;
+using Core.Common.RegionHelpers;
 
 namespace UI.ViewModels.TabControl.GenericTab;
 
-public class GenericTabViewModel : IDestructible
+public class GenericTabViewModel : IDisposable
 {
+    private IScopedProvider _tabScopedServiceProvider;
     public IRegionManager ViewRegionManager { get; }
     private IEventAggregator _scopedEventAggregator;
     public Dictionary<string, object> Parameters { get; set; }
     public string _viewNameToShow;
     
     public DelegateCommand UserControlLoadedCommand { get; }
-    public GenericTabViewModel(IRegionManager scopedRegionManager)
+    public GenericTabViewModel(IRegionManager scopedRegionManager, IScopedProvider tabScopedServiceProvider)
     {
         ViewRegionManager = scopedRegionManager;
         _scopedEventAggregator = new EventAggregator();
+        _tabScopedServiceProvider = tabScopedServiceProvider;
         
         UserControlLoadedCommand = new DelegateCommand(OnUserControlLoaded);
     }
     
+    private bool _isContentRegionNavigated;
     private void OnUserControlLoaded()
-    {
+    {   
         if (string.IsNullOrEmpty(_viewNameToShow)) return;
+
+        if (!_isContentRegionNavigated)
+        {
+            var navigationParameters = new NavigationParameters();
+            ExtractViewSpecificParameters(navigationParameters);
+            navigationParameters.Add("ScopedRegionManager", ViewRegionManager);
+            navigationParameters.Add("ScopedEventAggregator", _scopedEventAggregator);
+            navigationParameters.Add("TabScopedServiceProvider", _tabScopedServiceProvider);
         
-        var navigationParameters = new NavigationParameters();
-        ExtractViewSpecificParameters(navigationParameters);
-        navigationParameters.Add("ScopedRegionManager", ViewRegionManager);
-        navigationParameters.Add("ScopedEventAggregator", _scopedEventAggregator);
-        
-        ViewRegionManager.RequestNavigate("ContentRegion", _viewNameToShow, navigationParameters);
+            ViewRegionManager.RequestNavigate("ContentRegion", _viewNameToShow, navigationParameters);
+
+            _isContentRegionNavigated = true;
+        }
     }
     
     private void ExtractViewSpecificParameters(NavigationParameters parameters)
@@ -58,7 +66,7 @@ public class GenericTabViewModel : IDestructible
         }
     }
     
-    public void InitializePrameters()
+    public void InitializeParameters()
     {
         if (Parameters != null)
         {
@@ -69,10 +77,12 @@ public class GenericTabViewModel : IDestructible
         }
     }
 
-    public void Destroy()
+    public void Dispose()
     {
-        RegionCleaner.CleanUpRegions(ViewRegionManager);
-        _scopedEventAggregator = null;
-        Parameters = null;
+        RegionCleanupHelper.CleanRegion(ViewRegionManager, "ContentRegion");
+        if (_tabScopedServiceProvider != null)
+        {
+            _tabScopedServiceProvider.Dispose();
+        }
     }
 }

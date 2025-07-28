@@ -1,7 +1,9 @@
-﻿namespace Models.Equipment.ColumnCreator;
+﻿using Models.Equipment.ColumnSettings;
+
+namespace Models.Equipment.ColumnCreator;
 
 public class ColumnCreationResult
 {
     public bool IsSuccessful { get; set; }
-    public ColumnSettings ColumnSettings { get; set; }
+    public ColumnSettingsDisplayModel ColumnSettings { get; set; }
 }

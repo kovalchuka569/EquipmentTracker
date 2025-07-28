@@ -1,6 +1,6 @@
 ﻿
 using Core.Events.TabControl;
-using Models.NavDrawer;
+using Models.Enums;
 
 
 namespace UI.ViewModels.NavDrawer

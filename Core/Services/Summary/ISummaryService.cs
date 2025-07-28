@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using Models.EquipmentTree;
 using System.Dynamic;
 using Models.Summary.ColumnTree;
+using Models.Summary.DataGrid;
 using Syncfusion.UI.Xaml.Grid;
 
 namespace Core.Services.Summary;
@@ -20,17 +21,6 @@ public interface ISummaryService
     /// </summary>
     /// <returns>Hierarchical collection of a files, folders, columns</returns>
     Task<ObservableCollection<ISummaryFileSystemItem>> GetHierarchicalItemsAsync(int summaryId, SummaryFormat format);
-    
-    /// <summary>
-    /// Depending on the summary format, it gets the columns and notifies the user about the need to merge columns for the DataGrid
-    /// </summary>
-    /// <param name="columnIds">List of column IDs</param>
-    /// <param name="summaryId">Summary ID</param>
-    /// <param name="format">Summary format</param>
-    /// <returns>Freezable merged collection of Syncfusion columns</returns>
-    Task<Columns> GetMergedColumnsAsync(int summaryId, SummaryFormat format);
-    Task<ObservableCollection<ExpandoObject>> GetDataAsync(List<int> tableIds, SummaryFormat format);
-    Task<List<(string, string)>> GetTableNamesForEquipmentSummaryAsync(List<int> columnIds);
 
     /// <summary>
     /// Selects an element and its children
@@ -76,4 +66,10 @@ public interface ISummaryService
     /// <param name="format">Summary format</param>
     /// <returns>List of selected columns ids</returns>
     Task<List<int>> GetEquipmentSelectedColumnsIds (int summaryId, SummaryFormat format);
+
+    Task<List<DuplicateColumnInfo>> GetPotentialDuplicateColumnInfosAsync(int summaryId);
+    Task<bool> ResolveDuplicateAndNotifyUserAsync(List<DuplicateColumnInfo> duplicatesToResolve);
+    Task<List<ReportGridColumn>> GetReportGridColumnsAsync(int summaryId, CancellationToken ct = default);
+    Task<ObservableCollection<ExpandoObject>> GetReportItemsAsync(int summaryId, CancellationToken ct = default);
+    Task<List<ReportStackedHeaderRowDefinition>> GetStackedHeaderRowsDefinitionsAsync(int summaryId, CancellationToken ct = default);
 }

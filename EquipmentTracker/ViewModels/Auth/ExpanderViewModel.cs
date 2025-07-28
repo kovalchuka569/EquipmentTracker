@@ -1,20 +1,18 @@
 ﻿using System.Windows.Media;
-using Data.AppDbContext;
 using Data.Properties;
 using Microsoft.EntityFrameworkCore;
 using Notification.Wpf;
 using Prism.Mvvm;
 using Prism.Commands;
-using DbContext = Data.AppDbContext.DbContext;
 using Common.Logging;
+using Data.ApplicationDbContext;
 
 namespace UI.ViewModels.Auth
 {
     class ExpanderViewModel : BindableBase
     {
         #region Properties
-        private IDbContext _context;
-        private readonly IAppLogger<DbContext> _logger;
+        private AppDbContext _context;
         
         private string _dbHost = Settings.Default.DbHost;
         private string _dbName = Settings.Default.DbName;
@@ -86,9 +84,8 @@ namespace UI.ViewModels.Auth
         #endregion
         
         #region Constructor
-        public ExpanderViewModel(IAppLogger<DbContext> logger, NotificationManager notificationManager, IDbContext context)
+        public ExpanderViewModel(NotificationManager notificationManager, AppDbContext context)
         {
-            _logger = logger;
             _context = context;
             _notificationManager = notificationManager;
             TestDbConnectionAsync(DbHost, DbName, DbUser, DbPassword);
@@ -118,11 +115,11 @@ namespace UI.ViewModels.Auth
             {
                 string testConnectionString = $"Host={DbHost};Database={DbName};Username={DbUser};Password={DbPassword};";
                 
-                var optionsBuilder = new DbContextOptionsBuilder<DbContext>();
+                var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
                 optionsBuilder.UseNpgsql(testConnectionString); 
                 bool canConnect = await Task.Run(() => 
                 {
-                    using (var testContext = new DbContext(_logger, optionsBuilder.Options))
+                    using (var testContext = new AppDbContext(optionsBuilder.Options))
                     {
                         return testContext.Database.CanConnect();
                     }

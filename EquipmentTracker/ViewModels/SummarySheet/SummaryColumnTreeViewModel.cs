@@ -13,13 +13,18 @@ namespace EquipmentTracker.ViewModels.SummarySheet;
 
 public class SummaryColumnTreeViewModel : BindableBase, INavigationAware, IDestructible
 {
+    private bool _isInitialized;
     public async void OnNavigatedTo(NavigationContext navigationContext)
     {
+        if(_isInitialized) return;
+        
         GetNavigationParameters(navigationContext.Parameters);
         
         await LoadItemsAsync();
 
         await GetSelectedColumnsIds();
+        
+        _isInitialized = true;
     }
 
     public bool IsNavigationTarget(NavigationContext navigationContext) => true;

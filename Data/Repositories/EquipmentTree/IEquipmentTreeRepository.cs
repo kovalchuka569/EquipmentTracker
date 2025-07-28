@@ -1,6 +1,6 @@
 ﻿using Models.Equipment;
 using Models.EquipmentTree;
-using Models.NavDrawer;
+using Models.Enums;
 
 namespace Data.Repositories.EquipmentTree
 {

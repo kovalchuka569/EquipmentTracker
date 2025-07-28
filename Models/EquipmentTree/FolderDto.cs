@@ -1,4 +1,4 @@
-﻿using Models.NavDrawer;
+﻿using Models.Enums;
 
 namespace Models.EquipmentTree
 {

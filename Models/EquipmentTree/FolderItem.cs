@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using Models.Enums;
 using Prism.Mvvm;
 
 namespace Models.EquipmentTree
@@ -9,8 +10,9 @@ namespace Models.EquipmentTree
     public class FolderItem : BindableBase, IFileSystemItem
     {
         private string _name;
-        private int _id;
-        private int? _parentId;
+        private Guid _id;
+        private Guid? _folderId;
+        private MenuType _menuType;
         private string _imageIcon;
         private bool _isExpanded;
         private string _nameError;
@@ -25,7 +27,7 @@ namespace Models.EquipmentTree
             _imageIcon = "Assets/folder.png";
         }
         
-        public int Id
+        public Guid Id
         {
             get => _id;
             set => SetProperty(ref _id, value);
@@ -37,10 +39,16 @@ namespace Models.EquipmentTree
             set => SetProperty(ref _name, value);
         }
         
-        public int? ParentId
+        public Guid? FolderId
         {
-            get => _parentId;
-            set => SetProperty(ref _parentId, value);
+            get => _folderId;
+            set => SetProperty(ref _folderId, value);
+        }
+
+        public MenuType MenuType
+        {
+            get => _menuType;
+            set => SetProperty(ref _menuType, value);
         }
         
         public string ImageIcon

@@ -4,8 +4,8 @@ using Models.TabControl;
 using UI.ViewModels.TabControl.GenericTab;
 using UI.Views.TabControl;
 using System.Collections.Specialized;
-using Prism;
 using System.Windows;
+using Syncfusion.Windows.Tools.Controls;
 
 
 namespace EquipmentTracker.ViewModels.TabControl;
@@ -38,6 +38,7 @@ public class TabControlViewModel : BindableBase
     public DelegateCommand<TabControlItem> CloseThisCommand { get; }
     public DelegateCommand CloseAllCommand { get; }
     public DelegateCommand<TabControlItem> CloseAllButThisCommand { get; }
+    public DelegateCommand<CancelingRoutedEventArgs> TabClosingCommand { get; }
     
     public TabControlViewModel(IEventAggregator eventAggregator, IGenericTabViewModelFactory genericTabViewModelFactory)
     {
@@ -47,32 +48,34 @@ public class TabControlViewModel : BindableBase
         CloseThisCommand = new DelegateCommand<TabControlItem>(OnCloseThis);
         CloseAllCommand = new DelegateCommand(OnCloseAll);
         CloseAllButThisCommand = new DelegateCommand<TabControlItem>(OnCloseAllButThis);
+        TabClosingCommand = new DelegateCommand<CancelingRoutedEventArgs>(OnTabClosing);
         
         _eventAggregator.GetEvent<OpenNewTabEvent>().Subscribe(AddNewTab);
         _eventAggregator.GetEvent<CloseActiveTabEvent>().Subscribe(OnCloseSelectedTabItem);
-
-        TabItems.CollectionChanged += TabItems_CollectionChanged;
+        
+        TabItems.CollectionChanged += TabItemsOnCollectionChanged;
     }
 
-    private void TabItems_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    private void TabItemsOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
-        if (e.Action is NotifyCollectionChangedAction.Remove or NotifyCollectionChangedAction.Replace || e.Action == NotifyCollectionChangedAction.Reset)
-        {
-            var oldItems = e.OldItems ?? new System.Collections.ArrayList();
-            foreach (TabControlItem oldItem in oldItems)
-            {
-                if (oldItem is not null)
-                    RemoveTabItem(oldItem);
-            }
-        }
         RaisePropertyChanged(nameof(AreTabsEmpty));
     }
+
+    private void OnTabClosing(CancelingRoutedEventArgs args)
+    {
+        if (args.OriginalSource is TabItemExt tabItem)
+        {
+            var tabModel = tabItem.Header as TabControlItem ?? tabItem.Content as TabControlItem;
+            if (tabModel != null) RemoveTabItem(tabModel);
+        }
+    }
+    
 
 
     private void AddNewTab(OpenNewTabEventArgs args)
     {
         var viewModel = _genericTabViewModelFactory.Create(args.Parameters);
-        viewModel.InitializePrameters();
+        viewModel.InitializeParameters();
         var genericTabView = new GenericTabView { DataContext = viewModel };
         var newTab = new TabControlItem
         {
@@ -122,8 +125,8 @@ public class TabControlViewModel : BindableBase
 
     private void RemoveTabItem(TabControlItem tab)
     {
-        if (tab.GenericTab is FrameworkElement fe && fe.DataContext is IDestructible destructible)
-             destructible.Destroy();
+        if (tab.GenericTab is FrameworkElement fe && fe.DataContext is IDisposable disposable)
+            disposable.Dispose();
         TabItems.Remove(tab);
     }
 }
