@@ -44,7 +44,9 @@ public class DialogService : IDialogService
             InformationTitle = title,
             InformationMessage = message,
             ConfirmButtonText = confirmButtonText,
-            CancelButtonText = cancelButtonText
+            CancelButtonText = cancelButtonText,
+            CancelButtonVisibility = string.IsNullOrEmpty(cancelButtonText) ? Visibility.Collapsed : Visibility.Visible
+
         };
         
         dialog.ConfirmCommand = new DelegateCommand(() =>

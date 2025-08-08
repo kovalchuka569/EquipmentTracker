@@ -20,15 +20,8 @@ public class UnitOfWork(IDbContextFactory<AppDbContext> contextFactory) : IUnitO
     // Lazy repositories
     private IFoldersRepository? _foldersRepository;
     private IFilesRepository? _filesRepository;
-    private IColumnRepository? _columnRepository;
-    private IRowsRepository? _rowsRepository;
-    private ICellsRepository? _cellRepository;
     private IEquipmentSheetRepository? _equipmentSheetRepository;
-    private IEquipmentColumnsRepository? _equipmentColumnsRepository;
-    private IEquipmentRowsRepository? _equipmentRowsRepository;
     private ISummarySheetsRepository? _summarySheetRepository;
-    private ISummarySheetRowsRepository? _summarySheetRowsRepository;
-    private ISummarySheetColumnsRepository? _summarySheetColumnsRepository;
 
     private async Task InitializeContextAsync(CancellationToken ct = default)
     {
@@ -73,37 +66,7 @@ public class UnitOfWork(IDbContextFactory<AppDbContext> contextFactory) : IUnitO
             return _filesRepository ??= new FilesRepository(_activeContext!);
         }
     }
-    
-    public IColumnRepository ColumnRepository
-    {
-        get
-        {
-            ThrowIfDisposed();
-            EnsureContextInitialized();
-            return _columnRepository ??= new ColumnRepository(_activeContext!);
-        }
-    }
-    
-    public IRowsRepository RowsRepository
-    {
-        get
-        {
-            ThrowIfDisposed();
-            EnsureContextInitialized();
-            return _rowsRepository ??= new RowsRepository(_activeContext!);
-        }
-    }
-    
-    public ICellsRepository CellRepository
-    {
-        get
-        {
-            ThrowIfDisposed();
-            EnsureContextInitialized();
-            return _cellRepository ??= new CellsRepository(_activeContext!);
-        }
-    }
-    
+
     public IEquipmentSheetRepository EquipmentSheetRepository
     {
         get
@@ -113,27 +76,8 @@ public class UnitOfWork(IDbContextFactory<AppDbContext> contextFactory) : IUnitO
             return _equipmentSheetRepository ??= new EquipmentSheetRepository(_activeContext!);
         }
     }
-    
-    public IEquipmentColumnsRepository EquipmentColumnsRepository
-    {
-        get
-        {
-            ThrowIfDisposed();
-            EnsureContextInitialized();
-            return _equipmentColumnsRepository ??= new EquipmentColumnsRepository(_activeContext!);
-        }
-    }
-    
-    public IEquipmentRowsRepository EquipmentRowsRepository
-    {
-        get
-        {
-            ThrowIfDisposed();
-            EnsureContextInitialized();
-            return _equipmentRowsRepository ??= new EquipmentRowsRepository(_activeContext!);
-        }
-    }
-    
+
+
     public ISummarySheetsRepository SummarySheetRepository
     {
         get
@@ -141,26 +85,6 @@ public class UnitOfWork(IDbContextFactory<AppDbContext> contextFactory) : IUnitO
             ThrowIfDisposed();
             EnsureContextInitialized();
             return _summarySheetRepository ??= new SummarySheetsRepository(_activeContext!);
-        }
-    }
-    
-    public ISummarySheetColumnsRepository SummarySheetColumnsRepository
-    {
-        get
-        {
-            ThrowIfDisposed();
-            EnsureContextInitialized();
-            return _summarySheetColumnsRepository ??= new SummarySheetColumnsRepository(_activeContext!);
-        }
-    }
-    
-    public ISummarySheetRowsRepository SummarySheetRowsRepository
-    {
-        get
-        {
-            ThrowIfDisposed();
-            EnsureContextInitialized();
-            return _summarySheetRowsRepository ??= new SummarySheetRowsRepository(_activeContext!);
         }
     }
     

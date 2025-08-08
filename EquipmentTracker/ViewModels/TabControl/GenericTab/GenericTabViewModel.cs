@@ -25,9 +25,7 @@ public class GenericTabViewModel : IDisposable
     private void OnUserControlLoaded()
     {   
         if (string.IsNullOrEmpty(_viewNameToShow)) return;
-
-        if (!_isContentRegionNavigated)
-        {
+        
             var navigationParameters = new NavigationParameters();
             ExtractViewSpecificParameters(navigationParameters);
             navigationParameters.Add("ScopedRegionManager", ViewRegionManager);
@@ -35,9 +33,6 @@ public class GenericTabViewModel : IDisposable
             navigationParameters.Add("TabScopedServiceProvider", _tabScopedServiceProvider);
         
             ViewRegionManager.RequestNavigate("ContentRegion", _viewNameToShow, navigationParameters);
-
-            _isContentRegionNavigated = true;
-        }
     }
     
     private void ExtractViewSpecificParameters(NavigationParameters parameters)

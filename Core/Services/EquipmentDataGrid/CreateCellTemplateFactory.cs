@@ -34,9 +34,6 @@ public class CreateCellTemplateFactory
             case ColumnDataType.Text:
                 template = CreateTextCellTemplate(settings);
                 break;
-            case ColumnDataType.MultilineText:
-                template = CreateMultilineTextCellTemplate(settings);
-                break;
             default:
                 template = CreateDefaultCellTemplate(settings);
                 break;

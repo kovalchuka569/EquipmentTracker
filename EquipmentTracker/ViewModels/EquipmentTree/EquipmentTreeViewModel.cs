@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Windows.Input;
 using Common.Logging;
 using Core.Events.TabControl;
 using Core.Services.EquipmentTree;
@@ -114,6 +115,8 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware, IRegionMem
     public DelegateCommand AddRepairsSummaryReportCommand { get; }
     public DelegateCommand AddServicesSummaryReportCommand { get; }
     public DelegateCommand AddWriteOffSummaryReportCommand { get; }
+    public DelegateCommand<ItemDoubleTappedEventArgs> ItemDoubleTappedCommand { get; }
+    public DelegateCommand<KeyEventArgs> UserControlKeyDownCommand { get; private set; }
     public EquipmentTreeViewModel(IEventAggregator eventAggregator, IAppLogger<EquipmentTreeViewModel> logger, NotificationManager notificationManager)
     {
         _scopedEventAggregator = new EventAggregator();
@@ -134,6 +137,22 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware, IRegionMem
         AddRepairsSummaryReportCommand = new DelegateCommand(OnAddRepairsSummaryFile);
         AddServicesSummaryReportCommand = new DelegateCommand(OnAddServicesSummaryFile);
         AddWriteOffSummaryReportCommand = new DelegateCommand(OnAddWriteOffSummaryFile);
+        ItemDoubleTappedCommand = new DelegateCommand<ItemDoubleTappedEventArgs>(OnItemDoubleTapped);
+        UserControlKeyDownCommand = new DelegateCommand<KeyEventArgs>(OnUserControlKeyDown);
+    }
+
+    private void OnUserControlKeyDown(KeyEventArgs args)
+    {
+        if (args.Key == Key.Escape)
+        {
+            SelectedItem = null;
+        }
+    }
+
+    private void OnItemDoubleTapped(ItemDoubleTappedEventArgs args)
+    {
+        if (args.Node.Content is not IFileSystemItem fileSystemItem) return;
+        OnOpenFileCommand();
     }
     
     private async void OnAddEquipmentsSummaryFile()
@@ -165,9 +184,12 @@ public class EquipmentTreeViewModel : BindableBase, INavigationAware, IRegionMem
         var siblingNames = folder.SubItems.OfType<FileItem>().Select(f => f.Name).ToList();
         string uniqueName = _service.GenerateUniqueFileFolderName(baseName, siblingNames);
         Guid id = Guid.NewGuid();
+        Guid equipmentSheetId = Guid.NewGuid();
+        
         var newFile = new FileItem
         {
             Id = id,
+            EquipmentSheetId = equipmentSheetId,
             FolderId = folder.Id,
             Name = uniqueName,
             FileFormat = fileFormat,

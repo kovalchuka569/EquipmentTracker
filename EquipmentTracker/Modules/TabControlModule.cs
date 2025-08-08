@@ -105,6 +105,7 @@ public class TabControlModule : IModule
         containerRegistry.RegisterForNavigation<SheetSelectorView, SheetSelectorViewModel>();
         containerRegistry.RegisterScoped<IEquipmentSheetService, EquipmentSheetService>(); // Service
         containerRegistry.Register<IGridColumnFactory, SyncfusionGridColumnFactory>();
+        containerRegistry.Register<IGridInteractionHandler, GridInteractionHandler>();
         // Deletion agreement
         containerRegistry.RegisterForNavigation<DeletionAgreementView, DeletionAgreementViewModel>();
         

@@ -1,5 +1,4 @@
 ﻿using System.Collections.ObjectModel;
-using System.Windows.Media;
 
 namespace Models.Equipment.ColumnCreator;
 
@@ -10,6 +9,7 @@ public class ComboBoxFontFamily
     {
         return new ObservableCollection<ComboBoxFontFamily>
         {
+            new ComboBoxFontFamily {FontFamily = "Microsoft Sans Serif"},
             new ComboBoxFontFamily {FontFamily = "Segoe UI"},
             new ComboBoxFontFamily {FontFamily = "Times New Roman"},
             new ComboBoxFontFamily {FontFamily = "Comic Sans MS"},

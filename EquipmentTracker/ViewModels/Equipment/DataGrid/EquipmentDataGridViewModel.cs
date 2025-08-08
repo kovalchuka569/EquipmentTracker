@@ -2,23 +2,14 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Dynamic;
 using System.Windows;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
 using Microsoft.Win32;
 using System.IO;
-using System.Windows.Shapes;
-using System.Windows.Threading;
 using Common.Logging;
 using Syncfusion.XlsIO;
 using Core.Services.EquipmentDataGrid;
 using EquipmentTracker.Common;
-using EquipmentTracker.Common.Controls;
 using EquipmentTracker.Common.DataGridExport;
 using EquipmentTracker.Constants.Common;
 using EquipmentTracker.Constants.Equipment;
@@ -322,7 +313,7 @@ public class EquipmentDataGridViewModel : BindableBase, INavigationAware, IDestr
         ProgressBarVisibility = true;
         try
         {
-            await _equipmentSheetService.RemoveItemsAsync(idsToRemove, cts.Token);
+           // await _equipmentSheetService.RemoveItemsAsync(idsToRemove, cts.Token);
 
             foreach (var item in itemsToRemove)
             {
@@ -392,7 +383,7 @@ public class EquipmentDataGridViewModel : BindableBase, INavigationAware, IDestr
             ProgressBarVisibility = true;
             try
             {
-                await _equipmentSheetService.RemoveColumnAsync(columnId, cts.Token);
+               // await _equipmentSheetService.RemoveColumnAsync(columnId, cts.Token);
                 Columns.Remove(contextInfo.Column);
                 _notificationManager.Show($"Успішно видалено характеристику '{columnHeaderText}'",
                     NotificationType.Success);
@@ -486,7 +477,7 @@ public class EquipmentDataGridViewModel : BindableBase, INavigationAware, IDestr
         };
 
         if (dlg.ShowDialog() != true) return;
-
+        
         try
         {
             IsImporting = true;
@@ -500,7 +491,7 @@ public class EquipmentDataGridViewModel : BindableBase, INavigationAware, IDestr
                 return;
             }
             
-            string selectedSheet = null;
+            string selectedSheet = String.Empty;
             int headerRow = 1;
             int headerCol = 1;
 
@@ -691,13 +682,13 @@ public class EquipmentDataGridViewModel : BindableBase, INavigationAware, IDestr
 
     private async void ColumnEditingCallback(ColumnEditingResult result)
     {
-        try
+        /*try
         {
             _scopedRegionManager.Regions["ColumnCreatorRegion"].RemoveAll();
             if (!result.IsSuccessful) return;
             
-            var editedColumnId = result.Column.Id;
-            var shouldBePinned = result.Column.Settings.IsPinned;
+          //  var editedColumnId = result.Column.Id;
+          //  var shouldBePinned = result.Column.Settings.IsPinned;
             
             await _equipmentSheetService.UpdateColumnAsync(result.Column);
             
@@ -715,7 +706,7 @@ public class EquipmentDataGridViewModel : BindableBase, INavigationAware, IDestr
         {
             _logger.LogError(ex, "Error in ColumnEditingCallback");
             _notificationManager.Show($"Помилка при оновлені характеристики: {ex.Message}", NotificationType.Error);
-        }
+        }*/
     }
     
     private async Task ReloadAllColumns()
@@ -839,34 +830,34 @@ public class EquipmentDataGridViewModel : BindableBase, INavigationAware, IDestr
 
            // int newColumnPosition = _columnMappingNameIdMap.Values.Any() ? _columnMappingNameIdMap.Values.Max() + 1 : 0;
            // result.ColumnSettings.ColumnPosition = newColumnPosition;
-            var columnItem = new ColumnItem
+            //var columnItem = new ColumnItem
             {
-                Id = await _equipmentSheetService.AddColumnAsync(result.ColumnSettings, _tableId),
-                EquipmentSheetId = _tableId,
-                Settings = result.ColumnSettings
+           //     Id = await _equipmentSheetService.AddColumnAsync(result.ColumnSettings, _tableId),
+           //     EquipmentSheetId = _tableId,
+             //   Settings = result.ColumnSettings
             };
-            var column = CreateColumn(result.ColumnSettings);
+          //  var column = CreateColumn(result.ColumnSettings);
             
             // Pinned process
-            if (result.ColumnSettings.IsPinned)
+           // if (result.ColumnSettings.IsPinned)
             {
                 int firstNonFrozenIndex = Columns
                     .TakeWhile(c => _columnItemMap.TryGetValue(c, out var item) && item.Settings.IsPinned)
                     .Count();
             
-                Columns.Insert(firstNonFrozenIndex, column);
+               // Columns.Insert(firstNonFrozenIndex, column);
                 
                 FrozenColumnCount = Columns.Count(c => 
                     _columnItemMap.TryGetValue(c, out var item) && item.Settings.IsPinned);
             }
             // Or default
-            else
+           // else
             {
-                Columns.Add(column);
+           //     Columns.Add(column);
             }
             
-            _columnMappingNameIdMap[columnItem.Settings.MappingName] = columnItem.Id;
-            _columnItemMap[column] = columnItem;
+           // _columnMappingNameIdMap[columnItem.Settings.MappingName] = columnItem.Id;
+           // _columnItemMap[column] = columnItem;
             
         }
         catch (Exception ex)
@@ -1113,20 +1104,6 @@ public class EquipmentDataGridViewModel : BindableBase, INavigationAware, IDestr
                 break;
             case ColumnDataType.Text:
                 var textSpecificSettings = settings.SpecificSettings as TextColumnSettings;
-                return new GridTextColumn
-                {
-                    HeaderText = settings.HeaderText,
-                    TextAlignment = TextAlignment.Center,
-                    TextWrapping = TextWrapping.Wrap,
-                    MappingName = settings.MappingName,
-                    AllowFiltering = settings.AllowFiltering,
-                    AllowSorting = settings.AllowSorting,
-                    AllowGrouping = settings.AllowGrouping,
-                    AllowEditing = !settings.IsReadOnly,
-                    Width = settings.ColumnWidth,
-                };
-            case ColumnDataType.MultilineText:
-                var multilineSpecificSettings = settings.SpecificSettings as MultilineTextColumnSettings;
                 return new GridTextColumn
                 {
                     HeaderText = settings.HeaderText,

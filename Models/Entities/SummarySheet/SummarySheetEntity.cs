@@ -8,7 +8,12 @@ public class SummarySheetEntity
 {
     [Key]
     public Guid Id { get; set; }
+    
     public bool Deleted { get; set; }
-    public List<SummaryColumnEntity> SummaryColumns { get; set; } = new();
-    public List<SummaryRowEntity> SummaryRows { get; set; } = new();
+    
+    [Column(TypeName = "jsonb")]
+    public string ColumnsJson { get; set; } = "[]";
+    
+    [Column(TypeName = "jsonb")]
+    public string RowsJson { get; set; } = "[]";
 }

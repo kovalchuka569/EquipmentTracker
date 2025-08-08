@@ -87,7 +87,6 @@ public class TabControlViewModel : BindableBase
             CloseAllButThisCommand = CloseAllButThisCommand
         };
         TabItems.Add(newTab);
-        SelectedTabItem = newTab;
     }
 
     private void OnCloseSelectedTabItem()

@@ -33,8 +33,6 @@ public class GridColumnFactory
                 return GetHyperlinkColumn(parameters);
             case ColumnDataType.Date:
                 return GetDateTimeColumn(parameters);
-            case ColumnDataType.MultilineText:
-                return GetTextColumn(parameters);
             case ColumnDataType.List:
                 return GetTextColumn(parameters);
             default: return GetTextColumn(parameters);

@@ -8,7 +8,10 @@ public class EquipmentSheetEntity
 {
     [Key]
     public Guid Id { get; set; }
+    
     public bool Deleted { get; set; }
-    public List<EquipmentRowEntity> EquipmentRows { get; set; } = new();
-    public List<EquipmentColumnEntity> EquipmentColumns { get; set; } = new();
+    
+    public string ColumnsJson { get; set; }
+
+    public string RowsJson { get; set; }
 }

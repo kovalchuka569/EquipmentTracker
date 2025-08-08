@@ -8,6 +8,5 @@ public enum ColumnDataType
     Boolean,
     List,
     Hyperlink,
-    MultilineText,
     Currency,
 }

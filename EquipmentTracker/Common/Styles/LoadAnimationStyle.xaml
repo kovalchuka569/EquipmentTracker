@@ -29,6 +29,24 @@
         </Style.Triggers>
     </Style>
     
+    <Style TargetType="UserControl" x:Key="LoadUserControlOpacity">
+        <Setter Property="Opacity" Value="0"/> <Style.Triggers>
+            <EventTrigger RoutedEvent="Loaded">
+                <BeginStoryboard>
+                    <Storyboard>
+                        <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                         From="0" To="1"
+                                         Duration="0:0:1.2">
+                            <DoubleAnimation.EasingFunction>
+                                <QuarticEase EasingMode="EaseOut"/>
+                            </DoubleAnimation.EasingFunction>
+                        </DoubleAnimation>
+                    </Storyboard>
+                </BeginStoryboard>
+            </EventTrigger>
+        </Style.Triggers>
+    </Style>
+    
     <Style TargetType="Grid" x:Key="LoadGridAnimationBottomToTop">
         <Setter Property="RenderTransform">
             <Setter.Value>

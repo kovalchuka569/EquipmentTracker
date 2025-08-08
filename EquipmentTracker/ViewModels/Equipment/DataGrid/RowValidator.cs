@@ -1,9 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Dynamic;
-using System.Text.RegularExpressions;
 using EquipmentTracker.Common;
 using Models.Equipment;
-using Models.Equipment.ColumnCreator;
 using Models.Equipment.ColumnSpecificSettings;
 using Syncfusion.UI.Xaml.Grid;
 
@@ -86,7 +84,6 @@ public class RowValidator
         return columnItem.Settings.DataType switch
         {
             ColumnDataType.Text => ValidateTextColumn(columnItem, cellValue, headerText),
-            ColumnDataType.MultilineText => ValidateTextMultilineColumn(columnItem, cellValue, headerText),
             ColumnDataType.Number => ValidateNumberColumn(columnItem, cellValue, headerText),
             _ => null
         };

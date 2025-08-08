@@ -1,9 +1,4 @@
 ﻿using System.Collections.ObjectModel;
-using Common.Logging;
-using Data.Repositories.EquipmentTree;
-using Data.Repositories.Interfaces;
-using Data.Repositories.Interfaces.EquipmentSheet;
-using Data.Repositories.Interfaces.SummarySheet;
 using Models.Entities.EquipmentSheet;
 using Models.Entities.FileSystem;
 using Models.Entities.SummarySheet;
@@ -13,12 +8,7 @@ using Data.UnitOfWork;
 
 namespace Core.Services.EquipmentTree;
 
-public class EquipmentTreeService(IAppLogger<EquipmentTreeService> logger, IEquipmentTreeRepository repository, 
-    IFoldersRepository foldersRepository, 
-    IFilesRepository filesRepository,
-    IEquipmentSheetRepository equipmentSheetRepository,
-    ISummarySheetsRepository summarySheetRepository,
-    IUnitOfWork unitOfWork)
+public class EquipmentTreeService(IUnitOfWork unitOfWork)
     : IEquipmentTreeService
 {                   
     public async Task<ObservableCollection<IFileSystemItem>> BuildHierarchy(MenuType menuType)
@@ -41,8 +31,8 @@ public class EquipmentTreeService(IAppLogger<EquipmentTreeService> logger, IEqui
             Name = f.Name,
             FolderId = f.FolderId,
             FileFormat = f.FileFormat,
-            EquipmentSheetId = (f as EquipmentFileEntity)?.EquipmentSheetId,
-            SummaryId = (f as SummaryFileEntity)?.SummarySheetId
+            EquipmentSheetId = (f as EquipmentFileEntity)?.EquipmentSheetId ?? Guid.Empty,
+            SummaryId = (f as SummaryFileEntity)?.SummarySheetId ?? Guid.Empty,
         }).ToList();
         
         
@@ -86,14 +76,13 @@ public class EquipmentTreeService(IAppLogger<EquipmentTreeService> logger, IEqui
 
     public async Task CreateFileAsync(FileItem fileItem, FileFormat fileFormat, CancellationToken ct)
     {
-        Guid newSheetId = Guid.NewGuid();
         await unitOfWork.BeginTransactionAsync(ct);
         switch (fileFormat)
         {
             case FileFormat.EquipmentSheet:
                 var newEquipmentSheet = new EquipmentSheetEntity
                 {
-                    Id = newSheetId,
+                    Id = fileItem.EquipmentSheetId,
                     Deleted = false
                 };
                 await unitOfWork.EquipmentSheetRepository.AddAsync(newEquipmentSheet, ct);
@@ -105,7 +94,7 @@ public class EquipmentTreeService(IAppLogger<EquipmentTreeService> logger, IEqui
                     Name = fileItem.Name,
                     FileFormat = fileFormat,
                     MenuType = fileItem.MenuType,
-                    EquipmentSheetId = newSheetId,
+                    EquipmentSheetId = fileItem.EquipmentSheetId,
                 };
                 await unitOfWork.FilesRepository.AddAsync(newEquipmentFileEntity, ct);
                 break;
@@ -113,7 +102,7 @@ public class EquipmentTreeService(IAppLogger<EquipmentTreeService> logger, IEqui
             case FileFormat.SummaryEquipment:
                 var newSummarySheetEntity = new SummarySheetEntity
                 {
-                    Id = newSheetId,
+                    Id = fileItem.SummaryId,
                     Deleted = false
                 };
                 await unitOfWork.SummarySheetRepository.AddAsync(newSummarySheetEntity, ct);
@@ -125,7 +114,7 @@ public class EquipmentTreeService(IAppLogger<EquipmentTreeService> logger, IEqui
                     Name = fileItem.Name,
                     FileFormat = fileFormat,
                     MenuType = fileItem.MenuType,
-                    SummarySheetId = newSheetId
+                    SummarySheetId = fileItem.SummaryId
                 };
                 await unitOfWork.FilesRepository.AddAsync(newSummaryFileEntity, ct);
                 break;

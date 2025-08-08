@@ -80,7 +80,8 @@ public partial class DataGridToolBar
     {
         if (d is DataGridToolBar && e.NewValue is SearchHelper searchHelper)
         {
-            searchHelper.SearchBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#005FB8"));
+            var searchColor = (Color)ColorConverter.ConvertFromString("#005FB8");
+            searchHelper.SearchBrush = new SolidColorBrush(searchColor);
             searchHelper.SearchForegroundBrush = Brushes.White;
             searchHelper.AllowFiltering = true;
             searchHelper.SearchForegroundHighlightBrush = Brushes.White;

@@ -207,20 +207,6 @@
                     </StackPanel>
                 </DataTemplate>
             
-            <!-- ================================================================================ -->
-            
-                <DataTemplate x:Key="MultilineTextTemplate">
-                    <StackPanel>
-                            <GroupBox Header="Максимальна кількість символів" FontSize="12" FontFamily="Segoe UI" Margin="5">
-                                <sf:IntegerTextBox Value="{Binding DataContext.MaxMultilineTextLength, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, ValidatesOnDataErrors=True}" 
-                                                   FontSize="14" FontFamily="Segoe UI" ShowSpinButton="True"
-                                                   MinValue="0" MaxValue="9223372036854775807" Margin="5"/>
-                            </GroupBox>
-                    </StackPanel>
-                </DataTemplate>
-            
-            <!-- ================================================================================ -->
-            
                 <DataTemplate x:Key="CurrencyTemplate">
                     <StackPanel>
                         <Grid>
@@ -299,7 +285,6 @@
                                               DateTemplate="{StaticResource DateTemplate}"
                                               BooleanTemplate="{StaticResource BooleanTemplate}"
                                               ListTemplate="{StaticResource ListTemplate}"
-                                              MultilineTextTemplate="{StaticResource MultilineTextTemplate}"
                                               CurrencyTemplate="{StaticResource CurrencyTemplate}"
                                               HyperlinkTemplate="{StaticResource HyperlinkTemplate}"/>
                                                 

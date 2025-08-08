@@ -1,8 +1,6 @@
-﻿using Models.Table;
+﻿namespace Models.Equipment.ColumnSpecificSettings;
 
-namespace Models.Equipment.ColumnSpecificSettings;
-
-public class BooleanColumnSettings : ColumnSpecificSettingsBase
+public class BooleanColumnSettings
 {
     public bool DefaultValue { get; set; }
 }

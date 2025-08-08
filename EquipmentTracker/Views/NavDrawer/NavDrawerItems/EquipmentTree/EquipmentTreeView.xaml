@@ -9,12 +9,9 @@
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:behavior="clr-namespace:Core.Behaviors.SyncfusionTreeView;assembly=Core"
-             xmlns:searchconverter="clr-namespace:EquipmentTracker.ViewModels.DataGrid"
-             xmlns:prism="http://prismlibrary.com/"
-             xmlns:local="clr-namespace:UI.Views.NavDrawer.NavDrawerItems.EquipmentTree"
              xmlns:syncfusionskin="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF"
              syncfusionskin:SfSkinManager.Theme="{syncfusionskin:SkinManagerExtension ThemeName=Windows11Light}"
-             Style="{DynamicResource LoadUserControlAnimationBottomToTop}">
+             Style="{DynamicResource LoadUserControlOpacity}">
     
     <UserControl.Resources>
         <ResourceDictionary>
@@ -35,38 +32,48 @@
         
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
         
         <ProgressBar Grid.Row="0" IsIndeterminate="True" IsEnabled="True" Visibility="{Binding ProgressBarVisibility, Converter={StaticResource BoolToVisibilityConverter}}"/>
         
-        <sf:SfTreeView Grid.Row="1" 
+        <!-- TODO: implement search here -->
+        
+        <Grid Grid.Row="2"  Style="{StaticResource LoadGridAnimationBottomToTop}">
+        <sf:SfTreeView
             x:Name="SfTreeView"
-            Style="{StaticResource SyncfusionSfTreeViewStyle}"
             SelectionBackgroundColor="LightGray"
             VerticalAlignment="Top" HorizontalAlignment="Left"
             IsAnimationEnabled="True"
+            AllowDragging="True"
             AllowEditing="True"
             EditTrigger="F2"
-            ShowLines="True"
-            SelectionForegroundColor="Blue"
+            ShowLines="True"            
             ItemHeight="30"
             ShowRootLines="True"
             AllowDeleting="True"
             ExpandActionTrigger="Node"
-            SelectionMode="SingleDeselect"
+            SelectionMode="Single"
             ItemsSource="{Binding Items}"
             SelectedItem="{Binding SelectedItem, Mode=TwoWay}">
             
             <i:Interaction.Triggers>
+                <i:EventTrigger EventName="ItemDoubleTapped">
+                    <i:InvokeCommandAction Command="{Binding ItemDoubleTappedCommand}"
+                                           PassEventArgsToCommand="True"/>
+                </i:EventTrigger>
+                
                 <i:EventTrigger EventName="NodeExpanded">
                     <i:InvokeCommandAction Command="{Binding NodeExpandedCommand}"
                                            PassEventArgsToCommand="True"/>
                 </i:EventTrigger>
+                
                 <i:EventTrigger EventName="NodeCollapsed">
                     <i:InvokeCommandAction Command="{Binding NodeCollapsedCommand}"
                                            PassEventArgsToCommand="True"/>
                 </i:EventTrigger>
+                
                 <i:EventTrigger EventName="Loaded">
                     <i:InvokeCommandAction Command="{Binding SfTreeViewLoadedCommand}"
                                            PassEventArgsToCommand="True"
@@ -87,7 +94,7 @@
             
             <sf:SfTreeView.ItemTemplate>
                 <DataTemplate>
-                    <Grid VerticalAlignment="Center">
+                    <Grid VerticalAlignment="Center" Cursor="Hand">
                         
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
@@ -213,6 +220,7 @@
                 </sf:SfTreeView.ContextMenu>
             
         </sf:SfTreeView>
+            </Grid>
         
         </Grid>
         
@@ -232,5 +240,12 @@
             VerticalAlignment="Bottom" />
     
     </Grid>
+    
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="KeyDown">
+            <i:InvokeCommandAction Command="{Binding UserControlKeyDownCommand}"
+                                   PassEventArgsToCommand="True"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
     
 </UserControl>

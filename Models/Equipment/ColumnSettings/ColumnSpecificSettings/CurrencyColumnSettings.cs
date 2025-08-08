@@ -1,8 +1,7 @@
-﻿using Models.Table;
-
+﻿
 namespace Models.Equipment.ColumnSpecificSettings;
 
-public class CurrencyColumnSettings : ColumnSpecificSettingsBase
+public class CurrencyColumnSettings
 {
     public string CurrencySymbol { get; set; }
     public bool PositionBefore { get; set; }

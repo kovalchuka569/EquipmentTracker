@@ -50,12 +50,6 @@ public class ComboBoxType
             },
             new ComboBoxType
             {
-                TypeTitle = "Багаторядковий текст", 
-                TypeDescription = "Для довгих описів, коментарів тощо.",
-                ColumnDataType = ColumnDataType.MultilineText
-            },
-            new ComboBoxType
-            {
                 TypeTitle = "Валюта", 
                 TypeDescription = "Число + валюта, з форматуванням.",
                 ColumnDataType = ColumnDataType.Currency

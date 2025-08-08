@@ -27,5 +27,5 @@ public class ColumnSettingsDisplayModel
     public VerticalAlignment HeaderVerticalAlignment { get; set; }
     public HorizontalAlignment HeaderHorizontalAlignment { get; set; }
     public Thickness HeaderBorderThickness { get; set; }
-    public object SpecificSettings { get; set; }
+    public object? SpecificSettings { get; set; }
 }

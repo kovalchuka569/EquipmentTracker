@@ -11,13 +11,12 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/Syncfusion.Themes.Windows11Light.WPF;component/mscontrol/glyphbutton.xaml"/>
-                <ResourceDictionary Source="/Syncfusion.Themes.Windows11Light.WPF;component/mscontrol/separator.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/Common/Styles/LoadAnimationStyle.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
-    
-    <Border Background="#005aae" CornerRadius="4">
+
+    <Border BorderThickness="0,1" BorderBrush="#09244B">
         <Grid VerticalAlignment="Stretch">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
@@ -38,24 +37,24 @@
                    Placement="Right"
                    StaysOpen="False"
                    AllowsTransparency="True">
-                <Border Background="White" CornerRadius="4">
+                <Border Background="White" CornerRadius="3" BorderBrush="#09244B" BorderThickness="1">
                     <StackPanel Margin="15,5">
-                        <RadioButton x:Name="ContainsSearchType" Checked="SearchType_OnChecked"  GroupName="SearchType" Content="Містить" FontFamily="Segoe UI" />
-                        <RadioButton x:Name="StartWithSearchType" Checked="SearchType_OnChecked" GroupName="SearchType" Content="Починається з" FontFamily="Segoe UI" Margin="0,4"/>
-                        <RadioButton x:Name="EndWithSearchType" Checked="SearchType_OnChecked" GroupName="SearchType" Content="Закінчується на" FontFamily="Segoe UI"/>
+                        <RadioButton x:Name="ContainsSearchType" Checked="SearchType_OnChecked"  GroupName="SearchType" Content="Містить" FontFamily="Microsoft Sans Serif"/>
+                        <RadioButton x:Name="StartWithSearchType" Checked="SearchType_OnChecked" GroupName="SearchType" Content="Починається з" FontFamily="Microsoft Sans Serif" Margin="0,4"/>
+                        <RadioButton x:Name="EndWithSearchType" Checked="SearchType_OnChecked" GroupName="SearchType" Content="Закінчується на" FontFamily="Microsoft Sans Serif"/>
                     </StackPanel>
                 </Border>
             </sf:CustomPopup>
             
-            <sf:CustomPopup
+            <sf:CustomPopup          
                 x:Name="ImportSelectorPopup"
                 PlacementTarget="{Binding ElementName=ImportButton}"
                 Placement="Left"
                 StaysOpen="False"
                 AllowsTransparency="True">
-                <Border Background="White" CornerRadius="4">
+                <Border Background="White" CornerRadius="3" BorderBrush="#09244B" BorderThickness="1">
                     <StackPanel Margin="15,5">
-                        <Button Margin="0,0,0,7" Cursor="Hand" Click="ExcelImportButton_OnClick">
+                        <Button Cursor="Hand" Click="ExcelImportButton_OnClick">
                             <Button.Template>
                                 <ControlTemplate>
                                     <Grid>
@@ -66,8 +65,9 @@
                                         
                                         <Image Grid.Column="0"
                                                Source="Assets/excel.png"
-                                               Width="15" Height="15"/>
-                                        <TextBlock Grid.Column="1" Text="Іморт з Excel" FontFamily="Segoe UI"/>
+                                               Width="20" Height="20"/>
+                                        
+                                        <TextBlock Margin="5,0,0,0" Grid.Column="1" Text="Іморт з Excel" FontFamily="Microsoft Sans Serif" VerticalAlignment="Center"/>
                                     </Grid>
                                 </ControlTemplate>
                             </Button.Template>
@@ -82,7 +82,7 @@
                 Placement="Left"
                 StaysOpen="False"
                 AllowsTransparency="True">
-                <Border Background="White" CornerRadius="4">
+                <Border Background="White" CornerRadius="3" BorderBrush="#09244B" BorderThickness="1">
                     <StackPanel Margin="15,5">
                         <Button Margin="0,0,0,7" Cursor="Hand" Click="ExcelExportButton_OnClick">
                             <Button.Template>
@@ -95,8 +95,9 @@
                                         
                                         <Image Grid.Column="0"
                                                Source="Assets/excel.png"
-                                               Width="15" Height="15"/>
-                                        <TextBlock Grid.Column="1" Text="Експорт в Excel" FontFamily="Segoe UI"/>
+                                               Width="20" Height="20"/>
+
+                                        <TextBlock Margin="5,0,0,0" Grid.Column="1" Text="Експорт в Excel" FontFamily="Microsoft Sans Serif" VerticalAlignment="Center"/>
                                     </Grid>
                                 </ControlTemplate>
                             </Button.Template>
@@ -113,8 +114,9 @@
                                         
                                         <Image Grid.Column="0"
                                                Source="Assets/pdf.png"
-                                               Width="15" Height="15"/>
-                                        <TextBlock Grid.Column="1" Text="Експорт в PDF" FontFamily="Segoe UI"/>
+                                               Width="20" Height="20"/>
+
+                                        <TextBlock Margin="5,0,0,0" Grid.Column="1" Text="Експорт в PDF" FontFamily="Microsoft Sans Serif" VerticalAlignment="Center"/>
                                     </Grid>
                                 </ControlTemplate>
                             </Button.Template>
@@ -122,139 +124,122 @@
                     </StackPanel>
                 </Border>
             </sf:CustomPopup>
-            
-            <Image Grid.Column="0" Source="Assets/search.png" 
-                   Width="15" 
-                   Height="15" 
-                   HorizontalAlignment="Left" 
-                   VerticalAlignment="Center"
-                   Margin="5"
-                   IsHitTestVisible="False"/>
-            
-            <Separator Grid.Column="0" Style="{StaticResource WPFSeparatorStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Right" Width="1"/>
 
-            
-            <TextBox Grid.Column="1" x:Name="SearchTextBox" TextChanged="SearchTextBox_OnTextChanged" Width="300" FontFamily="Segoe UI" FontSize="14" VerticalAlignment="Stretch" Foreground="White">
+
+
+            <TextBox Grid.Column="1" x:Name="SearchTextBox" TextChanged="SearchTextBox_OnTextChanged" Width="300" FontFamily="Microsoft Sans Serif" FontSize="14" VerticalAlignment="Stretch" SelectionTextBrush="#09244B" Foreground="#09244B" CaretBrush="#09244B">
                 <TextBox.Template>
                     <ControlTemplate TargetType="TextBox">
-                        <Grid Background="#005fb8">
-                            <TextBlock x:Name="SearchWatermark" 
-                                       Text="Пошук..." 
-                                       Foreground="White"
-                                       Margin="5,0"
-                                       VerticalAlignment="Center"
-                                       IsHitTestVisible="False"/>
-                                    
-                                    <ScrollViewer x:Name="PART_ContentHost" 
-                                                  VerticalScrollBarVisibility="Hidden" 
-                                                  HorizontalScrollBarVisibility="Hidden"
-                                                  VerticalAlignment="Center"
-                                                  Margin="4,0"/>
-                        </Grid>
+                        <Border Margin="5" CornerRadius="3" Background="LightGray">
+                            <Grid>
+                                <TextBlock x:Name="SearchWatermark" 
+                                           Text="Пошук..." 
+                                           Foreground="#09244B"
+                                           Margin="5,0"
+                                           VerticalAlignment="Center"
+                                           IsHitTestVisible="False"/>
+
+                                <ScrollViewer x:Name="PART_ContentHost" 
+                                                      VerticalScrollBarVisibility="Hidden" 
+                                                      HorizontalScrollBarVisibility="Hidden"                                            
+                                                      VerticalAlignment="Center"
+                                                      Margin="4,0"/>
+                            </Grid>
+                        </Border>
                     </ControlTemplate>
                 </TextBox.Template>
             </TextBox>
-            
-            <Separator Grid.Column="2" Style="{StaticResource WPFSeparatorStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Left" Width="1"/>
-            
+                        
             <Button Grid.Column="2" 
                     Click="ClearSearch_OnClick"
                     Width="30" Height="30"
                     VerticalAlignment="Center" HorizontalAlignment="Left"
-                    Margin="5"
-                    Cursor="Hand"
-                    Style="{StaticResource WPFRoundedGlyphButtonStyle}">
+                    Margin="3"
+                    Background="LightGray"            
+                    Style="{StaticResource WPFGlyphButtonStyle}">
                                 
-                <Image Source="Assets/clear.png" Width="15" Height="15"/>
+                <Image Source="Assets/clear.png" Width="20" Height="20"/>
             </Button>
-            
-            <Separator Grid.Column="3" Style="{StaticResource WPFSeparatorStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Left" Width="1"/>
-            
-            <Button Grid.Column="3" 
+
+            <Button 
+                    Grid.Column="3"
+                    BorderThickness="1"
                     x:Name="SearchTypeSelectorButton"
                     Click="SearchSelector_OnClick"
                     Width="30" Height="30"
                     VerticalAlignment="Center" HorizontalAlignment="Left"
-                    Margin="5"
-                    Cursor="Hand"
-                    Style="{StaticResource WPFRoundedGlyphButtonStyle}">
-                                
-                <Image Source="Assets/filter.png" Width="15" Height="15"/>
-                
+                    Background="LightGray"
+                    Margin="3"
+                    Style="{StaticResource WPFGlyphButtonStyle}">
+
+                <Image Source="Assets/filter.png" Width="20" Height="20"/>
+
             </Button>
-            
-            
-            <Separator Grid.Column="4" Style="{StaticResource WPFSeparatorStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Left" Width="1"/>
-            
+
+
             <Button Grid.Column="4" 
                     x:Name="PreviousButton"
                     Click="NavigationButton_OnClick"
                     Width="30" Height="30"
                     VerticalAlignment="Center" HorizontalAlignment="Left"
-                    Margin="5"
-                    Cursor="Hand"
-                    Style="{StaticResource WPFRoundedGlyphButtonStyle}">
+                    Margin="3"
+                    Background="LightGray"
+                    Style="{StaticResource WPFGlyphButtonStyle}">
                                 
-                <Image Source="Assets/left.png" Width="15" Height="15"/>
+                <Image Source="Assets/left.png" Width="20" Height="20"/>
             </Button>
-            
-            <Separator Grid.Column="5" Style="{StaticResource WPFSeparatorStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Left" Width="1"/>
-            
-            <Button Grid.Column="5" 
+
+            <Button
+                    Grid.Column="5"
                     x:Name="NextButton"
                     Click="NavigationButton_OnClick"
                     Width="30" Height="30"
                     VerticalAlignment="Center" HorizontalAlignment="Left"
-                    Margin="5"
-                    Cursor="Hand"
-                    Style="{StaticResource WPFRoundedGlyphButtonStyle}">
-                                
-                <Image Source="Assets/right.png" Width="15" Height="15"/>
-            </Button>
-            
-            <Separator Grid.Column="6" Style="{StaticResource WPFSeparatorStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Left" Width="1"/>
+                    Margin="3"
+                    Background="LightGray"
+                    Style="{StaticResource WPFGlyphButtonStyle}">
 
-            <Grid Grid.Column="7" x:Name="ImportButton">
-            <Separator Style="{StaticResource WPFSeparatorStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Left" Width="1"/>
-            
-            <Button Click="ImportButton_OnClick"
+                <Image Source="Assets/right.png" Width="20" Height="20"/>
+            </Button>
+
+
+            <Button 
+                    Grid.Column="7"
+                    x:Name="ImportButton"
+                    Click="ImportButton_OnClick"
                     Width="30" Height="30"
                     VerticalAlignment="Center" HorizontalAlignment="Right"
-                    Margin="5"
-                    Cursor="Hand"
-                    Style="{StaticResource WPFRoundedGlyphButtonStyle}">
-                                
-                <Image Source="Assets/import.png" Width="20" Height="20"/>
-            </Button>
-            </Grid>
-            
-            <Separator Grid.Column="8" Style="{StaticResource WPFSeparatorStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Left" Width="1"/>
-            
+                    Margin="3"
+                    Background="LightGray"
+                    Style="{StaticResource WPFGlyphButtonStyle}">
+
+                    <Image Source="Assets/import.png" Width="20" Height="20"/>
+                </Button>
+
             <Button Grid.Column="8" 
                     x:Name="ExportButton"
                     Click="ExportButton_OnClick"
                     Width="30" Height="30"
                     VerticalAlignment="Center" HorizontalAlignment="Right"
-                    Margin="5"
-                    Cursor="Hand"
-                    Style="{StaticResource WPFRoundedGlyphButtonStyle}">
+                    Margin="3" 
+                    Background="LightGray"
+                    Style="{StaticResource WPFGlyphButtonStyle}">
                                 
                 <Image Source="Assets/export.png" Width="20" Height="20"/>
             </Button>
-            
-            <Separator Grid.Column="9" Style="{StaticResource WPFSeparatorStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Left" Width="1"/>
-            
-            <Button Grid.Column="9" 
+
+            <Button
+                    Grid.Column="9"
                     Click="PrintButton_OnClick"
                     Width="30" Height="30"
                     VerticalAlignment="Center" HorizontalAlignment="Right"
-                    Margin="5"
-                    Cursor="Hand"
+                    Margin="3"
+                    Background="LightGray"
                     Style="{StaticResource WPFGlyphButtonStyle}">
-                                
+
                 <Image Source="Assets/print.png" Width="20" Height="20"/>
             </Button>
-            
+
         </Grid>
         </Border>
 </UserControl>

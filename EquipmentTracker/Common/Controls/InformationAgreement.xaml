@@ -58,7 +58,7 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     
-                    <Button Command="{Binding CancelCommand}" Grid.Column="0" Cursor="Hand" HorizontalAlignment="Right" Margin="0,0,5,0" Style="{StaticResource WPFButtonStyle}">
+                    <Button Visibility="{Binding CancelButtonVisibility}" Command="{Binding CancelCommand}" Grid.Column="0" Cursor="Hand" HorizontalAlignment="Right" Margin="0,0,5,0" Style="{StaticResource WPFButtonStyle}">
                         <Button.ContentTemplate>
                            <DataTemplate>
                                <TextBlock Text="{Binding DataContext.CancelButtonText, RelativeSource={RelativeSource AncestorType=sf:ChromelessWindow}}" Margin="3" FontFamily="Segoe UI" FontSize="14"/>

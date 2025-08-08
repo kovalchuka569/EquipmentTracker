@@ -15,15 +15,8 @@ public class RepositoriesModule : IModule
 
         containerRegistry.RegisterScoped<IFoldersRepository, FoldersRepository>();
         containerRegistry.RegisterScoped<IFilesRepository, FilesRepository>();
-        containerRegistry.RegisterScoped<IColumnRepository, ColumnRepository>();
-        containerRegistry.RegisterScoped<IRowsRepository, RowsRepository>();
-        containerRegistry.RegisterScoped<ICellsRepository, CellsRepository>();
         containerRegistry.RegisterScoped<ISummarySheetsRepository, SummarySheetsRepository>();
-        containerRegistry.RegisterScoped<ISummarySheetColumnsRepository, SummarySheetColumnsRepository>();
-        containerRegistry.RegisterScoped<ISummarySheetRowsRepository, SummarySheetRowsRepository>();
         containerRegistry.RegisterScoped<IEquipmentSheetRepository, EquipmentSheetRepository>();
-        containerRegistry.RegisterScoped<IEquipmentColumnsRepository, EquipmentColumnsRepository>();
-        containerRegistry.RegisterScoped<IEquipmentRowsRepository, EquipmentRowsRepository>();
     }
 
     public void OnInitialized(IContainerProvider containerProvider) { }

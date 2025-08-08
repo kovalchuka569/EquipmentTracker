@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Drawing;
 using System.Dynamic;
 using System.Globalization;
 using System.Net.Mime;
@@ -10,16 +11,16 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using Core.Services.EquipmentDataGrid;
+using Models.Common.Table;
+using Models.Common.Table.ColumnSpecificSettings;
+using Models.Common.Table.ColumnValidationRules;
 using Models.Equipment;
 using Models.Equipment.ColumnCreator;
-using Models.Equipment.ColumnSettings;
-using Models.Equipment.ColumnSpecificSettings;
-using Prism.Commands;
-using Prism.Mvvm;
+
 using Syncfusion.UI.Xaml.Grid;
 using Syncfusion.UI.Xaml.Grid.Helpers;
-using Syncfusion.UI.Xaml.Grid.ScrollAxis;
-using Brushes = System.Windows.Media.Brushes;
+using Color = System.Windows.Media.Color;
+using FontFamily = System.Windows.Media.FontFamily;
 using ResizingColumnsEventArgs = Syncfusion.UI.Xaml.Grid.ResizingColumnsEventArgs;
 using RowColumnIndex = Syncfusion.UI.Xaml.ScrollAxis.RowColumnIndex;
 
@@ -101,15 +102,15 @@ public class ColumnCreatorViewModel : BindableBase, INavigationAware, IDisposabl
     
     #region TextTemplate
 
-        private long _minTextLength;
-        public long MinTextLength
+        private int _minTextLength;
+        public int MinTextLength
         {
             get => _minTextLength;
             set => SetProperty(ref _minTextLength, value);
         }
         
-        private long _maxTextLength;
-        public long MaxTextLength
+        private int _maxTextLength;
+        public int MaxTextLength
         {
             get => _maxTextLength;
             set => SetProperty(ref _maxTextLength, value);
@@ -268,8 +269,8 @@ public class ColumnCreatorViewModel : BindableBase, INavigationAware, IDisposabl
     
     private double _columnWidth;
 
-    private List<string> _listValues = new();
-    public List<string> ListValues
+    private ObservableCollection<string> _listValues = new();
+    public ObservableCollection<string> ListValues
     {
         get => _listValues;
         set
@@ -326,7 +327,7 @@ public class ColumnCreatorViewModel : BindableBase, INavigationAware, IDisposabl
     }
     
     private bool _isEditing;
-    private ColumnItem _editingColumn;
+    private ColumnModel _editingColumnModel;
     private string _mappingName;
     
     public void OnNavigatedTo(NavigationContext navigationContext)
@@ -341,14 +342,15 @@ public class ColumnCreatorViewModel : BindableBase, INavigationAware, IDisposabl
         {   
             _scopedRegionManager = scopedRegionManager;
         }
-        if (navigationContext.Parameters["EditingColumnItem"] is ColumnItem editingColumnItem)
+        if (navigationContext.Parameters["EditingColumnModel"] is ColumnModel editingColumnModel)
         {
-            _editingColumn = editingColumnItem;
+            _editingColumnModel = editingColumnModel;
         }
         if (navigationContext.Parameters["ColumnEditingCallback"] is Action<ColumnEditingResult> editingCallback)
         {   
             _isEditing = true;
             _columnEditingCallback = editingCallback;
+            Console.WriteLine("Column Editing");
             LoadEditingProperties();
         }
     }
@@ -394,9 +396,9 @@ public class ColumnCreatorViewModel : BindableBase, INavigationAware, IDisposabl
         }
     }
 
-    private async void CreatingColumn()
+    private void CreatingColumn()
     {
-        var columnSettings = new ColumnSettingsDisplayModel()
+        var columnModel = new ColumnModel
         {
             DataType = SelectedColumnType.ColumnDataType,
 
@@ -409,7 +411,7 @@ public class ColumnCreatorViewModel : BindableBase, INavigationAware, IDisposabl
             HeaderBorderColor = HeaderBorderColor,
 
             // Font
-            HeaderFontFamily = SelectedHeaderFontFamily.FontFamily,
+            HeaderFontFamily = new FontFamily(SelectedHeaderFontFamily.FontFamily),
             HeaderFontSize = SelectedHeaderFontSize.FontSize,
             HeaderFontWeight = SelectedHeaderFontWeight.FontWeight,
 
@@ -418,165 +420,126 @@ public class ColumnCreatorViewModel : BindableBase, INavigationAware, IDisposabl
             HeaderVerticalAlignment = SelectedHeaderVerticalAlignment.Alignment,
 
             // Size
-            ColumnWidth = _columnWidth,
+            Width = _columnWidth,
 
             // CheckBoxes
             IsReadOnly = IsReadOnly,
-            IsUnique = IsUnique,
-            IsRequired = IsRequired,
             AllowSorting = AllowSorting,
             AllowFiltering = AllowFiltering,
             AllowGrouping = AllowGrouping,
-            IsPinned = IsPinned,
+            IsFrozen = IsPinned,
 
             // Border Thickness
             HeaderBorderThickness = new Thickness(LeftBorderThickness, TopBorderThickness, RightBorderThickness,
                 BottomBorderThickness),
 
-            SpecificSettings = CreateSpecificSettings(SelectedColumnType.ColumnDataType),
+            SpecificSettings = CreateColumnSpecificSettings(SelectedColumnType.ColumnDataType),
+            ValidationRules = CreateColumnValidationRules(SelectedColumnType.ColumnDataType)
         };
-        _columnCreationCallback.Invoke(new ColumnCreationResult{ IsSuccessful = true, ColumnSettings = columnSettings });
+        _columnCreationCallback.Invoke(new ColumnCreationResult{ IsSuccessful = true, ColumnModel = columnModel });
+    }
+
+    private IColumnValidationRules CreateColumnValidationRules(ColumnDataType dataType)
+    {
+        switch (dataType)
+        {
+            case ColumnDataType.Text:
+                return new TextColumnValidationRules
+                {
+                    IsRequired = IsRequired,
+                    IsUnique = IsUnique,
+                    MaxLength = MaxTextLength,
+                    MinLength = MinTextLength,
+                };
+            case ColumnDataType.Number:
+                return new NumericColumnValidationRules
+                {
+                    IsRequired = IsRequired,
+                    IsUnique = IsUnique,
+                    MaxValue = DoubleMaxValue,
+                    MinValue = DoubleMinValue,
+                };
+            default:
+                return new DefaultColumnValidationRules
+                {
+                    IsRequired = IsRequired,
+                    IsUnique = IsUnique,
+                };
+        }
+    }
+
+    private IColumnSpecificSettings CreateColumnSpecificSettings(ColumnDataType dataType)
+    {
+        switch (dataType)
+        {
+            case ColumnDataType.Date:
+                return new DateColumnSpecificSettings
+                {
+                    DateFormat = SelectedDateFormat.Format
+                };
+            case ColumnDataType.Currency:
+                return new CurrencyColumnSpecificSettings
+                {
+                    CurrencySymbol = SelectedCurrency.Currency,
+                    CurrencyPosition = CurrencySymbolAtFirst ? CurrencyPosition.Before : CurrencySymbolAtLast ? CurrencyPosition.After : CurrencyPosition.Before
+                };
+            case ColumnDataType.Boolean:
+                return new CheckBoxColumnSpecificSettings
+                {
+                    DefaultValue = BooleanIsChecked,
+                };
+            case ColumnDataType.List:
+                return new ComboBoxColumnSpecificSettings
+                {
+                    ListValues = ListValues.ToList()
+                };
+            case ColumnDataType.Number:
+                return new NumericColumnSpecificSettings
+                {
+                    NumberDecimalDigits = DoubleCharactersAfterComa
+                };
+            default:
+                return new DefaultColumnSpecificSettings();
+        }
     }
 
     private void EditingColumn()
     {
-        var s = _editingColumn.Settings;
+        var s = _editingColumnModel;
         s.HeaderText = HeaderText;
 
         s.HeaderBackground = HeaderBackgroundColor;
         s.HeaderForeground = HeaderForegroundColor;
         s.HeaderBorderColor = HeaderBorderColor;
-
-        s.HeaderFontFamily = SelectedHeaderFontFamily.FontFamily;
+        s.HeaderFontFamily = new FontFamily(SelectedHeaderFontFamily.FontFamily);
         s.HeaderFontSize = SelectedHeaderFontSize.FontSize;
         s.HeaderFontWeight = SelectedHeaderFontWeight.FontWeight;
-
         s.HeaderHorizontalAlignment = SelectedHeaderHorizontalAlignment.Alignment;
         s.HeaderVerticalAlignment = SelectedHeaderVerticalAlignment.Alignment;
-
-        s.ColumnWidth = _columnWidth;
-
+        s.Width = _columnWidth;
         s.IsReadOnly = IsReadOnly;
-        s.IsUnique = IsUnique;
-        s.IsRequired = IsRequired;
+        s.IsFrozen = IsPinned;
         s.AllowSorting = AllowSorting;
         s.AllowFiltering = AllowFiltering;
         s.AllowGrouping = AllowGrouping;
-        s.IsPinned = IsPinned;
-
         s.HeaderBorderThickness = new Thickness(LeftBorderThickness, TopBorderThickness, RightBorderThickness, BottomBorderThickness);
-        s.SpecificSettings = CreateSpecificSettings(SelectedColumnType.ColumnDataType);
+        s.ValidationRules = CreateColumnValidationRules(s.DataType);
+        s.SpecificSettings = CreateColumnSpecificSettings(s.DataType);
 
-        _columnEditingCallback.Invoke(new ColumnEditingResult { IsSuccessful = true, Column = _editingColumn });
-    }
-
-    private object CreateSpecificSettings(ColumnDataType dataType)
-    {
-        return dataType switch
-        {
-            ColumnDataType.Text => new TextColumnSettings
-            {
-                MaxLength = MaxTextLength,
-                MinLength = MinTextLength,
-            },
-            ColumnDataType.Number => new NumberColumnSettings
-            {
-                CharactersAfterComma = DoubleCharactersAfterComa,
-                MaxValue = DoubleMaxValue,
-                MinValue = DoubleMinValue,
-            },
-            ColumnDataType.Boolean => new BooleanColumnSettings
-            {
-                DefaultValue = BooleanIsChecked,
-            },
-            ColumnDataType.Date => new DateColumnSettings
-            {
-                DateFormat = SelectedDateFormat.Format,
-            },
-            ColumnDataType.Currency => new CurrencyColumnSettings
-            {
-                CurrencySymbol = SelectedCurrency.Currency,
-                PositionBefore = CurrencySymbolAtFirst,
-                PositionAfter = CurrencySymbolAtLast,
-            },
-            ColumnDataType.List => new ListColumnSettings
-            {
-                ListValues = ListValues,
-            },
-            ColumnDataType.MultilineText => new MultilineTextColumnSettings
-            {
-                MaxLength = MaxMultilineTextLength,
-            },
-            ColumnDataType.Hyperlink => null
-        };
-    }
-
-    private void LoadSpecificProperties(ColumnDataType dataType, object settings)
-    {
-        switch (dataType)
-        {
-            case ColumnDataType.Text:
-                if (settings is TextColumnSettings textColumnSettings)
-                {
-                    MinTextLength = textColumnSettings.MinLength;
-                    MaxTextLength = textColumnSettings.MaxLength;
-                }
-                break;
-            case ColumnDataType.Number:
-                if (settings is NumberColumnSettings numberColumnSettings)
-                {
-                    DoubleCharactersAfterComa = numberColumnSettings.CharactersAfterComma;
-                    DoubleMaxValue = numberColumnSettings.MaxValue;
-                    DoubleMinValue = numberColumnSettings.MinValue;
-                }
-                break;
-            case ColumnDataType.Boolean:
-                if (settings is BooleanColumnSettings booleanColumnSettings)
-                {
-                    BooleanIsChecked = booleanColumnSettings.DefaultValue;
-                };
-                break;
-            case ColumnDataType.Date:
-                if (settings is DateColumnSettings dateColumnSettings)
-                {
-                    SelectedDateFormat = ComboBoxConfig.DateFormats.FirstOrDefault(x => x.Format == dateColumnSettings.DateFormat);
-                }
-                break;
-            case ColumnDataType.Currency:
-                if (settings is CurrencyColumnSettings currencyColumnSettings)
-                {
-                    SelectedCurrency = ComboBoxConfig.Currencies.FirstOrDefault(x => x.Currency == currencyColumnSettings.CurrencySymbol);
-                    CurrencySymbolAtFirst = currencyColumnSettings.PositionBefore;
-                    CurrencySymbolAtLast = currencyColumnSettings.PositionAfter;
-                }
-                break;
-            case ColumnDataType.List:
-                if (settings is ListColumnSettings listColumnSettings)
-                {
-                    ListValues = listColumnSettings.ListValues;
-                    RaisePropertyChanged(nameof(NullListValueVisibility));
-                }
-                break;
-            case ColumnDataType.MultilineText:
-                if (settings is MultilineTextColumnSettings multilineTextColumnSettings)
-                {
-                    MaxMultilineTextLength = multilineTextColumnSettings.MaxLength;
-                }
-                break;
-        }
+        _columnEditingCallback.Invoke(new ColumnEditingResult { IsSuccessful = true, EditedColumn = _editingColumnModel });
     }
     
     private void LoadEditingProperties()
-    {
+    {  
         IsDataTypeComboBoxEnabled = !_isEditing;
-        var s = _editingColumn.Settings;
+        var s = _editingColumnModel;
         
         SelectedColumnType = ComboBoxConfig.ColumnTypes.FirstOrDefault(x => x.ColumnDataType == s.DataType);
         
         HeaderText = s.HeaderText;
         _mappingName = s.MappingName;
         
-        SelectedHeaderFontFamily = ComboBoxConfig.FontFamilies.FirstOrDefault(x => x.FontFamily == s.HeaderFontFamily);
+        SelectedHeaderFontFamily = ComboBoxConfig.FontFamilies.FirstOrDefault(x => x.FontFamily == s.HeaderFontFamily.ToString());
         SelectedHeaderFontSize = ComboBoxConfig.FontSizes.FirstOrDefault(x => x.FontSize == s.HeaderFontSize);
         SelectedHeaderFontWeight = ComboBoxConfig.FontWeights.FirstOrDefault(x => x.FontWeight == s.HeaderFontWeight);
         
@@ -584,12 +547,10 @@ public class ColumnCreatorViewModel : BindableBase, INavigationAware, IDisposabl
         SelectedHeaderVerticalAlignment = ComboBoxConfig.VerticalAlignments.FirstOrDefault(x => x.Alignment == s.HeaderVerticalAlignment);
         
         IsReadOnly = s.IsReadOnly;
-        IsUnique = s.IsUnique;
-        IsRequired = s.IsRequired;
         AllowSorting = s.AllowSorting;
         AllowFiltering = s.AllowFiltering;
         AllowGrouping = s.AllowGrouping;
-        IsPinned = s.IsPinned;
+        IsPinned = s.IsFrozen;
         
         HeaderBorderColor = s.HeaderBorderColor;
         HeaderBackgroundColor = s.HeaderBackground;
@@ -600,10 +561,61 @@ public class ColumnCreatorViewModel : BindableBase, INavigationAware, IDisposabl
         TopBorderThickness = s.HeaderBorderThickness.Top;
         BottomBorderThickness = s.HeaderBorderThickness.Bottom;
 
-        _columnWidth = s.ColumnWidth;
-        
-        LoadSpecificProperties(s.DataType, s.SpecificSettings);
+        _columnWidth = s.Width;
+        LoadValidationRules(s.ValidationRules);
+        Console.WriteLine("Validation rules loaded");
+        Console.WriteLine(s.SpecificSettings);
+        LoadSpecificSettings(s.SpecificSettings);
+        Console.WriteLine("Specific settings loaded");
         LoadPreview();
+    }
+
+    private void LoadValidationRules(IColumnValidationRules validationRules)
+    {
+        IsRequired = validationRules.IsRequired;
+        IsUnique = validationRules.IsUnique;
+
+        switch (validationRules)
+        {
+            case NumericColumnValidationRules numericRules:
+                DoubleMaxValue = (double)numericRules.MaxValue;
+                DoubleMinValue = (double)numericRules.MinValue;
+                break;
+            case TextColumnValidationRules textRules:
+                MinTextLength = textRules.MinLength;
+                MaxTextLength = textRules.MaxLength;
+                break;
+        }
+    }
+
+    private void LoadSpecificSettings(IColumnSpecificSettings specificSettings)
+    {
+        switch (specificSettings)
+        {
+            case CurrencyColumnSpecificSettings currencySettings:
+                SelectedCurrency = ComboBoxConfig.Currencies.FirstOrDefault(x => x.Currency == currencySettings.CurrencySymbol) 
+                                   ?? throw new InvalidOperationException("Not found currency symbol");
+                CurrencySymbolAtFirst = currencySettings.CurrencyPosition == CurrencyPosition.Before;
+                CurrencySymbolAtLast = currencySettings.CurrencyPosition == CurrencyPosition.After;
+                break;
+            case DateColumnSpecificSettings dateSettings:
+                SelectedDateFormat = ComboBoxConfig.DateFormats.FirstOrDefault(x => x.Format == dateSettings.DateFormat)
+                                     ?? throw new InvalidOperationException("Not found date format");
+                break;
+            case CheckBoxColumnSpecificSettings checkBoxSettings:
+                BooleanIsChecked = checkBoxSettings.DefaultValue;
+                break;
+            case ComboBoxColumnSpecificSettings comboBoxSettings:
+                ListValues = new ObservableCollection<string>(comboBoxSettings.ListValues);
+                break;
+            case NumericColumnSpecificSettings numericSettings:
+                DoubleCharactersAfterComa = numericSettings.NumberDecimalDigits;
+                break;
+            case DefaultColumnSpecificSettings:
+                break;
+            default:
+                break;
+        }
     }
 
     private void LoadDefaultProperties()
@@ -614,21 +626,18 @@ public class ColumnCreatorViewModel : BindableBase, INavigationAware, IDisposabl
         
         // Text
         MinTextLength = 0;
-        MaxTextLength = 100;
+        MaxTextLength = 9999999;
         
         // Number
-        DoubleCharactersAfterComa = 2;
+        DoubleCharactersAfterComa = 0;
         DoubleMinValue = 0;
-        DoubleMaxValue = 100;
+        DoubleMaxValue = 9999999;
         
         // Date
         SelectedDateFormat = ComboBoxConfig.DateFormats.First();
         
         // Boolean
         BooleanIsChecked = false;
-        
-        // Multiline
-        MaxMultilineTextLength = 500;
         
         // Currency
         CurrencySymbolAtLast = true;
@@ -643,12 +652,12 @@ public class ColumnCreatorViewModel : BindableBase, INavigationAware, IDisposabl
         IsPinned = false;
         
         // Colors
-        HeaderBackgroundColor = Colors.LightGray;
-        HeaderForegroundColor = Colors.Black;
-        HeaderBorderColor = Colors.Gray;
+        HeaderBackgroundColor = Colors.Transparent;
+        HeaderForegroundColor = Color.FromArgb(191, 9, 36, 75);
+        HeaderBorderColor = Color.FromArgb(191, 9, 36, 75);
         
         // Font 
-        SelectedHeaderFontFamily = ComboBoxConfig.FontFamilies.FirstOrDefault(x => x.FontFamily == "Segoe UI");
+        SelectedHeaderFontFamily = ComboBoxConfig.FontFamilies.FirstOrDefault(x => x.FontFamily == "Microsoft Sans Serif");
         SelectedHeaderFontSize = ComboBoxConfig.FontSizes.FirstOrDefault(x => x.FontSize == 14);
         SelectedHeaderFontWeight = ComboBoxConfig.FontWeights.FirstOrDefault(x => x.FontWeight == FontWeights.Thin);
         
@@ -659,9 +668,9 @@ public class ColumnCreatorViewModel : BindableBase, INavigationAware, IDisposabl
         _columnWidth = 250;
         
         // Border
-        LeftBorderThickness = 1;
+        LeftBorderThickness = 0;
         TopBorderThickness = 1;
-        RightBorderThickness = 1;
+        RightBorderThickness = 0;
         BottomBorderThickness = 1;
         
         // Currency
@@ -937,19 +946,6 @@ public class ColumnCreatorViewModel : BindableBase, INavigationAware, IDisposabl
                 });
                 ReloadDataGrid();
                 break;
-            case ColumnDataType.MultilineText:
-                PreviewColumn.Add(new GridTextColumn                 
-                { 
-                    HeaderText = HeaderText, 
-                    MappingName = _mappingName, 
-                    HeaderStyle = headerStyle, 
-                    AllowSorting = AllowSorting,
-                    AllowGrouping = AllowGrouping,
-                    AllowFiltering = AllowFiltering,
-                    Width = _columnWidth,
-                });
-                ReloadDataGrid();
-                break;
         }
     }
 
@@ -959,6 +955,7 @@ public class ColumnCreatorViewModel : BindableBase, INavigationAware, IDisposabl
         {
             ListValues.Add(NewValue);
             NewValue = string.Empty;
+            RaisePropertyChanged(nameof(NullListValueVisibility));
         }
     }
 
@@ -967,6 +964,7 @@ public class ColumnCreatorViewModel : BindableBase, INavigationAware, IDisposabl
         if (!string.IsNullOrWhiteSpace(value) && ListValues.Contains(value))
         {
             ListValues.Remove(value);
+            RaisePropertyChanged(nameof(NullListValueVisibility));
         }
     }
 

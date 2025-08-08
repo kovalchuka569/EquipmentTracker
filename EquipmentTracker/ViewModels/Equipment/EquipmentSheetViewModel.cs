@@ -4,6 +4,8 @@ using System.Diagnostics;
 using System.Dynamic;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Threading;
 using Common.Logging;
 using Core.Common.EquipmentSheetValidation;
 using Core.Common.EquipmentSheetValidation.CellValidator;
@@ -22,6 +24,7 @@ using Models.Common.Table.ColumnValidationRules;
 using Models.Constants;
 using Models.Equipment;
 using Models.Equipment.ColumnCreator;
+using Models.Equipment.ColumnSpecificSettings;
 using Notification.Wpf;
 using Syncfusion.UI.Xaml.Grid;
 using Syncfusion.UI.Xaml.Grid.Helpers;
@@ -62,24 +65,24 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
 
     #region Properties
 
-    private ObservableCollection<RowViewModel> _rowViewModels = new();
-    public ObservableCollection<RowViewModel> RowViewModels
+    private ObservableCollection<ItemViewModel> _items = new();
+    public ObservableCollection<ItemViewModel> Items
     {
-        get => _rowViewModels;
-        set => SetProperty(ref _rowViewModels, value);
+        get => _items;
+        set => SetProperty(ref _items, value);
     }
 
-    private ObservableCollection<ExpandoObject> _rows = new();
+    /*private ObservableCollection<ExpandoObject> _rows = new();
     public ObservableCollection<ExpandoObject> Rows
     {
         get => _rows;
         set => SetProperty(ref _rows, value);
-    }
+    }*/
     
     // Meta of row id, dictionary of mappingName - cell id
-    private record RowMeta(Guid RowId, Dictionary<string, Guid> CellIds);
+    /*private record RowMeta(Guid RowId, Dictionary<string, Guid> CellIds);
     
-    private readonly Dictionary<ExpandoObject, RowMeta> _rowMetaMap = new();
+    private readonly Dictionary<ExpandoObject, RowMeta> _rowMetaMap = new();*/
 
     // TODO: Make the class of type ColumnInfo to store all these dictionaries (optional)
 
@@ -139,7 +142,7 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
     private SfDataGrid _dataGrid = new();
 
     public bool ColumnsEmptyTipVisibility => !IsLoading && !Columns.Any();
-    public bool RowsEmptyTipVisibility => !IsLoading && Columns.Any() && !Rows.Any();
+    public bool RowsEmptyTipVisibility => !IsLoading && Columns.Any() && !Items.Any();
     public bool DeleteRowContextMenuItemVisibility => SelectedItems.Any();
 
     #endregion
@@ -255,7 +258,7 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
     {
         try
         {
-            var confirm = await ProcessRemovalRow();
+            var confirm = await ProcessRemovalItem();
             args.Cancel = !confirm;
         }
         catch (Exception e)
@@ -269,7 +272,7 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
     {
         try
         {
-            await ProcessRemovalRow();
+            await ProcessRemovalItem();
         }
         catch (Exception e)
         {
@@ -278,13 +281,13 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
         }
     }
     
-    private async Task<bool> ProcessRemovalRow()
+    private async Task<bool> ProcessRemovalItem()
     {
         using var cts = new CancellationTokenSource();
 
-        var rowsToRemove = SelectedItems.Cast<ExpandoObject>().ToList();
+        var itemsToRemove = SelectedItems.Cast<ItemViewModel>().ToList();
 
-        var removeItemsCount = rowsToRemove.Count;
+        var removeItemsCount = itemsToRemove.Count;
         if (removeItemsCount == 0) return false;
         
         var deletedRecordCountText = PluralizedHelper.GetPluralizedText(removeItemsCount, "запис", "записи", "записів");
@@ -292,23 +295,22 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
         var confirm = await RemoveRowAgreement(removeItemsCount, deletedRecordCountText);
         if (!confirm) return false;
 
-        return await ExecuteRemovalRows(rowsToRemove, deletedRecordCountText);
+        return await ExecuteRemovalRows(itemsToRemove, deletedRecordCountText);
     }
     
-    private async Task<bool> ExecuteRemovalRows(List<ExpandoObject> rowsToRemove, string deletedRecordCountText)
+    private async Task<bool> ExecuteRemovalRows(List<ItemViewModel> itemsToRemove, string deletedRecordCountText)
     {
-        var rowIdsToRemove = rowsToRemove
-            .Select(x => _rowMetaMap[x].RowId)
+        var rowIdsToRemove = itemsToRemove
+            .Select(r => r.RowViewModel.Id)
             .ToList();
         
         try
         {
             await _service.SoftRemoveRowsAsync(_equipmentSheetId, rowIdsToRemove);
 
-            foreach (var row in rowsToRemove)
+            foreach (var item in itemsToRemove)
             {
-                Rows.Remove(row);
-                _rowMetaMap.Remove(row);
+                Items.Remove(item);
             }
 
             SelectedItems.Clear();
@@ -366,25 +368,17 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
         if (!_isAddingNewRow)
         {
             // ONLY updating cell
-            var row =  e.Record as ExpandoObject ?? throw new InvalidOperationException("Row is not expando object");
-            var cellId = _rowMetaMap[row].CellIds[e.Column.MappingName];
-            var isNewRow = cellId == Guid.Empty;
-               
-            if (!isNewRow)
+            var item =  e.Record as ItemViewModel ?? throw new InvalidOperationException("Item is not item view model");
+            
+            if(!item.RowViewModel.TryGetCellByMappingName(e.Column.MappingName, out var cell) || cell is null) return;
+            
+            if (!cell.IsNew)
             {
-                var currentValue = ((IDictionary<string, object?>)row)[e.Column.MappingName];
-                bool actualNewValue;
+                var currentValue = cell.Value;
+                
+                if(currentValue is null) return;
                    
-                if (currentValue is bool val)
-                {
-                    actualNewValue = !val;
-                }
-                else
-                {
-                    actualNewValue = false;
-                }
-                   
-                await _service.UpdateCellValueAsync(_equipmentSheetId, cellId, actualNewValue);
+                await _service.UpdateCellValueAsync(_equipmentSheetId, cell.Id, currentValue);
             }
                
         }
@@ -397,7 +391,7 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
     private void OnAddNewRowInitiating(AddNewRowInitiatingEventArgs args)
     {
         _isAddingNewRow = true;
-        if (args.NewObject is not ExpandoObject expandoObject) return;
+        if (args.NewObject is not ItemViewModel itemViewModel) return;
         
         foreach (var entry in _columnMappingNameIdMap)
         {
@@ -406,15 +400,22 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
             var dataType = _columnIdDataTypeMap[columnId];
                 
             var defaultValue = GetDefaultValue(dataType);
-                
-            ((IDictionary<string, object?>)expandoObject)[mappingName] = defaultValue;
-
-            if (!_columnIdSpecificSettingsMap.TryGetValue(columnId, out var columnSpecificSettings)) continue;
-                
-            if (columnSpecificSettings is CheckBoxColumnSpecificSettings checkBoxColumnSpecificSettings)
+            
+            if (_columnIdSpecificSettingsMap.TryGetValue(columnId, out var columnSpecificSettings) &&
+                columnSpecificSettings is CheckBoxColumnSpecificSettings checkBoxSettings)
             {
-                ((IDictionary<string, object?>)expandoObject)[mappingName] = checkBoxColumnSpecificSettings.DefaultValue;
+                defaultValue = checkBoxSettings.DefaultValue;
             }
+
+            var cellViewModel = new CellViewModel
+            {
+                ColumnMappingName = mappingName,
+                Value = defaultValue,
+            };
+
+            itemViewModel.RowViewModel.AddCell(cellViewModel);
+            itemViewModel[mappingName] = defaultValue;
+
         }
     }
 
@@ -440,32 +441,35 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
         _gridHeaderBasedStyle = _dataGrid.TryFindResource("BasedGridHeaderStyle") as Style ?? throw new KeyNotFoundException();
         
         SubscribeToRowsDragDropEvents();
+
+        if (_isInitialized) return;
         
-        if (!_isInitialized)
-        {
-            await LoadDataAsync();
-            _isInitialized = true;
-        }
+        await LoadDataAsync();
+        _isInitialized = true;
     }
 
     #region Row & cell validation and save methods
 
     private void OnRowValidating(RowValidatingEventArgs e)
     {
-        var rowValidationArgs = new RowValidationArgs
-        {
-            CurrentRow = e.RowData as ExpandoObject ?? throw new InvalidOperationException(),
-            ColumnMappingNameIdMap = _columnMappingNameIdMap,
-            ColumnIdHeaderTextMap = _columnIdHeaderTextMap,
-            ColumnIdDataTypeMap = _columnIdDataTypeMap,
-            ColumnIdValidationRulesMap = _columnIdValidationRulesMap,
-            Rows = Rows.Cast<IDictionary<string, object>>().ToList()
-        };
-
         RowValidationResult rowValidateResult;
         
         try
         {
+            if (e.RowData is not ItemViewModel currentItemViewModel) return;
+            
+            var rowValidationArgs = new RowValidationArgs
+            {
+                CurrentRow = RowViewModel.ToDomain(currentItemViewModel.RowViewModel),
+                ColumnMappingNameIdMap = _columnMappingNameIdMap,
+                ColumnIdHeaderTextMap = _columnIdHeaderTextMap,
+                ColumnIdDataTypeMap = _columnIdDataTypeMap,
+                ColumnIdValidationRulesMap = _columnIdValidationRulesMap,
+                Rows = Items
+                    .Select(item => RowViewModel.ToDomain(item.RowViewModel))
+                    .ToList()
+            };
+            
             rowValidateResult = _rowValidator.ValidateRow(rowValidationArgs);
         }
         catch (Exception ex)
@@ -492,31 +496,35 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
     
     private async void OnRowValidated(RowValidatedEventArgs e)
     {
-        if (e.RowData is not ExpandoObject rowExpando)
-            throw new InvalidOperationException("Invalid row data");
+        if (e.RowData is not ItemViewModel validatedItemViewModel) return;
         
-        var rowDict = rowExpando as IDictionary<string, object>
-                      ?? throw new InvalidOperationException("Row expando cast failed");
-
-        if (!_rowMetaMap.TryGetValue(rowExpando, out var meta))
-        {
-            meta = new RowMeta(Guid.Empty, new Dictionary<string, Guid>());
-            _rowMetaMap[rowExpando] = meta;
-        }
-        
-        var rowId = meta.RowId;
+        var rowId = validatedItemViewModel.RowViewModel.Id;
 
         // Creating new row if it doesn't exist
-        if (rowId == Guid.Empty)
+        if (validatedItemViewModel.RowViewModel.IsNew)
         {
-            var (newRowId, newCellIds) = await _service.InsertRowAsync(_equipmentSheetId, rowDict);
-            _rowMetaMap[rowExpando] = new RowMeta(newRowId, newCellIds);
+            try
+            {
+                await _service.InsertRowAsync(_equipmentSheetId,
+                    RowViewModel.ToDomain(validatedItemViewModel.RowViewModel));
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception);
+                throw;
+            }
+            finally
+            {
+                validatedItemViewModel.RowViewModel.IsNew = false;
+            }
         }
         
         // Update existing row if it exists
         else
         {
-            await _service.UpdateRowAsync(_equipmentSheetId, rowId, rowDict);
+            Console.WriteLine("Updating");
+            var updatedRowModel = RowViewModel.ToDomain(validatedItemViewModel.RowViewModel);
+            await _service.UpdateRowAsync(_equipmentSheetId, rowId, updatedRowModel);
         }
     }
 
@@ -539,15 +547,17 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
             e.ErrorMessage = string.Empty; 
             return;
         }
-        
-        var allColumnValues = Rows
-            .Where(row => row is IDictionary<string, object?> rowDict && rowDict.ContainsKey(e.Column.MappingName))
-            .Select(row => (
-                Value: ((IDictionary<string, object?>)row)[e.Column.MappingName]?.ToString() ?? string.Empty,
-                Row: row
-            ))
-            .ToList();
 
+        var mappingName = e.Column.MappingName;
+
+        var current = (ItemViewModel)e.RowData;
+        var currentId = current.RowViewModel.Id;
+        
+        var allColumnValues = Items
+            .Where(item => item.RowViewModel.Id != currentId)       
+            .Select(item => item[mappingName]?.ToString()?.Trim())  
+            .Where(s => !string.IsNullOrEmpty(s))                   
+            .ToList();
         
         var validationResult = _cellValidator.ValidateCell(e.NewValue, currentRow, allColumnValues, columnDataType, columnHeaderText, columnValidationRules);
         if (!validationResult.IsValid)
@@ -612,18 +622,6 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
         _dataGrid.GetValidationHelper().SetCurrentRowValidated(false);
     }
 
-    public void FocusChanged(bool focusStatus)
-    {
-        if (focusStatus)
-        {
-            
-        }
-        else
-        {
-            _dataGrid.GetValidationHelper().SetCurrentRowValidated(false);
-        }
-    }
-
     #endregion
 
     #region Data Loading
@@ -635,27 +633,23 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
             IsLoading = true;
             
             var columns = await GetColumnsAsync();
-            var rows = await GetRowsAsync();
+            var items = await GetRowsAsync();
             
             await Application.Current.Dispatcher.InvokeAsync(() =>
             {
-                _dataGrid.Columns.Suspend();
-
                 _dataGrid.Columns.Clear();
+    
                 foreach (var col in columns)
                 {
                     _dataGrid.Columns.Add(col);
                 }
-
-                Rows.Clear();
-                foreach (var row in rows)
+    
+                Items.Clear();
+                foreach (var item in items)
                 {
-                    Rows.Add(row);
+                    Items.Add(item);
                 }
-
-                _dataGrid.Columns.Resume();
-                _dataGrid.RefreshColumns();
-                _dataGrid.View.Refresh();
+                
             });
         }
         catch (Exception ex)
@@ -673,31 +667,12 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
         }
     }
 
-    private async Task<ObservableCollection<ExpandoObject>> GetRowsAsync()
+    private async Task<ObservableCollection<ItemViewModel>> GetRowsAsync()
     {
         var rowModels = await _service.GetActiveRowsByEquipmentSheetIdAsync(_equipmentSheetId);
-        var rowViewModels = new ObservableCollection<RowViewModel>();
-        
-        var rows = new ObservableCollection<ExpandoObject>();
-        foreach (var row in rowModels.OrderBy(r => r.Position))
-        {
-            var rowViewModel = new RowViewModel(row);
-            IDictionary<string, object?> rowDict = new ExpandoObject();
-            
-            foreach (var cell in row.Cells)
-            {
-                rowDict[cell.ColumnMappingName] = cell.Value;
-            }
-            rows.Add((ExpandoObject)rowDict);
-
-            var meta = new RowMeta(
-                RowId: row.Id,
-                CellIds: row.Cells.ToDictionary(c => c.ColumnMappingName, c => c.Id)
-            );
-            _rowMetaMap[(ExpandoObject)rowDict] = meta;
-        }
-
-        return rows;
+        return new ObservableCollection<ItemViewModel>(
+            rowModels
+                .Select(rm => new ItemViewModel(RowViewModel.FromDomain(rm))));
     }
 
     private async Task<Columns> GetColumnsAsync()
@@ -858,8 +833,7 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
 
             if (!_dataGrid.Columns.Any())
             {
-                Rows.Clear();
-                _rowMetaMap.Clear();
+                Items.Clear();
                 
                 SelectedItems.Clear();
                 RaisePropertyChanged(nameof(RowsEmptyTipVisibility));
@@ -896,19 +870,39 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
             _columnIdValidationRulesMap.Add(result.ColumnModel.Id, result.ColumnModel.ValidationRules);
             
             // Adding empty cells for new column
-            var emptyCellsIds = new List<Guid>();
-            foreach (var row in Rows)
+            object? value = null;
+            
+            var mappingName = result.ColumnModel.MappingName;
+
+            // If new column is checkbox - set default value
+            if (result.ColumnModel.DataType is ColumnDataType.Boolean &&
+                result.ColumnModel.SpecificSettings is CheckBoxColumnSpecificSettings checkBoxColumnSpecificSettings)
             {
-                var newId = Guid.NewGuid();
-                emptyCellsIds.Add(newId);
-                
-                var rowMeta = _rowMetaMap[row];
-                rowMeta.CellIds.Add(result.ColumnModel.MappingName, newId);
+                value = checkBoxColumnSpecificSettings.DefaultValue;
             }
             
+            var newCells = new List<CellModel>();
             
-            await _service.InsertColumnAsync(_equipmentSheetId, result.ColumnModel, emptyCellsIds);
+            foreach (var itemViewModel in Items)
+            {
+
+                var newCellViewModel = new CellViewModel
+                {
+                    RowId = itemViewModel.RowViewModel.Id,
+                    Value = value,
+                    ColumnMappingName = mappingName
+                };
+                
+                itemViewModel.RowViewModel.AddCell(newCellViewModel);
+                
+                newCells.Add(CellViewModel.ToDomain(newCellViewModel));
+                
+                itemViewModel[mappingName] = value;
+                
+                itemViewModel.RowViewModel.TrySetCellValueByMappingName(result.ColumnModel.MappingName, value);
+            }
             
+            await _service.InsertColumnAsync(_equipmentSheetId, result.ColumnModel, newCells);
             
             _dataGrid.Columns.Add(_columnFactory.CreateColumn(result.ColumnModel, _gridHeaderBasedStyle));
             
@@ -933,10 +927,7 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
             .OfType<ExpandoObject>()
             .ToList();
 
-        foreach (var rowId in draggingExpandoRows.Select(row => _rowMetaMap[row].RowId))
-        {
-            
-        }
+
     }
 
     private void OnRowDragLeave(object? sender, GridRowDragLeaveEventArgs args)
@@ -1001,7 +992,7 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
                 RegionCleanupHelper.CleanRegion(_scopedRegionManager, EquipmentSheetConstants.ExcelSheetSelectorRegion);
             }
 
-            Rows.Clear();
+            Items.Clear();
             Columns.Clear();
             await _service.DisposeAsync();
 

@@ -14,8 +14,8 @@ namespace Models.EquipmentTree
         private string _imageIcon;
         private FileFormat _fileFormat;
         private MenuType _menuType;
-        private Guid? _summaryId;
-        private Guid? _equipmentSheetId;
+        private Guid _summaryId;
+        private Guid _equipmentSheetId;
         private bool _isHighlited;
         private bool _isVisible = true;
 
@@ -79,13 +79,13 @@ namespace Models.EquipmentTree
             set => SetProperty(ref _menuType, value);
         }
 
-        public Guid? SummaryId
+        public Guid SummaryId
         {
             get => _summaryId;
             set => SetProperty(ref _summaryId, value);
         }
 
-        public Guid? EquipmentSheetId
+        public Guid EquipmentSheetId
         {
             get => _equipmentSheetId;
             set => SetProperty(ref _equipmentSheetId, value);

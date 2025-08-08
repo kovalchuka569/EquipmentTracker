@@ -180,7 +180,6 @@ public sealed class EquipmentExcelImporter
                 ColumnDataType.Date => ConvertToDate(stringValue, settings.SpecificSettings as DateColumnSettings),
                 ColumnDataType.List => ConvertToListValue(stringValue, settings.SpecificSettings as ListColumnSettings),
                 ColumnDataType.Text => ConvertToText(stringValue, settings.SpecificSettings as TextColumnSettings),
-                ColumnDataType.MultilineText => ConvertToMultilineText(stringValue, settings.SpecificSettings as MultilineTextColumnSettings),
                 ColumnDataType.Hyperlink => stringValue, 
                 _ => stringValue
             };

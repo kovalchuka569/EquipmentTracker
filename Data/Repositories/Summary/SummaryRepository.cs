@@ -282,7 +282,6 @@ public class SummaryRepository : ISummaryRepository
             ColumnDataType.Date => jObject.ToObject<DateColumnSettings>(),
             ColumnDataType.Currency => jObject.ToObject<CurrencyColumnSettings>(),
             ColumnDataType.List => jObject.ToObject<ListColumnSettings>(),
-            ColumnDataType.MultilineText => jObject.ToObject<MultilineTextColumnSettings>(),
             _ => null
         };
     }

@@ -1,151 +1,386 @@
-﻿using System.Collections.ObjectModel;
-using Core.Services.Common;
+﻿using Newtonsoft.Json;
+using Core.Common.JsonConverters;
 using Data.UnitOfWork;
-using Models.Entities.EquipmentSheet;
-using Models.Entities.Table;
-using Models.Equipment;
-using Models.Equipment.ColumnSettings;
+using Models.Common.Table;
+using Syncfusion.XPS;
 
 namespace Core.Services.EquipmentDataGrid;
 
 public class EquipmentSheetService(IUnitOfWork unitOfWork) : IEquipmentSheetService, IAsyncDisposable
 {
-    public async Task<ObservableCollection<ColumnItem>> GetColumnsByEquipmentSheetIdAsync(Guid equipmentSheetId, CancellationToken ct)
-    {
-        await unitOfWork.EnsureInitializedForReadAsync(ct);
-        
-        var equipmentColumnEntities = await unitOfWork.EquipmentColumnsRepository.GetListByEquipmentSheetIdAsync(equipmentSheetId, ct);
-        
-        
-        var result = new ObservableCollection<ColumnItem>();
-        
-        foreach (var column in equipmentColumnEntities)
-        {
-            var columnEntity = column.ColumnEntity;
-            var columnSettings = column.ColumnEntity.Settings;
-            var displayColumnSettings = new ColumnSettingsParser().ToColumnSettingsDisplayModel(columnSettings);
-            
-            var columnItem = new ColumnItem
-            {
-                Id = columnEntity.Id,
-                EquipmentSheetId = column.EquipmentSheetId,
-                Settings = displayColumnSettings
-            };
-            
-            result.Add(columnItem);
-        }
+    private bool _disposed;
 
-        return result;
+    private static readonly JsonSerializerSettings ColumnsSerializerSettings = new()
+    {
+        TypeNameHandling = TypeNameHandling.None,
+        Converters = new List<JsonConverter>
+        {
+            new FontFamilyJsonConverter(),
+            new ColorJsonConverter(),
+            new FontWeightJsonConverter(),
+            new ThicknessJsonConverter(),
+            new ColumnValidationRulesConverter(),
+            new ColumnSpecificSettingsConverter()
+        }
+    };
+    
+    private static List<ColumnModel> DeserializeColumns(string columnsJson)
+    {
+        return string.IsNullOrEmpty(columnsJson)
+            ? new()
+            : JsonConvert.DeserializeObject<List<ColumnModel>>(columnsJson, ColumnsSerializerSettings) 
+              ?? new();
     }
 
-    public async Task<ObservableCollection<RowItem>> GetRowsByEquipmentSheetIdAsync(Guid equipmentSheetId, CancellationToken ct)
+    private static string SerializeColumns(List<ColumnModel> columns)
     {
-        await unitOfWork.EnsureInitializedForReadAsync(ct);
-        
-        var equipmentRowEntities = await unitOfWork.EquipmentRowsRepository.GetListByEquipmentSheetIdAsync(equipmentSheetId, ct);
+        return JsonConvert.SerializeObject(columns, Formatting.Indented, ColumnsSerializerSettings);
+    }
+    
+    private static List<RowModel> DeserializeRows(string rowsJson)
+    {
+        var rows = JsonConvert.DeserializeObject<List<RowModel>>(rowsJson);
 
-        var result = new ObservableCollection<RowItem>();
-        
-        foreach (var er in equipmentRowEntities)
-        {
-            var rowItem = new RowItem
+        if (rows is null) return [];
+        foreach (var row in rows)
+        { 
+            foreach (var cell in row.Cells)
             {
-                Id = er.Row.Id,
-                Data = new Dictionary<string, object?>()
-            };
-            
-            var rowData = new Dictionary<string, object?>();
-
-            foreach (var cell in er.Row.Cells)
-            {
-                rowItem.Data[cell.ColumnEntity.Settings.MappingName] = cell.Value;
+                cell.RowId = row.Id;
             }
-            rowItem.Data = rowData;
-            result.Add(rowItem);
         }
 
-        return result;
+        return rows;
+    }
+    
+    private static string SerializeRows(List<RowModel> rows)
+    {
+        return JsonConvert.SerializeObject(rows, Formatting.Indented);
     }
 
-    public async Task InsertRowAsync(Guid equipmentSheetId, RowItem rowItem, CancellationToken ct)
+    private async Task ExecuteInTransactionAsync(Func<Task> action, CancellationToken ct)
     {
-        var rowEntity = new RowEntity
+        try
         {
-            Id = rowItem.Id,
-            Position = await unitOfWork.EquipmentRowsRepository.GetNextRowPositionAsync(equipmentSheetId, ct),
-            Deleted = false,
-            Cells = new List<CellEntity>()
-        };
+            await unitOfWork.BeginTransactionAsync(ct);
+            await action();
+            await unitOfWork.CommitAsync(ct);
+        }
+        catch (Exception)
+        {
+            await unitOfWork.RollbackAsync(ct);
+            throw;
+        }
+    }
 
-        var equipmentRowEntity = new EquipmentRowEntity
-        {
-            RowId = rowEntity.Id,
-            EquipmentSheetId = equipmentSheetId,
-            Order = await unitOfWork.EquipmentRowsRepository.GetNextRowOrderAsync(equipmentSheetId, ct),
-            Row = rowEntity
-        };
+    public async Task<List<ColumnModel>> GetActiveColumnsByEquipmentSheetIdAsync(Guid equipmentSheetId, CancellationToken ct)
+    {
+        await unitOfWork.EnsureInitializedForReadAsync(ct);
+        var columnsJson = await unitOfWork.EquipmentSheetRepository.GetColumnsJsonAsync(equipmentSheetId, ct);
+        var columns = DeserializeColumns(columnsJson);
+        return columns.Where(c => !c.SoftDeleted).ToList();
+    }
+
+    public async Task<List<RowModel>> GetActiveRowsByEquipmentSheetIdAsync(Guid equipmentSheetId, CancellationToken ct)
+    {
+        await unitOfWork.EnsureInitializedForReadAsync(ct);
+        var rowsJson = await unitOfWork.EquipmentSheetRepository.GetRowsJsonAsync(equipmentSheetId, ct);
+        var rows = DeserializeRows(rowsJson);
+        return rows.Where(r => !r.Deleted).ToList();
+    }
+
+    public async Task InsertRowAsync(Guid equipmentSheetId, RowModel newRowModel, CancellationToken ct)
+    {
+        await unitOfWork.EnsureInitializedForReadAsync(ct);
+        var currentRowsJson = await unitOfWork.EquipmentSheetRepository.GetRowsJsonAsync(equipmentSheetId, ct);
+        var listRowsModel = DeserializeRows(currentRowsJson);
         
-        var columnMappingNameToIds = await unitOfWork.EquipmentColumnsRepository.GetMappingNamesAndIdsByEquipmentSheetIdAsync(equipmentSheetId, ct);
+        listRowsModel.Add(newRowModel);
 
-        foreach (var dataEntry in rowItem.Data)
+        var updatedRowsJson = SerializeRows(listRowsModel);
+
+        await ExecuteInTransactionAsync(async () =>
         {
-            var mappingName = dataEntry.Key;
-            var cellValue = dataEntry.Value?.ToString() ?? string.Empty;
+            await unitOfWork.EquipmentSheetRepository.UpdateRowsAsync(equipmentSheetId, updatedRowsJson, ct);
+        }, ct);
+    }
 
-            if (columnMappingNameToIds.TryGetValue(mappingName, out var columnId))
+    public async Task InsertColumnAsync(Guid equipmentSheetId, ColumnModel columnModel, List<CellModel> newCellModels, CancellationToken ct)
+    {
+        // Add new column
+        var columnsJson = await unitOfWork.EquipmentSheetRepository.GetColumnsJsonAsync(equipmentSheetId, ct);
+        var columns = DeserializeColumns(columnsJson);
+        columns.Add(columnModel);
+        var updatedColumnsJson = SerializeColumns(columns);
+
+        var haveNewCells = newCellModels.Count != 0;
+        var updatedRowsJson = string.Empty;
+
+        if (haveNewCells)
+        {
+            // Add new cells for existing rows
+            await unitOfWork.EnsureInitializedForReadAsync(ct);
+            var listRowsModel = await GetActiveRowsByEquipmentSheetIdAsync(equipmentSheetId, ct);
+        
+            var rowsDictionary = listRowsModel.ToDictionary(row => row.Id);
+
+            foreach (var newCellModel in newCellModels)
             {
-                var cellEntity = new CellEntity
+                if (rowsDictionary.TryGetValue(newCellModel.RowId, out var row))
                 {
-                    Id = Guid.NewGuid(),
-                    RowId = rowEntity.Id,
-                    ColumnId = columnId,
-                    Value = cellValue,
-                    Deleted = false
-                };
-                rowEntity.Cells.Add(cellEntity);
+                    row.Cells.Add(newCellModel);
+                }
             }
+        
+            updatedRowsJson = SerializeRows(listRowsModel);
         }
 
-        await unitOfWork.BeginTransactionAsync(ct);
-        await unitOfWork.RowsRepository.AddAsync(rowEntity, ct);
-        await unitOfWork.EquipmentRowsRepository.AddAsync(equipmentRowEntity, ct);
-    }
-
-    public async Task InsertColumnAsync(ColumnItem columnItem, CancellationToken ct = default)
-    {
-        var columnEntity = new ColumnEntity
+        await ExecuteInTransactionAsync(async () =>
         {
-            Id = columnItem.Id,
-            Deleted = false,
-            Settings = new ColumnSettingsParser().ToColumnSettingsBase(columnItem.Settings),
-            Cells = new List<CellEntity>(),
-        };
+            await unitOfWork.EquipmentSheetRepository.UpdateColumnsAsync(equipmentSheetId, updatedColumnsJson, ct);
 
-        var equipmentColumnEntity = new EquipmentColumnEntity
+            if (haveNewCells)
+            {
+                await unitOfWork.EquipmentSheetRepository.UpdateRowsAsync(equipmentSheetId, updatedRowsJson, ct);
+            }
+        }, ct);
+    }
+
+    public async Task UpdateColumnAsync(Guid equipmentSheetId, Guid columnId, ColumnModel updatedColumnModel, CancellationToken ct)
+    {
+        await unitOfWork.EnsureInitializedForReadAsync(ct);
+        var columnsJson = await unitOfWork.EquipmentSheetRepository.GetColumnsJsonAsync(equipmentSheetId, ct);
+        var columns = DeserializeColumns(columnsJson);
+        
+        var columnToUpdate = columns.FirstOrDefault(c => c.Id == columnId);
+        if (columnToUpdate == null)
         {
-            ColumnId = columnEntity.Id,
-            EquipmentSheetId = columnItem.EquipmentSheetId,
-            ColumnEntity = columnEntity,
-        };
-        await unitOfWork.BeginTransactionAsync(ct);
-        await unitOfWork.ColumnRepository.AddAsync(columnEntity, ct);
-        await unitOfWork.EquipmentColumnsRepository.AddAsync(equipmentColumnEntity, ct);
-        await unitOfWork.CommitAsync(ct);
+            throw new InvalidOperationException($"Column with ID {columnId} not found in equipment sheet {equipmentSheetId}");
+        }
+
+        updatedColumnModel.Id = columnId;
+        var index = columns.FindIndex(c => c.Id == columnId);
+        columns[index] = updatedColumnModel;
+        
+        var updatedColumnsJson = SerializeColumns(columns);
+
+        await ExecuteInTransactionAsync(async () =>
+        {
+            await unitOfWork.EquipmentSheetRepository.UpdateColumnsAsync(equipmentSheetId, updatedColumnsJson, ct);
+        }, ct);
     }
 
-    public Task UpdateRowAsync(RowItem rowItem, CancellationToken ct = default)
+    public async Task UpdateColumnsPositionsAsync(Guid equipmentSheetId, Dictionary<Guid, int> columnNewPositions, CancellationToken ct = default)
     {
-        throw new NotImplementedException();
+        await unitOfWork.EnsureInitializedForReadAsync(ct);
+        var columnsJson = await unitOfWork.EquipmentSheetRepository.GetColumnsJsonAsync(equipmentSheetId, ct);
+        var columnsModels = DeserializeColumns(columnsJson);
+        
+        columnsModels.Sort((a, b) =>
+        {
+            columnNewPositions.TryGetValue(a.Id, out var aPosition);
+            columnNewPositions.TryGetValue(b.Id, out var bPosition);
+
+            return aPosition.CompareTo(bPosition);
+        });
+
+        for (var i = 0; i < columnsModels.Count; i++)
+        {
+            columnsModels[i].Order = i;
+        }
+        
+        var updatedColumnsJson = SerializeColumns(columnsModels);
+
+        await ExecuteInTransactionAsync(async () =>
+        {
+            await unitOfWork.EquipmentSheetRepository.UpdateColumnsAsync(equipmentSheetId, updatedColumnsJson, ct);
+        }, ct);
     }
 
-    public Task RemoveRowAsync(Guid rowId, CancellationToken ct = default)
+    public async Task UpdateRowAsync(Guid equipmentSheetId, Guid rowId, RowModel updatedRowModel, CancellationToken ct)
     {
-        throw new NotImplementedException();
+        await unitOfWork.EnsureInitializedForReadAsync(ct);
+        var currentRowsJson = await unitOfWork.EquipmentSheetRepository.GetRowsJsonAsync(equipmentSheetId, ct);
+        var rows = DeserializeRows(currentRowsJson);
+        
+        var rowForUpdate = rows.FirstOrDefault(r => r.Id == rowId);
+        if (rowForUpdate == null)
+        {
+            throw new InvalidOperationException($"Row with ID {rowId} not found for equipment sheet {equipmentSheetId}");
+        }
+
+        var index = rows.FindIndex(r => r.Id == rowId);
+        
+        rows[index] = updatedRowModel;
+        
+        var updatedRowsJson = SerializeRows(rows);
+
+        await ExecuteInTransactionAsync(async () =>
+        {
+            await unitOfWork.EquipmentSheetRepository.UpdateRowsAsync(equipmentSheetId, updatedRowsJson, ct);
+        }, ct);
     }
 
-    public Task UpdateColumnAsync(ColumnItem column)
+    public async Task UpdateRowsAsync(Guid equipmentSheetId, List<RowModel> rowModels, CancellationToken ct = default)
     {
-        throw new NotImplementedException();
+        var updatedRowsJson = SerializeRows(rowModels);
+
+        await ExecuteInTransactionAsync(async () =>
+        {
+            await unitOfWork.EquipmentSheetRepository.UpdateRowsAsync(equipmentSheetId, updatedRowsJson, ct);
+        }, ct);
+    }
+
+    public async Task UpdateCellValueAsync(Guid equipmentSheetId, Guid cellId, object newValue, CancellationToken ct)
+    {
+        await unitOfWork.EnsureInitializedForReadAsync(ct);
+        var currentRowsJson = await unitOfWork.EquipmentSheetRepository.GetRowsJsonAsync(equipmentSheetId, ct);
+        var rows = DeserializeRows(currentRowsJson);
+        
+        var rowForUpdate = rows.FirstOrDefault(r => r.Cells.Any(c => c.Id == cellId));
+        if (rowForUpdate == null)
+        {
+            throw new InvalidOperationException($"Row containing cell with ID {cellId} not found in equipment sheet {equipmentSheetId}");
+        }
+        
+        var cellForUpdate = rowForUpdate.Cells.FirstOrDefault(c => c.Id == cellId);
+        if (cellForUpdate == null)
+        {
+            throw new InvalidOperationException($"Cell with ID {cellId} not found in row");
+        }
+        
+        cellForUpdate.Value = newValue;
+        
+        var updatedRowsJson = SerializeRows(rows);
+
+        await ExecuteInTransactionAsync(async () =>
+        {
+            await unitOfWork.EquipmentSheetRepository.UpdateRowsAsync(equipmentSheetId, updatedRowsJson, ct);
+        }, ct);
+    }
+
+    public async Task SoftRemoveCellsByColumnIdAsync(Guid equipmentSheetId, Guid columnId, CancellationToken ct)
+    {
+        await unitOfWork.EnsureInitializedForReadAsync(ct);
+        var columnsJson = await unitOfWork.EquipmentSheetRepository.GetColumnsJsonAsync(equipmentSheetId, ct);
+        var columns = DeserializeColumns(columnsJson);
+        
+        var columnForCellsRemoved = columns.FirstOrDefault(c => c.Id == columnId);
+        if (columnForCellsRemoved == null)
+        {
+            throw new InvalidOperationException($"Column with ID {columnId} not found for equipment sheet {equipmentSheetId}");
+        }
+        
+        var rowsJson = await unitOfWork.EquipmentSheetRepository.GetRowsJsonAsync(equipmentSheetId, ct);
+        var rows = DeserializeRows(rowsJson);
+
+        foreach (var cell in rows
+                     .Select(rowModel => rowModel.Cells
+                         .FirstOrDefault(c => c.ColumnMappingName == columnForCellsRemoved.MappingName))
+                     .OfType<CellModel>())
+        {
+            cell.Deleted = true;
+        }
+        
+        var updatedRowsJson = SerializeRows(rows);
+
+        await ExecuteInTransactionAsync(async () =>
+        {
+            await unitOfWork.EquipmentSheetRepository.UpdateRowsAsync(equipmentSheetId, updatedRowsJson, ct);
+        }, ct);
+    }
+
+    public async Task SoftRemoveRowAsync(Guid equipmentSheetId, Guid rowId, CancellationToken ct)
+    {
+        await unitOfWork.EnsureInitializedForReadAsync(ct);
+        var currentRowsJson = await unitOfWork.EquipmentSheetRepository.GetRowsJsonAsync(equipmentSheetId, ct);
+        var rows = DeserializeRows(currentRowsJson);
+        
+        var rowForUpdate = rows.FirstOrDefault(r => r.Id == rowId);
+        if (rowForUpdate == null)
+        {
+            throw new InvalidOperationException($"Row with ID {rowId} not found for equipment sheet {equipmentSheetId}");
+        }
+
+        rowForUpdate.Deleted = true;
+        
+        var updatedRowsJson = SerializeRows(rows);
+
+        await ExecuteInTransactionAsync(async () =>
+        {
+            await unitOfWork.EquipmentSheetRepository.UpdateRowsAsync(equipmentSheetId, updatedRowsJson, ct);
+        }, ct);
+    }
+
+    public async Task SoftRemoveRowsAsync(Guid equipmentSheetId, List<Guid> rowIds, CancellationToken ct)
+    {
+       await unitOfWork.EnsureInitializedForReadAsync(ct);
+       var currentRowsJson = await unitOfWork.EquipmentSheetRepository.GetRowsJsonAsync(equipmentSheetId, ct);
+       var rowModels = DeserializeRows(currentRowsJson);
+       
+       foreach (var row in rowModels.Where(r => rowIds.Contains(r.Id)))
+       {
+           row.Deleted = true;
+           foreach (var cell in row.Cells)
+           {
+               cell.Deleted = true;
+           }
+       }
+       
+       var updatedRowsJson = SerializeRows(rowModels);
+       
+       await ExecuteInTransactionAsync(async () =>
+       {
+           await unitOfWork.EquipmentSheetRepository.UpdateRowsAsync(equipmentSheetId, updatedRowsJson, ct);
+       }, ct);
+    }
+
+    public async Task SoftRemoveAllRowsAsync(Guid equipmentSheetId, CancellationToken ct = default)
+    {
+        await unitOfWork.EnsureInitializedForReadAsync(ct);
+        
+        var allRowsJson = await unitOfWork.EquipmentSheetRepository.GetRowsJsonAsync(equipmentSheetId, ct);
+        
+        var allRowsModels = DeserializeRows(allRowsJson);
+        
+        foreach (var row in allRowsModels.Where(row => !row.Deleted))
+        {
+            row.Deleted = true;
+        }
+        
+        var updatedRowsJson = SerializeRows(allRowsModels);
+        
+        await ExecuteInTransactionAsync(async () =>
+        {
+            await unitOfWork.EquipmentSheetRepository.UpdateRowsAsync(equipmentSheetId, updatedRowsJson, ct);
+        }, ct);
+    }
+
+    public async Task SoftRemoveColumnAsync(Guid equipmentSheetId, Guid columnId, CancellationToken ct)
+    {
+        await unitOfWork.EnsureInitializedForReadAsync(ct);
+        var columnsJson = await unitOfWork.EquipmentSheetRepository.GetColumnsJsonAsync(equipmentSheetId, ct);
+        var columns = DeserializeColumns(columnsJson);
+        
+        var columnToSoftRemove = columns.FirstOrDefault(c => c.Id == columnId);
+        if (columnToSoftRemove == null)
+        {
+            throw new InvalidOperationException($"Column with ID {columnId} not found in equipment sheet {equipmentSheetId}");
+        }
+        
+        columnToSoftRemove.SoftDeleted = true;
+        
+        if (columns.All(c => c.SoftDeleted))
+        {
+            await SoftRemoveAllRowsAsync(equipmentSheetId, ct);
+        }
+        
+        var updatedColumnsJson = SerializeColumns(columns);
+
+        await ExecuteInTransactionAsync(async () =>
+        {
+            await unitOfWork.EquipmentSheetRepository.UpdateColumnsAsync(equipmentSheetId, updatedColumnsJson, ct);
+        }, ct);
     }
 
     public Task UpdateColumnPositionAsync(Dictionary<Guid, int> columnPosition, Guid tableId)
@@ -157,29 +392,13 @@ public class EquipmentSheetService(IUnitOfWork unitOfWork) : IEquipmentSheetServ
     {
         throw new NotImplementedException();
     }
-
-    public Task<Guid> AddColumnAsync(ColumnSettingsDisplayModel column, Guid tableId)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<List<Guid>> InsertRowsAsync(Guid tableId, List<(Guid position, Dictionary<string, object?> data)> rows, CancellationToken ct = default)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task RemoveItemsAsync(List<Guid> rowsId, CancellationToken ct = default)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task RemoveColumnAsync(Guid columnId, CancellationToken ct = default)
-    {
-        throw new NotImplementedException();
-    }
+    
 
     public async ValueTask DisposeAsync()
     {
+        if (_disposed) return;
+        _disposed = true;
+        GC.SuppressFinalize(this);
         await unitOfWork.DisposeAsync();
     }
 }

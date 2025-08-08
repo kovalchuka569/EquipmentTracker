@@ -1,9 +1,10 @@
-﻿using Models.Equipment.ColumnSettings;
+﻿using System.Windows;
+using Models.Common.Table;
 using Syncfusion.UI.Xaml.Grid;
 
 namespace EquipmentTracker.Factories.Interfaces;
 
 public interface IGridColumnFactory
 {
-    GridColumn CreateColumn(ColumnSettingsDisplayModel settings);
+    GridColumn CreateColumn(ColumnModel columnModel, Style basedGridHeaderStyle);
 }

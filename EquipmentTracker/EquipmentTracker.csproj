@@ -24,12 +24,15 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <None Remove="Common\Controls\Assets\export.png" />
+      <None Remove="Common\Controls\Assets\import.png" />
       <None Remove="Fonts\password.ttf" />
       <None Remove="gears_ico.png" />
       <None Remove="Views\Auth\Assets\hide_pass.png" />
       <None Remove="Views\Auth\Assets\hint_pass.png" />
       <None Remove="Views\Auth\Assets\hint_user.png" />
       <None Remove="Views\Auth\Assets\show_pass.png" />
+      <None Remove="Views\NavDrawer\NavDrawerItems\EquipmentTree\Assets\file.png" />
     </ItemGroup>
 	
 	<ItemGroup>
@@ -85,18 +88,18 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Resource Include="Common\Controls\Assets\clear.png" />
-      <Resource Include="Common\Controls\Assets\excel.png" />
       <Resource Include="Common\Controls\Assets\export.png" />
       <Resource Include="Common\Controls\Assets\filter.png" />
+      <Resource Include="Common\Controls\Assets\import.png" />
       <Resource Include="Common\Controls\Assets\left.png" />
       <Resource Include="Common\Controls\Assets\pdf.png" />
       <Resource Include="Common\Controls\Assets\print.png" />
       <Resource Include="Common\Controls\Assets\right.png" />
+      <Resource Include="Common\Controls\Assets\clear.png" />
       <Resource Include="Common\Controls\Assets\search.png" />
+      <Resource Include="Common\Controls\Assets\excel.png" />
       <Resource Include="Views\NavDrawer\NavDrawerItems\EquipmentTree\Assets\file.png" />
-      <Resource Include="Views\NavDrawer\NavDrawerItems\EquipmentTree\Assets\folder.png" />
-      <Resource Include="Views\NavDrawer\NavDrawerItems\EquipmentTree\Assets\opened_folder.png" />
+      <Resource Include="Views\NavDrawer\NavDrawerItems\EquipmentTree\Assets\file_unused.png" />
       <Resource Include="Resources\Assets\hide_pass.png" />
       <Resource Include="Resources\Assets\hint_pass.png" />
       <Resource Include="Resources\Assets\hint_user.png" />
@@ -180,8 +183,6 @@
       <Resource Include="Views\Consumables\DetailsConsumables\Assets\pin.png" />
       <None Remove="Views\Consumables\DetailsConsumables\Assets\unpin.png" />
       <Resource Include="Views\Consumables\DetailsConsumables\Assets\unpin.png" />
-      <None Remove="Views\NavDrawer\NavDrawerItems\EquipmentTree\Assets\folder.png" />
-      <None Remove="Views\NavDrawer\NavDrawerItems\EquipmentTree\Assets\opened_folder.png" />
       <None Remove="Views\DataGrid\Repairs\Assets\icons8-add-48.png" />
       <Resource Include="Views\DataGrid\Repairs\Assets\add.png" />
       <None Remove="Views\DataGrid\Repairs\Assets\icons8-back-48.png" />
@@ -200,8 +201,9 @@
       <None Remove="Views\NavDrawer\NavDrawerItems\EquipmentTree\Assets\writeoff.png" />
       <None Remove="Views\NavDrawer\NavDrawerItems\EquipmentTree\Assets\repairs.png" />
       <None Remove="Views\NavDrawer\NavDrawerItems\EquipmentTree\Assets\service.png" />
-      <None Remove="Views\NavDrawer\NavDrawerItems\EquipmentTree\Assets\file.png" />
       <None Remove="Views\NavDrawer\NavDrawerItems\EquipmentTree\Assets\summary.png" />
+      <Resource Include="Views\NavDrawer\NavDrawerItems\EquipmentTree\Assets\folder.png" />
+      <Resource Include="Views\NavDrawer\NavDrawerItems\EquipmentTree\Assets\opened_folder.png" />
       <Resource Include="Views\NavDrawer\NavDrawerItems\EquipmentTree\Assets\summary.png" />
       <Resource Include="Views\SummarySheet\Assets\file.png" />
       <Resource Include="Views\SummarySheet\Assets\folder.png" />
@@ -231,8 +233,6 @@
         <SubType>Designer</SubType>
       </Page>
       <None Remove="Common\Controls\Assets\icons8-download-48.png" />
-      <Resource Include="Common\Controls\Assets\import.png" />
-      <None Remove="Common\Controls\Assets\close.png" />
       <Resource Include="Common\Controls\Assets\close.png" />
       <None Remove="Common\Controls\Assets\icons8-attention-24.png" />
       <None Remove="Common\Controls\Assets\icons8-attention-64.png" />
