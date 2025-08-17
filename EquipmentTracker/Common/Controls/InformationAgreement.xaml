@@ -10,7 +10,7 @@
              BorderThickness="0"
              AllowsTransparency="True"
              Background="White"
-             ShowInTaskbar="False"
+             ShowInTaskbar="True"
              ShowActivated="True"
              ResizeBorderThickness="0"
              TitleBarHeight="45"
@@ -25,7 +25,7 @@
         </ControlTemplate>
     </sf:ChromelessWindow.TitleBarTemplate>
     
-        <sf:ChromelessWindow.Resources>
+    <sf:ChromelessWindow.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/Syncfusion.Themes.Windows11Light.WPF;component/mscontrol/button.xaml"/>

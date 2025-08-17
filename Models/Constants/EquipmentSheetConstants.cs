@@ -8,5 +8,4 @@ public class EquipmentSheetConstants
     
     // Regions
     public const string ColumnCreatorRegion = "ColumnCreatorRegion";
-    public const string ExcelSheetSelectorRegion = "ExcelSheetSelectorRegion";
 }

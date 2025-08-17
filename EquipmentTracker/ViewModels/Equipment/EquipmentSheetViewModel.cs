@@ -1,20 +1,19 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections;
+using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using System.Diagnostics;
-using System.Dynamic;
 using System.Windows;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Threading;
 using Common.Logging;
-using Core.Common.EquipmentSheetValidation;
 using Core.Common.EquipmentSheetValidation.CellValidator;
 using Core.Common.EquipmentSheetValidation.RowValidator;
 using Core.Common.RegionHelpers;
+using Core.Contracts;
 using Core.Services.EquipmentDataGrid;
+using Core.Services.Excel;
 using EquipmentTracker.Common;
-using EquipmentTracker.Common.Controls;
 using EquipmentTracker.Common.DataGridExport;
+using EquipmentTracker.Common.DialogManager;
+using EquipmentTracker.Common.OverlayManager;
 using EquipmentTracker.Constants.Common;
 using EquipmentTracker.Factories.Interfaces;
 using EquipmentTracker.ViewModels.Common.Table;
@@ -22,22 +21,27 @@ using Models.Common.Table;
 using Models.Common.Table.ColumnSpecificSettings;
 using Models.Common.Table.ColumnValidationRules;
 using Models.Constants;
+using Models.Dialogs;
 using Models.Equipment;
 using Models.Equipment.ColumnCreator;
-using Models.Equipment.ColumnSpecificSettings;
+using Models.Services;
 using Notification.Wpf;
 using Syncfusion.UI.Xaml.Grid;
 using Syncfusion.UI.Xaml.Grid.Helpers;
-using IDialogService = EquipmentTracker.Common.DialogService.IDialogService;
+using Core.Common.Enums;
+using Core.Models;
 
 namespace EquipmentTracker.ViewModels.Equipment;
 
-public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestructible, IRegionMemberLifetime
+public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestructible, IRegionMemberLifetime, IDialogHost, IOverlayHost
 {
     private readonly IAppLogger<EquipmentSheetViewModel> _logger;
     private readonly NotificationManager _notificationManager;
+    private IContainerProvider _containerProvider;
     private IEquipmentSheetService _service;
-    private IDialogService _dialogService;
+    private IExcelImportService _excelImportService;
+    private IDialogManager _dialogManager;
+    private IOverlayManager _overlayManager;
     private readonly IGridColumnFactory _columnFactory;
     private readonly CellValidator _cellValidator = new();
     private readonly RowValidator _rowValidator = new();
@@ -50,13 +54,17 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
     public EquipmentSheetViewModel(
         IAppLogger<EquipmentSheetViewModel> logger,
         NotificationManager notificationManager,
+        IContainerProvider containerProvider,
         IGridColumnFactory columnFactory,
-        IDialogService dialogService)
+        IDialogManager dialogManager,
+        IOverlayManager overlayManager)
     {
         _logger = logger;
         _notificationManager = notificationManager;
+        _containerProvider = containerProvider;
         _columnFactory = columnFactory;
-        _dialogService = dialogService;
+        _dialogManager = dialogManager;
+        _overlayManager = overlayManager;
 
         InitializeCommands();
     }
@@ -71,18 +79,6 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
         get => _items;
         set => SetProperty(ref _items, value);
     }
-
-    /*private ObservableCollection<ExpandoObject> _rows = new();
-    public ObservableCollection<ExpandoObject> Rows
-    {
-        get => _rows;
-        set => SetProperty(ref _rows, value);
-    }*/
-    
-    // Meta of row id, dictionary of mappingName - cell id
-    /*private record RowMeta(Guid RowId, Dictionary<string, Guid> CellIds);
-    
-    private readonly Dictionary<ExpandoObject, RowMeta> _rowMetaMap = new();*/
 
     // TODO: Make the class of type ColumnInfo to store all these dictionaries (optional)
 
@@ -113,13 +109,40 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
         get => _selectedItems;
         set => SetProperty(ref _selectedItems, value);
     }
-
-    private bool _isOverlayVisible;
-
-    public bool IsOverlayVisible
+    
+    private object? _dialogContent;
+    public object? DialogContent
     {
-        get => _isOverlayVisible;
-        set => SetProperty(ref _isOverlayVisible, value);
+        get => _dialogContent;
+        set => SetProperty(ref _dialogContent, value);
+    }
+    
+    private object? _overlayContent;
+    public object? OverlayContent
+    {
+        get => _overlayContent;
+        set => SetProperty(ref _overlayContent, value);
+    }
+
+    private bool _isOverlayOpen;
+    public bool IsOverlayOpen
+    {
+        get => _isOverlayOpen;
+        set => SetProperty(ref _isOverlayOpen, value);
+    }
+    
+    private bool _isDialogOpen;
+    public bool IsDialogOpen
+    {
+        get => _isDialogOpen;
+        set => SetProperty(ref _isDialogOpen, value);
+    }
+
+    private bool _isRegionOverlayVisible;
+    public bool IsRegionOverlayVisible
+    {
+        get => _isRegionOverlayVisible;
+        set => SetProperty(ref _isRegionOverlayVisible, value);
     }
 
     private bool _isLoading;
@@ -139,6 +162,7 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
     public bool KeepAlive => true;
 
     private Style _gridHeaderBasedStyle = new();
+    
     private SfDataGrid _dataGrid = new();
 
     public bool ColumnsEmptyTipVisibility => !IsLoading && !Columns.Any();
@@ -152,26 +176,48 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
     public DelegateCommand<SfDataGrid> DataGridLoadedCommand { get; private set; }
     
     public DelegateCommand ExportToExcelCommand { get; private set; }
+    
     public DelegateCommand ExportToPdfCommand { get; private set; }
+    
     public DelegateCommand PrintCommand { get; private set; }
     
+    public DelegateCommand ExcelImportCommand { get; private set; }
+    
     public DelegateCommand<RowValidatingEventArgs> RowValidatingCommand { get; private set; }
+    
     public DelegateCommand<RowValidatedEventArgs> RowValidatedCommand { get; private set; }
+    
     public DelegateCommand<CurrentCellValidatingEventArgs> CurrentCellValidatingCommand { get; private set; }
+    
     public DelegateCommand<CurrentCellBeginEditEventArgs> CurrentCellBeginEditCommand { get; private set; }
+    
     public DelegateCommand<CurrentCellValueChangedEventArgs> CurrentCellValueChangedCommand { get; private set; }
+    
     public DelegateCommand<CurrentCellEndEditEventArgs> CurrentCellEndEditCommand { get; private set; }
+    
     public DelegateCommand<CurrentCellValidatedEventArgs> CurrentCellValidatedCommand { get; private set; }
+    
     public DelegateCommand<AddNewRowInitiatingEventArgs> AddNewRowInitiatingCommand { get; private set; }
+    
     public DelegateCommand<GridFilterItemsPopulatedEventArgs> FilterItemsPopulatedCommand { get; private set; }
+    
     public DelegateCommand AddColumnCommand { get; private set; }
+    
     public DelegateCommand<GridColumnContextMenuInfo> RemoveColumnCommand { get; private set; }
+    
     public DelegateCommand<GridColumnContextMenuInfo> EditColumnCommand { get; private set; }
+
     public DelegateCommand RemoveRowCommand { get; private set; }
+    
     public DelegateCommand<RecordDeletingEventArgs> KeyRemoveRowCommand { get; private set; }
+    
     public DelegateCommand<GridSelectionChangedEventArgs> SelectionChangedCommand { get; private set; }
+    
     public DelegateCommand<QueryColumnDraggingEventArgs> QueryColumnDraggingCommand { get; private set; }
+    
     public DelegateCommand<KeyEventArgs> DataGridKeyDownCommand { get; private set; }
+    
+    public DelegateCommand<ResizingColumnsEventArgs> ResizingColumnCommand { get; private set; }
 
     private void InitializeCommands()
     {
@@ -180,6 +226,7 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
         ExportToExcelCommand = new DelegateCommand(OnExportToExcel);
         ExportToPdfCommand = new DelegateCommand(OnExportToPdf);
         PrintCommand = new DelegateCommand(OnPrint);
+        ExcelImportCommand = new DelegateCommand(OnExcelImport);
 
         RowValidatingCommand = new DelegateCommand<RowValidatingEventArgs>(OnRowValidating);
         RowValidatedCommand = new DelegateCommand<RowValidatedEventArgs>(OnRowValidated);
@@ -202,9 +249,86 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
         CurrentCellValidatedCommand = new DelegateCommand<CurrentCellValidatedEventArgs>(OnCurrentCellValidated);
         CurrentCellEndEditCommand = new DelegateCommand<CurrentCellEndEditEventArgs>(OnCurrentCellEndEdit);
         DataGridKeyDownCommand = new DelegateCommand<KeyEventArgs>(OnDataGridGridKeyDown);
+        ResizingColumnCommand = new DelegateCommand<ResizingColumnsEventArgs>(OnResizingColumn);
     }
 
     #endregion
+
+    private async void OnExcelImport()
+    { 
+        _overlayManager.ShowOverlay(this);
+        try
+        {
+            var result = await _dialogManager.ShowDialogAsync(DialogType.ExcelImportConfigurator, this);
+
+            if (result is not { Result: ButtonResult.OK, Parameters: { } dialogParameters })
+                return;
+        
+            var excelImportConfigurationResult = dialogParameters.GetValue<ExcelImportConfigurationResult>("ExcelImportConfigurationResult");
+
+            var availableColumns = _columnIdModelMap.Values.Select(c => (c.HeaderText, c.MappingName, c.DataType)).ToList();
+
+            var excelImportConfig = new ExcelImportConfig
+            {
+                FilePath = excelImportConfigurationResult.SelectedFilePath,
+                SheetName = excelImportConfigurationResult.SelectedSheetName,
+                HeadersRange = excelImportConfigurationResult.HeadersRange,
+                RowRangeStart = excelImportConfigurationResult.RowRangeStart,
+                RowRangeEnd = excelImportConfigurationResult.RowRangeEnd,
+                AvailableColumns = availableColumns
+            };
+
+            var importedRows = await _excelImportService.ImportRowsAsync(excelImportConfig);
+
+            // Pushing existing rows depending on how many were imported
+            foreach (var item in Items)
+            {
+                item.RowViewModel.Position += importedRows.Count;
+            }
+
+            // Reverse the order of imported rows to match the original order
+            importedRows.Reverse();
+            
+            // Insert new items at the beginning of the items collection
+            var pos = 1;
+            foreach (var row in importedRows)
+            {
+                row.Position = pos++;
+                var itemViewModel = new ItemViewModel(RowViewModel.FromDomain(row));
+                Items.Insert(0, itemViewModel);
+            }
+
+            await _service.InsertRowsAsync(_equipmentSheetId, importedRows);
+        }
+        finally
+        {
+            RaisePropertyChanged(nameof(RowsEmptyTipVisibility));
+            _overlayManager.HideOverlay(this);
+        }
+    }
+
+    private async void OnResizingColumn(ResizingColumnsEventArgs args)
+    {
+        try
+        {
+            if (args.Reason != ColumnResizingReason.Resized) return;
+            
+            var actualIndex = args.ColumnIndex - 1;
+            var width = args.Width;
+            var mappingName = _dataGrid.Columns[actualIndex].MappingName;
+            var updatedColumnId = _columnMappingNameIdMap[mappingName];
+            
+            _columnIdModelMap[updatedColumnId].Width = width;
+
+            await _service.UpdateColumnWidthAsync(_equipmentSheetId, updatedColumnId, width);
+        }
+        catch (Exception e)
+        {
+            args.Cancel = true;
+            _notificationManager.Show("Помилка оновлення ширини", NotificationType.Error);
+            _logger.LogError(e, "Error updating column width");
+        }
+    }
     
 
     private void OnDataGridGridKeyDown(KeyEventArgs args)
@@ -330,19 +454,33 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
     {
         if (removeItemsCount == 0) return false;
 
-        string message = removeItemsCount == 1
-            ? $"Ви впевнені що хочете видалити цей запис?\nБуде видалено всі комірки для цього запису"
+        var message = removeItemsCount == 1
+            ? "Ви впевнені що хочете видалити цей запис?\nБуде видалено всі комірки для цього запису"
             : $"Ви впевнені що хочете видалити {deletedRecordCountText}?\nБуде видалено всі комірки для цих записів";
+        
+        var title = removeItemsCount == 1
+            ? "Видалити вибраний запис?"
+            : "Видалити вибрані записи?";
+        
+        var parameters = new DialogParameters
+        {
+            {"DialogBoxParameters", new DialogBoxParameters
+            {
+                Title = title,
+                Message = message,
+                Icon = DialogBoxIcon.Trash,
+                Buttons = DialogBoxButtons.DeleteCancel,
+                ButtonsText = ["Видалити", "Відмінити"]
+            }}
+        };
+        
+        _overlayManager.ShowOverlay(this);
+        
+        await _dialogManager.ShowDialogAsync(DialogType.DialogBox, this, parameters);
+        
+        _overlayManager.HideOverlay(this);
 
-        IsOverlayVisible = true;
-        try
-        {
-            return await _dialogService.ShowDeleteConfirmationAsync("Видалення", message);
-        }
-        finally
-        {
-            IsOverlayVisible = false;
-        }
+        return false;
     }
 
     // Programmatically change filter item display text for GridCheckBoxColumn when GridFilterItemsPopulated event is raised
@@ -496,7 +634,8 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
     
     private async void OnRowValidated(RowValidatedEventArgs e)
     {
-        if (e.RowData is not ItemViewModel validatedItemViewModel) return;
+        if (e.RowData is not ItemViewModel validatedItemViewModel) 
+            return;
         
         var rowId = validatedItemViewModel.RowViewModel.Id;
 
@@ -505,24 +644,35 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
         {
             try
             {
-                await _service.InsertRowAsync(_equipmentSheetId,
-                    RowViewModel.ToDomain(validatedItemViewModel.RowViewModel));
+                validatedItemViewModel.RowViewModel.Position = 1; // New row should be inserted at the first position
+                
+                // Shift positions of existing rows down by one
+                foreach (var row in Items)
+                {
+                    if (row.RowViewModel.Id == rowId)   // If its new row, skipping
+                        continue;
+                    
+                    row.RowViewModel.Position++;    // Others move up by one position
+                }
+                
+                await _service.InsertRowAsync(_equipmentSheetId, RowViewModel.ToDomain(validatedItemViewModel.RowViewModel));   // Save new row in
+                
             }
-            catch (Exception exception)
+            catch (Exception ex)
             {
-                Console.WriteLine(exception);
+                _notificationManager.Show("Помилка стоврення запису", NotificationType.Error);
+                _logger.LogError(ex, "Failed to creating row");
                 throw;
             }
             finally
             {
-                validatedItemViewModel.RowViewModel.IsNew = false;
+                validatedItemViewModel.RowViewModel.IsNew = false; // Making the row not new
             }
         }
         
-        // Update existing row if it exists
+        // Update row if it exists
         else
         {
-            Console.WriteLine("Updating");
             var updatedRowModel = RowViewModel.ToDomain(validatedItemViewModel.RowViewModel);
             await _service.UpdateRowAsync(_equipmentSheetId, rowId, updatedRowModel);
         }
@@ -808,9 +958,9 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
             var agreementMessage = $"Ви впевнені що хочете видалити характеристику '{columnHeaderText}' ? \n" +
                                    $"Буде видалено всі комірки для цієї характеристики";
 
-            IsOverlayVisible = true;
-            var confirm = await _dialogService.ShowDeleteConfirmationAsync(agreementTitle, agreementMessage);
-            IsOverlayVisible = false;
+            IsRegionOverlayVisible = true;
+            var confirm = await _dialogManager.ShowDeleteConfirmationAsync(agreementTitle, agreementMessage);
+            IsRegionOverlayVisible = false;
 
             if (!confirm) return;
             
@@ -921,18 +1071,80 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
 
     #endregion
 
-    private void OnRowDragStart(object? sender, GridRowDragStartEventArgs args)
+    private async void OnRowsDropped(object? sender, GridRowDroppedEventArgs args)
     {
-        var draggingExpandoRows = args.DraggingRecords
-            .OfType<ExpandoObject>()
-            .ToList();
+        if (args.IsFromOutSideSource)
+            return; // Leave if dropped from outside source
 
+        if (args.Data is not DataObject dataObject)
+            return; // Check that the data is represented as a DataObject, otherwise leave
 
-    }
+        if (!dataObject.GetDataPresent("Records")) 
+            return; // Check that the DataObject has the "Records" format, otherwise leave
 
-    private void OnRowDragLeave(object? sender, GridRowDragLeaveEventArgs args)
-    {
-        Console.WriteLine("Drop position: " + args.DropPosition);
+        if (dataObject.GetData("Records") is not IEnumerable recordsObj)
+            return; // Get the "Records" format data and check that it is IEnumerable
+
+        var droppedRows = new List<ItemViewModel>();
+
+        // Convert the elements to ItemViewModel and collect them into a list
+        foreach (var item in recordsObj)
+        {
+            if (item is ItemViewModel row)
+                droppedRows.Add(row);
+        }
+
+        if (droppedRows.Count == 0)
+            return; // If there is no string of the required type, exit the handler
+        
+        if (args.TargetRecord is not int targetIndex)
+            return; // Leave if target record is not int index
+        
+        // Find the index of the insertion target in the items collection
+        if (args.DropPosition == DropPosition.DropBelow)
+            targetIndex++;
+        
+        // If the target index is out of bounds, adjust it
+        if (targetIndex < 0)
+            targetIndex = 0;
+        
+        if (targetIndex > Items.Count)
+            targetIndex = Items.Count;
+        
+        // Move the dragged rows one by one, preserving their order
+        foreach (var row in droppedRows)
+        {
+            var oldIndex = Items.IndexOf(row); // Get old index of the row in the items collection
+            
+            if (oldIndex < 0)
+                continue; // Not valid, skip it
+
+            if (oldIndex < targetIndex)
+                targetIndex--; // Move the target index down if the old index is less than the target index
+            
+            if (oldIndex != targetIndex)
+                Items.Move(oldIndex, targetIndex); // Move the row to the new position if the old index is less than the target index and not 0
+            
+            targetIndex++; // If the element is already in place, simply shift the targetIndex so that the next one is inserted after it
+        }
+
+        // Update view model positions according to the new order
+        for (var i = 0; i < Items.Count; i++)
+        {
+            Items[i].RowViewModel.Position = i + 1;
+        }
+
+        try
+        {
+            var rowsModels = Items.Select(row => RowViewModel.ToDomain(row.RowViewModel)).ToList();
+            await _service.UpdateRowsAsync(_equipmentSheetId, rowsModels, true);
+        }
+        catch (Exception e)
+        {
+            _notificationManager.Show("Помилка оновлення позицій записів", NotificationType.Error);
+            _logger.LogError(e, "Failed to update rows in sorting");
+            throw;
+        }
     }
 
     #region Private Methods
@@ -941,6 +1153,8 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
     {
         var tabScopedServiceProvider = parameters.GetValue<IScopedProvider>("TabScopedServiceProvider");
         _service = tabScopedServiceProvider.Resolve<IEquipmentSheetService>();
+        _excelImportService = tabScopedServiceProvider.Resolve<IExcelImportService>();
+        
         _scopedRegionManager ??= parameters[NavigationConstants.ScopedRegionManager] as IRegionManager;
         _scopedEventAggregator ??= parameters[NavigationConstants.ScopedEventAggregator] as IEventAggregator;
         _equipmentSheetId = (Guid)(parameters[EquipmentSheetConstants.EquipmentSheetId] ?? Guid.Empty);
@@ -948,8 +1162,7 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
 
     private void SubscribeToRowsDragDropEvents()
     {
-        _dataGrid.RowDragDropController.DragStart += OnRowDragStart;
-        _dataGrid.RowDragDropController.DragLeave += OnRowDragLeave;
+        _dataGrid.RowDragDropController.Dropped += OnRowsDropped;
     }
 
     private void SubscribeToRegionsChanges()
@@ -958,10 +1171,7 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
 
         _scopedRegionManager.Regions[EquipmentSheetConstants.ColumnCreatorRegion]
             .ActiveViews.CollectionChanged += OnActiveViewsChanged;
-
-        _scopedRegionManager.Regions[EquipmentSheetConstants.ExcelSheetSelectorRegion]
-            .ActiveViews.CollectionChanged += OnActiveViewsChanged;
-
+        
         UpdateOverlayVisibility();
     }
 
@@ -974,9 +1184,7 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
     {
         if (_scopedRegionManager == null) return;
 
-        IsOverlayVisible =
-            _scopedRegionManager.Regions[EquipmentSheetConstants.ColumnCreatorRegion].ActiveViews.Any() ||
-            _scopedRegionManager.Regions[EquipmentSheetConstants.ExcelSheetSelectorRegion].ActiveViews.Any();
+        IsRegionOverlayVisible = _scopedRegionManager.Regions[EquipmentSheetConstants.ColumnCreatorRegion].ActiveViews.Any();
     }
 
     #endregion
@@ -989,7 +1197,6 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
             if (_scopedRegionManager != null)
             {
                 RegionCleanupHelper.CleanRegion(_scopedRegionManager, EquipmentSheetConstants.ColumnCreatorRegion);
-                RegionCleanupHelper.CleanRegion(_scopedRegionManager, EquipmentSheetConstants.ExcelSheetSelectorRegion);
             }
 
             Items.Clear();

@@ -1,4 +1,4 @@
-using Core.Models.DataGrid;
+
 using Core.Services.Common;
 using Core.Services.Common.DataGridColumns;
 using Core.Services.Consumables;
@@ -6,11 +6,11 @@ using Core.Services.Consumables.Operations;
 using Core.Services.DataGrid;
 using Core.Services.EquipmentDataGrid;
 using Core.Services.EquipmentTree;
+using Core.Services.Excel;
 using Core.Services.RepairsDataGrid;
 using Core.Services.ServicesDataGrid;
 using Core.Services.Summary;
 using UI.ViewModels.Tabs;
-using UI.ViewModels.TabControl;
 using UI.Views.NavDrawer.NavDrawerItems.EquipmentTree;
 using UI.ViewModels.DataGrid;
 using Data.Repositories.Common.DataGridColumns;
@@ -21,16 +21,19 @@ using Data.Repositories.EquipmentTree;
 using Data.Repositories.Repairs;
 using Data.Repositories.Services;
 using Data.Repositories.Summary;
-using EquipmentTracker.Common.Controls;
+using EquipmentTracker.Common.DialogManager;
+using EquipmentTracker.Common.OverlayManager;
 using EquipmentTracker.Factories.Implementations.Syncfusion;
 using EquipmentTracker.Factories.Interfaces;
 using EquipmentTracker.ViewModels.DataGrid;
 using EquipmentTracker.ViewModels.DataGrid.Services;
+using EquipmentTracker.ViewModels.Dialogs;
 using EquipmentTracker.ViewModels.Equipment;
 using EquipmentTracker.ViewModels.SummarySheet;
 using EquipmentTracker.ViewModels.TabControl;
 using EquipmentTracker.Views.DataGrid;
 using EquipmentTracker.Views.DataGrid.Services;
+using EquipmentTracker.Views.Dialogs;
 using EquipmentTracker.Views.Equipment.DataGrid;
 using UI.ViewModels.Common;
 using UI.ViewModels.Consumables;
@@ -47,20 +50,12 @@ using UI.Views.DataGrid.Repairs;
 using UI.Views.NavDrawer.NavDrawerItems;
 using UI.Views.NavDrawer.NavDrawerItems.ConsumablesTree;
 using UI.Views.TabControl;
-using Prism.Modularity;
-using Prism.Ioc;
 using UI.ViewModels.DataGrid.Services;
 using UI.ViewModels.Equipment.DataGrid;
 using UI.Views.DataGrid.Services;
-using EquipmentTracker.Views.Equipment.DataGrid;
 using EquipmentTracker.Views.Equipment.Dialogs;
 using EquipmentTracker.Views.SummarySheet;
-using UI.ViewModels.Equipment.DataGrid;
-using DialogService = EquipmentTracker.Common.DialogService.DialogService;
-using EquipmentDataGridView = EquipmentTracker.Views.Equipment.DataGrid.EquipmentDataGridView;
-using EquipmentDataGridViewModel = EquipmentTracker.ViewModels.Equipment.DataGrid.EquipmentDataGridViewModel;
 using EquipmentSheetView = EquipmentTracker.Views.Equipment.EquipmentSheetView;
-using IDialogService = EquipmentTracker.Common.DialogService.IDialogService;
 
 namespace UI.Modules;
 
@@ -76,7 +71,10 @@ public class TabControlModule : IModule
     {
         containerRegistry.RegisterForNavigation<EquipmentSheetView, EquipmentSheetViewModel>();
         
-        containerRegistry.RegisterSingleton<IDialogService, DialogService>();
+        containerRegistry.RegisterSingleton<IDialogManager, DialogManager>();
+        containerRegistry.RegisterSingleton<IOverlayManager, OverlayManager>();
+
+        containerRegistry.RegisterScoped<IExcelImportService, ExcelImportService>();
         
         // Tab control (user control)
         containerRegistry.RegisterForNavigation<TabControlView, TabControlViewModel>();
@@ -85,9 +83,10 @@ public class TabControlModule : IModule
         containerRegistry.RegisterSingleton<IGenericTabViewModelFactory, GenericTabViewModelFactory>();
         containerRegistry.RegisterForNavigation<GenericTabView, GenericTabViewModel>();
         
-        #region Tabs
+        // Dialogs
+        containerRegistry.RegisterForNavigation<DeletionAgreementView, DeletionAgreementViewModel>();
         
-        containerRegistry.RegisterSingleton<IDialogService, DialogService>();
+        #region Tabs
         
         // Image Viewer
         containerRegistry.RegisterForNavigation<ImageViewerView, ImageViewerViewModel>();
@@ -107,7 +106,6 @@ public class TabControlModule : IModule
         containerRegistry.Register<IGridColumnFactory, SyncfusionGridColumnFactory>();
         containerRegistry.Register<IGridInteractionHandler, GridInteractionHandler>();
         // Deletion agreement
-        containerRegistry.RegisterForNavigation<DeletionAgreementView, DeletionAgreementViewModel>();
         
         containerRegistry.RegisterForNavigation<SummarySheetView, SummarySheetViewModel>();
         containerRegistry.RegisterForNavigation<SummaryColumnTreeView, SummaryColumnTreeViewModel>();

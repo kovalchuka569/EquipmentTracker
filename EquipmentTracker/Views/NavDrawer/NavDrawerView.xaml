@@ -17,7 +17,7 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/Syncfusion.Themes.Windows11Light.WPF;component/sfnavigationdrawer/primarysfnavigationdrawer.xaml"/>
-                <ResourceDictionary Source="pack://application:,,,/Common/Styles/LoadAnimationStyle.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Common/Styles/Animations/LoadUserControlAnimationBottomToTop.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <local:HeaderToMenuTypeConverter x:Key="HeaderToMenuTypeConverter"/>
         </ResourceDictionary>

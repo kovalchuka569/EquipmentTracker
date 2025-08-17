@@ -11,6 +11,7 @@ using Syncfusion.XlsIO;
 using Core.Services.EquipmentDataGrid;
 using EquipmentTracker.Common;
 using EquipmentTracker.Common.DataGridExport;
+using EquipmentTracker.Common.DialogManager;
 using EquipmentTracker.Constants.Common;
 using EquipmentTracker.Constants.Equipment;
 using EquipmentTracker.ViewModels.Equipment.DataGrid.Import;
@@ -28,7 +29,6 @@ using Columns = Syncfusion.UI.Xaml.Grid.Columns;
 using CurrentCellValidatingEventArgs = Syncfusion.UI.Xaml.Grid.CurrentCellValidatingEventArgs;
 using DelegateCommand = Prism.Commands.DelegateCommand;
 using GridSelectionChangedEventArgs = Syncfusion.UI.Xaml.Grid.GridSelectionChangedEventArgs;
-using IDialogService = EquipmentTracker.Common.DialogService.IDialogService;
 using SelectionChangedEventArgs = Syncfusion.UI.Xaml.Grid.SelectionChangedEventArgs;
 
 namespace EquipmentTracker.ViewModels.Equipment.DataGrid;
@@ -38,7 +38,7 @@ public class EquipmentDataGridViewModel : BindableBase, INavigationAware, IDestr
     private readonly IEquipmentSheetService _equipmentSheetService;
     private readonly NotificationManager _notificationManager;
     private readonly IAppLogger<EquipmentDataGridViewModel> _logger;
-    private readonly IDialogService _dialogService;
+    private readonly IDialogManager _dialogManager;
     private IRegionManager _scopedRegionManager;
     private Guid _tableId;
     private string _equipmentSheetName;
@@ -236,12 +236,12 @@ public class EquipmentDataGridViewModel : BindableBase, INavigationAware, IDestr
 
     public EquipmentDataGridViewModel(IEquipmentSheetService equipmentSheetService,
         NotificationManager notificationManager,
-        IDialogService dialogService,
+        IDialogManager dialogManager,
         IAppLogger<EquipmentDataGridViewModel> logger)
     {
         _equipmentSheetService = equipmentSheetService;
         _notificationManager = notificationManager;
-        _dialogService = dialogService;
+        _dialogManager = dialogManager;
         _logger = logger;
 
         ColumnDraggingCommand = new Prism.Commands.DelegateCommand<QueryColumnDraggingEventArgs>(OnColumnDragging);
@@ -353,7 +353,7 @@ public class EquipmentDataGridViewModel : BindableBase, INavigationAware, IDestr
         IsOverlayVisible = true;
         try
         {
-            return await _dialogService.ShowDeleteConfirmationAsync("Видалення", message);
+            return await _dialogManager.ShowDeleteConfirmationAsync("Видалення", message);
         }
         finally
         {
@@ -375,7 +375,7 @@ public class EquipmentDataGridViewModel : BindableBase, INavigationAware, IDestr
 
 
         IsOverlayVisible = true;
-        bool confirm = await _dialogService.ShowDeleteConfirmationAsync(title, message);
+        bool confirm = await _dialogManager.ShowDeleteConfirmationAsync(title, message);
         IsOverlayVisible = false;
 
         if (confirm)

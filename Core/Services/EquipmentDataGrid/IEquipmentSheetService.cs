@@ -30,6 +30,14 @@ public interface IEquipmentSheetService
     Task InsertRowAsync(Guid equipmentSheetId, RowModel newRowModel, CancellationToken ct = default);
     
     /// <summary>
+    /// Insert a new rows in equipment sheet.
+    /// </summary>
+    /// <param name="equipmentSheetId">Equipment sheet ID.</param>
+    /// <param name="newRowsModels">List of new rows models.</param>
+    /// <param name="ct">Cancellation token.</param>
+    Task InsertRowsAsync(Guid equipmentSheetId, List<RowModel> newRowsModels, CancellationToken ct = default);
+    
+    /// <summary>
     /// Insert a new column in the equipment sheet.
     /// </summary>
     /// <param name="equipmentSheetId">Equipment sheet id</param>
@@ -54,6 +62,15 @@ public interface IEquipmentSheetService
     /// <param name="columnNewPositions">List of column IDs to new positions.</param>
     /// <param name="ct">Cancellation token.</param>
     Task UpdateColumnsPositionsAsync(Guid equipmentSheetId, Dictionary<Guid, int> columnNewPositions, CancellationToken ct = default);
+
+    /// <summary>
+    /// Update a column width in the equipment sheet.
+    /// </summary>
+    /// <param name="equipmentSheetId">Equipment sheet ID.</param>
+    /// <param name="columnId">Column ID.</param>
+    /// <param name="newWidth">New column width.</param>
+    /// <param name="ct">Cancellation token.</param>
+    Task UpdateColumnWidthAsync(Guid equipmentSheetId, Guid columnId, double newWidth, CancellationToken ct = default);
     
     /// <summary>
     /// Update a row in the equipment sheet.
@@ -69,8 +86,9 @@ public interface IEquipmentSheetService
     /// </summary>
     /// <param name="equipmentSheetId">Equipment sheet ID.</param>
     /// <param name="rowModels">List of row models.</param>
+    /// <param name="sortByPosition">Sort by position (default false).</param>
     /// <param name="ct">Cancellation token.</param>
-    Task UpdateRowsAsync(Guid equipmentSheetId, List<RowModel> rowModels, CancellationToken ct = default);
+    Task UpdateRowsAsync(Guid equipmentSheetId, List<RowModel> rowModels, bool sortByPosition = false, CancellationToken ct = default);
     
     /// <summary>
     /// Update a cell in the equipment sheet.
@@ -129,6 +147,4 @@ public interface IEquipmentSheetService
     
     
     Task UpdateColumnPositionAsync(Dictionary<Guid, int> columnPosition, Guid tableId);
-    
-    Task UpdateColumnWidthAsync(Dictionary<Guid, double> columnWidths, Guid tableId);
 }

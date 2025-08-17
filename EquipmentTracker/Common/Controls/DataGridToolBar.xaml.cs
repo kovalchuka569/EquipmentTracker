@@ -24,7 +24,9 @@ public partial class DataGridToolBar
     
     #region Feilds
     private CancellationTokenSource _searchCancellationTokenSource;
+    
     private bool _isSearchTypeChanging;
+
     #endregion
     
     #region Properties
@@ -78,14 +80,13 @@ public partial class DataGridToolBar
     #region Event handlers
     private static void OnSearchHelperChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
-        if (d is DataGridToolBar && e.NewValue is SearchHelper searchHelper)
-        {
-            var searchColor = (Color)ColorConverter.ConvertFromString("#005FB8");
-            searchHelper.SearchBrush = new SolidColorBrush(searchColor);
-            searchHelper.SearchForegroundBrush = Brushes.White;
-            searchHelper.AllowFiltering = true;
-            searchHelper.SearchForegroundHighlightBrush = Brushes.White;
-        }
+        if (d is not DataGridToolBar || e.NewValue is not SearchHelper searchHelper) return;
+        
+        var searchColor = (Color)ColorConverter.ConvertFromString("#09244B");
+        searchHelper.SearchBrush = new SolidColorBrush(searchColor);
+        searchHelper.SearchForegroundBrush = Brushes.White;
+        searchHelper.AllowFiltering = true;
+        searchHelper.SearchForegroundHighlightBrush = Brushes.White;
     }
 
     private static void OnImportButtonVisibilityChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -96,9 +97,7 @@ public partial class DataGridToolBar
         }
     }
     
-    private void SearchSelector_OnClick(object sender, RoutedEventArgs e) => SearchTypeSelectorPopup.IsOpen = true;
-
-    private void ClearSearch_OnClick(object sender, RoutedEventArgs e) => ClearSearch();
+    private void SearchSelector_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e) => SearchTypeSelectorPopup.IsOpen = true;
     
     private void SearchTextBox_OnTextChanged(object sender, TextChangedEventArgs e)
     {
@@ -126,26 +125,25 @@ public partial class DataGridToolBar
             
         try
         {
-            
             ClearSearch();
             
-            switch (radioButton.Name)
+            GridSearchHelper.SearchType = radioButton.Name switch
             {
-                case nameof(ContainsSearchType):
-                    GridSearchHelper.SearchType = SearchType.Contains;
-                    break;
-                case nameof(StartWithSearchType):
-                    GridSearchHelper.SearchType = SearchType.StartsWith;
-                    break;
-                case nameof(EndWithSearchType):
-                    GridSearchHelper.SearchType = SearchType.EndsWith;
-                    break;
-            }
+                nameof(ContainsSearchType) => SearchType.Contains,
+                nameof(StartWithSearchType) => SearchType.StartsWith,
+                nameof(EndWithSearchType) => SearchType.EndsWith,
+                _ => GridSearchHelper.SearchType
+            };
         }
         finally
         {
             _isSearchTypeChanging = false;
         }
+    }
+
+    private void ClearSearch_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+    {
+        ClearSearch();
     }
 
     private void ClearSearch()
@@ -154,7 +152,7 @@ public partial class DataGridToolBar
         GridSearchHelper.ClearSearch();
     }
 
-    private void NavigationButton_OnClick(object sender, RoutedEventArgs e)
+    private void NavigationButton_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
     {
         if (string.IsNullOrEmpty(SearchTextBox.Text)) return;
 
@@ -177,11 +175,11 @@ public partial class DataGridToolBar
         catch (TaskCanceledException) { }
     }
     
-    private void ExportButton_OnClick(object sender, RoutedEventArgs e) => ExportSelectorPopup.IsOpen = true;
+    private void ExportButton_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e) => ExportSelectorPopup.IsOpen = true;
     
-    private void ImportButton_OnClick(object sender, RoutedEventArgs e) => ImportSelectorPopup.IsOpen = true;
+    private void ImportButton_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e) => ImportSelectorPopup.IsOpen = true;
     
-    private void PrintButton_OnClick(object sender, RoutedEventArgs e)
+    private void PrintButton_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
     {
         PrintCommand.Execute(null);
     }

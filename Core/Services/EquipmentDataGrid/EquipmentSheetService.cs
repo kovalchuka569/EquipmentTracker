@@ -94,11 +94,50 @@ public class EquipmentSheetService(IUnitOfWork unitOfWork) : IEquipmentSheetServ
         await unitOfWork.EnsureInitializedForReadAsync(ct);
         var currentRowsJson = await unitOfWork.EquipmentSheetRepository.GetRowsJsonAsync(equipmentSheetId, ct);
         var listRowsModel = DeserializeRows(currentRowsJson);
+
+        foreach (var rowModel in listRowsModel)
+        {
+            rowModel.Position++;
+        }
         
         listRowsModel.Add(newRowModel);
 
-        var updatedRowsJson = SerializeRows(listRowsModel);
+        var updatedRowsJson = SerializeRows(listRowsModel.OrderBy(r => r.Position).ToList());
 
+        await ExecuteInTransactionAsync(async () =>
+        {
+            await unitOfWork.EquipmentSheetRepository.UpdateRowsAsync(equipmentSheetId, updatedRowsJson, ct);
+        }, ct);
+    }
+
+    public async Task InsertRowsAsync(Guid equipmentSheetId, List<RowModel> newRowsModels, CancellationToken ct = default)
+    {
+        await unitOfWork.EnsureInitializedForReadAsync(ct);
+        var currentRowsJson = await unitOfWork.EquipmentSheetRepository.GetRowsJsonAsync(equipmentSheetId, ct);
+        var listRowsModel = DeserializeRows(currentRowsJson);
+        Console.WriteLine(listRowsModel.Count + "List rows models count");
+        
+        // Shift the positions of existing lines down
+        foreach (var row in listRowsModel)
+        {
+            row.Position += newRowsModels.Count;
+        }
+        
+        newRowsModels.Reverse();
+        
+        // Assign positions to new lines (top of list)
+        var pos = 1;
+        foreach (var newRow in newRowsModels)
+        {
+            newRow.Position = pos++;
+        }
+        
+        // Add range of new rows
+        listRowsModel.AddRange(newRowsModels);
+        
+        // Serialize in order by position
+        var updatedRowsJson = SerializeRows(listRowsModel.OrderBy(r => r.Position).ToList());
+        
         await ExecuteInTransactionAsync(async () =>
         {
             await unitOfWork.EquipmentSheetRepository.UpdateRowsAsync(equipmentSheetId, updatedRowsJson, ct);
@@ -197,6 +236,28 @@ public class EquipmentSheetService(IUnitOfWork unitOfWork) : IEquipmentSheetServ
         }, ct);
     }
 
+    public async Task UpdateColumnWidthAsync(Guid equipmentSheetId, Guid columnId, double newWidth, CancellationToken ct)
+    {
+        await unitOfWork.EnsureInitializedForReadAsync(ct);
+        var columnsJson = await unitOfWork.EquipmentSheetRepository.GetColumnsJsonAsync(equipmentSheetId, ct);
+        var columnsModels = DeserializeColumns(columnsJson);
+
+        var columnToUpdate = columnsModels.FirstOrDefault(c => c.Id == columnId);
+        if (columnToUpdate == null)
+        {
+            throw new InvalidOperationException($"Column with ID {columnId} not found in equipment sheet {equipmentSheetId}");
+        }
+        
+        columnToUpdate.Width = newWidth;
+        
+        var updatedColumnsJson = SerializeColumns(columnsModels);
+
+        await ExecuteInTransactionAsync(async () =>
+        {
+            await unitOfWork.EquipmentSheetRepository.UpdateColumnsAsync(equipmentSheetId, updatedColumnsJson, ct);
+        }, ct);
+    }
+
     public async Task UpdateRowAsync(Guid equipmentSheetId, Guid rowId, RowModel updatedRowModel, CancellationToken ct)
     {
         await unitOfWork.EnsureInitializedForReadAsync(ct);
@@ -221,9 +282,13 @@ public class EquipmentSheetService(IUnitOfWork unitOfWork) : IEquipmentSheetServ
         }, ct);
     }
 
-    public async Task UpdateRowsAsync(Guid equipmentSheetId, List<RowModel> rowModels, CancellationToken ct = default)
+    public async Task UpdateRowsAsync(Guid equipmentSheetId, List<RowModel> rowModels, bool sortByPosition, CancellationToken ct)
     {
-        var updatedRowsJson = SerializeRows(rowModels);
+        var rowsToSerialize = sortByPosition 
+            ? rowModels.OrderBy(r => r.Position).ToList()
+            : rowModels;
+        
+        var updatedRowsJson = SerializeRows(rowsToSerialize);
 
         await ExecuteInTransactionAsync(async () =>
         {

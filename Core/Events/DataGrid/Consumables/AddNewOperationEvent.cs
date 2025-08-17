@@ -1,5 +1,4 @@
-﻿using Prism.Events;
-
+﻿
 namespace Core.Events.DataGrid.Consumables
 {
     public class AddNewOperationEvent: PubSubEvent<AddNewOperationEventArgs> {}

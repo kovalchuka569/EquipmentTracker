@@ -1,6 +1,7 @@
 ﻿<UserControl x:Class="EquipmentTracker.Views.Equipment.EquipmentSheetView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:grid="clr-namespace:Syncfusion.UI.Xaml.Grid;assembly=Syncfusion.SfGrid.WPF"
@@ -9,7 +10,6 @@
              xmlns:prism="http://prismlibrary.com/"
              xmlns:controls="clr-namespace:EquipmentTracker.Common.Controls"
              xmlns:const="clr-namespace:Models.Constants;assembly=Models"
-             Style="{DynamicResource LoadUserControlOpacity}"
              mc:Ignorable="d">
     
     <UserControl.Resources>
@@ -17,7 +17,8 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/Syncfusion.Themes.Windows11Light.WPF;component/SfDataGrid/SfDataGrid.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/Syncfusion.Themes.Windows11Light.WPF;component/DateTimeEdit/DateTimeEdit.xaml"/>
-                <ResourceDictionary Source="pack://application:,,,/Common/Styles/LoadAnimationStyle.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Resources/Icons.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Common/Styles/ContextMenuStyle.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             
             <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
@@ -37,172 +38,221 @@
     </i:Interaction.Triggers>
 
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-        
-        <controls:DataGridToolBar Grid.Row="0"
-                                  Style="{StaticResource LoadUserControlAnimationRightToLeftWithoutOpacity}"
-                                  GridSearchHelper="{Binding SearchHelper, ElementName=SfDataGrid}"
-                                  PrintCommand="{Binding PrintCommand}"
-                                  ExcelExportCommand="{Binding ExportToExcelCommand}"
-                                  PdfExportCommand="{Binding ExportToPdfCommand}"
-                                  ExcelImportCommand="{Binding ExcelImportCommand}"
-                                  Margin="0,10,0,0"/>
-        
-        <Grid Grid.Row="1">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-            
-            <Grid Grid.Row="0" Style="{StaticResource LoadGridAnimationBottomToTop}">
-            <grid:SfDataGrid x:Name="SfDataGrid"
-                             IsDynamicItemsSource="True"
-                             AutoGenerateColumns="True"
-                             ColumnSizer="None"
-                             EditTrigger="OnDoubleTap"
-                             SelectionUnit="Row"
-                             SelectionMode="Extended"
-                             GridValidationMode="None"
-                             LiveDataUpdateMode="AllowDataShaping"
-                             GridCopyOption="CopyData"
-                             GridPasteOption="PasteData"
-                             AllowDeleting="True"
-                             AllowDraggingColumns="True"
-                             AllowDraggingRows="True"
-                             AllowDrop="True"
-                             AllowResizingColumns="True"
-                             AllowResizingHiddenColumns="True"
-                             AllowSelectionOnPointerPressed="True"
-                             CanMaintainScrollPosition="True"
-                             HeaderRowHeight="30"
-                             FrozenColumnCount="{Binding FrozenColumnCount}"
-                             ShowRowHeader="True"
-                             ShowGroupDropArea="True"
-                             GroupDropAreaText="Перетягніть сюди, щоб групувати"
-                             ShowBusyIndicator="True"
-                             AddNewRowPosition="Top"
-                             AddNewRowText="Двічі натисніть, щоб додати"
-                             GridLinesVisibility="Horizontal"
-                             EditorSelectionBehavior="SelectAll"
-                             EnableDataVirtualization="True"
-                             ScrollMode="Async"
-                             NewItemPlaceholderPosition="AtBeginning"
-                             CellStyle="{StaticResource BasedGridCellStyle}"
-                             CurrentCellBorderBrush="#09244B"
-                             CurrentCellBorderThickness="1"
-                             RowHoverHighlightingBrush="#E6E6E6"
-                             SelectionForegroundBrush="#09244B"
-                             RowDropIndicatorMode="Arrow"
-                             RowSelectionBrush="LightGray"
-                             FontFamily="Microsoft Sans Serif" FontSize="14">
-                
-                <grid:SfDataGrid.ItemsSource>
-                    <Binding Path="Items"/>
-                </grid:SfDataGrid.ItemsSource>
-                <grid:SfDataGrid.Columns>
-                    <Binding Path="Columns"/>
-                </grid:SfDataGrid.Columns>
-                <grid:SfDataGrid.SelectedItems>
-                    <Binding Path="SelectedItems" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged"/>
-                </grid:SfDataGrid.SelectedItems>
-                
-                <grid:SfDataGrid.HeaderContextMenu>
-                    <ContextMenu>
-                        <MenuItem Header="Редагувати характеристику"
-                                  Command="{Binding DataGrid.DataContext.EditColumnCommand}"
-                                  CommandParameter="{Binding}"/>
-                        <MenuItem Header="Видалити"  
-                                  Command="{Binding DataGrid.DataContext.RemoveColumnCommand}"
-                                  CommandParameter="{Binding}"/>
-                    </ContextMenu>
-                </grid:SfDataGrid.HeaderContextMenu>
+        <Grid>
 
-                <grid:SfDataGrid.ContextMenu>
-                    <ContextMenu>
-                        <MenuItem Header="Додати характеристику" Command="{Binding AddColumnCommand}"/>
-                        <MenuItem Header="Видалити" Command="{Binding RemoveRowCommand}"
-                                  Visibility="{Binding DeleteRowContextMenuItemVisibility, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                    </ContextMenu>
-                </grid:SfDataGrid.ContextMenu>
-                
-
-                <i:Interaction.Triggers>
-                    <i:EventTrigger EventName="Loaded">
-                        <i:InvokeCommandAction Command="{Binding DataGridLoadedCommand}" CommandParameter="{Binding ElementName=SfDataGrid}"/>
-                    </i:EventTrigger>
-                    <i:EventTrigger EventName="SelectionChanged">
-                        <i:InvokeCommandAction Command="{Binding SelectionChangedCommand}" PassEventArgsToCommand="True"/>
-                    </i:EventTrigger>
-                    <i:EventTrigger EventName="RecordDeleting">
-                        <i:InvokeCommandAction Command="{Binding KeyRemoveRowCommand}" PassEventArgsToCommand="True"/>
-                    </i:EventTrigger>
-                    <i:EventTrigger EventName="KeyDown">
-                        <i:InvokeCommandAction Command="{Binding DataGridKeyDownCommand}" PassEventArgsToCommand="True"/>
-                    </i:EventTrigger>
-                    <i:EventTrigger EventName="FilterItemsPopulated">
-                        <i:InvokeCommandAction Command="{Binding FilterItemsPopulatedCommand}" PassEventArgsToCommand="True"/>
-                    </i:EventTrigger>
-                    <i:EventTrigger EventName="CurrentCellValidated">
-                        <i:InvokeCommandAction Command="{Binding CurrentCellValidatedCommand}" PassEventArgsToCommand="True"/>
-                    </i:EventTrigger>
-                    <i:EventTrigger EventName="CurrentCellValidating">
-                        <i:InvokeCommandAction Command="{Binding CurrentCellValidatingCommand}" PassEventArgsToCommand="True"/>
-                    </i:EventTrigger>
-                    <i:EventTrigger EventName="CurrentCellValueChanged">
-                        <i:InvokeCommandAction Command="{Binding CurrentCellValueChangedCommand}" PassEventArgsToCommand="True"/>
-                    </i:EventTrigger>
-                    <i:EventTrigger EventName="CurrentCellBeginEdit">
-                        <i:InvokeCommandAction Command="{Binding CurrentCellBeginEditCommand}" PassEventArgsToCommand="True"/>
-                    </i:EventTrigger>
-                    <i:EventTrigger EventName="CurrentCellEndEdit">
-                        <i:InvokeCommandAction Command="{Binding CurrentCellEndEditCommand}" PassEventArgsToCommand="True"/>
-                    </i:EventTrigger>
-                    <i:EventTrigger EventName="AddNewRowInitiating">
-                        <i:InvokeCommandAction Command="{Binding AddNewRowInitiatingCommand}" PassEventArgsToCommand="True"/>
-                    </i:EventTrigger>
-                    <i:EventTrigger EventName="RowValidated">
-                        <i:InvokeCommandAction Command="{Binding RowValidatedCommand}" PassEventArgsToCommand="True"/>
-                    </i:EventTrigger>
-                    <i:EventTrigger EventName="RowValidating">
-                        <i:InvokeCommandAction Command="{Binding RowValidatingCommand}" PassEventArgsToCommand="True"/>
-                    </i:EventTrigger>
-                    <i:EventTrigger EventName="QueryColumnDragging">
-                        <i:InvokeCommandAction Command="{Binding QueryColumnDraggingCommand}" PassEventArgsToCommand="True"/>
-                    </i:EventTrigger>
-                    <i:EventTrigger EventName="ResizingColumns">
-                        <i:InvokeCommandAction Command="{Binding ResizingColumnCommand}" PassEventArgsToCommand="True"/>
-                    </i:EventTrigger>
-                </i:Interaction.Triggers>
-                
-                <grid:SfDataGrid.Resources>
-                    <Style x:Key="BasedGridHeaderStyle" TargetType="grid:GridHeaderCellControl" BasedOn="{StaticResource SyncfusionGridHeaderCellControlStyle}"/>
-                </grid:SfDataGrid.Resources>
-                
-                </grid:SfDataGrid>
-                </Grid>
-
-            <sf:SfBusyIndicator Grid.Row="0" Panel.ZIndex="2" Foreground="#09244B" Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}" AnimationType="DotCircle" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-            <TextBlock Grid.Row="0"  Text="Характеристики відсутні" Visibility="{Binding ColumnsEmptyTipVisibility, Converter={StaticResource BooleanToVisibilityConverter}}" VerticalAlignment="Center" HorizontalAlignment="Center" FontFamily="Segoe UI" Foreground="Gray" FontSize="14"/>
-            <TextBlock Grid.Row="0"  Panel.ZIndex="1" Text="Записи відсутні" Visibility="{Binding RowsEmptyTipVisibility, Converter={StaticResource BooleanToVisibilityConverter}}" VerticalAlignment="Center" HorizontalAlignment="Center" FontFamily="Segoe UI" Foreground="Gray" FontSize="14"/>
-        
-            <Rectangle Grid.Row="0"
-                       Fill="Black"
-                       Opacity="0.5"
-                       Visibility="{Binding IsOverlayVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
-                       Panel.ZIndex="1"/>
             
-            <ContentControl Grid.Row="0"
-                            prism:RegionManager.RegionName="{x:Static const:EquipmentSheetConstants.ColumnCreatorRegion}"
-                            VerticalAlignment="Center"
-                            HorizontalAlignment="Center"
-                            Panel.ZIndex="2"/>
+                <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
             
-            <ContentControl Grid.Row="0"
-                            prism:RegionManager.RegionName="{x:Static const:EquipmentSheetConstants.ExcelSheetSelectorRegion}"
-                            VerticalAlignment="Center" HorizontalAlignment="Center" Panel.ZIndex="2"/>
+            <controls:DataGridToolBar Grid.Row="0"
+                                      GridSearchHelper="{Binding SearchHelper, ElementName=SfDataGrid}"
+                                      PrintCommand="{Binding PrintCommand}"
+                                      ExcelExportCommand="{Binding ExportToExcelCommand}"
+                                      PdfExportCommand="{Binding ExportToPdfCommand}"
+                                      ExcelImportCommand="{Binding ExcelImportCommand}"
+                                      Margin="0,10,0,0"/>
+            
+            <Grid Grid.Row="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                
+                <Grid Grid.Row="0">
+                    
+                    <grid:SfDataGrid x:Name="SfDataGrid"
+                                     IsDynamicItemsSource="True"
+                                     AutoGenerateColumns="True"
+                                     ColumnSizer="None"
+                                     EditTrigger="OnDoubleTap"
+                                     SelectionUnit="Row"
+                                     SelectionMode="Extended"
+                                     GridValidationMode="None"
+                                     LiveDataUpdateMode="AllowDataShaping"
+                                     GridCopyOption="CopyData"
+                                     GridPasteOption="PasteData"
+                                     AllowDeleting="True"
+                                     AllowDraggingColumns="True"
+                                     AllowDraggingRows="True"
+                                     AllowDrop="True"
+                                     AllowResizingColumns="True"
+                                     AllowResizingHiddenColumns="True"
+                                     AllowSelectionOnPointerPressed="True"
+                                     CanMaintainScrollPosition="True"
+                                     HeaderRowHeight="30"
+                                     FrozenColumnCount="{Binding FrozenColumnCount}"
+                                     ShowRowHeader="True"
+                                     ShowGroupDropArea="True"
+                                     GroupDropAreaText="Перетягніть сюди, щоб групувати"
+                                     ShowBusyIndicator="True"
+                                     AddNewRowPosition="Top"
+                                     AddNewRowText="Двічі натисніть, щоб додати"
+                                     GridLinesVisibility="Horizontal"
+                                     EditorSelectionBehavior="SelectAll"
+                                     EnableDataVirtualization="True"
+                                     ScrollMode="Async"
+                                     NewItemPlaceholderPosition="AtBeginning"
+                                     CellStyle="{StaticResource BasedGridCellStyle}"
+                                     CurrentCellBorderBrush="#09244B"
+                                     CurrentCellBorderThickness="1"
+                                     RowHoverHighlightingBrush="#E6E6E6"
+                                     SelectionForegroundBrush="#09244B"
+                                     RowDropIndicatorMode="Line"
+                                     RowSelectionBrush="LightGray"
+                                     FontFamily="Microsoft Sans Serif" FontSize="14">
+                    
+                    <grid:SfDataGrid.ItemsSource>
+                        <Binding Path="Items"/>
+                    </grid:SfDataGrid.ItemsSource>
+                    <grid:SfDataGrid.Columns>
+                        <Binding Path="Columns"/>
+                    </grid:SfDataGrid.Columns>
+                    <grid:SfDataGrid.SelectedItems>
+                        <Binding Path="SelectedItems" Mode="TwoWay" UpdateSourceTrigger="PropertyChanged"/>
+                    </grid:SfDataGrid.SelectedItems>
+                    
+                    <grid:SfDataGrid.HeaderContextMenu>
+                        <ContextMenu>
+                            
+                            <MenuItem Header="Редагувати характеристику"
+                                      Command="{Binding DataGrid.DataContext.EditColumnCommand}"
+                                      CommandParameter="{Binding}">
+                                
+                                <MenuItem.Icon>
+                                    <Image Source="{StaticResource EditColumn.Colored.Line.20}" 
+                                           Width="20" Height="20"/>
+                                </MenuItem.Icon>
+                                
+                            </MenuItem>
+                            
+                            <MenuItem Header="Видалити характеристику"  
+                                      Command="{Binding DataGrid.DataContext.RemoveColumnCommand}"
+                                      CommandParameter="{Binding}">
+                                
+                                <MenuItem.Icon>
+                                    <Image Source="{StaticResource DeleteColumn.Colored.Line.20}"/>
+                                </MenuItem.Icon>
+                                
+                            </MenuItem>
+                        </ContextMenu>
+                        
+                    </grid:SfDataGrid.HeaderContextMenu>
+
+                    <grid:SfDataGrid.ContextMenu>
+                        <ContextMenu Style="{StaticResource ContextMenuStyle}">
+                            
+                            <MenuItem Header="Додати характеристику" Command="{Binding AddColumnCommand}">
+                            
+                                <MenuItem.Icon>
+                                    <Image Source="{StaticResource AddColumn.Colored.Line.20}"
+                                           Width="20" Height="20"/>
+                                </MenuItem.Icon>
+                                
+                            </MenuItem>
+                            
+                            <MenuItem Header="Видалити запис" Command="{Binding RemoveRowCommand}"
+                                      Visibility="{Binding DeleteRowContextMenuItemVisibility, 
+                                      Converter={StaticResource BooleanToVisibilityConverter}}">
+                                
+                                <MenuItem.Icon>
+                                    <Image Source="{StaticResource DeleteRow.Colored.Line.20}"/>
+                                </MenuItem.Icon>
+                                
+                            </MenuItem>
+                            
+                        </ContextMenu>
+                    </grid:SfDataGrid.ContextMenu>
+                    
+
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Loaded">
+                            <i:InvokeCommandAction Command="{Binding DataGridLoadedCommand}" CommandParameter="{Binding ElementName=SfDataGrid}"/>
+                        </i:EventTrigger>
+                        <i:EventTrigger EventName="SelectionChanged">
+                            <i:InvokeCommandAction Command="{Binding SelectionChangedCommand}" PassEventArgsToCommand="True"/>
+                        </i:EventTrigger>
+                        <i:EventTrigger EventName="RecordDeleting">
+                            <i:InvokeCommandAction Command="{Binding KeyRemoveRowCommand}" PassEventArgsToCommand="True"/>
+                        </i:EventTrigger>
+                        <i:EventTrigger EventName="KeyDown">
+                            <i:InvokeCommandAction Command="{Binding DataGridKeyDownCommand}" PassEventArgsToCommand="True"/>
+                        </i:EventTrigger>
+                        <i:EventTrigger EventName="FilterItemsPopulated">
+                            <i:InvokeCommandAction Command="{Binding FilterItemsPopulatedCommand}" PassEventArgsToCommand="True"/>
+                        </i:EventTrigger>
+                        <i:EventTrigger EventName="CurrentCellValidated">
+                            <i:InvokeCommandAction Command="{Binding CurrentCellValidatedCommand}" PassEventArgsToCommand="True"/>
+                        </i:EventTrigger>
+                        <i:EventTrigger EventName="CurrentCellValidating">
+                            <i:InvokeCommandAction Command="{Binding CurrentCellValidatingCommand}" PassEventArgsToCommand="True"/>
+                        </i:EventTrigger>
+                        <i:EventTrigger EventName="CurrentCellValueChanged">
+                            <i:InvokeCommandAction Command="{Binding CurrentCellValueChangedCommand}" PassEventArgsToCommand="True"/>
+                        </i:EventTrigger>
+                        <i:EventTrigger EventName="CurrentCellBeginEdit">
+                            <i:InvokeCommandAction Command="{Binding CurrentCellBeginEditCommand}" PassEventArgsToCommand="True"/>
+                        </i:EventTrigger>
+                        <i:EventTrigger EventName="CurrentCellEndEdit">
+                            <i:InvokeCommandAction Command="{Binding CurrentCellEndEditCommand}" PassEventArgsToCommand="True"/>
+                        </i:EventTrigger>
+                        <i:EventTrigger EventName="AddNewRowInitiating">
+                            <i:InvokeCommandAction Command="{Binding AddNewRowInitiatingCommand}" PassEventArgsToCommand="True"/>
+                        </i:EventTrigger>
+                        <i:EventTrigger EventName="RowValidated">
+                            <i:InvokeCommandAction Command="{Binding RowValidatedCommand}" PassEventArgsToCommand="True"/>
+                        </i:EventTrigger>
+                        <i:EventTrigger EventName="RowValidating">
+                            <i:InvokeCommandAction Command="{Binding RowValidatingCommand}" PassEventArgsToCommand="True"/>
+                        </i:EventTrigger>
+                        <i:EventTrigger EventName="QueryColumnDragging">
+                            <i:InvokeCommandAction Command="{Binding QueryColumnDraggingCommand}" PassEventArgsToCommand="True"/>
+                        </i:EventTrigger>
+                        <i:EventTrigger EventName="ResizingColumns">
+                            <i:InvokeCommandAction Command="{Binding ResizingColumnCommand}" PassEventArgsToCommand="True"/>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                    
+                    <grid:SfDataGrid.Resources>
+                        <Style x:Key="BasedGridHeaderStyle" TargetType="grid:GridHeaderCellControl" BasedOn="{StaticResource SyncfusionGridHeaderCellControlStyle}"/>
+                    </grid:SfDataGrid.Resources>
+                    
+                    </grid:SfDataGrid>
+                    </Grid>
+
+                <TextBlock Grid.Row="0"  Text="Характеристики відсутні" Visibility="{Binding ColumnsEmptyTipVisibility, Converter={StaticResource BooleanToVisibilityConverter}}" VerticalAlignment="Center" HorizontalAlignment="Center" FontFamily="Segoe UI" Foreground="Gray" FontSize="14"/>
+                <TextBlock Grid.Row="0"  Text="Записи відсутні" Visibility="{Binding RowsEmptyTipVisibility, Converter={StaticResource BooleanToVisibilityConverter}}" VerticalAlignment="Center" HorizontalAlignment="Center" FontFamily="Segoe UI" Foreground="Gray" FontSize="14"/>
+                
+            </Grid>
         </Grid>
+        
+        <ContentControl Grid.Row="0"
+                        Content="{Binding OverlayContent}"
+                        Visibility="{Binding IsOverlayVisible, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+        
+        <Rectangle Grid.Row="0"
+                   Fill="Black"
+                   Opacity="0.5"
+                   Visibility="{Binding IsRegionOverlayVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
+                   Panel.ZIndex="5"/>
+        
+        <sf:SfBusyIndicator Grid.Row="0" Panel.ZIndex="6" Foreground="#09244B" Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}" AnimationType="DotCircle" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+
+        <ContentControl Grid.Row="0"
+                        prism:RegionManager.RegionName="{x:Static const:EquipmentSheetConstants.ColumnCreatorRegion}"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Panel.ZIndex="6"/>
+        </Grid>
+            
+        <ContentControl Grid.Row="0"
+                        Content="{Binding DialogContent}"
+                        Visibility="{Binding IsDialogOpen, Converter={StaticResource BooleanToVisibilityConverter}}"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Panel.ZIndex="6"/>
+        
     </Grid>
 </UserControl>

@@ -28,11 +28,22 @@
       <None Remove="Common\Controls\Assets\import.png" />
       <None Remove="Fonts\password.ttf" />
       <None Remove="gears_ico.png" />
+      <None Remove="Resources\Assets\Icons\close_dark_line_16.png" />
+      <None Remove="Resources\Assets\Icons\close_light_line_16.png" />
+      <None Remove="Resources\Assets\Icons\filter_dark_line_16.png" />
+      <None Remove="Resources\Assets\Icons\filter_light_line_16.png" />
+      <None Remove="Resources\Assets\Icons\left_dark_line_16.png" />
+      <None Remove="Resources\Assets\Icons\left_light_line_16.png" />
+      <None Remove="Resources\Assets\Icons\print_dark_line_16.png" />
+      <None Remove="Resources\Assets\Icons\print_light_line_16.png" />
+      <None Remove="Resources\Assets\Icons\right_dark_line_16.png" />
+      <None Remove="Resources\Assets\Icons\right_light_line_16.png" />
       <None Remove="Views\Auth\Assets\hide_pass.png" />
       <None Remove="Views\Auth\Assets\hint_pass.png" />
       <None Remove="Views\Auth\Assets\hint_user.png" />
       <None Remove="Views\Auth\Assets\show_pass.png" />
       <None Remove="Views\NavDrawer\NavDrawerItems\EquipmentTree\Assets\file.png" />
+      <None Remove="Resources\Assets\Icons\close.png" />
     </ItemGroup>
 	
 	<ItemGroup>
@@ -88,6 +99,8 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Resource Include="Resources\Assets\Icons\close_dark_line_16.png" />
+      <Resource Include="Resources\Assets\Icons\close_light_line_16.png" />
       <Resource Include="Common\Controls\Assets\export.png" />
       <Resource Include="Common\Controls\Assets\filter.png" />
       <Resource Include="Common\Controls\Assets\import.png" />
@@ -98,6 +111,12 @@
       <Resource Include="Common\Controls\Assets\clear.png" />
       <Resource Include="Common\Controls\Assets\search.png" />
       <Resource Include="Common\Controls\Assets\excel.png" />
+      <Resource Include="Resources\Assets\Icons\filter_dark_line_16.png" />
+      <Resource Include="Resources\Assets\Icons\filter_light_line_16.png" />
+      <Resource Include="Resources\Assets\Icons\left_dark_line_16.png" />
+      <Resource Include="Resources\Assets\Icons\left_light_line_16.png" />
+      <Resource Include="Resources\Assets\Icons\right_dark_line_16.png" />
+      <Resource Include="Resources\Assets\Icons\right_light_line_16.png" />
       <Resource Include="Views\NavDrawer\NavDrawerItems\EquipmentTree\Assets\file.png" />
       <Resource Include="Views\NavDrawer\NavDrawerItems\EquipmentTree\Assets\file_unused.png" />
       <Resource Include="Resources\Assets\hide_pass.png" />
@@ -244,6 +263,101 @@
       </Page>
       <None Remove="Common\Controls\Assets\icons8-information-50.png" />
       <Resource Include="Common\Controls\Assets\information.png" />
+      <None Remove="Views\Assets\add_circle_line.png" />
+      <None Remove="Views\Assets\delete_trash_line.png" />
+      <None Remove="Views\Assets\add_circle_line (2).png" />
+      <None Remove="Resources\Assets\Icons\close_dark.png" />
+      <None Remove="Resources\Assets\Icons\close_light_line.png" />
+      <None Remove="Resources\Assets\Icons\print_dark_line.png" />
+      <None Remove="Resources\Assets\Icons\xls_green_line.png" />
+      <None Remove="Resources\Assets\Icons\share_light_line.png" />
+      <None Remove="Resources\Assets\Icons\share_dark_line.png" />
+      <None Remove="Resources\Assets\Icons\right_light_line.png" />
+      <None Remove="Resources\Assets\Icons\right_dark_line.png" />
+      <None Remove="Resources\Assets\Icons\print_light_line.png" />
+      <None Remove="Resources\Assets\Icons\pdf_red_line.png" />
+      <None Remove="Resources\Assets\Icons\left_light_line.png" />
+      <None Remove="Resources\Assets\Icons\left_dark_line.png" />
+      <None Remove="Resources\Assets\Icons\filter_light_line.png" />
+      <None Remove="Resources\Assets\Icons\filter_dark_line.png" />
+      <None Remove="Resources\Assets\Icons\file_import_light_line.png" />
+      <None Remove="Resources\Assets\Icons\file_import_dark_line.png" />
+      <None Remove="Resources\Assets\Icons\folder_light_line.png" />
+      <None Remove="Resources\Assets\Icons\folder_open_dark_line.png" />
+      <None Remove="Resources\Assets\Icons\edit_dark_line.png" />
+      <None Remove="Resources\Assets\Icons\add_dark_line.png" />
+      <None Remove="Resources\Assets\Icons\delete_2_line.png" />
+      <None Remove="Resources\Assets\Icons\trash_dark_line.png" />
+      <None Remove="Resources\Assets\Icons\delete_2_line (2).png" />
+      <None Remove="Resources\Assets\Icons\delete_2_line (3).png" />
+      <None Remove="Resources\Assets\Icons\xls_line (1).png" />
+      <None Remove="Resources\Assets\Icons\icons8-xls-24.png" />
+      <None Remove="Resources\Assets\Icons\icons8-pdf-24.png" />
+      <None Remove="Resources\Assets\Icons\close_line.png" />
+      <None Remove="Resources\Assets\Icons\close_line (1).png" />
+      <None Remove="Resources\Assets\Icons\filter_line.png" />
+      <None Remove="Resources\Assets\Icons\filter_line (1).png" />
+      <None Remove="Resources\Assets\Icons\filter_light_fill_24.png" />
+      <None Remove="Resources\Assets\Icons\share_forward_fill.png" />
+      <None Remove="Resources\Assets\Icons\right_line (1).png" />
+      <None Remove="Resources\Assets\Icons\right_line.png" />
+      <None Remove="Resources\Assets\Icons\left_line.png" />
+      <None Remove="Resources\Assets\Icons\print_fill.png" />
+      <None Remove="Resources\Assets\Icons\left_line (1).png" />
+      <None Remove="Resources\Assets\Icons\share_forward_line.png" />
+      <None Remove="Resources\Assets\Icons\print_line.png" />
+      <None Remove="Resources\Assets\Icons\file_import_line.png" />
+      <None Remove="Resources\Assets\Icons\file_import_fill.png" />
+      <None Remove="Resources\Assets\Icons\deletecolumn_colored_line_24.png" />
+      <Resource Include="Resources\Assets\Icons\deletecolumn_colored_line_20.png" />
+      <None Remove="Resources\Assets\Icons\addcolumn_colored_line_24.png" />
+      <Resource Include="Resources\Assets\Icons\addcolumn_colored_line_20.png" />
+      <None Remove="Resources\Assets\Icons\editcolumn_colored_line_20.png" />
+      <Resource Include="Resources\Assets\Icons\editcolumn_colored_line_20.png" />
+      <None Remove="Resources\Assets\Icons\DeleteTableRow.png" />
+      <Resource Include="Resources\Assets\Icons\deleterow_colored_line_20.png" />
+      <None Remove="Resources\Assets\Icons\Close (1).png" />
+      <None Remove="Resources\Assets\Icons\Close (2).png" />
+      <None Remove="Resources\Assets\Icons\FolderClosed.png" />
+      <None Remove="Resources\Assets\Icons\FolderOpened.png" />
+      <None Remove="Resources\Assets\Icons\Close (4).png" />
+      <None Remove="Resources\Assets\Icons\close_light_line_24.png" />
+      <None Remove="Resources\Assets\Icons\close_dark_line_24.png" />
+      <None Remove="Resources\Assets\Icons\filter_light_line_24.png" />
+      <None Remove="Resources\Assets\Icons\filter_dark_line_24.png" />
+      <None Remove="Resources\Assets\Icons\import_dark_line_16.png" />
+      <Resource Include="Resources\Assets\Icons\import_dark_line_16.png" />
+      <None Remove="Resources\Assets\Icons\import_light_line_16.png" />
+      <Resource Include="Resources\Assets\Icons\import_light_line_16.png" />
+      <None Remove="Resources\Assets\Icons\pdf_red_line_16.png" />
+      <Resource Include="Resources\Assets\Icons\pdf_red_line_16.png" />
+      <None Remove="Resources\Assets\Icons\export_light_line_16.png" />
+      <Resource Include="Resources\Assets\Icons\export_light_line_16.png" />
+      <None Remove="Resources\Assets\Icons\export_dark_line_16.png" />
+      <Resource Include="Resources\Assets\Icons\export_dark_line_16.png" />
+      <None Remove="Resources\Assets\Icons\excel_colored_16.png" />
+      <Resource Include="Resources\Assets\Icons\excel_colored_16.png" />
+      <None Remove="Resources\Assets\Icons\folderopened_dark_line_16.png" />
+      <None Remove="Resources\Assets\Icons\folderclosed_light_line_16.png" />
+      <None Remove="Resources\Assets\Icons\trash_light_line_16.png" />
+      <None Remove="Resources\Assets\Icons\trash_black_line_16.png" />
+      <None Remove="Resources\Assets\Icons\trash_black_line_64.png" />
+      <None Remove="Resources\Assets\Icons\trash_black_line_128.png" />
+      <Resource Include="Resources\Assets\Icons\trash_black_line_128.png" />
+      <None Remove="Resources\Assets\Icons\trash_black_line_32.png" />
+      <Resource Include="Resources\Assets\Icons\trash_black_line_32.png" />
+      <None Remove="Resources\Assets\Icons\trash_light_line_32.png" />
+      <Resource Include="Resources\Assets\Icons\trash_light_line_32.png" />
+      <None Remove="Resources\Assets\Icons\folderopened_dark_line_32.png" />
+      <None Remove="Resources\Assets\Icons\folderclosed_light_line_32.png" />
+      <Resource Include="Resources\Assets\Icons\folderclosed_light_line_32.png" />
+      <None Remove="Resources\Assets\Icons\folderopened_dark_line_48.png" />
+      <None Remove="Resources\Assets\Icons\folderopened_dark_line_64.png" />
+      <Resource Include="Resources\Assets\Icons\folderopened_dark_line_64.png" />
+      <None Remove="Resources\Assets\Icons\print_dark_line_32.png" />
+      <Resource Include="Resources\Assets\Icons\print_dark_line_32.png" />
+      <None Remove="Resources\Assets\Icons\print_light_line_32.png" />
+      <Resource Include="Resources\Assets\Icons\print_light_line_32.png" />
     </ItemGroup>
 
     <ItemGroup>
@@ -346,10 +460,6 @@
       <EmbeddedResource Update="Resources\Syncfusion.Shared.Wpf.uk-UA.resx">
         <LastGenOutput>Syncfusion.Shared.Wpf.uk-UA.Designer.cs</LastGenOutput>
       </EmbeddedResource>
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Resources\Styles\" />
     </ItemGroup>
 
 	

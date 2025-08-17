@@ -33,7 +33,7 @@
             <ResourceDictionary Source="/Syncfusion.Themes.Office2019Colorful.WPF;component/integertextbox/integertextbox.xaml"/>
             <ResourceDictionary Source="/Syncfusion.Themes.Office2019Colorful.WPF;component/doubletextbox/doubletextbox.xaml"/>
             <ResourceDictionary Source="pack://application:,,,/Syncfusion.Themes.Windows11Light.WPF;component/SfDataGrid/SfDataGrid.xaml"/>
-            <ResourceDictionary Source="pack://application:,,,/Common/Styles/LoadAnimationStyle.xaml"/>
+            <ResourceDictionary Source="pack://application:,,,/Common/Styles/Animations/LoadGridAnimationBottomToTop.xaml"/>
         </ResourceDictionary.MergedDictionaries>
             
             <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>

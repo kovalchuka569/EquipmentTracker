@@ -1,8 +1,4 @@
 using System.Collections.ObjectModel;
-using System;
-using System.Linq;
-using Prism.Commands;
-using Prism.Mvvm;
 
 namespace UI.ViewModels.Equipment.DataGrid;
 

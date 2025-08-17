@@ -14,7 +14,6 @@ using Syncfusion.UI.Xaml.Grid.Helpers;
 using Syncfusion.UI.Xaml.Grid.Converter;
 
 using Core.Services.DataGrid;
-using Core.Models.DataGrid;
 
 using Common.Logging;
 using Core.Events.DataGrid;

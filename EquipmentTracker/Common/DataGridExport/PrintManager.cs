@@ -7,15 +7,12 @@ namespace EquipmentTracker.Common.DataGridExport;
 
 public class PrintManager : GridPrintManager
 {
-    
-    GridRowSizingOptions gridRowSizingOptions = new();
-    double Height = double.NaN;
-    SfDataGrid dataGrid;
+    private readonly GridRowSizingOptions _gridRowSizingOptions = new();
+    private double _height = double.NaN;
     
     public PrintManager(SfDataGrid grid)
         : base(grid)
     {
-        dataGrid = grid;
         grid.PrintSettings.AllowColumnWidthFitToPrintPage = false;
         grid.PrintSettings.AllowPrintByDrawing = false;
         grid.PrintSettings.AllowRepeatHeaders = false;
@@ -57,9 +54,9 @@ public class PrintManager : GridPrintManager
 
         {
             var actualrowindex = GridIndexResolver.ResolveToRowIndex(dataGrid, rowIndex);
-            if (dataGrid.GridColumnSizer.GetAutoRowHeight(actualrowindex, gridRowSizingOptions, out Height))
+            if (dataGrid.GridColumnSizer.GetAutoRowHeight(actualrowindex, _gridRowSizingOptions, out _height))
             {
-                return Height;
+                return _height;
             }
         }
         return base.GetRowHeight(record, rowIndex, rowType);

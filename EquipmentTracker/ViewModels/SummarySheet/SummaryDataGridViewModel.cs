@@ -5,6 +5,7 @@ using Common.Logging;
 using Core.Services.Summary;
 using Data.Repositories.Summary;
 using EquipmentTracker.Common.DataGridExport;
+using EquipmentTracker.Common.DialogManager;
 using EquipmentTracker.Constants.Common;
 using EquipmentTracker.Constants.Summary;
 using EquipmentTracker.Events.Summary;
@@ -13,7 +14,6 @@ using Models.Summary.DataGrid;
 using Notification.Wpf;
 using Syncfusion.UI.Xaml.Grid;
 using Syncfusion.UI.Xaml.Grid.Helpers;
-using IDialogService = EquipmentTracker.Common.DialogService.IDialogService;
 
 namespace EquipmentTracker.ViewModels.SummarySheet;
 
@@ -41,7 +41,7 @@ public class SummaryDataGridViewModel : BindableBase, INavigationAware, IDestruc
     private readonly IAppLogger<SummaryDataGridViewModel> _logger;
     private readonly NotificationManager _notificationManager;
     private readonly ISummaryRepository _summaryRepository;
-    private readonly IDialogService _dialogService;
+    private readonly IDialogManager _dialogManager;
     
     // UI data
     private SfDataGrid _sfDataGrid;
@@ -97,13 +97,13 @@ public class SummaryDataGridViewModel : BindableBase, INavigationAware, IDestruc
     public SummaryDataGridViewModel(ISummaryService summaryService, 
         IAppLogger<SummaryDataGridViewModel> logger, 
         NotificationManager notificationManager, 
-        IDialogService dialogService,
+        IDialogManager dialogManager,
         ISummaryRepository summaryRepository)
     {
         _summaryService = summaryService;
         _logger = logger;
         _notificationManager = notificationManager;
-        _dialogService = dialogService;
+        _dialogManager = dialogManager;
         _summaryRepository = summaryRepository;
         
         SfDataGridLoadedCommand = new DelegateCommand<SfDataGrid>(OnSfDataGridLoaded);
@@ -239,7 +239,7 @@ public class SummaryDataGridViewModel : BindableBase, INavigationAware, IDestruc
                              $"Об'єднати в одну характеристику?";
 
             _scopedEventAggregator.GetEvent<ShowSheetOverlayEvent>().Publish(true);
-            bool result = await _dialogService.ShowInformationAgreementAsync(title, message, "Об'єднати", "Залишити окремо");
+            bool result = await _dialogManager.ShowInformationAgreementAsync(title, message, "Об'єднати", "Залишити окремо");
             _scopedEventAggregator.GetEvent<ShowSheetOverlayEvent>().Publish(false);
 
             if (result)

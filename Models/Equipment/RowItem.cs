@@ -18,7 +18,6 @@ public class RowItem : INotifyPropertyChanged
             }
             else
             {
-                // Возвращаем пустую строку если ключа нет
                 return string.Empty;
             }
         }

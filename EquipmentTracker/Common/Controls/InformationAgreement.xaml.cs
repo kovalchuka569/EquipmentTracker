@@ -15,7 +15,6 @@ public partial class InformationAgreement : ChromelessWindow
     public static readonly DependencyProperty CancelButtonTextProperty = DependencyProperty.Register(nameof(CancelButtonText), typeof(string), typeof(InformationAgreement));
         
     public static readonly DependencyProperty ConfirmButtonTextProperty = DependencyProperty.Register(nameof(ConfirmButtonText), typeof(string), typeof(InformationAgreement));
-
     
     public string InformationTitle
     {

@@ -16,11 +16,8 @@ namespace EquipmentTracker.Factories.Implementations.Syncfusion;
 
 public class SyncfusionGridColumnFactory(IGridInteractionHandler interactionHandler) : IGridColumnFactory
 {
-    public static readonly CultureInfo ColumnCulture = new("uk-UA");
-    
     public GridColumn CreateColumn(ColumnModel columnModel, Style baseGridHeaderStyle)
     {
-        
          switch (columnModel.DataType)
          {
             case ColumnDataType.Number:
@@ -69,7 +66,7 @@ public class SyncfusionGridColumnFactory(IGridInteractionHandler interactionHand
                         Path = new PropertyPath(columnModel.MappingName),
                         Converter = new CurrencyDisplayConverter
                         {
-                            CurrencySymbol = currencyColumnSpecificSettings?.CurrencySymbol ?? string.Empty,
+                            CurrencySymbol = currencyColumnSpecificSettings?.CurrencySymbol ?? "$",
                             SymbolPosition = currencyColumnSpecificSettings?.CurrencyPosition ?? CurrencyPosition.After,
                         }
                         
@@ -82,6 +79,7 @@ public class SyncfusionGridColumnFactory(IGridInteractionHandler interactionHand
                     AllowSorting = columnModel.AllowSorting,
                     AllowGrouping = columnModel.AllowGrouping,
                     AllowEditing = !columnModel.IsReadOnly,
+                    NumberDecimalSeparator = " ",
                     AllowDragging = true,
                     Width = columnModel.Width,
                     AllowNullValue = true,
@@ -280,54 +278,87 @@ public class SyncfusionGridColumnFactory(IGridInteractionHandler interactionHand
     {
         public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            Console.WriteLine("CurrencyValueConverter.Convert Value typename: " + value?.GetType().Name);
-            
-            if (value is string stringValue && !string.IsNullOrWhiteSpace(stringValue))
+            if (value == null || value == DBNull.Value)
             {
-                if (decimal.TryParse(stringValue, NumberStyles.Any, ColumnCulture, out var decimalValue))
-                    return decimalValue;
+                return null;
             }
 
-            return null;
+            try
+            {
+                var amount = System.Convert.ToDouble(value);
+                return amount;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
 
         public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            Console.WriteLine("CurrencyValueConverter.ConvertBack Value typename: " + value?.GetType().Name);
-            if (value is decimal decimalValue)
-                return decimalValue.ToString(ColumnCulture);
+        
+            if (value == null)
+            {
+                return null;
+            }
 
-            return value?.ToString();
+            try
+            {
+                var result = System.Convert.ToDouble(value);
+                result = Math.Round(result, 2, MidpointRounding.AwayFromZero);
+                return result;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
     }
     
     private class CurrencyDisplayConverter : IValueConverter
     {
-        public string CurrencySymbol { get; set; } = string.Empty;
+        public string CurrencySymbol { get; set; } = "$";
 
         public CurrencyPosition SymbolPosition { get; set; } = CurrencyPosition.After;
         
-        public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+        public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            Console.WriteLine("CurrencyDisplayConverter.Convert Value typename: " + value?.GetType().Name);
-            
-            if (value is string stringValue && 
-                decimal.TryParse(stringValue, NumberStyles.Any, ColumnCulture, out var decimalValue))
+            if (value == null || value == DBNull.Value)
             {
-                var formatted = decimalValue.ToString("N2", ColumnCulture);
-                return SymbolPosition == CurrencyPosition.Before
-                    ? $"{CurrencySymbol} {formatted}"
-                    : $"{formatted} {CurrencySymbol}";
+                return string.Empty;
             }
 
-            return string.Empty;
+            try
+            {
+                var amount = System.Convert.ToDouble(value);
+                var formatted = SymbolPosition == CurrencyPosition.After 
+                    ? $"{amount:N2} {CurrencySymbol}" 
+                    : $"{CurrencySymbol} {amount:N2}"; 
+                
+                return formatted;
+            }
+            catch (Exception)
+            {
+                return string.Empty;
+            }
         }
 
         public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
-            Console.WriteLine("CurrencyDisplayConverter.ConvertBack Value typename: " + value?.GetType().Name);
+        
+            if (value == null || string.IsNullOrWhiteSpace(value.ToString()))
+            {
+                return null;
+            }
 
-            return value;
+            var strValue = value.ToString();
+            var cleanValue = strValue?.Replace(CurrencySymbol, "").Replace(" ", "").Replace(",", ".");
+            
+            if (double.TryParse(cleanValue, NumberStyles.Float, CultureInfo.InvariantCulture, out var result))
+            {
+                return result;
+            }
+            return null;
         }
     }
 

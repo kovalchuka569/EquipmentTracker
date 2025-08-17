@@ -1,0 +1,23 @@
+﻿<UserControl x:Class="EquipmentTracker.Views.Dialogs.DialogBoxView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Style="{DynamicResource LoadUserControlAnimationBottomToTop}"
+             xmlns:controls="clr-namespace:EquipmentTracker.Common.Controls">
+    
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Common/Styles/Animations/LoadGridAnimationBottomToTop.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+   
+        <controls:DialogBox
+                    Icon="{Binding Icon}"
+                    Title="{Binding Title}"
+                    Message="{Binding Message}"
+                    Buttons="{Binding Buttons}"
+                    Button1Text="{Binding Button1Text}"
+                    Button2Text="{Binding Button2Text}"/>
+    
+</UserControl>

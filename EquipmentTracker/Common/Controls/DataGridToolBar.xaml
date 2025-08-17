@@ -1,22 +1,41 @@
 ﻿<UserControl x:Class="EquipmentTracker.Common.Controls.DataGridToolBar"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:sf="http://schemas.syncfusion.com/wpf"
-             xmlns:converters="clr-namespace:EquipmentTracker.Common.Converters"
-             mc:Ignorable="d">
+             xmlns:controls="clr-namespace:EquipmentTracker.Common.Controls"
+             mc:Ignorable="d"
+             x:Name="Root">
     
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/Syncfusion.Themes.Windows11Light.WPF;component/mscontrol/glyphbutton.xaml"/>
-                <ResourceDictionary Source="pack://application:,,,/Common/Styles/LoadAnimationStyle.xaml"/>
+                <ResourceDictionary Source="/Syncfusion.Themes.Windows11Light.WPF;component/MSControl/GlyphButton.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Resources/Icons.xaml"/>
             </ResourceDictionary.MergedDictionaries>
+            
+            <Style x:Key="ToolBarHoverButtonStyle" TargetType="controls:HoverButton">
+                <Setter Property="ButtonWidth" Value="32"/>
+                <Setter Property="ButtonHeight" Value="32"/>
+                <Setter Property="NormalIconHeight" Value="16"/>
+                <Setter Property="NormalIconWidth" Value="16"/>
+                <Setter Property="HoverIconHeight" Value="16"/>
+                <Setter Property="HoverIconWidth" Value="16"/>
+                <Setter Property="Margin" Value="3"/>
+                <Setter Property="ChangeIconHover" Value="True"/>
+                <Setter Property="NormalBackground" Value="#09244B"/>
+                <Setter Property="HoverBackground" Value="#E8E8E8"/>
+                <Setter Property="ContentFill" Value="White"/>
+                <Setter Property="HoverContentFill" Value="#09244B"/>
+                <Setter Property="VerticalAlignment" Value="Center"/>
+            </Style>
+            
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <Border BorderThickness="0,1" BorderBrush="#09244B">
+    <Border BorderThickness="0,1" BorderBrush="LightGray">
         <Grid VerticalAlignment="Stretch">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
@@ -32,6 +51,7 @@
             </Grid.ColumnDefinitions>
             
             <sf:CustomPopup
+                Grid.Column="0" 
                 x:Name="SearchTypeSelectorPopup"
                    PlacementTarget="{Binding ElementName=SearchTypeSelectorButton}"
                    Placement="Right"
@@ -46,7 +66,8 @@
                 </Border>
             </sf:CustomPopup>
             
-            <sf:CustomPopup          
+            <sf:CustomPopup    
+                Grid.Column="0" 
                 x:Name="ImportSelectorPopup"
                 PlacementTarget="{Binding ElementName=ImportButton}"
                 Placement="Left"
@@ -64,8 +85,9 @@
                                         </Grid.ColumnDefinitions>
                                         
                                         <Image Grid.Column="0"
-                                               Source="Assets/excel.png"
-                                               Width="20" Height="20"/>
+                                              Source="{StaticResource Excel.Colored.16}"
+                                              Width="16" Height="16"
+                                              VerticalAlignment="Center"/>
                                         
                                         <TextBlock Margin="5,0,0,0" Grid.Column="1" Text="Іморт з Excel" FontFamily="Microsoft Sans Serif" VerticalAlignment="Center"/>
                                     </Grid>
@@ -77,6 +99,7 @@
             </sf:CustomPopup>
             
             <sf:CustomPopup
+                Grid.Column="0" 
                 x:Name="ExportSelectorPopup"
                 PlacementTarget="{Binding ElementName=ExportButton}"
                 Placement="Left"
@@ -94,8 +117,9 @@
                                         </Grid.ColumnDefinitions>
                                         
                                         <Image Grid.Column="0"
-                                               Source="Assets/excel.png"
-                                               Width="20" Height="20"/>
+                                               Source="{StaticResource Excel.Colored.16}"
+                                               Width="16" Height="16"
+                                               VerticalAlignment="Center"/>
 
                                         <TextBlock Margin="5,0,0,0" Grid.Column="1" Text="Експорт в Excel" FontFamily="Microsoft Sans Serif" VerticalAlignment="Center"/>
                                     </Grid>
@@ -113,8 +137,9 @@
                                         </Grid.ColumnDefinitions>
                                         
                                         <Image Grid.Column="0"
-                                               Source="Assets/pdf.png"
-                                               Width="20" Height="20"/>
+                                               Source="{StaticResource Pdf.Red.Line.16}"
+                                               Width="16" Height="16"
+                                               VerticalAlignment="Center"/>
 
                                         <TextBlock Margin="5,0,0,0" Grid.Column="1" Text="Експорт в PDF" FontFamily="Microsoft Sans Serif" VerticalAlignment="Center"/>
                                     </Grid>
@@ -124,13 +149,15 @@
                     </StackPanel>
                 </Border>
             </sf:CustomPopup>
-
-
-
-            <TextBox Grid.Column="1" x:Name="SearchTextBox" TextChanged="SearchTextBox_OnTextChanged" Width="300" FontFamily="Microsoft Sans Serif" FontSize="14" VerticalAlignment="Stretch" SelectionTextBrush="#09244B" Foreground="#09244B" CaretBrush="#09244B">
+            
+            <TextBox Grid.Column="1" x:Name="SearchTextBox" TextChanged="SearchTextBox_OnTextChanged" 
+                     Width="300" Height="30" Margin="3"
+                     FontFamily="Microsoft Sans Serif" FontSize="14" 
+                     SelectionTextBrush="#09244B" Foreground="#09244B" CaretBrush="#09244B">
+                
                 <TextBox.Template>
                     <ControlTemplate TargetType="TextBox">
-                        <Border Margin="5" CornerRadius="3" Background="LightGray">
+                        <Border CornerRadius="3" Background="#E8E8E8" BorderBrush="LightGray" BorderThickness="1">
                             <Grid>
                                 <TextBlock x:Name="SearchWatermark" 
                                            Text="Пошук..." 
@@ -149,97 +176,75 @@
                     </ControlTemplate>
                 </TextBox.Template>
             </TextBox>
-                        
-            <Button Grid.Column="2" 
-                    Click="ClearSearch_OnClick"
-                    Width="30" Height="30"
-                    VerticalAlignment="Center" HorizontalAlignment="Left"
-                    Margin="3"
-                    Background="LightGray"            
-                    Style="{StaticResource WPFGlyphButtonStyle}">
-                                
-                <Image Source="Assets/clear.png" Width="20" Height="20"/>
-            </Button>
+            
+            <controls:HoverButton Grid.Column="2"
+                                  MouseLeftButtonUp="ClearSearch_OnMouseLeftButtonUp"
+                                  Style="{StaticResource ToolBarHoverButtonStyle}"
+                                  NormalIconContent="{StaticResource Close.Light.Line.16}"
+                                  HoverIconContent="{StaticResource Close.Dark.Line.16}"
+                                  HorizontalAlignment="Left">
+                
+            </controls:HoverButton>
+            
+            <controls:HoverButton Grid.Column="3"
+                                  x:Name="SearchTypeSelectorButton"
+                                  MouseLeftButtonUp="SearchSelector_OnMouseLeftButtonUp"
+                                  Style="{StaticResource ToolBarHoverButtonStyle}"
+                                  NormalIconContent="{StaticResource Filter.Light.Line.16}"
+                                  HoverIconContent="{StaticResource Filter.Dark.Line.16}"
+                                  HorizontalAlignment="Left">
+                
+                
+            </controls:HoverButton>
+            
+            <controls:HoverButton Grid.Column="4"
+                                  x:Name="PreviousButton"
+                                  MouseLeftButtonUp="NavigationButton_OnMouseLeftButtonUp"
+                                  Style="{StaticResource ToolBarHoverButtonStyle}"
+                                  NormalIconContent="{StaticResource Left.Light.Line.16}"
+                                  HoverIconContent="{StaticResource Left.Dark.Line.16}"
+                                  HorizontalAlignment="Left">
+                
+            </controls:HoverButton>
 
-            <Button 
-                    Grid.Column="3"
-                    BorderThickness="1"
-                    x:Name="SearchTypeSelectorButton"
-                    Click="SearchSelector_OnClick"
-                    Width="30" Height="30"
-                    VerticalAlignment="Center" HorizontalAlignment="Left"
-                    Background="LightGray"
-                    Margin="3"
-                    Style="{StaticResource WPFGlyphButtonStyle}">
-
-                <Image Source="Assets/filter.png" Width="20" Height="20"/>
-
-            </Button>
-
-
-            <Button Grid.Column="4" 
-                    x:Name="PreviousButton"
-                    Click="NavigationButton_OnClick"
-                    Width="30" Height="30"
-                    VerticalAlignment="Center" HorizontalAlignment="Left"
-                    Margin="3"
-                    Background="LightGray"
-                    Style="{StaticResource WPFGlyphButtonStyle}">
-                                
-                <Image Source="Assets/left.png" Width="20" Height="20"/>
-            </Button>
-
-            <Button
-                    Grid.Column="5"
-                    x:Name="NextButton"
-                    Click="NavigationButton_OnClick"
-                    Width="30" Height="30"
-                    VerticalAlignment="Center" HorizontalAlignment="Left"
-                    Margin="3"
-                    Background="LightGray"
-                    Style="{StaticResource WPFGlyphButtonStyle}">
-
-                <Image Source="Assets/right.png" Width="20" Height="20"/>
-            </Button>
-
-
-            <Button 
-                    Grid.Column="7"
-                    x:Name="ImportButton"
-                    Click="ImportButton_OnClick"
-                    Width="30" Height="30"
-                    VerticalAlignment="Center" HorizontalAlignment="Right"
-                    Margin="3"
-                    Background="LightGray"
-                    Style="{StaticResource WPFGlyphButtonStyle}">
-
-                    <Image Source="Assets/import.png" Width="20" Height="20"/>
-                </Button>
-
-            <Button Grid.Column="8" 
-                    x:Name="ExportButton"
-                    Click="ExportButton_OnClick"
-                    Width="30" Height="30"
-                    VerticalAlignment="Center" HorizontalAlignment="Right"
-                    Margin="3" 
-                    Background="LightGray"
-                    Style="{StaticResource WPFGlyphButtonStyle}">
-                                
-                <Image Source="Assets/export.png" Width="20" Height="20"/>
-            </Button>
-
-            <Button
-                    Grid.Column="9"
-                    Click="PrintButton_OnClick"
-                    Width="30" Height="30"
-                    VerticalAlignment="Center" HorizontalAlignment="Right"
-                    Margin="3"
-                    Background="LightGray"
-                    Style="{StaticResource WPFGlyphButtonStyle}">
-
-                <Image Source="Assets/print.png" Width="20" Height="20"/>
-            </Button>
-
+            <controls:HoverButton Grid.Column="5"
+                                  MouseLeftButtonUp="NavigationButton_OnMouseLeftButtonUp"
+                                  Style="{StaticResource ToolBarHoverButtonStyle}"
+                                  NormalIconContent="{StaticResource Right.Light.Line.16}"
+                                  HoverIconContent="{StaticResource Right.Dark.Line.16}"
+                                  HorizontalAlignment="Left">
+                
+            </controls:HoverButton>
+            
+            <controls:HoverButton Grid.Column="7"
+                                  x:Name="ImportButton"
+                                  MouseLeftButtonUp="ImportButton_OnMouseLeftButtonUp"
+                                  Style="{StaticResource ToolBarHoverButtonStyle}"
+                                  NormalIconContent="{StaticResource Import.Light.Line.16}"
+                                  HoverIconContent="{StaticResource Import.Dark.Line.16}"
+                                  HorizontalAlignment="Right">
+                
+            </controls:HoverButton>
+            
+            <controls:HoverButton Grid.Column="8"
+                                  x:Name="ExportButton"
+                                  MouseLeftButtonUp="ExportButton_OnMouseLeftButtonUp"
+                                  Style="{StaticResource ToolBarHoverButtonStyle}"
+                                  NormalIconContent="{StaticResource Export.Light.Line.16}"
+                                  HoverIconContent="{StaticResource Export.Dark.Line.16}"
+                                  HorizontalAlignment="Right">
+                
+            </controls:HoverButton>
+            
+            <controls:HoverButton Grid.Column="9"
+                                  MouseLeftButtonUp="PrintButton_OnMouseLeftButtonUp"
+                                  Style="{StaticResource ToolBarHoverButtonStyle}"
+                                  NormalIconContent="{StaticResource Print.Light.Line.32}"
+                                  HoverIconContent="{StaticResource Print.Dark.Line.32}"
+                                  HorizontalAlignment="Right">
+                
+            </controls:HoverButton>
+            
         </Grid>
         </Border>
 </UserControl>
