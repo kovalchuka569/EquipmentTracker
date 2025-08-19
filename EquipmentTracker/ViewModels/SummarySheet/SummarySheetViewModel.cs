@@ -1,6 +1,5 @@
 ﻿using Common.Logging;
 using Core.Services.Summary;
-using EquipmentTracker.Common;
 using EquipmentTracker.Constants.Common;
 using Models.EquipmentTree;
 using EquipmentTracker.Constants.Summary;
@@ -131,7 +130,7 @@ public class SummarySheetViewModel : BindableBase, INavigationAware, IDestructib
     public void Destroy()
     {
         UnsubscribeFromEvents();
-        RegionCleaner.CleanUpRegions(_scopedRegionManager);
+        //CleanRegionManager.CleanUpRegions(_scopedRegionManager);
         _scopedRegionManager = null;
         _scopedEventAggregator = null;
     }

@@ -8,7 +8,6 @@ using System.Dynamic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using Core.Services.EquipmentDataGrid;
 using Models.Equipment;
 using Models.Equipment.ColumnSettings;
 using Newtonsoft.Json;

@@ -22,8 +22,8 @@ public partial class SummaryDataGridView : UserControl
             _zoom += e.Delta > 0 ? 0.1 : -0.1;
             _zoom = Math.Max(0.2, Math.Min(3.0, _zoom));
 
-            MainScaleTransform.ScaleX = _zoom;
-            MainScaleTransform.ScaleY = _zoom;
+           // MainScale.ScaleX = _zoom;
+           // MainScaleTransform.ScaleY = _zoom;
 
             e.Handled = true;
         }

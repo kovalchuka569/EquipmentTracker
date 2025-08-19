@@ -16,7 +16,6 @@ using Syncfusion.Pdf;
 using Syncfusion.UI.Xaml.Grid;
 using Syncfusion.UI.Xaml.Grid.Converter;
 using Syncfusion.XlsIO;
-using UI.ViewModels.TabControl;
 
 namespace UI.ViewModels.Consumables
 {

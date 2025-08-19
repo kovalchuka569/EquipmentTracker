@@ -1,0 +1,42 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    
+    <ResourceDictionary.MergedDictionaries>
+        
+        <ResourceDictionary Source="AddColumn/AddColumn.xaml"/>
+        
+        <ResourceDictionary Source="Close/Close.xaml"/>
+        
+        <ResourceDictionary Source="DeleteColumn/DeleteColumn.xaml"/>
+        
+        <ResourceDictionary Source="DeleteRow/DeleteRow.xaml"/>
+        
+        <ResourceDictionary Source="EditColumn/EditColumn.xaml"/>
+        
+        <ResourceDictionary Source="Excel/Excel.xaml"/>
+        
+        <ResourceDictionary Source="Export/Export.xaml"/>
+        
+        <ResourceDictionary Source="Filter/Filter.xaml"/>
+        
+        <ResourceDictionary Source="FolderClosed/FolderClosed.xaml"/>
+        
+        <ResourceDictionary Source="FolderOpened/FolderOpened.xaml"/>
+        
+        <ResourceDictionary Source="Import/Import.xaml"/>
+        
+        <ResourceDictionary Source="Left/Left.xaml"/>
+        
+        <ResourceDictionary Source="Right/Right.xaml"/>
+        
+        <ResourceDictionary Source="Pdf/Pdf.xaml"/>
+        
+        <ResourceDictionary Source="Print/Print.xaml"/>
+        
+        <ResourceDictionary Source="Trash/Trash.xaml"/>
+        
+        <ResourceDictionary Source="TableSheet/TableSheet.xaml"/>
+        
+    </ResourceDictionary.MergedDictionaries>
+    
+</ResourceDictionary>

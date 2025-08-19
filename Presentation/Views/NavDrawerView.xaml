@@ -1,0 +1,211 @@
+﻿<UserControl
+    x:Class="Presentation.Views.NavDrawerView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="clr-namespace:Presentation.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:Presentation.Views"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:prism="http://prismlibrary.com/"
+    xmlns:sf="http://schemas.syncfusion.com/wpf"
+    xmlns:syncfusionskin="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF"
+    prism:ViewModelLocator.AutoWireViewModel="True"
+    syncfusionskin:SfSkinManager.Theme="{syncfusionskin:SkinManagerExtension ThemeName=Windows11Light}"
+    mc:Ignorable="d">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Syncfusion.Themes.Windows11Light.WPF;component/sfnavigationdrawer/primarysfnavigationdrawer.xaml" />
+
+                <ResourceDictionary Source="/Presentation;component/Resources/Fonts/Fonts.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <converters:HeaderToNavDrawerMenuTypeConverter x:Key="HeaderToNavDrawerMenuTypeConverter" />
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid>
+        <sf:SfNavigationDrawer
+            x:Name="navDrawer"
+            Padding="0"
+            DisplayMode="Expanded"
+            IsOpen="False"
+            Style="{StaticResource SyncfusionPrimarySfNavigationDrawerStyle}">
+
+            <sf:SfNavigationDrawer.ToggleButtonContentTemplate>
+                <DataTemplate>
+                    <Label
+                        Margin="0,0,30,0"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Content="Odyssey"
+                        FontFamily="{StaticResource Tylaco}"
+                        FontSize="25"
+                        Foreground="White" />
+                </DataTemplate>
+            </sf:SfNavigationDrawer.ToggleButtonContentTemplate>
+
+            <sf:SfNavigationDrawer.Items>
+
+                <sf:NavigationItem ItemType="Separator" Style="{StaticResource SyncfusionPrimaryDefaultNavigationItemStyle}" />
+
+                <sf:NavigationItem
+                    Height="40"
+                    Command="{Binding NavigateToTabControlExt}"
+                    CommandParameter="{Binding Header, RelativeSource={RelativeSource Self}, Converter={StaticResource HeaderToNavDrawerMenuTypeConverter}}"
+                    FontSize="14"
+                    FontWeight="DemiBold"
+                    Header="Виробниче обладнання"
+                    Style="{StaticResource SyncfusionPrimaryDefaultNavigationItemStyle}">
+                    <sf:NavigationItem.Icon>
+                        <Image
+                            Width="25"
+                            Height="25"
+                            Source="pack://application:,,,/Views/NavDrawer/Assets/prod_equipment_light.png" />
+                    </sf:NavigationItem.Icon>
+                </sf:NavigationItem>
+
+                <sf:NavigationItem ItemType="Separator" Style="{StaticResource SyncfusionPrimaryDefaultNavigationItemStyle}" />
+
+                <sf:NavigationItem
+                    Height="40"
+                    Command="{Binding NavigateToTabControlExt}"
+                    CommandParameter="{Binding Header, RelativeSource={RelativeSource Self}, Converter={StaticResource HeaderToNavDrawerMenuTypeConverter}}"
+                    FontSize="14"
+                    FontWeight="DemiBold"
+                    Header="Інструменти"
+                    Style="{StaticResource SyncfusionPrimaryDefaultNavigationItemStyle}">
+                    <sf:NavigationItem.Icon>
+                        <Image
+                            Width="25"
+                            Height="25"
+                            Source="pack://application:,,,/Views/NavDrawer/Assets/tools_light.png" />
+                    </sf:NavigationItem.Icon>
+                </sf:NavigationItem>
+
+                <sf:NavigationItem ItemType="Separator" Style="{StaticResource SyncfusionPrimaryDefaultNavigationItemStyle}" />
+
+                <sf:NavigationItem
+                    Height="40"
+                    Command="{Binding NavigateToTabControlExt}"
+                    CommandParameter="{Binding Header, RelativeSource={RelativeSource Self}, Converter={StaticResource HeaderToNavDrawerMenuTypeConverter}}"
+                    FontSize="14"
+                    FontWeight="DemiBold"
+                    Header="Меблі"
+                    Style="{StaticResource SyncfusionPrimaryDefaultNavigationItemStyle}">
+                    <sf:NavigationItem.Icon>
+                        <Image
+                            Width="25"
+                            Height="25"
+                            Source="pack://application:,,,/Views/NavDrawer/Assets/furniture_light.png" />
+                    </sf:NavigationItem.Icon>
+                </sf:NavigationItem>
+
+                <sf:NavigationItem ItemType="Separator" Style="{StaticResource SyncfusionPrimaryDefaultNavigationItemStyle}" />
+
+                <sf:NavigationItem
+                    Height="40"
+                    Command="{Binding NavigateToTabControlExt}"
+                    CommandParameter="{Binding Header, RelativeSource={RelativeSource Self}, Converter={StaticResource HeaderToNavDrawerMenuTypeConverter}}"
+                    FontSize="14"
+                    FontWeight="DemiBold"
+                    Header="Офісна техніка"
+                    Style="{StaticResource SyncfusionPrimaryDefaultNavigationItemStyle}">
+                    <sf:NavigationItem.Icon>
+                        <Image
+                            Width="25"
+                            Height="25"
+                            Source="pack://application:,,,/Views/NavDrawer/Assets/office_technique_light.png" />
+                    </sf:NavigationItem.Icon>
+                </sf:NavigationItem>
+
+                <sf:NavigationItem ItemType="Separator" Style="{StaticResource SyncfusionPrimaryDefaultNavigationItemStyle}" />
+
+                <sf:NavigationItem
+                    Height="40"
+                    Command="{Binding NavigateToTabControlExt}"
+                    CommandParameter="{Binding Header, RelativeSource={RelativeSource Self}, Converter={StaticResource HeaderToNavDrawerMenuTypeConverter}}"
+                    FontSize="14"
+                    FontWeight="DemiBold"
+                    Header="Розхідні матеріали"
+                    Style="{StaticResource SyncfusionPrimaryDefaultNavigationItemStyle}">
+                    <sf:NavigationItem.Icon>
+                        <Image
+                            Width="25"
+                            Height="25"
+                            Source="pack://application:,,,/Views/NavDrawer/Assets/consumables_light.png" />
+                    </sf:NavigationItem.Icon>
+                </sf:NavigationItem>
+
+                <sf:NavigationItem ItemType="Separator" Style="{StaticResource SyncfusionPrimaryDefaultNavigationItemStyle}" />
+
+            </sf:SfNavigationDrawer.Items>
+
+
+            <sf:SfNavigationDrawer.FooterItems>
+
+                <sf:NavigationItem ItemType="Separator" Style="{StaticResource SyncfusionPrimaryDefaultNavigationItemStyle}" />
+
+                <sf:NavigationItem
+                    Height="40"
+                    Command="{Binding NavigateToTabControlExt}"
+                    CommandParameter="{Binding Header, RelativeSource={RelativeSource Self}, Converter={StaticResource HeaderToNavDrawerMenuTypeConverter}}"
+                    FontSize="14"
+                    FontWeight="DemiBold"
+                    Header="Історія"
+                    Style="{StaticResource SyncfusionPrimaryDefaultNavigationItemStyle}">
+                    <sf:NavigationItem.Icon>
+                        <Image
+                            Width="25"
+                            Height="25"
+                            Source="pack://application:,,,/Views/NavDrawer/Assets/history_light.png" />
+                    </sf:NavigationItem.Icon>
+                </sf:NavigationItem>
+
+                <sf:NavigationItem ItemType="Separator" Style="{StaticResource SyncfusionPrimaryDefaultNavigationItemStyle}" />
+
+                <sf:NavigationItem
+                    Height="40"
+                    Command="{Binding NavigateToTabControlExt}"
+                    CommandParameter="{Binding Header, RelativeSource={RelativeSource Self}, Converter={StaticResource HeaderToNavDrawerMenuTypeConverter}}"
+                    FontSize="14"
+                    FontWeight="DemiBold"
+                    Header="Календар"
+                    Style="{StaticResource SyncfusionPrimaryDefaultNavigationItemStyle}">
+                    <sf:NavigationItem.Icon>
+                        <Image
+                            Width="25"
+                            Height="25"
+                            Source="pack://application:,,,/Views/NavDrawer/Assets/scheduler_light.png" />
+                    </sf:NavigationItem.Icon>
+                </sf:NavigationItem>
+
+                <sf:NavigationItem ItemType="Separator" Style="{StaticResource SyncfusionPrimaryDefaultNavigationItemStyle}" />
+
+                <sf:NavigationItem
+                    Margin="0,0,0,10"
+                    Command="{Binding NavigateToTabControlExt}"
+                    CommandParameter="{Binding Header, RelativeSource={RelativeSource Self}, Converter={StaticResource HeaderToNavDrawerMenuTypeConverter}}"
+                    FontSize="14"
+                    FontWeight="DemiBold"
+                    Header="Налаштування"
+                    Style="{StaticResource SyncfusionPrimaryDefaultNavigationItemStyle}">
+                    <sf:NavigationItem.Icon>
+                        <Image
+                            Width="25"
+                            Height="25"
+                            Source="pack://application:,,,/Views/NavDrawer/Assets/settings_light.png" />
+                    </sf:NavigationItem.Icon>
+                </sf:NavigationItem>
+
+            </sf:SfNavigationDrawer.FooterItems>
+
+            <sf:SfNavigationDrawer.ContentView>
+                <local:TabControlView Margin="0,1,0,0" />
+            </sf:SfNavigationDrawer.ContentView>
+
+        </sf:SfNavigationDrawer>
+
+
+    </Grid>
+</UserControl>

@@ -24,7 +24,7 @@ namespace Models.EquipmentTree
         public ObservableCollection<IFileSystemItem> Children => SubItems;
         public FolderItem()
         {
-            _imageIcon = "Assets/folder.png";
+            _imageIcon = "../Resources/Icons/FolderClosed/folderclosed_colored_line_24.png";
         }
         
         public Guid Id

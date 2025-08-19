@@ -15,7 +15,6 @@ using Prism.Commands;
 using Prism.Events;
 using Syncfusion.UI.Xaml.Grid;
 using Syncfusion.Windows.Controls;
-using UI.ViewModels.TabControl;
 using Timer = System.Timers.Timer;
 using Core.Events.TabControl;
 

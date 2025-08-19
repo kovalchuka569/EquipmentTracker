@@ -1,0 +1,6 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    
+    <BitmapImage x:Key="DeleteRowColoredLine20" UriSource="deleterow_colored_line_20.png"/>
+    
+</ResourceDictionary>

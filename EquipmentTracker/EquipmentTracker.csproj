@@ -19,7 +19,6 @@
     	<PlatformTarget>AnyCPU</PlatformTarget>
     	<FileVersion>0.2.200</FileVersion>
     	<AssemblyName>Equipment Tracker</AssemblyName>
-    	<ApplicationIcon>gears_ico.ico</ApplicationIcon>
     	<Version>0.2.200</Version>
     </PropertyGroup>
 
@@ -50,6 +49,7 @@
 		<ProjectReference Include="..\Core\Core.csproj" />
 		<ProjectReference Include="..\Data\Data.csproj" />
 		<ProjectReference Include="..\Models\Models.csproj" />
+		<ProjectReference Include="..\Presentation\Presentation.csproj" />
 	</ItemGroup>
 
     <ItemGroup>
@@ -80,16 +80,16 @@
       <PackageReference Include="Serilog.Extensions.Logging" Version="9.0.2" />
       <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
       <PackageReference Include="squirrel.windows" Version="1.9.0" />
-      <PackageReference Include="Syncfusion.DataGridExcelExport.Wpf" Version="30.1.37" />
-      <PackageReference Include="Syncfusion.Licensing" Version="30.1.37" />
-      <PackageReference Include="Syncfusion.SfColorPalette.WPF" Version="30.1.37" />
-      <PackageReference Include="Syncfusion.SfSkinManager.WPF" Version="30.1.37" />
-      <PackageReference Include="Syncfusion.Shared.WPF" Version="30.1.37" />
-      <PackageReference Include="Syncfusion.Themes.Office2019Colorful.WPF" Version="30.1.37" />
-      <PackageReference Include="Syncfusion.Themes.Windows11Dark.WPF" Version="30.1.37" />
-      <PackageReference Include="Syncfusion.Themes.Windows11Light.WPF" Version="30.1.37" />
-      <PackageReference Include="Syncfusion.Tools.WPF" Version="30.1.37" />
-      <PackageReference Include="Syncfusion.UI.WPF.NET" Version="30.1.37" />
+      <PackageReference Include="Syncfusion.DataGridExcelExport.Wpf" Version="30.2.5" />
+      <PackageReference Include="Syncfusion.Licensing" Version="30.2.5" />
+      <PackageReference Include="Syncfusion.SfColorPalette.WPF" Version="30.2.5" />
+      <PackageReference Include="Syncfusion.SfSkinManager.WPF" Version="30.2.5" />
+      <PackageReference Include="Syncfusion.Shared.WPF" Version="30.2.5" />
+      <PackageReference Include="Syncfusion.Themes.Office2019Colorful.WPF" Version="30.2.5" />
+      <PackageReference Include="Syncfusion.Themes.Windows11Dark.WPF" Version="30.2.5" />
+      <PackageReference Include="Syncfusion.Themes.Windows11Light.WPF" Version="30.2.5" />
+      <PackageReference Include="Syncfusion.Tools.WPF" Version="30.2.5" />
+      <PackageReference Include="Syncfusion.UI.WPF.NET" Version="30.2.5" />
       <PackageReference Include="Unity.Container" Version="5.11.11" />
     </ItemGroup>
 
@@ -99,33 +99,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Resource Include="Resources\Assets\Icons\close_dark_line_16.png" />
-      <Resource Include="Resources\Assets\Icons\close_light_line_16.png" />
-      <Resource Include="Common\Controls\Assets\export.png" />
-      <Resource Include="Common\Controls\Assets\filter.png" />
-      <Resource Include="Common\Controls\Assets\import.png" />
-      <Resource Include="Common\Controls\Assets\left.png" />
-      <Resource Include="Common\Controls\Assets\pdf.png" />
-      <Resource Include="Common\Controls\Assets\print.png" />
-      <Resource Include="Common\Controls\Assets\right.png" />
-      <Resource Include="Common\Controls\Assets\clear.png" />
-      <Resource Include="Common\Controls\Assets\search.png" />
-      <Resource Include="Common\Controls\Assets\excel.png" />
-      <Resource Include="Resources\Assets\Icons\filter_dark_line_16.png" />
-      <Resource Include="Resources\Assets\Icons\filter_light_line_16.png" />
-      <Resource Include="Resources\Assets\Icons\left_dark_line_16.png" />
-      <Resource Include="Resources\Assets\Icons\left_light_line_16.png" />
-      <Resource Include="Resources\Assets\Icons\right_dark_line_16.png" />
-      <Resource Include="Resources\Assets\Icons\right_light_line_16.png" />
       <Resource Include="Views\NavDrawer\NavDrawerItems\EquipmentTree\Assets\file.png" />
-      <Resource Include="Views\NavDrawer\NavDrawerItems\EquipmentTree\Assets\file_unused.png" />
-      <Resource Include="Resources\Assets\hide_pass.png" />
-      <Resource Include="Resources\Assets\hint_pass.png" />
-      <Resource Include="Resources\Assets\hint_user.png" />
       <None Remove="Views\NavDrawer\Assets\prod_equipment.png" />
-      <Resource Include="Resources\Assets\show_pass.png" />
-      <Resource Include="Resources\Fonts\password.ttf" />
-      <Resource Include="Resources\Fonts\Tylaco.ttf" />
       <None Remove="Views\Auth\Assets\log_in.png" />
       <None Remove="Views\Tabs\ProductionEquipmentTree\Assets\folder.png" />
       <None Remove="Views\Tabs\ProductionEquipmentTree\Assets\file.png" />
@@ -149,7 +124,6 @@
       <Resource Include="Views\NavDrawer\NavDrawerItems\ConsumablesTree\Assets\folder.png" />
       <Resource Include="Views\NavDrawer\NavDrawerItems\ConsumablesTree\Assets\opened_folder.png" />
       <None Remove="icons8-gears-50.png" />
-      <Resource Include="app_ico_light.png" />
       <None Remove="Views\NavDrawer\NavDrawerItems\EquipmentTree\Assets\icons8-error-50.png" />
       <None Remove="about.png" />
       <None Remove="Views\NavDrawer\NavDrawerItems\ConsumablesTree\Assets\folder.png" />
@@ -195,9 +169,7 @@
       <Resource Include="Views\NavDrawer\Assets\tools_light.png" />
       <None Remove="app_ico_dark.png" />
       <None Remove="icons8-automation-50 (1).png" />
-      <Resource Include="app_ico_dark.png" />
       <None Remove="icons8-question-mark-50.png" />
-      <Resource Include="about_dark.png" />
       <None Remove="Views\Consumables\DetailsConsumables\Assets\clip.png" />
       <Resource Include="Views\Consumables\DetailsConsumables\Assets\pin.png" />
       <None Remove="Views\Consumables\DetailsConsumables\Assets\unpin.png" />
@@ -207,7 +179,6 @@
       <None Remove="Views\DataGrid\Repairs\Assets\icons8-back-48.png" />
       <Resource Include="Views\DataGrid\Repairs\Assets\back.png" />
       <None Remove="Views\DataGrid\Repairs\Assets\icons8-edit-128.png" />
-      <Content Include="gears_ico.ico" />
       <Resource Include="Views\DataGrid\Repairs\Assets\edit.png" />
       <None Remove="Views\NavDrawer\Assets\icons8-history-30.png" />
       <Resource Include="Views\NavDrawer\Assets\history_light.png" />
@@ -216,7 +187,6 @@
       <None Remove="Views\DataGrid\Repairs\Assets\opened_folder.png" />
       <Resource Include="Views\DataGrid\Repairs\Assets\opened_folder.png" />
       <None Remove="Views\DataGrid\Assets\search.png" />
-      <Resource Include="Views\DataGrid\Assets\search.png" />
       <None Remove="Views\NavDrawer\NavDrawerItems\EquipmentTree\Assets\writeoff.png" />
       <None Remove="Views\NavDrawer\NavDrawerItems\EquipmentTree\Assets\repairs.png" />
       <None Remove="Views\NavDrawer\NavDrawerItems\EquipmentTree\Assets\service.png" />
@@ -246,23 +216,10 @@
       <None Remove="Views\SummarySheet\Assets\export.png" />
       <None Remove="Views\SummarySheet\Assets\icons8-pdf-48.png" />
       <None Remove="Views\SummarySheet\Assets\icons8-microsoft-excel-48.png" />
-      <Page Update="Common\Controls\DataGridToolBar.xaml">
-        <Generator>MSBuild:Compile</Generator>
-        <XamlRuntime>Wpf</XamlRuntime>
-        <SubType>Designer</SubType>
-      </Page>
       <None Remove="Common\Controls\Assets\icons8-download-48.png" />
-      <Resource Include="Common\Controls\Assets\close.png" />
       <None Remove="Common\Controls\Assets\icons8-attention-24.png" />
       <None Remove="Common\Controls\Assets\icons8-attention-64.png" />
-      <Resource Include="Common\Controls\Assets\attention.png" />
-      <Page Update="Common\Controls\RemovalAgreement.xaml">
-        <Generator>MSBuild:Compile</Generator>
-        <XamlRuntime>Wpf</XamlRuntime>
-        <SubType>Designer</SubType>
-      </Page>
       <None Remove="Common\Controls\Assets\icons8-information-50.png" />
-      <Resource Include="Common\Controls\Assets\information.png" />
       <None Remove="Views\Assets\add_circle_line.png" />
       <None Remove="Views\Assets\delete_trash_line.png" />
       <None Remove="Views\Assets\add_circle_line (2).png" />
@@ -309,13 +266,9 @@
       <None Remove="Resources\Assets\Icons\file_import_line.png" />
       <None Remove="Resources\Assets\Icons\file_import_fill.png" />
       <None Remove="Resources\Assets\Icons\deletecolumn_colored_line_24.png" />
-      <Resource Include="Resources\Assets\Icons\deletecolumn_colored_line_20.png" />
       <None Remove="Resources\Assets\Icons\addcolumn_colored_line_24.png" />
-      <Resource Include="Resources\Assets\Icons\addcolumn_colored_line_20.png" />
       <None Remove="Resources\Assets\Icons\editcolumn_colored_line_20.png" />
-      <Resource Include="Resources\Assets\Icons\editcolumn_colored_line_20.png" />
       <None Remove="Resources\Assets\Icons\DeleteTableRow.png" />
-      <Resource Include="Resources\Assets\Icons\deleterow_colored_line_20.png" />
       <None Remove="Resources\Assets\Icons\Close (1).png" />
       <None Remove="Resources\Assets\Icons\Close (2).png" />
       <None Remove="Resources\Assets\Icons\FolderClosed.png" />
@@ -326,38 +279,27 @@
       <None Remove="Resources\Assets\Icons\filter_light_line_24.png" />
       <None Remove="Resources\Assets\Icons\filter_dark_line_24.png" />
       <None Remove="Resources\Assets\Icons\import_dark_line_16.png" />
-      <Resource Include="Resources\Assets\Icons\import_dark_line_16.png" />
       <None Remove="Resources\Assets\Icons\import_light_line_16.png" />
-      <Resource Include="Resources\Assets\Icons\import_light_line_16.png" />
       <None Remove="Resources\Assets\Icons\pdf_red_line_16.png" />
-      <Resource Include="Resources\Assets\Icons\pdf_red_line_16.png" />
       <None Remove="Resources\Assets\Icons\export_light_line_16.png" />
-      <Resource Include="Resources\Assets\Icons\export_light_line_16.png" />
       <None Remove="Resources\Assets\Icons\export_dark_line_16.png" />
-      <Resource Include="Resources\Assets\Icons\export_dark_line_16.png" />
       <None Remove="Resources\Assets\Icons\excel_colored_16.png" />
-      <Resource Include="Resources\Assets\Icons\excel_colored_16.png" />
       <None Remove="Resources\Assets\Icons\folderopened_dark_line_16.png" />
       <None Remove="Resources\Assets\Icons\folderclosed_light_line_16.png" />
       <None Remove="Resources\Assets\Icons\trash_light_line_16.png" />
       <None Remove="Resources\Assets\Icons\trash_black_line_16.png" />
       <None Remove="Resources\Assets\Icons\trash_black_line_64.png" />
       <None Remove="Resources\Assets\Icons\trash_black_line_128.png" />
-      <Resource Include="Resources\Assets\Icons\trash_black_line_128.png" />
       <None Remove="Resources\Assets\Icons\trash_black_line_32.png" />
-      <Resource Include="Resources\Assets\Icons\trash_black_line_32.png" />
       <None Remove="Resources\Assets\Icons\trash_light_line_32.png" />
-      <Resource Include="Resources\Assets\Icons\trash_light_line_32.png" />
       <None Remove="Resources\Assets\Icons\folderopened_dark_line_32.png" />
       <None Remove="Resources\Assets\Icons\folderclosed_light_line_32.png" />
-      <Resource Include="Resources\Assets\Icons\folderclosed_light_line_32.png" />
       <None Remove="Resources\Assets\Icons\folderopened_dark_line_48.png" />
       <None Remove="Resources\Assets\Icons\folderopened_dark_line_64.png" />
-      <Resource Include="Resources\Assets\Icons\folderopened_dark_line_64.png" />
       <None Remove="Resources\Assets\Icons\print_dark_line_32.png" />
-      <Resource Include="Resources\Assets\Icons\print_dark_line_32.png" />
       <None Remove="Resources\Assets\Icons\print_light_line_32.png" />
-      <Resource Include="Resources\Assets\Icons\print_light_line_32.png" />
+      <None Remove="Resources\Assets\Icons\close_light_line_32.png" />
+      <None Remove="Resources\Assets\Icons\close_black_line_32.png" />
     </ItemGroup>
 
     <ItemGroup>
@@ -385,11 +327,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Page Update="Views\DataGrid\DataGridView.xaml">
-        <Generator>MSBuild:Compile</Generator>
-        <XamlRuntime>Wpf</XamlRuntime>
-        <SubType>Designer</SubType>
-      </Page>
       <Page Update="Views\Notifications\BusyIndicator\BusyIndicatorView.xaml">
         <Generator>MSBuild:Compile</Generator>
         <XamlRuntime>Wpf</XamlRuntime>
@@ -429,9 +366,6 @@
         <Generator>MSBuild:Compile</Generator>
       </Page>
       <Page Update="Views\EquipmentTree\ColumnSelector\ColumnSelectorView.xaml">
-        <Generator>MSBuild:Compile</Generator>
-      </Page>
-      <Page Update="Views\NavDrawer\NavDrawerItems\EquipmentTree\EquipmentTreeView.xaml">
         <Generator>MSBuild:Compile</Generator>
       </Page>
       <Page Update="Views\NavDrawer\NavDrawerItems\ConsumablesTree\ConsumablesTreeView.xaml">

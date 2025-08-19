@@ -1,111 +1,51 @@
 
+using Common.Logging;
 using Core.Services.Common;
-using Core.Services.Common.DataGridColumns;
 using Core.Services.Consumables;
 using Core.Services.Consumables.Operations;
 using Core.Services.DataGrid;
-using Core.Services.EquipmentDataGrid;
-using Core.Services.EquipmentTree;
-using Core.Services.Excel;
 using Core.Services.RepairsDataGrid;
 using Core.Services.ServicesDataGrid;
 using Core.Services.Summary;
 using UI.ViewModels.Tabs;
-using UI.Views.NavDrawer.NavDrawerItems.EquipmentTree;
 using UI.ViewModels.DataGrid;
-using Data.Repositories.Common.DataGridColumns;
 using Data.Repositories.Consumables;
 using Data.Repositories.Consumables.Operations;
 using Data.Repositories.DataGrid;
-using Data.Repositories.EquipmentTree;
 using Data.Repositories.Repairs;
 using Data.Repositories.Services;
 using Data.Repositories.Summary;
-using EquipmentTracker.Common.DialogManager;
-using EquipmentTracker.Common.OverlayManager;
-using EquipmentTracker.Factories.Implementations.Syncfusion;
-using EquipmentTracker.Factories.Interfaces;
-using EquipmentTracker.ViewModels.DataGrid;
 using EquipmentTracker.ViewModels.DataGrid.Services;
-using EquipmentTracker.ViewModels.Dialogs;
-using EquipmentTracker.ViewModels.Equipment;
 using EquipmentTracker.ViewModels.SummarySheet;
-using EquipmentTracker.ViewModels.TabControl;
-using EquipmentTracker.Views.DataGrid;
 using EquipmentTracker.Views.DataGrid.Services;
-using EquipmentTracker.Views.Dialogs;
-using EquipmentTracker.Views.Equipment.DataGrid;
 using UI.ViewModels.Common;
 using UI.ViewModels.Consumables;
 using UI.ViewModels.Consumables.DetailsConsumables;
 using UI.ViewModels.ConsumablesTree;
-using UI.ViewModels.EquipmentTree;
-using UI.ViewModels.TabControl.GenericTab;
-using UI.Views;
 using UI.Views.Common;
 using UI.Views.Consumables;
 using UI.Views.Consumables.DetailsConsumables;
-using UI.Views.DataGrid;
 using UI.Views.DataGrid.Repairs;
 using UI.Views.NavDrawer.NavDrawerItems;
 using UI.Views.NavDrawer.NavDrawerItems.ConsumablesTree;
-using UI.Views.TabControl;
 using UI.ViewModels.DataGrid.Services;
-using UI.ViewModels.Equipment.DataGrid;
 using UI.Views.DataGrid.Services;
-using EquipmentTracker.Views.Equipment.Dialogs;
 using EquipmentTracker.Views.SummarySheet;
-using EquipmentSheetView = EquipmentTracker.Views.Equipment.EquipmentSheetView;
 
 namespace UI.Modules;
 
 public class TabControlModule : IModule
 {
-    public void OnInitialized(IContainerProvider containerProvider)
-    {
-        var regionManager = containerProvider.Resolve<IRegionManager>();
-        regionManager.RegisterViewWithRegion("EquipmentTreeColumnSelectorRegion", typeof(EquipmentTreeView));
-    }
+    public void OnInitialized(IContainerProvider containerProvider) { }
     
     public void RegisterTypes(IContainerRegistry containerRegistry)
     {
-        containerRegistry.RegisterForNavigation<EquipmentSheetView, EquipmentSheetViewModel>();
-        
-        containerRegistry.RegisterSingleton<IDialogManager, DialogManager>();
-        containerRegistry.RegisterSingleton<IOverlayManager, OverlayManager>();
-
-        containerRegistry.RegisterScoped<IExcelImportService, ExcelImportService>();
-        
-        // Tab control (user control)
-        containerRegistry.RegisterForNavigation<TabControlView, TabControlViewModel>();
-        
-        // Generic tab 
-        containerRegistry.RegisterSingleton<IGenericTabViewModelFactory, GenericTabViewModelFactory>();
-        containerRegistry.RegisterForNavigation<GenericTabView, GenericTabViewModel>();
-        
-        // Dialogs
-        containerRegistry.RegisterForNavigation<DeletionAgreementView, DeletionAgreementViewModel>();
         
         #region Tabs
         
         // Image Viewer
         containerRegistry.RegisterForNavigation<ImageViewerView, ImageViewerViewModel>();
         containerRegistry.RegisterSingleton<ImageViewerTempStorage>();
-        
-        // Equipment tree
-        containerRegistry.RegisterForNavigation<EquipmentTreeView, EquipmentTreeViewModel>(); // View, ViewModel
-        containerRegistry.RegisterScoped<IEquipmentTreeService, EquipmentTreeService>(); // Service
-        containerRegistry.Register<IEquipmentTreeRepository, EquipmentTreeRepository>(); // RepositoryF
-        
-        // Data grid
-        containerRegistry.RegisterForNavigation<DataGridView, DataGridViewModel>(); // View, ViewModel
-        
-        containerRegistry.RegisterForNavigation<ColumnCreatorView, ColumnCreatorViewModel>();
-        containerRegistry.RegisterForNavigation<SheetSelectorView, SheetSelectorViewModel>();
-        containerRegistry.RegisterScoped<IEquipmentSheetService, EquipmentSheetService>(); // Service
-        containerRegistry.Register<IGridColumnFactory, SyncfusionGridColumnFactory>();
-        containerRegistry.Register<IGridInteractionHandler, GridInteractionHandler>();
-        // Deletion agreement
         
         containerRegistry.RegisterForNavigation<SummarySheetView, SummarySheetViewModel>();
         containerRegistry.RegisterForNavigation<SummaryColumnTreeView, SummaryColumnTreeViewModel>();
@@ -119,9 +59,6 @@ public class TabControlModule : IModule
         containerRegistry.Register<IDataGridColumnService, DataGridColumnService>(); // Service for columns SfDataGrid
         containerRegistry.Register<IDataGridRepository, DataGridRepository>(); // Repository for DataGrid
         containerRegistry.Register<ISparePartsRepository, SparePartsRepository>(); // Repository for SpareParts
-        
-        //Write off data grid
-        containerRegistry.RegisterForNavigation<WriteOffDataGridView, WriteOffDataGridViewModel>(); // View, ViewModel
         
         //Services data grid
         containerRegistry.RegisterForNavigation<ServicesDataGridView, ServicesDataGridViewModel>(); // View, ViewModel
@@ -164,10 +101,6 @@ public class TabControlModule : IModule
         containerRegistry.Register<IOperationsDataGridRepository, OperationsDataGridRepository>(); // Repository
         //Add new operation template
         containerRegistry.RegisterForNavigation<AddNewOperationView, AddNewOperationViewModel>(); // View, ViewModel
-        
-        //Common DaraGrid
-        containerRegistry.Register<IDataGridColumnsService, DataGridColumnsService>(); // Columns service
-        containerRegistry.Register<IDataGridColumnRepository, DataGridColumnRepository>(); // Columns repository
         
         // Other tabs 
         containerRegistry.RegisterForNavigation<SchedulerView, SchedulerViewModel>();

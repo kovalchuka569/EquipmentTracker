@@ -4,8 +4,6 @@ using System.Dynamic;
 using Common.Logging;
 using Core.Services.Summary;
 using Data.Repositories.Summary;
-using EquipmentTracker.Common.DataGridExport;
-using EquipmentTracker.Common.DialogManager;
 using EquipmentTracker.Constants.Common;
 using EquipmentTracker.Constants.Summary;
 using EquipmentTracker.Events.Summary;
@@ -41,7 +39,7 @@ public class SummaryDataGridViewModel : BindableBase, INavigationAware, IDestruc
     private readonly IAppLogger<SummaryDataGridViewModel> _logger;
     private readonly NotificationManager _notificationManager;
     private readonly ISummaryRepository _summaryRepository;
-    private readonly IDialogManager _dialogManager;
+   // private readonly IDialogManager _dialogManager;
     
     // UI data
     private SfDataGrid _sfDataGrid;
@@ -97,13 +95,13 @@ public class SummaryDataGridViewModel : BindableBase, INavigationAware, IDestruc
     public SummaryDataGridViewModel(ISummaryService summaryService, 
         IAppLogger<SummaryDataGridViewModel> logger, 
         NotificationManager notificationManager, 
-        IDialogManager dialogManager,
+       // IDialogManager dialogManager,
         ISummaryRepository summaryRepository)
     {
         _summaryService = summaryService;
         _logger = logger;
         _notificationManager = notificationManager;
-        _dialogManager = dialogManager;
+       // _dialogManager = dialogManager;
         _summaryRepository = summaryRepository;
         
         SfDataGridLoadedCommand = new DelegateCommand<SfDataGrid>(OnSfDataGridLoaded);
@@ -115,18 +113,18 @@ public class SummaryDataGridViewModel : BindableBase, INavigationAware, IDestruc
 
     private void OnPrint()
     {
-        _sfDataGrid.PrintSettings.PrintManagerBase = new PrintManager(_sfDataGrid);
+      //  _sfDataGrid.PrintSettings.PrintManagerBase = new PrintManager(_sfDataGrid);
         _sfDataGrid.ShowPrintPreview();
     }
 
     private void OnExportToExcel()
     {
-        ExcelExportManager.ExportToExcel(_sfDataGrid, _summaryName, _notificationManager);
+     //   ExcelExportManager.ExportToExcel(_sfDataGrid, _summaryName, _notificationManager);
     }
 
     private void OnExportToPdf()
     {
-        PdfExportManager.ExportToPdf(_sfDataGrid, _summaryName, _notificationManager);
+      //  PdfExportManager.ExportToPdf(_sfDataGrid, _summaryName, _notificationManager);
     }
 
     private void OnSfDataGridLoaded(SfDataGrid sfDataGrid)
@@ -239,7 +237,7 @@ public class SummaryDataGridViewModel : BindableBase, INavigationAware, IDestruc
                              $"Об'єднати в одну характеристику?";
 
             _scopedEventAggregator.GetEvent<ShowSheetOverlayEvent>().Publish(true);
-            bool result = await _dialogManager.ShowInformationAgreementAsync(title, message, "Об'єднати", "Залишити окремо");
+            bool result = false; //await _dialogManager.ShowInformationAgreementAsync(title, message, "Об'єднати", "Залишити окремо");
             _scopedEventAggregator.GetEvent<ShowSheetOverlayEvent>().Publish(false);
 
             if (result)

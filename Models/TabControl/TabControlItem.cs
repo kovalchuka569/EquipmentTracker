@@ -1,6 +1,4 @@
-﻿using Prism.Commands;
-using Prism.Mvvm;
-
+﻿
 namespace Models.TabControl;
 
 public class TabControlItem : BindableBase

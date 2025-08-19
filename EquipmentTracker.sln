@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Common\Common.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Models", "Models\Models.csproj", "{408BAD32-CE6F-4136-B75E-E1DC612E2EC0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Presentation", "Presentation\Presentation.csproj", "{0238AE82-E182-4811-B97C-997427366A8A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -127,6 +129,26 @@ Global
 		{408BAD32-CE6F-4136-B75E-E1DC612E2EC0}.Release|x64.Build.0 = Release|Any CPU
 		{408BAD32-CE6F-4136-B75E-E1DC612E2EC0}.Release|x86.ActiveCfg = Release|Any CPU
 		{408BAD32-CE6F-4136-B75E-E1DC612E2EC0}.Release|x86.Build.0 = Release|Any CPU
+		{0238AE82-E182-4811-B97C-997427366A8A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0238AE82-E182-4811-B97C-997427366A8A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0238AE82-E182-4811-B97C-997427366A8A}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{0238AE82-E182-4811-B97C-997427366A8A}.Debug|ARM.Build.0 = Debug|Any CPU
+		{0238AE82-E182-4811-B97C-997427366A8A}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{0238AE82-E182-4811-B97C-997427366A8A}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{0238AE82-E182-4811-B97C-997427366A8A}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{0238AE82-E182-4811-B97C-997427366A8A}.Debug|x64.Build.0 = Debug|Any CPU
+		{0238AE82-E182-4811-B97C-997427366A8A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{0238AE82-E182-4811-B97C-997427366A8A}.Debug|x86.Build.0 = Debug|Any CPU
+		{0238AE82-E182-4811-B97C-997427366A8A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0238AE82-E182-4811-B97C-997427366A8A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0238AE82-E182-4811-B97C-997427366A8A}.Release|ARM.ActiveCfg = Release|Any CPU
+		{0238AE82-E182-4811-B97C-997427366A8A}.Release|ARM.Build.0 = Release|Any CPU
+		{0238AE82-E182-4811-B97C-997427366A8A}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{0238AE82-E182-4811-B97C-997427366A8A}.Release|ARM64.Build.0 = Release|Any CPU
+		{0238AE82-E182-4811-B97C-997427366A8A}.Release|x64.ActiveCfg = Release|Any CPU
+		{0238AE82-E182-4811-B97C-997427366A8A}.Release|x64.Build.0 = Release|Any CPU
+		{0238AE82-E182-4811-B97C-997427366A8A}.Release|x86.ActiveCfg = Release|Any CPU
+		{0238AE82-E182-4811-B97C-997427366A8A}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

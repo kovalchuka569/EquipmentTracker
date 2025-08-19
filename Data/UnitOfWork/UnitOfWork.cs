@@ -1,8 +1,7 @@
 ﻿using Data.ApplicationDbContext;
 using Data.Repositories;
-using Data.Repositories.EquipmentSheet;
 using Data.Repositories.Interfaces;
-using Data.Repositories.Interfaces.EquipmentSheet;
+using Data.Interfaces;
 using Data.Repositories.Interfaces.SummarySheet;
 using Data.Repositories.SummarySheet;
 using Microsoft.EntityFrameworkCore;

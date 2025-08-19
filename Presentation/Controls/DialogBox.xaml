@@ -1,0 +1,115 @@
+﻿<UserControl x:Class="Presentation.Controls.DialogBox"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:Presentation.Controls"
+             xmlns:templateSelectors="clr-namespace:Presentation.TemplateSelectors"
+             x:Name="Root"
+             mc:Ignorable="d">
+    
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Presentation;component/Resources/Icons/Icons.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            
+            <DataTemplate x:Key="TrashIconTemplate">
+                <Image Source="{StaticResource TrashBlackLine128}"
+                       Width="64" Height="64"/>
+            </DataTemplate>
+            
+            <DataTemplate x:Key="InfoIconTemplate">
+            </DataTemplate>
+            
+            <DataTemplate x:Key="DeleteCancelButtonsTemplate">
+                <StackPanel>
+                    <local:HoverButton ChangeIconHover="False"
+                                       NormalBackground="Red"
+                                       HoverBackground="#E8E8E8"
+                                       ContentFill="White"
+                                       HoverContentFill="Black"
+                                       ButtonCornerRadius="6"
+                                       Margin="0,0,0,8" ContentPadding="8"
+                                       TextFontSize="14" TextFontFamily="Microsoft Sans Serif"
+                                       TextContent="{Binding Button1Text, ElementName=Root}"
+                                       MouseLeftButtonUp="Button1_OnMouseLeftButtonUp">
+                        
+                    </local:HoverButton>
+                    
+                    <local:HoverButton ChangeIconHover="False"
+                                       NormalBackground="Transparent"
+                                       HoverBackground="#E8E8E8"
+                                       ContentFill="Black"
+                                       HoverContentFill="Black" 
+                                       ContentPadding="8"
+                                       ButtonCornerRadius="6"
+                                       TextFontSize="14" TextFontFamily="Microsoft Sans Serif"
+                                       TextContent="{Binding Button2Text, ElementName=Root}"
+                                       MouseLeftButtonUp="Button2_OnMouseLeftButtonUp"/>
+                </StackPanel>
+            </DataTemplate>
+            
+            <DataTemplate x:Key="YesNoButtonsTemplate">
+            </DataTemplate>
+            
+            <DataTemplate x:Key="OkCancelButtonsTemplate">
+            </DataTemplate>
+            
+            <templateSelectors:DialogBoxIconTemplateSelector x:Key="IconTemplateSelector"
+                                                             TrashIconTemplate="{StaticResource TrashIconTemplate}"
+                                                             InfoIconTemplate="{StaticResource InfoIconTemplate}"/>
+            
+            <templateSelectors:DialogBoxButtonTemplateSelector x:Key="ButtonTemplateSelector"
+                                                               DeleteCancelButtonsTemplate="{StaticResource DeleteCancelButtonsTemplate}"
+                                                               YesNoButtonsTemplate="{StaticResource YesNoButtonsTemplate}"
+                                                               OkCancelButtonsTemplate="{StaticResource OkCancelButtonsTemplate}"/>
+            
+        </ResourceDictionary>
+    </UserControl.Resources>
+    
+    <Border Padding="24" Background="White" CornerRadius="8">
+        <Grid>
+            
+            <!-- Close button -->
+            <local:HoverButton
+                HorizontalAlignment="Right"
+                VerticalAlignment="Top"
+                Margin="0,-24,-24,0" 
+                NormalBackground="#E8E8E8"
+                ButtonCornerRadius="0,8,0,0"
+                HoverBackground="Red"
+                ContentPadding="6"
+                ChangeIconHover="True"
+                NormalIconHeight="16"
+                NormalIconWidth="16"
+                HoverIconHeight="16"
+                HoverIconWidth="16"
+                NormalIconContent="{StaticResource CloseBlackLine32}"
+                HoverIconContent="{StaticResource CloseLightLine32}"
+                MouseLeftButtonUp="CloseButton_OnMouseLeftButtonUp"/>
+
+            <StackPanel>
+                <!-- Icon -->
+                <ContentControl Content="{Binding Icon, ElementName=Root}" 
+                                ContentTemplateSelector="{StaticResource IconTemplateSelector}"/>
+            
+                <!-- Title -->
+                <TextBlock Text="{Binding Title, ElementName=Root}" Margin="0,24" 
+                           HorizontalAlignment="Center"
+                           FontSize="18" FontFamily="Microsoft Sans Serif" FontWeight="SemiBold"/>
+            
+                <!-- Message -->
+                <TextBlock Text="{Binding Message, ElementName=Root}" Margin="0,0,0,24" 
+                           FontSize="14" FontFamily="Microsoft Sans Serif" 
+                           HorizontalAlignment="Center"
+                           TextWrapping="Wrap" />
+            
+                <!-- Buttons -->
+                <ContentControl Content="{Binding Buttons, ElementName=Root}" 
+                                ContentTemplateSelector="{StaticResource ButtonTemplateSelector}"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+    
+</UserControl>

@@ -14,7 +14,6 @@ using Core.Services.Consumables;
 using Models.ConsumablesDataGrid;
 using Prism.Events;
 using Syncfusion.UI.Xaml.Grid;
-using UI.ViewModels.TabControl;
 
 namespace UI.ViewModels.Consumables
 {

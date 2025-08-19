@@ -62,7 +62,7 @@ namespace Models.EquipmentTree
 
         public string ImageIcon => _fileFormat switch
         {
-            FileFormat.EquipmentSheet or FileFormat.RepairsSheet or FileFormat.ServicesSheet or FileFormat.WriteOffSheet => "Assets/file.png",
+            FileFormat.EquipmentSheet or FileFormat.RepairsSheet or FileFormat.ServicesSheet or FileFormat.WriteOffSheet => "../Resources/Icons/TableSheet/tablesheet_dark_line_24.png",
             FileFormat.SummaryEquipment or FileFormat.SummaryRepairs or FileFormat.SummaryServices or FileFormat.SummaryWriteOff  => "Assets/summary.png",
             _ => String.Empty
         };

@@ -9,11 +9,9 @@
              xmlns:sf="http://schemas.syncfusion.com/wpf"
              xmlns:prism="http://prismlibrary.com/"
              xmlns:grid="clr-namespace:Syncfusion.UI.Xaml.Grid;assembly=Syncfusion.SfGrid.WPF"
-             xmlns:converters="clr-namespace:EquipmentTracker.Common.Converters"
-             xmlns:controls="clr-namespace:EquipmentTracker.Common.Controls"
              mc:Ignorable="d">
     
-    <UserControl.Resources>
+   <!-- <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/Syncfusion.Themes.Office2019Colorful.WPF;component/sfdatagrid/sfdatagrid.xaml"/>
@@ -128,5 +126,5 @@
                 </sf:SfDataGrid.LayoutTransform>
 
             </sf:SfDataGrid>
-    </Grid>
+    </Grid>-->
 </UserControl>

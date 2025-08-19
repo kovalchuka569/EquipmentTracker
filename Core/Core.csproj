@@ -7,12 +7,6 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<PlatformTarget>AnyCPU</PlatformTarget>
 	</PropertyGroup>
-
-	<ItemGroup>
-		<Folder Include="Common\Parameters\" />
-		<Folder Include="Services\TabControlExt\" />
-		<Folder Include="Services\TaskDialog\" />
-	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\Common\Common.csproj" />
 		<ProjectReference Include="..\Data\Data.csproj" />
