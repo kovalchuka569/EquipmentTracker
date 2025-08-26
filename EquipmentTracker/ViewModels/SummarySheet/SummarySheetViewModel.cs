@@ -1,7 +1,6 @@
 ﻿using Common.Logging;
 using Core.Services.Summary;
 using EquipmentTracker.Constants.Common;
-using Models.EquipmentTree;
 using EquipmentTracker.Constants.Summary;
 using EquipmentTracker.Events.Summary;
 
@@ -58,7 +57,7 @@ public class SummarySheetViewModel : BindableBase, INavigationAware, IDestructib
     {
         try
         {
-            _summaryFormat = await _summaryService.GetSummaryFormat(_summaryId);
+       //     _summaryFormat = await _summaryService.GetSummaryFormat(_summaryId);
         }
         catch (Exception e)
         {
@@ -81,7 +80,7 @@ public class SummarySheetViewModel : BindableBase, INavigationAware, IDestructib
             { NavigationConstants.ScopedRegionManager, _scopedRegionManager },
             { NavigationConstants.ScopedEventAggregator, _scopedEventAggregator },
             { SummaryNavigationConstants.SummaryId, _summaryId },
-            { SummaryNavigationConstants.SummaryFormat, _summaryFormat },
+         //   { SummaryNavigationConstants.SummaryFormat, _summaryFormat },
             { SummaryNavigationConstants.SummaryName, _summaryName },
         };
         
@@ -95,7 +94,7 @@ public class SummarySheetViewModel : BindableBase, INavigationAware, IDestructib
     private EventAggregator? _scopedEventAggregator;
     private int _summaryId;
     private string _summaryName;
-    private SummaryFormat _summaryFormat;
+  //  private SummaryFormat _summaryFormat;
     private void GetNavigationParameters(INavigationParameters parameters)
     {
         if (parameters[NavigationConstants.ScopedRegionManager] is IRegionManager scopedRegionManager)

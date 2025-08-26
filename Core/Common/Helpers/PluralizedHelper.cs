@@ -4,8 +4,8 @@ public class PluralizedHelper
 {
     public static string GetPluralizedText(int count, string singular, string plural234, string pluralOther)
     {
-        int lastDigit = count % 10;
-        int lastTwoDigits = count % 100;
+        var lastDigit = count % 10;
+        var lastTwoDigits = count % 100;
 
         if (lastTwoDigits >= 11 && lastTwoDigits <= 14)
         {

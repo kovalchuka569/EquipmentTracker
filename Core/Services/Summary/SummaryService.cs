@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+/*using System.Collections.ObjectModel;
 using Data.Repositories.Summary;
 using Models.EquipmentTree;
 using Models.Summary.ColumnTree;
@@ -30,12 +30,14 @@ public class SummaryService : ISummaryService
         _summaryRepository = summaryRepository;
     }
     
+    /*
     public async Task<SummaryFormat> GetSummaryFormat(int summaryId)
     {
        return await _summaryRepository.GetSummaryFormat(summaryId);
     }
+    #1#
 
-    public async Task<ObservableCollection<ISummaryFileSystemItem>> GetHierarchicalItemsAsync(int summaryId, SummaryFormat format)
+    /*public async Task<ObservableCollection<ISummaryFileSystemItem>> GetHierarchicalItemsAsync(int summaryId, SummaryFormat format)
     {
         var folders = await _summaryRepository.GetFoldersAsync();
         var files = new List<FileDto>();
@@ -106,7 +108,7 @@ public class SummaryService : ISummaryService
         }
         return new ObservableCollection<ISummaryFileSystemItem>(
             folderItems.Values.Where(f => f.ParentId == 0));
-    }
+    }#1#
     
     public void SelectItemAndChildren(ISummaryFileSystemItem? item)
     {
@@ -495,4 +497,4 @@ public class SummaryService : ISummaryService
         public bool IsMergedTarget { get; set; } = false;
         public ColumnSettingsDisplayModel ColumnSettings { get; set; } = new();
     }
-}
+}*/

@@ -3,6 +3,6 @@
     
     <BitmapImage x:Key="FolderOpenedDarkLine64" UriSource="folderopened_dark_line_64.png"/>
     
-    <BitmapImage x:Key="FolderOpenedColoredLine24" UriSource="folderopened_colored_line_24.png"/>
+    <BitmapImage x:Key="FolderOpenedColoredLine36" UriSource="folderopened_colored_line_36.png"/>
     
 </ResourceDictionary>

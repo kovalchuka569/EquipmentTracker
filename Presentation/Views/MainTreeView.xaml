@@ -1,0 +1,326 @@
+﻿<UserControl x:Class="Presentation.Views.MainTreeView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:sf="http://schemas.syncfusion.com/wpf"
+             xmlns:converters="clr-namespace:Presentation.Converters"
+             xmlns:enums="clr-namespace:Common.Enums;assembly=Common"
+             xmlns:fileViewModel="clr-namespace:Presentation.ViewModels.Common.FileSystem"
+             xmlns:behaviors="clr-namespace:Presentation.Behaviors"
+             UseLayoutRounding="True"
+             x:Name="Root">
+    
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Syncfusion.Themes.Windows11Light.WPF;component/SfTreeView/SfTreeView.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/Syncfusion.Themes.Windows11Light.WPF;component/MSControl/TextBox.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/Presentation;component/Templates/ErrorTemplate.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Presentation;component/Styles/ClearImageStyle.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Presentation;component/Styles/ContextMenuStyle.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Presentation;component/Resources/Icons/Icons.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+            <converters:FileFormatToIconConverter x:Key="FileFormatToIconConverter"/>
+            <converters:InverseBooleanVisibilityConverter x:Key="InverseBooleanVisibilityConverter"/>
+            <converters:FileFormatToTextBlockStyle x:Key="FileFormatToTextBlockStyle"/>
+            
+            <Style x:Key="MainTreeContextMenuStyle" TargetType="ContextMenu" BasedOn="{StaticResource ContextMenuStyle}">
+                <Style.Resources>
+                    <Style TargetType="Image" BasedOn="{StaticResource ClearImageStyle}"/>
+                </Style.Resources>  
+            </Style>
+            
+            <Style x:Key="FileTextBlockStyle" TargetType="TextBlock">
+                <Setter Property="TextDecorations" Value="{x:Null}"/>
+                <Style.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="TextDecorations" Value="Underline"/>
+                        <Setter Property="Cursor" Value="Hand"/>
+                        <Setter Property="Foreground" Value="Blue"/>
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+            
+            <DataTemplate x:Key="TreeItemTemplate">
+                
+                <StackPanel Orientation="Horizontal">
+                    
+                    <sf:SfBusyIndicator Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}" 
+                                        ViewboxWidth="24" ViewboxHeight="24" 
+                                        AnimationType="DotCircle" 
+                                        Foreground="#09244B"/>
+                    
+                    <Image Visibility="{Binding IsLoading, Converter={StaticResource InverseBooleanVisibilityConverter}}"
+                           Width="22"
+                           Height="22"
+                           SnapsToDevicePixels="True"
+                           Style="{StaticResource ClearImageStyle}">
+                        
+                        <Image.Source>
+                            <MultiBinding Converter="{StaticResource FileFormatToIconConverter}"
+                                          ConverterParameter="{x:Reference Root}">
+                                
+                                <Binding Path="Format"/>
+                                <Binding Path="IsExpanded"/>
+                                
+                            </MultiBinding>
+                        </Image.Source>
+                        
+                    </Image>
+                    
+                    <TextBlock VerticalAlignment="Center"
+                               Margin="6,0,0,0"
+                               Text="{Binding Name}" 
+                               Style="{Binding Format, Converter={StaticResource FileFormatToTextBlockStyle},
+                               ConverterParameter={x:Reference Root}}">
+                        
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="MouseLeftButtonDown">
+                                <i:InvokeCommandAction Command="{Binding DataContext.ItemTappedCommand, 
+                                RelativeSource={RelativeSource AncestorType=sf:SfTreeView}}"
+                                                       CommandParameter="{Binding}"/>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                    </TextBlock>
+                </StackPanel>
+                
+            </DataTemplate>
+            
+            <DataTemplate x:Key="TreeItemEditTemplate">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                        <Image Grid.Column="0" 
+                               Source="{Binding Format, Converter={StaticResource FileFormatToIconConverter}, ConverterParameter={x:Reference Root}}"
+                               Width="24"
+                               Height="21"
+                               Style="{StaticResource ClearImageStyle}"/>
+                    
+                    <TextBox Grid.Column="1" 
+                             FontSize="12" 
+                             Text="{Binding Name, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
+                             Margin="6,0,0,0" 
+                             FontFamily="Microsoft Sans Serif">
+                        
+                        <Validation.ErrorTemplate>
+                            <StaticResource ResourceKey="ErrorTemplate"/>
+                        </Validation.ErrorTemplate>
+                        
+                    </TextBox>
+                    
+                </Grid>
+            </DataTemplate>  
+            
+            <DataTemplate x:Key="DragPreviewTemplate">
+                <Border CornerRadius="6" 
+                        Background="White"
+                        BorderBrush="#09244B"
+                        BorderThickness="1"
+                        Padding="3"
+                        Opacity="0.5">
+                    
+                        <sf:SfTreeView ItemsSource="{Binding Data}"
+                                       ChildPropertyName="ChildNodes"
+                                       ShowLines="True"
+                                       ShowRootLines="True"
+                                       LineStroke="#09244B"
+                                       AutoExpandMode="AllNodes">
+                            
+                            <sf:SfTreeView.ItemTemplate>
+                                <DataTemplate>
+                                    
+                                    
+                                    <StackPanel Orientation="Horizontal" 
+                                                Margin="2">
+                                        
+                                        <TextBlock Text="Розкрийте, щоб побачити вміст"
+                                                   Visibility="{Binding Content.IsDummy, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                        
+                                        <Grid Visibility="{Binding Content.IsDummy, Converter={StaticResource InverseBooleanVisibilityConverter}}">
+                                        
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            
+                                                <Image Grid.Column="0" 
+                                                       Width="16" Height="16"
+                                                       SnapsToDevicePixels="True"
+                                                       Style="{StaticResource ClearImageStyle}">
+                                                    
+                                                    <Image.Source>
+                                                    <MultiBinding Converter="{StaticResource FileFormatToIconConverter}"
+                                                                  ConverterParameter="{x:Reference Root}">
+                                        
+                                                        <Binding Path="Content.Format"/>
+                                                        <Binding Path="Content.IsExpanded"/>
+                                        
+                                                    </MultiBinding>
+                                                </Image.Source>
+                                                    
+                                            </Image>
+                                            
+                                            <TextBlock 
+                                                Grid.Column="1"
+                                                Text="{Binding Content.Name}" 
+                                                Margin="6,0,0,0"
+                                                FontFamily="Microsoft Sans Serif"/>
+                                            
+                                        </Grid>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </sf:SfTreeView.ItemTemplate>
+                        </sf:SfTreeView>
+                        
+                </Border>
+            </DataTemplate>
+            
+            <ContextMenu x:Key="TreeContextMenu"
+                         Style="{StaticResource MainTreeContextMenuStyle}">
+                
+                <MenuItem Header="Додати">
+                    
+                    <MenuItem.Icon>
+                        <Image Source="{StaticResource AddGreenLine20}"/>
+                    </MenuItem.Icon>
+                    
+                    <MenuItem Header="Додати папку"
+                              Command="{Binding AddFileContextMenuCommand}"
+                              CommandParameter="{x:Static enums:FileFormat.Folder}">
+                        
+                        <MenuItem.Icon>
+                            <Image Source="{StaticResource AddFolderColoredLine20}"/>
+                        </MenuItem.Icon>
+                        
+                    </MenuItem>
+                    
+                    <MenuItem Header="Додати звітний лист"
+                              Command="{Binding AddFileContextMenuCommand}"
+                              CommandParameter="{x:Static enums:FileFormat.PivotSheet}">
+                        
+                        <MenuItem.Icon>
+                            <Image Source="{StaticResource AddPivotSheetDarkLine20}"/>
+                        </MenuItem.Icon>
+                        
+                    </MenuItem>  
+                    
+                    <MenuItem Header="Додати лист">
+                        
+                        <MenuItem.Icon>
+                            <Image Source="{StaticResource AddTableSheetDarkLine20}"/>
+                        </MenuItem.Icon>
+                        
+                        <MenuItem Header="Обладнання"
+                                  Command="{Binding AddFileContextMenuCommand}"
+                                  CommandParameter="{x:Static enums:FileFormat.EquipmentSheet}"/>
+                        
+                    </MenuItem>
+                    
+                </MenuItem>
+                
+                <MenuItem Header="Перейменувати"
+                          Command="{Binding EditItemContextMenuCommand}">
+                        
+                    <MenuItem.Icon>
+                        <Image Source="{StaticResource RenameDarkLine20}"/>
+                    </MenuItem.Icon>
+                        
+                </MenuItem>  
+                
+            </ContextMenu>  
+            
+        </ResourceDictionary>
+    </UserControl.Resources>
+    
+    <Grid>
+        <Grid>
+            <Grid>
+                <sf:SfTreeView
+                    ItemsSource="{Binding RootItems}"
+                    SelectedItems="{Binding SelectedItems, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    ItemHeight="30"
+                    SelectionMode="Extended"
+                    ShowLines="True"
+                    ShowRootLines="True"
+                    LineStroke="#09244B"
+                    SelectionBackgroundColor="LightGray"
+                    AllowDeleting="True"
+                    AllowDragging="True"
+                    AllowDrop="True"
+                    AllowEditing="True"
+                    EditTrigger="F2"
+                    ExpandActionTrigger="Node"
+                    IsAnimationEnabled="False"
+                    ItemTemplate="{StaticResource TreeItemTemplate}"
+                    EditTemplate="{StaticResource TreeItemEditTemplate}"
+                    ContextMenu="{StaticResource TreeContextMenu}"
+                    DragPreviewTemplate="{StaticResource DragPreviewTemplate}">
+                    
+                    <sf:SfTreeView.HierarchyPropertyDescriptors>
+                        <sf:HierarchyPropertyDescriptor IsExpandedPropertyName="IsExpanded" 
+                                                        IsSelectedPropertyName="IsSelected"
+                                                        ChildPropertyName="Childs" 
+                                                        TargetType="{x:Type fileViewModel:FileSystemItemBaseViewModel}"/>
+                    </sf:SfTreeView.HierarchyPropertyDescriptors>
+                    
+                    <i:Interaction.Triggers>
+                        <i:EventTrigger EventName="Loaded">
+                            <i:InvokeCommandAction Command="{Binding TreeViewLoadedCommand}"/>
+                        </i:EventTrigger>
+                        
+                        <i:EventTrigger EventName="ItemEndEdit">
+                            <i:InvokeCommandAction Command="{Binding ItemEndEditCommand}"
+                                                   PassEventArgsToCommand="True"/>
+                        </i:EventTrigger>
+                            
+                        <i:EventTrigger EventName="NodeExpanding">
+                             <i:InvokeCommandAction Command="{Binding NodeExpandingCommand}"
+                                                       PassEventArgsToCommand="True"/>
+                        </i:EventTrigger>
+                            
+                        <i:EventTrigger EventName="ItemDropped">
+                            <i:InvokeCommandAction Command="{Binding ItemDroppedCommand}"
+                                                   PassEventArgsToCommand="True"/>
+                        </i:EventTrigger>
+                            
+                        <i:EventTrigger EventName="KeyDown">
+                        <i:InvokeCommandAction Command="{Binding KeyDownCommand}"
+                                                       PassEventArgsToCommand="True"/>
+                        </i:EventTrigger>
+                    </i:Interaction.Triggers>
+                    
+                    <i:Interaction.Behaviors>
+                        <behaviors:SfTreeViewEditBehavior EditItem="{Binding EditItem, Mode=TwoWay}"/>
+                    </i:Interaction.Behaviors>
+                    
+                </sf:SfTreeView>
+            </Grid>
+            
+            <TextBlock Grid.Row="0"  
+                       Text="Файли відсутні" 
+                       Visibility="{Binding FilesEmptyTipVisibility, Converter={StaticResource BooleanToVisibilityConverter}}" 
+                       VerticalAlignment="Center" HorizontalAlignment="Center" 
+                       FontFamily="Microsoft Sans Serif" Foreground="#09244B" FontSize="14"/>
+            
+        </Grid>
+        
+        <ContentControl Grid.Row="0"
+                        Content="{Binding OverlayContent}"
+                        Visibility="{Binding IsOverlayVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
+                        Panel.ZIndex="1"/>
+        
+        <ContentControl Grid.Row="0"
+                        Content="{Binding DialogContent}"
+                        Visibility="{Binding IsDialogOpen, Converter={StaticResource BooleanToVisibilityConverter}}"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Panel.ZIndex="2"/>
+        
+    </Grid>
+    
+</UserControl>

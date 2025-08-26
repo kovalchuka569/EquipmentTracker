@@ -8,7 +8,6 @@ using Core.Events.TabControl;
 using Core.Models.Consumables;
 using Core.Services.Consumables;
 using Microsoft.Extensions.Logging;
-using Models.EquipmentTree;
 using Prism.Events;
 using Syncfusion.UI.Xaml.TreeGrid;
 using Syncfusion.UI.Xaml.TreeView;

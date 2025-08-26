@@ -10,6 +10,7 @@
 
     <ItemGroup>
       <PackageReference Include="Extended.Wpf.Toolkit" Version="4.7.25104.5739" />
+      <PackageReference Include="JetBrains.Annotations" Version="2025.2.0" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.7">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -27,6 +28,10 @@
 <PackageReference Include="Syncfusion.SfColorPalette.WPF" Version="30.1.37" />
 <PackageReference Include="Syncfusion.Shared.WPF" Version="30.1.37" />
 <PackageReference Include="Syncfusion.UI.WPF.NET" Version="30.1.37" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Common\Common.csproj" />
     </ItemGroup>
 
 </Project>

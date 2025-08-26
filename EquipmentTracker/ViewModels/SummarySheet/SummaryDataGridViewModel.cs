@@ -7,7 +7,6 @@ using Data.Repositories.Summary;
 using EquipmentTracker.Constants.Common;
 using EquipmentTracker.Constants.Summary;
 using EquipmentTracker.Events.Summary;
-using Models.EquipmentTree;
 using Models.Summary.DataGrid;
 using Notification.Wpf;
 using Syncfusion.UI.Xaml.Grid;
@@ -263,7 +262,7 @@ public class SummaryDataGridViewModel : BindableBase, INavigationAware, IDestruc
     private IRegionManager _scopedRegionManager;
     private EventAggregator _scopedEventAggregator;
     private int _summaryId;
-    private SummaryFormat _summaryFormat;
+   // private SummaryFormat _summaryFormat;
     private string _summaryName;
     private void GetNavigationParameters(INavigationParameters parameters)
     {
@@ -279,10 +278,10 @@ public class SummaryDataGridViewModel : BindableBase, INavigationAware, IDestruc
         {
             _summaryId = summaryId;
         }
-        if (parameters[SummaryNavigationConstants.SummaryFormat] is SummaryFormat summaryFormat)
+        /*if (parameters[SummaryNavigationConstants.SummaryFormat] is SummaryFormat summaryFormat)
         {
             _summaryFormat = summaryFormat;
-        }
+        }*/
         if (parameters[SummaryNavigationConstants.SummaryName] is string summaryName)
         {
             _summaryName = summaryName;

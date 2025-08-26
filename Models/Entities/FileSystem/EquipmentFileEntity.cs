@@ -1,10 +1,13 @@
-﻿using Models.Entities.EquipmentSheet;
+﻿
+using System.ComponentModel.DataAnnotations.Schema;
+using Models.Entities.EquipmentSheet;
 
 namespace Models.Entities.FileSystem;
 
-public class EquipmentFileEntity : FileEntity
+public class EquipmentFileEntity : FileSystemItemEntity
 {
-    public Guid EquipmentSheetId { get; set; }
+    public Guid? EquipmentSheetId { get; set; }
     
-    public EquipmentSheetEntity EquipmentSheet {get; set; }
+    [ForeignKey(nameof(EquipmentSheetId))]
+    public EquipmentSheetEntity? EquipmentSheet { get; set; }
 }

@@ -1,9 +1,6 @@
 ﻿using Data.ApplicationDbContext;
 using Data.Repositories;
-using Data.Repositories.Interfaces;
 using Data.Interfaces;
-using Data.Repositories.Interfaces.SummarySheet;
-using Data.Repositories.SummarySheet;
 using Microsoft.EntityFrameworkCore;
 
 namespace Data.UnitOfWork;
@@ -17,10 +14,9 @@ public class UnitOfWork(IDbContextFactory<AppDbContext> contextFactory) : IUnitO
     private bool _disposed;
     
     // Lazy repositories
-    private IFoldersRepository? _foldersRepository;
-    private IFilesRepository? _filesRepository;
+    private IFileSystemRepository? _fileSystemRepository;
     private IEquipmentSheetRepository? _equipmentSheetRepository;
-    private ISummarySheetsRepository? _summarySheetRepository;
+    private IPivotSheetRepository? _pivotSheetRepository;
 
     private async Task InitializeContextAsync(CancellationToken ct = default)
     {
@@ -46,23 +42,14 @@ public class UnitOfWork(IDbContextFactory<AppDbContext> contextFactory) : IUnitO
     }
     
     // Repository properties with null-check
-    public IFoldersRepository FoldersRepository
-    {
-        get
-        {
-            ThrowIfDisposed();
-            EnsureContextInitialized();
-            return _foldersRepository ??= new FoldersRepository(_activeContext!);
-        }
-    }
     
-    public IFilesRepository FilesRepository
+    public IFileSystemRepository FileSystemRepository
     {
         get
         {
             ThrowIfDisposed();
             EnsureContextInitialized();
-            return _filesRepository ??= new FilesRepository(_activeContext!);
+            return _fileSystemRepository ??= new FileSystemRepository(_activeContext!);
         }
     }
 
@@ -77,13 +64,13 @@ public class UnitOfWork(IDbContextFactory<AppDbContext> contextFactory) : IUnitO
     }
 
 
-    public ISummarySheetsRepository SummarySheetRepository
+    public IPivotSheetRepository PivotSheetRepository
     {
         get
         {
             ThrowIfDisposed();
             EnsureContextInitialized();
-            return _summarySheetRepository ??= new SummarySheetsRepository(_activeContext!);
+            return _pivotSheetRepository ??= new PivotSheetRepository(_activeContext!);
         }
     }
     
@@ -121,7 +108,22 @@ public class UnitOfWork(IDbContextFactory<AppDbContext> contextFactory) : IUnitO
             await _activeContext.RollbackTransactionAsync(ct);
         }
     }
-    
+
+    public async Task ExecuteInTransactionAsync(Func<Task> action, CancellationToken ct)
+    {
+        try
+        {
+            await BeginTransactionAsync(ct);
+            await action();
+            await CommitAsync(ct);
+        }
+        catch (Exception)
+        {
+            await RollbackAsync(ct);
+            throw;
+        }
+    }
+
     public async Task EnsureInitializedForReadAsync(CancellationToken ct = default)
     {
         await InitializeContextAsync(ct);
@@ -143,7 +145,6 @@ public class UnitOfWork(IDbContextFactory<AppDbContext> contextFactory) : IUnitO
     {
         if (_disposed) return;
         
-        Console.WriteLine("Dispose from UoW");
         _activeContext?.Dispose();
         _initializationSemaphore.Dispose();
         _disposed = true;
@@ -153,23 +154,17 @@ public class UnitOfWork(IDbContextFactory<AppDbContext> contextFactory) : IUnitO
     {
         if (_disposed) 
         {
-            Console.WriteLine("DisposeAsync уже был вызван");
             return;
         }
-
-        Console.WriteLine("DisposeAsync from UoW start");
 
         if (_activeContext != null)
         {
             await _activeContext.DisposeAsync();
-            Console.WriteLine("DbContext disposed asynchronously");
         }
 
         _initializationSemaphore.Dispose();
-        Console.WriteLine("Semaphore disposed");
 
         _disposed = true;
-
-        Console.WriteLine("DisposeAsync from UoW finished");
+        
     }
 }

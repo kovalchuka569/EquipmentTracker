@@ -2,7 +2,7 @@
 using System.Globalization;
 using System.Windows.Data;
 
-using Models.Enums;
+using Common.Enums;
 
 namespace Presentation.Converters;
 

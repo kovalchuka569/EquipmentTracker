@@ -1,5 +1,5 @@
-using Models.EquipmentTree;
-using Models.Summary;
+
+
 using Models.Summary.ColumnTree;
 using Models.Summary.DataGrid;
 using ColumnItem = Models.Summary.DataGrid.ColumnItem;
@@ -10,7 +10,7 @@ namespace Data.Repositories.Summary;
 
 public interface ISummaryRepository
 {
-    Task<SummaryFormat> GetSummaryFormat(int summaryId);
+   // Task<SummaryFormat> GetSummaryFormat(int summaryId);
     Task<List<FolderDto>> GetFoldersAsync();
     Task<List<FileDto>> GetEquipmentFilesAsync();
     Task<List<ColumnDto>> GetColumnsForTreeAsync(int tableId);

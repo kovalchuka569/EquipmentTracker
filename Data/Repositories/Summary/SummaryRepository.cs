@@ -3,7 +3,6 @@ using Data.ApplicationDbContext;
 using Models.Equipment;
 using Models.Equipment.ColumnSettings;
 using Models.Equipment.ColumnSpecificSettings;
-using Models.EquipmentTree;
 using Models.Summary.DataGrid;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -27,7 +26,7 @@ public class SummaryRepository : ISummaryRepository
         _context = context;
     }
     
-    public async Task<SummaryFormat> GetSummaryFormat(int summaryId)
+    /*public async Task<SummaryFormat> GetSummaryFormat(int summaryId)
     {
         await using var connection = await _context.OpenNewConnectionAsync();
         string sql = @"SELECT ""summary_format"" FROM ""public"".""summaries"" WHERE ""id"" = @summaryId;";
@@ -35,7 +34,7 @@ public class SummaryRepository : ISummaryRepository
         cmd.Parameters.AddWithValue("@summaryId", summaryId);
         var summaryFormat = (SummaryFormat)await cmd.ExecuteScalarAsync();
         return summaryFormat;
-    }
+    }*/
 
     public async Task<List<FolderDto>> GetFoldersAsync()
     {

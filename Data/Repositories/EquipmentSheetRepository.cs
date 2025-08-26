@@ -1,7 +1,9 @@
-﻿using Data.ApplicationDbContext;
-using Data.Interfaces;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+
 using Models.Entities.EquipmentSheet;
+
+using Data.ApplicationDbContext;
+using Data.Interfaces;
 
 namespace Data.Repositories;
 

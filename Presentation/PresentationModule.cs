@@ -40,7 +40,7 @@ public class PresentationModule : IModule
         
         containerRegistry.RegisterForNavigation<NavDrawerView, NavDrawerViewModel>();
         
-        containerRegistry.RegisterForNavigation<EquipmentTreeView, EquipmentTreeViewModel>();
+        containerRegistry.RegisterForNavigation<MainTreeView, MainTreeViewModel>();
         
         containerRegistry.RegisterForNavigation<EquipmentSheetView, EquipmentSheetViewModel>();
         
@@ -49,6 +49,8 @@ public class PresentationModule : IModule
         containerRegistry.RegisterForNavigation<DialogBoxView, DialogBoxViewModel>();
         
         containerRegistry.RegisterForNavigation<ExcelImportConfiguratorView, ExcelImportConfiguratorViewModel>();
+        
+        containerRegistry.RegisterForNavigation<PivotSheetView, PivotSheetViewModel>();
     }
 
     public void OnInitialized(IContainerProvider containerProvider) { }

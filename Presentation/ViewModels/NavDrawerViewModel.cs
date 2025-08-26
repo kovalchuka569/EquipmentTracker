@@ -2,12 +2,11 @@
 
 using Prism.Events;
 using Prism.Mvvm;
-
-using Syncfusion.UI.Xaml.Schedule;
+using Prism.Commands;
 
 using Core.Events.TabControl;
 
-using MenuType = Models.Enums.MenuType;
+using Common.Enums;
 
 
 namespace Presentation.ViewModels;
@@ -34,7 +33,7 @@ public class NavDrawerViewModel : BindableBase
             var parameters = new Dictionary<string, object>()
             {
                 { "ViewNameToShow", viewName },
-                { "EquipmentTreeView.MenuType", type }
+                { "MainTreeView.MenuType", type }
             };
             
             _eventAggregator.GetEvent<OpenNewTabEvent>().Publish(new OpenNewTabEventArgs
@@ -70,7 +69,7 @@ public class NavDrawerViewModel : BindableBase
                 MenuType.Tools or
                 MenuType.Furniture or
                 MenuType.Office or
-                MenuType.Cars => "EquipmentTreeView",
+                MenuType.Cars => "MainTreeView",
 
             MenuType.Consumables => "ConsumablesTreeView",
             MenuType.History => "AccountingView",

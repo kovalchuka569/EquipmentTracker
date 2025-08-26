@@ -1,5 +1,4 @@
 using System.Collections.ObjectModel;
-using Models.EquipmentTree;
 using System.Dynamic;
 using Models.Summary.ColumnTree;
 using Models.Summary.DataGrid;
@@ -14,13 +13,13 @@ public interface ISummaryService
     /// </summary>
     /// <param name="summaryId">Summary ID</param>
     /// <returns>Summary format</returns>
-    Task<SummaryFormat> GetSummaryFormat(int summaryId);
+    //Task<SummaryFormat> GetSummaryFormat(int summaryId);
     
     /// <summary>
     /// Depending on summary format builds a hierarchical collection for a tree of columns that are not present in the report table.
     /// </summary>
     /// <returns>Hierarchical collection of a files, folders, columns</returns>
-    Task<ObservableCollection<ISummaryFileSystemItem>> GetHierarchicalItemsAsync(int summaryId, SummaryFormat format);
+    //Task<ObservableCollection<ISummaryFileSystemItem>> GetHierarchicalItemsAsync(int summaryId, SummaryFormat format);
 
     /// <summary>
     /// Selects an element and its children
@@ -57,7 +56,7 @@ public interface ISummaryService
     /// <param name="columnIds">List of IDs selected columns</param>
     /// <param name="action">Checkbox action</param>
     /// <param name="format">Summary format</param>
-    Task UpdateSelectedSummaryColumnsIds (int summaryId, List<int> columnIds, CheckboxAction action, SummaryFormat format);
+  //  Task UpdateSelectedSummaryColumnsIds (int summaryId, List<int> columnIds, CheckboxAction action, SummaryFormat format);
     
     /// <summary>
     /// Gets all selected column ids
@@ -65,7 +64,7 @@ public interface ISummaryService
     /// <param name="summaryId">Summary ID</param>
     /// <param name="format">Summary format</param>
     /// <returns>List of selected columns ids</returns>
-    Task<List<int>> GetEquipmentSelectedColumnsIds (int summaryId, SummaryFormat format);
+   // Task<List<int>> GetEquipmentSelectedColumnsIds (int summaryId, SummaryFormat format);
 
     Task<List<DuplicateColumnInfo>> GetPotentialDuplicateColumnInfosAsync(int summaryId);
     Task<bool> ResolveDuplicateAndNotifyUserAsync(List<DuplicateColumnInfo> duplicatesToResolve);

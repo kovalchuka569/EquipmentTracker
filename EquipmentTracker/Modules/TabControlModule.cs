@@ -1,9 +1,7 @@
 
-using Common.Logging;
 using Core.Services.Common;
 using Core.Services.Consumables;
 using Core.Services.Consumables.Operations;
-using Core.Services.DataGrid;
 using Core.Services.RepairsDataGrid;
 using Core.Services.ServicesDataGrid;
 using Core.Services.Summary;
@@ -11,7 +9,6 @@ using UI.ViewModels.Tabs;
 using UI.ViewModels.DataGrid;
 using Data.Repositories.Consumables;
 using Data.Repositories.Consumables.Operations;
-using Data.Repositories.DataGrid;
 using Data.Repositories.Repairs;
 using Data.Repositories.Services;
 using Data.Repositories.Summary;
@@ -47,18 +44,6 @@ public class TabControlModule : IModule
         containerRegistry.RegisterForNavigation<ImageViewerView, ImageViewerViewModel>();
         containerRegistry.RegisterSingleton<ImageViewerTempStorage>();
         
-        containerRegistry.RegisterForNavigation<SummarySheetView, SummarySheetViewModel>();
-        containerRegistry.RegisterForNavigation<SummaryColumnTreeView, SummaryColumnTreeViewModel>();
-        containerRegistry.RegisterForNavigation<SummaryDataGridView, SummaryDataGridViewModel>();
-
-        containerRegistry.Register<ISummaryService, SummaryService>();
-        containerRegistry.Register<ISummaryRepository, SummaryRepository>();
-        
-        containerRegistry.Register<IDataGridService, DataGridService>(); // Service for DataGrid
-        containerRegistry.Register<ISparePartsService, SparePartsService>(); // Service for SpareParts
-        containerRegistry.Register<IDataGridColumnService, DataGridColumnService>(); // Service for columns SfDataGrid
-        containerRegistry.Register<IDataGridRepository, DataGridRepository>(); // Repository for DataGrid
-        containerRegistry.Register<ISparePartsRepository, SparePartsRepository>(); // Repository for SpareParts
         
         //Services data grid
         containerRegistry.RegisterForNavigation<ServicesDataGridView, ServicesDataGridViewModel>(); // View, ViewModel

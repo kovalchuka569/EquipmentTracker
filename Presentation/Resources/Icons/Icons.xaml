@@ -37,6 +37,20 @@
         
         <ResourceDictionary Source="TableSheet/TableSheet.xaml"/>
         
+        <ResourceDictionary Source="AddTableSheet/AddTableSheet.xaml"/>
+        
+        <ResourceDictionary Source="AddFolder/AddFolder.xaml"/>
+        
+        <ResourceDictionary Source="Add/Add.xaml"/>
+        
+        <ResourceDictionary Source="FolderClosedEdit/FolderClosedEdit.xaml"/>
+        
+        <ResourceDictionary Source="AddPivotSheet/AddPivotSheet.xaml"/>
+        
+        <ResourceDictionary Source="Rename/Rename.xaml"/>
+        
+        <ResourceDictionary Source="PivotSheet/PivotSheet.xaml"/>
+        
     </ResourceDictionary.MergedDictionaries>
     
 </ResourceDictionary>

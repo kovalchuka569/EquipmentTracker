@@ -4,7 +4,6 @@ using Core.Services.Summary;
 using EquipmentTracker.Constants.Common;
 using EquipmentTracker.Constants.Summary;
 using EquipmentTracker.Events.Summary;
-using Models.EquipmentTree;
 using Models.Summary.ColumnTree;
 using Syncfusion.UI.Xaml.TreeView;
 using FolderItem = Models.Summary.ColumnTree.FolderItem;
@@ -86,7 +85,7 @@ public class SummaryColumnTreeViewModel : BindableBase, INavigationAware, IDestr
         _selectionProcessing = true;
         try
         {
-            _selectedColumnIds = await _summaryService.GetEquipmentSelectedColumnsIds(_summaryId, _summaryFormat);
+          //  _selectedColumnIds = await _summaryService.GetEquipmentSelectedColumnsIds(_summaryId, _summaryFormat);
             _summaryService.SelectInCollectionById(_items, _selectedColumnIds);
             _summaryService.UpdateParentSelectionStates(_items);
         }
@@ -176,7 +175,7 @@ public class SummaryColumnTreeViewModel : BindableBase, INavigationAware, IDestr
         ProgressbarVisibility = true;
         try
         {
-            Items = await _summaryService.GetHierarchicalItemsAsync(_summaryId, _summaryFormat);
+          //  Items = await _summaryService.GetHierarchicalItemsAsync(_summaryId, _summaryFormat);
         }
         catch (Exception e)
         {
@@ -194,7 +193,7 @@ public class SummaryColumnTreeViewModel : BindableBase, INavigationAware, IDestr
     { 
         try
         {
-            await _summaryService.UpdateSelectedSummaryColumnsIds(_summaryId, _selectedColumnIds, action, _summaryFormat);
+         //   await _summaryService.UpdateSelectedSummaryColumnsIds(_summaryId, _selectedColumnIds, action, _summaryFormat);
         }
         catch (Exception e)
         {
@@ -207,7 +206,7 @@ public class SummaryColumnTreeViewModel : BindableBase, INavigationAware, IDestr
     private IRegionManager? _scopedRegionManager;
     private EventAggregator? _scopedEventAggregator;
     private int _summaryId;
-    private SummaryFormat _summaryFormat;
+   // private SummaryFormat _summaryFormat;
     private void GetNavigationParameters(INavigationParameters parameters)
     {
         if (parameters[NavigationConstants.ScopedRegionManager] is IRegionManager scopedRegionManager)
@@ -222,10 +221,10 @@ public class SummaryColumnTreeViewModel : BindableBase, INavigationAware, IDestr
         {
             _summaryId = summaryId;
         }
-        if (parameters[SummaryNavigationConstants.SummaryFormat] is SummaryFormat summaryFormat)
+        /*if (parameters[SummaryNavigationConstants.SummaryFormat] is SummaryFormat summaryFormat)
         {
             _summaryFormat = summaryFormat;
-        }
+        }*/
     }
 
     public void Destroy()
