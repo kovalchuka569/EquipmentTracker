@@ -121,12 +121,17 @@
   &lt;Assembly Path="C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\8.0.13\ref\net8.0\System.ComponentModel.Annotations.dll" /&gt;&#xD;
 &lt;/AssemblyExplorer&gt;</s:String>
 	<s:Boolean x:Key="/Default/Environment/InlayHints/GeneralInlayHintsOptions/EnableInlayHints/@EntryValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/ResxEditorPersonal/CheckedGroups/=EquipmentTracker_002FResources_002FSyncfusion_002EPivotAnalysisWpf/@EntryIndexedValue">False</s:Boolean>
+	<s:Boolean x:Key="/Default/ResxEditorPersonal/CheckedGroups/=EquipmentTracker_002FResources_002FSyncfusion_002EPivotAnalysisWpf/@EntryIndexRemoved">True</s:Boolean>
+	<s:Boolean x:Key="/Default/ResxEditorPersonal/CheckedGroups/=EquipmentTracker_002FResources_002FSyncfusion_002EPivotAnalysis_002EWpf/@EntryIndexedValue">True</s:Boolean>
+	
+	
 	<s:Boolean x:Key="/Default/ResxEditorPersonal/CheckedGroups/=EquipmentTracker_002FResources_002FSyncfusion_002ESfColorPalette_002EWpf/@EntryIndexedValue">False</s:Boolean>
 	<s:Boolean x:Key="/Default/ResxEditorPersonal/CheckedGroups/=EquipmentTracker_002FResources_002FSyncfusion_002ESfColorPalette_002EWpf/@EntryIndexRemoved">True</s:Boolean>
 	<s:Boolean x:Key="/Default/ResxEditorPersonal/CheckedGroups/=EquipmentTracker_002FResources_002FSyncfusion_002ESfColorPickerPalette_002EWPF/@EntryIndexedValue">False</s:Boolean>
 	<s:Boolean x:Key="/Default/ResxEditorPersonal/CheckedGroups/=EquipmentTracker_002FResources_002FSyncfusion_002ESfColorPickerPalette_002EWPF/@EntryIndexRemoved">True</s:Boolean>
 	<s:Boolean x:Key="/Default/ResxEditorPersonal/CheckedGroups/=EquipmentTracker_002FResources_002FSyncfusion_002ESfGrid_002EWPF/@EntryIndexedValue">False</s:Boolean>
-	<s:Boolean x:Key="/Default/ResxEditorPersonal/CheckedGroups/=EquipmentTracker_002FResources_002FSyncfusion_002ESfImageEditor_002EWPF/@EntryIndexedValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/ResxEditorPersonal/CheckedGroups/=EquipmentTracker_002FResources_002FSyncfusion_002ESfImageEditor_002EWPF/@EntryIndexedValue">False</s:Boolean>
 	<s:Boolean x:Key="/Default/ResxEditorPersonal/CheckedGroups/=EquipmentTracker_002FResources_002FSyncfusion_002EShared_002EWpf/@EntryIndexedValue">False</s:Boolean>
 	<s:Boolean x:Key="/Default/ResxEditorPersonal/CheckedGroups/=EquipmentTracker_002FResources_002FSyncfusion_002EShared_002EWPF/@EntryIndexedValue">False</s:Boolean>
 	<s:Boolean x:Key="/Default/ResxEditorPersonal/CheckedGroups/=EquipmentTracker_002FResources_002FSyncfusion_002EShared_002EWPF/@EntryIndexRemoved">True</s:Boolean>
@@ -160,4 +165,5 @@
 	
 	
 	<s:Boolean x:Key="/Default/ResxEditorPersonal/Initialized/@EntryValue">True</s:Boolean>
-	<s:Boolean x:Key="/Default/ResxEditorPersonal/ShowOnlyErrors/@EntryValue">False</s:Boolean></wpf:ResourceDictionary>
+	<s:Boolean x:Key="/Default/ResxEditorPersonal/ShowOnlyErrors/@EntryValue">False</s:Boolean>
+	<s:Boolean x:Key="/Default/ResxEditorPersonal/ShowOnlyStringResources/@EntryValue">False</s:Boolean></wpf:ResourceDictionary>

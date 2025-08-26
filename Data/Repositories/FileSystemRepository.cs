@@ -12,11 +12,12 @@ namespace Data.Repositories;
 
 public class FileSystemRepository(AppDbContext context) : IFileSystemRepository
 {
-    public async Task<List<FileSystemItemEntity>> GetChildsFileSystemItemsByMenuTypeAsync(MenuType menuType, Guid? parentId, CancellationToken ct = default)
+    public async Task<List<FileSystemItemEntity>> GetChildsFileSystemItemsByMenuTypeAsync(MenuType menuType, Guid? parentId, CancellationToken ct)
     {
         return await context.FileSystemItems
             .AsNoTracking()
-            .Where(f => f.ParentId == parentId)
+            .Where(f => f.ParentId == parentId 
+                        && f.MenuType == menuType)
             .ToListAsync(ct);
     }
 

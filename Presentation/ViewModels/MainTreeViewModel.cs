@@ -27,7 +27,7 @@ using Core.Events.TabControl;
 
 namespace Presentation.ViewModels;
 
-public class MainTreeViewModel : BaseViewModel<MainTreeViewModel>, INavigationAware
+public class MainTreeViewModel : BaseViewModel<MainTreeViewModel>, INavigationAware, IRegionMemberLifetime
 {
     #region Constants
     
@@ -486,9 +486,11 @@ public class MainTreeViewModel : BaseViewModel<MainTreeViewModel>, INavigationAw
     
     #region Navigation
     
+    public bool KeepAlive => true;
+    
     public void OnNavigatedTo(NavigationContext navigationContext)
     {
-        if(_isInitialized) 
+        if(_isInitialized)
             return;
         
         _menuType = navigationContext.Parameters.GetValue<MenuType>("MenuType");

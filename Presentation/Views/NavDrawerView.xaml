@@ -9,6 +9,7 @@
     xmlns:prism="http://prismlibrary.com/"
     xmlns:sf="http://schemas.syncfusion.com/wpf"
     xmlns:syncfusionskin="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF"
+    xmlns:enums="clr-namespace:Common.Enums;assembly=Common"
     prism:ViewModelLocator.AutoWireViewModel="True"
     syncfusionskin:SfSkinManager.Theme="{syncfusionskin:SkinManagerExtension ThemeName=Windows11Light}"
     mc:Ignorable="d">
@@ -52,7 +53,7 @@
                 <sf:NavigationItem
                     Height="40"
                     Command="{Binding NavigateToTabControlExt}"
-                    CommandParameter="{Binding Header, RelativeSource={RelativeSource Self}, Converter={StaticResource HeaderToNavDrawerMenuTypeConverter}}"
+                    CommandParameter="{x:Static enums:MenuType.Prod}"
                     FontSize="14"
                     FontWeight="DemiBold"
                     Header="Виробниче обладнання"
@@ -70,7 +71,7 @@
                 <sf:NavigationItem
                     Height="40"
                     Command="{Binding NavigateToTabControlExt}"
-                    CommandParameter="{Binding Header, RelativeSource={RelativeSource Self}, Converter={StaticResource HeaderToNavDrawerMenuTypeConverter}}"
+                    CommandParameter="{x:Static enums:MenuType.Tools}"
                     FontSize="14"
                     FontWeight="DemiBold"
                     Header="Інструменти"
@@ -88,7 +89,7 @@
                 <sf:NavigationItem
                     Height="40"
                     Command="{Binding NavigateToTabControlExt}"
-                    CommandParameter="{Binding Header, RelativeSource={RelativeSource Self}, Converter={StaticResource HeaderToNavDrawerMenuTypeConverter}}"
+                    CommandParameter="{x:Static enums:MenuType.Furniture}"
                     FontSize="14"
                     FontWeight="DemiBold"
                     Header="Меблі"
@@ -106,7 +107,7 @@
                 <sf:NavigationItem
                     Height="40"
                     Command="{Binding NavigateToTabControlExt}"
-                    CommandParameter="{Binding Header, RelativeSource={RelativeSource Self}, Converter={StaticResource HeaderToNavDrawerMenuTypeConverter}}"
+                    CommandParameter="{x:Static enums:MenuType.Office}"
                     FontSize="14"
                     FontWeight="DemiBold"
                     Header="Офісна техніка"
@@ -124,7 +125,7 @@
                 <sf:NavigationItem
                     Height="40"
                     Command="{Binding NavigateToTabControlExt}"
-                    CommandParameter="{Binding Header, RelativeSource={RelativeSource Self}, Converter={StaticResource HeaderToNavDrawerMenuTypeConverter}}"
+                    CommandParameter="{x:Static enums:MenuType.Consumables}"
                     FontSize="14"
                     FontWeight="DemiBold"
                     Header="Розхідні матеріали"
@@ -149,7 +150,7 @@
                 <sf:NavigationItem
                     Height="40"
                     Command="{Binding NavigateToTabControlExt}"
-                    CommandParameter="{Binding Header, RelativeSource={RelativeSource Self}, Converter={StaticResource HeaderToNavDrawerMenuTypeConverter}}"
+                    CommandParameter="{x:Static enums:MenuType.History}"
                     FontSize="14"
                     FontWeight="DemiBold"
                     Header="Історія"
@@ -167,7 +168,7 @@
                 <sf:NavigationItem
                     Height="40"
                     Command="{Binding NavigateToTabControlExt}"
-                    CommandParameter="{Binding Header, RelativeSource={RelativeSource Self}, Converter={StaticResource HeaderToNavDrawerMenuTypeConverter}}"
+                    CommandParameter="{x:Static enums:MenuType.Scheduler}"
                     FontSize="14"
                     FontWeight="DemiBold"
                     Header="Календар"
@@ -185,7 +186,7 @@
                 <sf:NavigationItem
                     Margin="0,0,0,10"
                     Command="{Binding NavigateToTabControlExt}"
-                    CommandParameter="{Binding Header, RelativeSource={RelativeSource Self}, Converter={StaticResource HeaderToNavDrawerMenuTypeConverter}}"
+                    CommandParameter="{x:Static enums:MenuType.Settings}"
                     FontSize="14"
                     FontWeight="DemiBold"
                     Header="Налаштування"

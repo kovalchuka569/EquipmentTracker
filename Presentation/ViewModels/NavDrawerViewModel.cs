@@ -30,7 +30,7 @@ public class NavDrawerViewModel : BindableBase
         {
             string viewName = GetViewName(type);
             string header = GetHeader(type);
-            var parameters = new Dictionary<string, object>()
+            var parameters = new Dictionary<string, object?>()
             {
                 { "ViewNameToShow", viewName },
                 { "MainTreeView.MenuType", type }
