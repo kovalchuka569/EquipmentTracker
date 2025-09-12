@@ -13,7 +13,7 @@ public class CommonModule : IModule
             
         var loggerFactory = LoggerFactory.Create(builder =>
         {
-            builder.SetMinimumLevel(LogLevel.Information);
+            builder.SetMinimumLevel(LogLevel.Debug);
             builder.AddConsole();
             builder.AddDebug();
                 
@@ -31,7 +31,7 @@ public class CommonModule : IModule
             
         container.RegisterInstance(typeof(ILoggerFactory), loggerFactory);
             
-        container.RegisterFactory(typeof(ILogger<>), (unityContainer, type, name) =>
+        container.RegisterFactory(typeof(ILogger<>), (unityContainer, type, _) =>
         {
             var targetType = type.GetGenericArguments()[0];
             var lf = unityContainer.Resolve<ILoggerFactory>();
@@ -39,7 +39,7 @@ public class CommonModule : IModule
                 .GetMethod("CreateLogger", new[] { typeof(ILoggerFactory) })
                 ?.MakeGenericMethod(targetType);
                 
-            return createLoggerMethod.Invoke(null, new object[] { lf });
+            return createLoggerMethod?.Invoke(null, new object[] { lf });
         });
             
         container.RegisterType(typeof(IAppLogger<>), typeof(AppLogger<>));

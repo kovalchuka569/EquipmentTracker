@@ -1,5 +1,4 @@
 ﻿using Common.Enums;
-
 using Models.FileSystem;
 
 namespace Core.Interfaces;
@@ -9,18 +8,17 @@ public interface IFileSystemService
     /// <summary>
     /// Gets the childs file system items by parent ID.
     /// </summary>
-    /// <param name="parentId">Parent ID.</param>
-    /// <param name="menuType">Menu type.</param>
+    /// <param name="menuType">The type of menu from which the items are requested.</param>
+    /// <param name="parentId">The unique identifier of the parent item. Null for root items.</param>
     /// <param name="ct">Cancellation token.</param>
-    /// <returns>List of file system items</returns>
+    /// <returns>A task that represents the asynchronous operation, containing a list of file system items.</returns>
     public Task<List<FileSystemItemModel>> GetChildsAsync (MenuType menuType, Guid? parentId, CancellationToken ct = default);
     
     /// <summary>
-    /// Insert child file system item.
+    /// Inserts a new child file system item.
     /// </summary>
-    /// <param name="fileSystemItemModel">File system item model.</param>
+    /// <param name="fileSystemItemModel">The model containing the data for the new file system item.</param>
     /// <param name="ct">Cancellation token.</param>
-    /// <returns></returns>
     public Task InsertChildAsync (FileSystemItemModel fileSystemItemModel, CancellationToken ct = default);
     
     /// <summary>
@@ -33,21 +31,21 @@ public interface IFileSystemService
     /// <summary>
     /// Renames the specified file system item asynchronously.
     /// </summary>
-    /// <param name="renamedFileId">The file system item ID to rename.</param>
-    /// <param name="newName">New name.</param>
+    /// <param name="renamedFileId">The unique identifier of the file system item to rename.</param>
+    /// <param name="newName">The new name for the file system item.</param>
     /// <param name="ct">Cancellation token.</param>
     public Task RenameFileSystemItemAsync (Guid renamedFileId, string newName, CancellationToken ct = default);
     
     /// <summary>
     /// Updates the HasChilds flag for the specified file system item.
     /// </summary>
-    /// <param name="fileSystemItemId">File system item ID.</param>
+    /// <param name="fileSystemItemId">The unique identifier of the file system item to update.</param>
     /// <param name="hasChilds">Indicates whether the item has children.</param>
     /// <param name="ct">Cancellation token.</param>
     public Task UpdateHasChildsAsync(Guid fileSystemItemId, bool hasChilds, CancellationToken ct = default);
 
     /// <summary>
-    /// Updates the HasChilds flag for the specified file system item.
+    /// Updates the HasChilds flag for multiple file system items.
     /// </summary>
     /// <param name="newStatuses">
     /// A list of tuples containing new HasChilds data for each file system element:

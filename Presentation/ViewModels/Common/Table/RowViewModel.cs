@@ -19,7 +19,7 @@ public class RowViewModel : BindableBase
 
     private int _position;
 
-    private bool _deleted;
+    private bool _isMarkedForDelete;
 
     private Dictionary<string, CellViewModel> _cellsByMappingName = new();
 
@@ -55,10 +55,10 @@ public class RowViewModel : BindableBase
     /// <summary>
     /// Row deleted status.
     /// </summary>
-    public bool Deleted
+    public bool IsMarkedForDelete
     {
-        get => _deleted;
-        set => SetProperty(ref _deleted, value);
+        get => _isMarkedForDelete;
+        set => SetProperty(ref _isMarkedForDelete, value);
     }
 
     /// <summary>
@@ -81,7 +81,8 @@ public class RowViewModel : BindableBase
     /// </returns>
     public bool TryGetCellByMappingName(string mappingName, out CellViewModel? cell)
     {
-        if (!_cellsByMappingName.TryGetValue(mappingName, out cell)) return false;
+        if (!_cellsByMappingName.TryGetValue(mappingName, out cell)) 
+            return false;
         
         cell.PropertyChanged += OnCellPropertyChanged;
         return true;
@@ -193,9 +194,11 @@ public class RowViewModel : BindableBase
     /// </returns>
     public bool TryAddCell(CellViewModel? cellViewModel)
     {
-        if(cellViewModel is null || string.IsNullOrWhiteSpace(cellViewModel.ColumnMappingName)) return false;
+        if(cellViewModel is null || string.IsNullOrWhiteSpace(cellViewModel.ColumnMappingName)) 
+            return false;
         
-        if(!_cellsByMappingName.TryAdd(cellViewModel.ColumnMappingName, cellViewModel)) return false;
+        if(!_cellsByMappingName.TryAdd(cellViewModel.ColumnMappingName, cellViewModel)) 
+            return false;
 
         if (!_cellsById.TryAdd(cellViewModel.Id, cellViewModel))
         { 
@@ -218,7 +221,7 @@ public class RowViewModel : BindableBase
         {
             Id = rowModel.Id,
             Position = rowModel.Position,
-            Deleted = rowModel.Deleted,
+            IsMarkedForDelete = rowModel.IsMarkedForDelete,
             IsNew = false
         };
 
@@ -253,7 +256,7 @@ public class RowViewModel : BindableBase
             {
                 Id = rowModel.Id,
                 Position = rowModel.Position,
-                Deleted = rowModel.Deleted,
+                IsMarkedForDelete = rowModel.IsMarkedForDelete,
                 IsNew = false
             };
 
@@ -293,7 +296,7 @@ public class RowViewModel : BindableBase
         {
             Id = rowViewModel.Id,
             Position = rowViewModel.Position,
-            Deleted = rowViewModel.Deleted,
+            IsMarkedForDelete = rowViewModel.IsMarkedForDelete,
             Cells = rowViewModel.CellsByMappingName.Values
                 .Select(CellViewModel.ToDomain)
                 .ToList()

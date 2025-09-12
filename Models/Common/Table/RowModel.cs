@@ -6,7 +6,7 @@ public class RowModel
     
     public int Position { get; set; }
     
-    public bool Deleted { get; set; }
+    public bool IsMarkedForDelete { get; set; }
     
     public List<CellModel> Cells { get; set; } = new();
     

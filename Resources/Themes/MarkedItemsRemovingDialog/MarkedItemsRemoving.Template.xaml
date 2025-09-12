@@ -1,0 +1,61 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+                    xmlns:sf="http://schemas.syncfusion.com/wpf"
+                    xmlns:enums="clr-namespace:Common.Enums;assembly=Common"
+                    xmlns:localization="clr-namespace:Resources.Localization">
+    
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="/Syncfusion.Themes.Windows11Light.WPF;component/MSControl/RadioButton.xaml"/>
+        <ResourceDictionary Source="/Syncfusion.Themes.Windows11Light.WPF;component/SfTreeView/SfTreeView.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+    
+    <DataTemplate x:Key="RemovingTypeSelectorTemplate">
+        <StackPanel 
+            Margin="150"
+            VerticalAlignment="Center"
+            HorizontalAlignment="Center">
+                        
+            <RadioButton GroupName="MarkedItemsRemovingType" 
+                         IsChecked="True"
+                         Content="{x:Static localization:Strings.AutoRemovingMarkedItems}"
+                         Margin="0,0,0,10">
+                
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="Checked">
+                        <i:InvokeCommandAction Command="{Binding DataContext.RemovingTypeChangedCommand, 
+                                                RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                               CommandParameter="{x:Static enums:MarkedItemsRemovingType.Auto}"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+                
+            </RadioButton>
+                        
+            <RadioButton GroupName="MarkedItemsRemovingType" 
+                         Content="{x:Static localization:Strings.SelectiveRemovingMarkedItems}">
+                
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="Checked">
+                        <i:InvokeCommandAction Command="{Binding DataContext.RemovingTypeChangedCommand, 
+                                                RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                               CommandParameter="{x:Static enums:MarkedItemsRemovingType.Selection}"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+                
+            </RadioButton>
+            
+        </StackPanel>
+    </DataTemplate>
+    
+    <DataTemplate x:Key="RemovingItemsSelectorTemplate">
+    </DataTemplate>
+    
+    <DataTemplate x:Key="RemovingItemsProcessTemplate">
+        <TextBlock Text="RemovingItemsProcessTemplate" Margin="50"/>
+    </DataTemplate>
+    
+    <DataTemplate x:Key="RemovingItemsFinishTemplate">
+        <TextBlock Text="RemovingItemsFinishTemplate" Margin="50"/>
+    </DataTemplate>
+    
+</ResourceDictionary>

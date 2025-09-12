@@ -1,0 +1,260 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0-windows</TargetFramework>
+        <UseWPF>true</UseWPF>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Syncfusion.Shared.WPF" Version="31.1.17" />
+      <PackageReference Include="Syncfusion.Themes.Windows11Light.WPF" Version="31.1.17" />
+      <PackageReference Include="Syncfusion.UI.WPF.NET" Version="31.1.17" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Controls\Controls.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Page Update="Icons\AddColumn\AddColumn.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Icons\AddFolder\AddFolder.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Icons\AddPivotSheet\AddPivotSheet.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Icons\AddTableSheet\AddTableSheet.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Icons\Add\Add.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Icons\Close\Close.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Icons\DeleteColumn\DeleteColumn.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Icons\DeleteRow\DeleteRow.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Icons\EditColumn\EditColumn.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Icons\Excel\Excel.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Icons\Export\Export.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Icons\Filter\Filter.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Icons\FolderClosedEdit\FolderClosedEdit.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Icons\FolderClosed\FolderClosed.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Icons\FolderOpened\FolderOpened.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Icons\Gears\Gears.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Icons\Import\Import.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Icons\Left\Left.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Icons\Pdf\Pdf.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Icons\PivotSheet\PivotSheet.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Icons\Print\Print.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Icons\Rename\Rename.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Icons\Right\Right.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Icons\TableSheet\TableSheet.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Icons\Trash\Trash.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Icons\Icons.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Icons\ColumnError\ColumnError.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Icons\Save\Save.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Icons\Refresh\Refresh.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Icons\Truck\Truck.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Icons\Broom\Broom.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Resource Include="Icons\AddColumn\addcolumn_colored_line_20.png" />
+      <Resource Include="Icons\AddFolder\addfolder_colored_line_20.png" />
+      <Resource Include="Icons\AddPivotSheet\addpivotsheet_dark_line_20.png" />
+      <Resource Include="Icons\AddTableSheet\addtablesheet_dark_line_20.png" />
+      <Resource Include="Icons\Add\add_green_line_20.png" />
+      <Resource Include="Icons\Add\add_green_line_64.png" />
+      <Resource Include="Icons\Broom\broom_dark_line_64.png" />
+      <Resource Include="Icons\Broom\broom_light_line_64.png" />
+      <Resource Include="Icons\Close\close_black_line_32.png" />
+      <Resource Include="Icons\Close\close_dark_line_16.png" />
+      <Resource Include="Icons\Close\close_light_line_16.png" />
+      <Resource Include="Icons\Close\close_light_line_32.png" />
+      <Resource Include="Icons\ColumnError\columnerror_colored_line_16.png" />
+      <Resource Include="Icons\ColumnError\columnerror_colored_line_32.png" />
+      <Resource Include="Icons\DeleteColumn\deletecolumn_colored_line_20.png" />
+      <Resource Include="Icons\DeleteColumn\deletecolumn_colored_line_32.png" />
+      <Resource Include="Icons\DeleteColumn\deletecolumn_colored_line_64.png" />
+      <Resource Include="Icons\DeleteRow\deleterow_colored_line_20.png" />
+      <Resource Include="Icons\DeleteRow\deleterow_colored_line_64.png" />
+      <Resource Include="Icons\EditColumn\editcolumn_colored_line_20.png" />
+      <Resource Include="Icons\EditColumn\editcolumn_colored_line_40.png" />
+      <Resource Include="Icons\Excel\excel_colored_16.png" />
+      <Resource Include="Icons\Export\export_dark_line_16.png" />
+      <Resource Include="Icons\Export\export_light_line_16.png" />
+      <Resource Include="Icons\Filter\filter_dark_line_16.png" />
+      <Resource Include="Icons\Filter\filter_light_line_16.png" />
+      <Resource Include="Icons\FolderClosedEdit\folderclosededit_colored_line_20.png" />
+      <Resource Include="Icons\FolderClosed\folderclosed_colored_line_36.png" />
+      <Resource Include="Icons\FolderClosed\folderclosed_light_line_32.png" />
+      <Resource Include="Icons\FolderOpened\folderopened_colored_line_36.png" />
+      <Resource Include="Icons\FolderOpened\folderopened_dark_line_64.png" />
+      <Resource Include="Icons\Gears\gears_dark_fill_64.png" />
+      <Resource Include="Icons\Import\import_dark_line_16.png" />
+      <Resource Include="Icons\Import\import_light_line_16.png" />
+      <Resource Include="Icons\Left\left_dark_line_16.png" />
+      <Resource Include="Icons\Left\left_light_line_16.png" />
+      <Resource Include="Icons\Pdf\pdf_red_line_16.png" />
+      <Resource Include="Icons\PivotSheet\pivotsheet_dark_line_36.png" />
+      <Resource Include="Icons\Print\print_dark_line_32.png" />
+      <Resource Include="Icons\Print\print_light_line_32.png" />
+      <Resource Include="Icons\Refresh\refresh_colored_line_64.png" />
+      <Resource Include="Icons\Rename\rename_dark_line_20.png" />
+      <Resource Include="Icons\Right\right_dark_line_16.png" />
+      <Resource Include="Icons\Right\right_light_line_16.png" />
+      <Resource Include="Icons\Save\save_dark_line_48.png" />
+      <Resource Include="Icons\Save\save_light_line_48.png" />
+      <Resource Include="Icons\TableSheet\tablesheet_dark_line_36.png" />
+      <Resource Include="Icons\Trash\trash_black_line_128.png" />
+      <Resource Include="Icons\Trash\trash_black_line_32.png" />
+      <Resource Include="Icons\Trash\trash_light_line_32.png" />
+      <Resource Include="Icons\Truck\truck_white_filled_100.png" />
+      <None Remove="Icons\Close\close_white_line_64.png" />
+      <Resource Include="Icons\Close\close_white_line_64.png" />
+      <None Remove="Icons\Close\close_dark_line_64.png" />
+      <Resource Include="Icons\Close\close_dark_line_64.png" />
+      <None Remove="Icons\Right\arrow_right_line.png" />
+      <Resource Include="Icons\Right\arrowright_line_dark_64.png" />
+      <None Remove="Icons\Right\arrow_right_line (1).png" />
+      <Resource Include="Icons\Right\arrowright_line_white_64.png" />
+      <None Remove="Icons\Check\check_line.png" />
+      <Resource Include="Icons\Check\check_dark_line_64.png" />
+      <None Remove="Icons\Check\check_line (1).png" />
+      <Resource Include="Icons\Check\check_white_line_64.png" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Update="Localization\Strings.resx">
+        <Generator>PublicResXFileCodeGenerator</Generator>
+        <LastGenOutput>Strings.Designer.cs</LastGenOutput>
+      </EmbeddedResource>
+      <EmbeddedResource Update="Localization\Strings.uk-ua.resx">
+        <Generator>Public</Generator>
+      </EmbeddedResource>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="Localization\Strings.Designer.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>Strings.resx</DependentUpon>
+      </Compile>
+    </ItemGroup>
+
+</Project>

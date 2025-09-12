@@ -1,5 +1,4 @@
-﻿using EquipmentTracker.Views.Equipment.DataGrid;
-using Prism.Ioc;
+﻿using Prism.Ioc;
 using Prism.Modularity;
 
 using Presentation.ViewModels;
@@ -44,13 +43,17 @@ public class PresentationModule : IModule
         
         containerRegistry.RegisterForNavigation<EquipmentSheetView, EquipmentSheetViewModel>();
         
-        containerRegistry.RegisterForNavigation<ColumnCreatorView, ColumnCreatorViewModel>();
-        
         containerRegistry.RegisterForNavigation<DialogBoxView, DialogBoxViewModel>();
         
         containerRegistry.RegisterForNavigation<ExcelImportConfiguratorView, ExcelImportConfiguratorViewModel>();
         
         containerRegistry.RegisterForNavigation<PivotSheetView, PivotSheetViewModel>();
+        
+        containerRegistry.RegisterForNavigation<ColumnDesignerView, ColumnDesignerViewModel>();
+        
+        containerRegistry.RegisterForNavigation<MarkedItemsCleanerView, MarkedItemsCleanerViewModel>();
+        
+        containerRegistry.RegisterForNavigation<SettingsView, SettingsViewModel>();
     }
 
     public void OnInitialized(IContainerProvider containerProvider) { }

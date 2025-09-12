@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Dynamic;
 using System.Runtime.CompilerServices;
@@ -22,7 +23,7 @@ public class ItemViewModel : DynamicObject, INotifyPropertyChanged
 
     public ItemViewModel() : this(new RowViewModel()) { }
     
-    // Indexator
+    // Indexer
     public object? this[string mappingName] 
     { 
         get 

@@ -81,16 +81,16 @@
       <PackageReference Include="Serilog.Extensions.Logging" Version="9.0.2" />
       <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
       <PackageReference Include="squirrel.windows" Version="1.9.0" />
-      <PackageReference Include="Syncfusion.DataGridExcelExport.Wpf" Version="30.2.5" />
-      <PackageReference Include="Syncfusion.Licensing" Version="30.2.5" />
-      <PackageReference Include="Syncfusion.SfColorPalette.WPF" Version="30.2.5" />
-      <PackageReference Include="Syncfusion.SfSkinManager.WPF" Version="30.2.5" />
-      <PackageReference Include="Syncfusion.Shared.WPF" Version="30.2.5" />
-      <PackageReference Include="Syncfusion.Themes.Office2019Colorful.WPF" Version="30.2.5" />
-      <PackageReference Include="Syncfusion.Themes.Windows11Dark.WPF" Version="30.2.5" />
-      <PackageReference Include="Syncfusion.Themes.Windows11Light.WPF" Version="30.2.5" />
-      <PackageReference Include="Syncfusion.Tools.WPF" Version="30.2.5" />
-      <PackageReference Include="Syncfusion.UI.WPF.NET" Version="30.2.5" />
+      <PackageReference Include="Syncfusion.DataGridExcelExport.Wpf" Version="31.1.17" />
+      <PackageReference Include="Syncfusion.Licensing" Version="31.1.17" />
+      <PackageReference Include="Syncfusion.SfColorPalette.WPF" Version="31.1.17" />
+      <PackageReference Include="Syncfusion.SfSkinManager.WPF" Version="31.1.17" />
+      <PackageReference Include="Syncfusion.Shared.WPF" Version="31.1.17" />
+      <PackageReference Include="Syncfusion.Themes.Office2019Colorful.WPF" Version="31.1.17" />
+      <PackageReference Include="Syncfusion.Themes.Windows11Dark.WPF" Version="31.1.17" />
+      <PackageReference Include="Syncfusion.Themes.Windows11Light.WPF" Version="31.1.17" />
+      <PackageReference Include="Syncfusion.Tools.WPF" Version="31.1.17" />
+      <PackageReference Include="Syncfusion.UI.WPF.NET" Version="31.1.17" />
       <PackageReference Include="Unity.Container" Version="5.11.11" />
     </ItemGroup>
 
@@ -195,11 +195,7 @@
       <Resource Include="Views\NavDrawer\NavDrawerItems\EquipmentTree\Assets\folder.png" />
       <Resource Include="Views\NavDrawer\NavDrawerItems\EquipmentTree\Assets\opened_folder.png" />
       <Resource Include="Views\NavDrawer\NavDrawerItems\EquipmentTree\Assets\summary.png" />
-      <Resource Include="Views\SummarySheet\Assets\file.png" />
-      <Resource Include="Views\SummarySheet\Assets\folder.png" />
-      <Resource Include="Views\SummarySheet\Assets\opened_folder.png" />
       <None Remove="Views\SummarySheet\Assets\column.png" />
-      <Resource Include="Views\SummarySheet\Assets\column.png" />
       <Page Remove="Common\Styles\DefaultSummaryCellStyle.xaml" />
       <None Remove="Views\SummarySheet\Assets\search.png" />
       <None Remove="Views\SummarySheet\Assets\search-interface-symbol.png" />
@@ -354,11 +350,6 @@
         <SubType>Designer</SubType>
       </Page>
       <Page Update="Views\NavDrawer\NavDrawerItems\SchedulerView.xaml">
-        <Generator>MSBuild:Compile</Generator>
-        <XamlRuntime>Wpf</XamlRuntime>
-        <SubType>Designer</SubType>
-      </Page>
-      <Page Update="Views\NavDrawer\NavDrawerItems\SettingsView.xaml">
         <Generator>MSBuild:Compile</Generator>
         <XamlRuntime>Wpf</XamlRuntime>
         <SubType>Designer</SubType>

@@ -12,5 +12,5 @@ public class DialogBoxParameters
     
     public DialogBoxButtons Buttons { get; set; } = DialogBoxButtons.None;
 
-    public string[]? ButtonsText { get; set; } = null;
+    public string[]? ButtonsText { get; set; }
 }

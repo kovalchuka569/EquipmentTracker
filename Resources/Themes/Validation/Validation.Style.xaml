@@ -1,0 +1,40 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    
+    <Style x:Key="ErrorTextBlockStyle" TargetType="{x:Type TextBlock}">
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="FontFamily" Value="Segoe UI"/>
+        <Setter Property="FontSize" Value="10"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+    </Style>
+    
+    <Style x:Key="ErrorBorderStyle" TargetType="{x:Type Border}">
+        <Setter Property="Background" Value="Red"/>
+        <Setter Property="CornerRadius" Value="4"/>
+        <Setter Property="Margin" Value="0,3,0,0"/>
+        <Setter Property="Padding" Value="5"/>
+    </Style>
+    
+    <Style x:Key="AdornedElementBorderStyle" TargetType="{x:Type Border}">
+        <Setter Property="BorderBrush" Value="Red"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="4"/>
+    </Style>
+    
+    <Style x:Key="ErrorTriangleStyle" TargetType="{x:Type Polygon}">
+        <Setter Property="Points" Value="0,0 12,0 12,12"/>
+        <Setter Property="Fill" Value="Red"/>
+        <Setter Property="HorizontalAlignment" Value="Right"/>
+        <Setter Property="VerticalAlignment" Value="Top"/>
+        <Setter Property="Margin" Value="0"/>
+    </Style>
+    
+    <Style x:Key="ErrorToolTipStyle" TargetType="ToolTip">
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="Margin" Value="0"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+    </Style>
+    
+</ResourceDictionary>

@@ -8,7 +8,6 @@
     
     <UserControl.Resources>
         <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
-        
         <converters:StringNullOrEmptyToVisibilityConverter x:Key="StringNullOrEmptyToVisibilityConverter"/>
     </UserControl.Resources>
     
@@ -53,14 +52,12 @@
                     
                         <Image x:Name="NormalIcon"
                                Width="{Binding NormalIconWidth, ElementName=Root}" Height="{Binding NormalIconHeight, ElementName=Root}"
-                               VerticalAlignment="Center" HorizontalAlignment="Center"
-                               RenderOptions.BitmapScalingMode="NearestNeighbor"/>
+                               VerticalAlignment="Center" HorizontalAlignment="Center"/>
                     
                         <Image x:Name="HoverIcon"
                                Width="{Binding HoverIconWidth, ElementName=Root}" Height="{Binding HoverIconHeight, ElementName=Root}"
                                VerticalAlignment="Center" HorizontalAlignment="Center"
-                               Visibility="Collapsed"
-                               RenderOptions.BitmapScalingMode="NearestNeighbor"/>
+                               Visibility="Collapsed"/>
                     
                 </Grid>
                 

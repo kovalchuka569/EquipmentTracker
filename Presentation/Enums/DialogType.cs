@@ -4,4 +4,6 @@ public enum DialogType
 {
     ExcelImportConfigurator,
     DialogBox,
+    ColumnDesigner,
+    RemoveMarkedItems
 }

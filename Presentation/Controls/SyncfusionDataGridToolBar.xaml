@@ -11,6 +11,7 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Syncfusion.Themes.Windows11Light.WPF;component/MSControl/RadioButton.xaml"/>
                 <ResourceDictionary Source="/Syncfusion.Themes.Windows11Light.WPF;component/MSControl/GlyphButton.xaml"/>
                 <ResourceDictionary Source="../Resources/Icons/Icons.xaml"/>
             </ResourceDictionary.MergedDictionaries>
@@ -58,9 +59,9 @@
                    AllowsTransparency="True">
                 <Border Background="White" CornerRadius="3" BorderBrush="#09244B" BorderThickness="1">
                     <StackPanel Margin="15,5">
-                        <RadioButton x:Name="ContainsSearchType" Checked="SearchType_OnChecked"  GroupName="SearchType" Content="Містить" FontFamily="Microsoft Sans Serif"/>
-                        <RadioButton x:Name="StartWithSearchType" Checked="SearchType_OnChecked" GroupName="SearchType" Content="Починається з" FontFamily="Microsoft Sans Serif" Margin="0,4"/>
-                        <RadioButton x:Name="EndWithSearchType" Checked="SearchType_OnChecked" GroupName="SearchType" Content="Закінчується на" FontFamily="Microsoft Sans Serif"/>
+                        <RadioButton x:Name="ContainsSearchType" Checked="SearchType_OnChecked"  GroupName="SearchType" Content="Містить" FontFamily="Segoe UI"/>
+                        <RadioButton x:Name="StartWithSearchType" Checked="SearchType_OnChecked" GroupName="SearchType" Content="Починається з" FontFamily="Segoe UI" Margin="0,4"/>
+                        <RadioButton x:Name="EndWithSearchType" Checked="SearchType_OnChecked" GroupName="SearchType" Content="Закінчується на" FontFamily="Segoe UI"/>
                     </StackPanel>
                 </Border>
             </sf:CustomPopup>
@@ -88,7 +89,7 @@
                                               Width="16" Height="16"
                                               VerticalAlignment="Center"/>
                                         
-                                        <TextBlock Margin="5,0,0,0" Grid.Column="1" Text="Іморт з Excel" FontFamily="Microsoft Sans Serif" VerticalAlignment="Center"/>
+                                        <TextBlock Margin="5,0,0,0" Grid.Column="1" Text="Іморт з Excel" FontFamily="Segoe UI" VerticalAlignment="Center"/>
                                     </Grid>
                                 </ControlTemplate>
                             </Button.Template>
@@ -120,7 +121,7 @@
                                                Width="16" Height="16"
                                                VerticalAlignment="Center"/>
 
-                                        <TextBlock Margin="5,0,0,0" Grid.Column="1" Text="Експорт в Excel" FontFamily="Microsoft Sans Serif" VerticalAlignment="Center"/>
+                                        <TextBlock Margin="5,0,0,0" Grid.Column="1" Text="Експорт в Excel" FontFamily="Segoe UI" VerticalAlignment="Center"/>
                                     </Grid>
                                 </ControlTemplate>
                             </Button.Template>
@@ -140,7 +141,7 @@
                                                Width="16" Height="16"
                                                VerticalAlignment="Center"/>
 
-                                        <TextBlock Margin="5,0,0,0" Grid.Column="1" Text="Експорт в PDF" FontFamily="Microsoft Sans Serif" VerticalAlignment="Center"/>
+                                        <TextBlock Margin="5,0,0,0" Grid.Column="1" Text="Експорт в PDF" FontFamily="Segoe UI" VerticalAlignment="Center"/>
                                     </Grid>
                                 </ControlTemplate>
                             </Button.Template>
@@ -151,7 +152,7 @@
             
             <TextBox Grid.Column="1" x:Name="SearchTextBox" TextChanged="SearchTextBox_OnTextChanged" 
                      Width="300" Height="30" Margin="3"
-                     FontFamily="Microsoft Sans Serif" FontSize="14" 
+                     FontFamily="Segoe UI" FontSize="14" 
                      SelectionTextBrush="#09244B" Foreground="#09244B" CaretBrush="#09244B">
                 
                 <TextBox.Template>

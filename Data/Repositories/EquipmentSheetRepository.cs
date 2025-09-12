@@ -1,21 +1,65 @@
-﻿using Microsoft.EntityFrameworkCore;
-
+﻿using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore;
 using Models.Entities.EquipmentSheet;
-
 using Data.ApplicationDbContext;
 using Data.Interfaces;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace Data.Repositories;
 
 public class EquipmentSheetRepository(AppDbContext context) : IEquipmentSheetRepository
 {
-    private const string EquipmentSheetNotFount = "Equipment sheet not found.";
-    
+    private const string EquipmentSheetNotFound = "Equipment sheet not found.";
+
+    public async Task<EquipmentSheetEntity> GetByIdAsync(Guid id, CancellationToken ct)
+    {
+       var equipmentSheet = await context.EquipmentSheets
+                .AsNoTracking()
+                .FirstOrDefaultAsync(e => e
+                    .Id == id, cancellationToken: ct);
+       
+       if (equipmentSheet == null)
+           throw new Exception(EquipmentSheetNotFound);
+       
+       return equipmentSheet;
+    }
+
+    public async Task<EquipmentSheetEntity> GetByIdWithTrackingAsync(Guid id, CancellationToken ct = default)
+    {
+        var equipmentSheet = await context.EquipmentSheets
+            .FirstOrDefaultAsync(e => e
+                .Id == id, cancellationToken: ct);
+       
+        if (equipmentSheet == null)
+            throw new Exception(EquipmentSheetNotFound);
+       
+        return equipmentSheet;
+    }
+
     public async Task AddAsync(EquipmentSheetEntity entity, CancellationToken ct)
     {
         await context.AddAsync(entity, ct);
     }
-    
+
+    public async Task UpdateAsync(EquipmentSheetEntity entity, CancellationToken ct)
+    {
+        var existing = await context.EquipmentSheets
+            .FirstOrDefaultAsync(e => e.Id == entity.Id, ct)
+            ?? throw new Exception(EquipmentSheetNotFound);
+        
+        context.Entry(existing).CurrentValues.SetValues(entity);
+    }
+
+    public async Task UpdateAsync(Guid id, Expression<Func<SetPropertyCalls<EquipmentSheetEntity>, 
+        SetPropertyCalls<EquipmentSheetEntity>>> updateExpression, 
+        CancellationToken ct = default)
+    {
+        await context.EquipmentSheets
+            .Where(e => e.Id == id)
+            .ExecuteUpdateAsync(updateExpression, ct);
+    }
+
+
     public async Task<string> GetColumnsJsonAsync(Guid equipmentSheetId, CancellationToken ct = default)
     {
         var sheet = await context.EquipmentSheets
@@ -51,12 +95,13 @@ public class EquipmentSheetRepository(AppDbContext context) : IEquipmentSheetRep
         }
         else
         {
-            throw new Exception(EquipmentSheetNotFount);
+            throw new Exception(EquipmentSheetNotFound);
         }
     }
 
     public async Task UpdateRowsAsync(Guid equipmentSheetId, string rowsJson, CancellationToken ct = default)
     {
+        
         var sheet = await context.EquipmentSheets.FindAsync([equipmentSheetId], ct);
 
         if (sheet != null)
@@ -65,7 +110,8 @@ public class EquipmentSheetRepository(AppDbContext context) : IEquipmentSheetRep
         }
         else
         {
-            throw new Exception(EquipmentSheetNotFount);
+            throw new Exception(EquipmentSheetNotFound);
         }
     }
+    
 }

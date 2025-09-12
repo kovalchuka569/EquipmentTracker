@@ -12,16 +12,16 @@
     xmlns:enums="clr-namespace:Common.Enums;assembly=Common"
     prism:ViewModelLocator.AutoWireViewModel="True"
     syncfusionskin:SfSkinManager.Theme="{syncfusionskin:SkinManagerExtension ThemeName=Windows11Light}"
+    SnapsToDevicePixels="True"
     mc:Ignorable="d">
 
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/Syncfusion.Themes.Windows11Light.WPF;component/sfnavigationdrawer/primarysfnavigationdrawer.xaml" />
-
                 <ResourceDictionary Source="/Presentation;component/Resources/Fonts/Fonts.xaml" />
+                <ResourceDictionary Source="/Presentation;component/Resources/Icons/Icons.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <converters:HeaderToNavDrawerMenuTypeConverter x:Key="HeaderToNavDrawerMenuTypeConverter" />
         </ResourceDictionary>
     </UserControl.Resources>
 
@@ -117,6 +117,24 @@
                             Width="25"
                             Height="25"
                             Source="pack://application:,,,/Views/NavDrawer/Assets/office_technique_light.png" />
+                    </sf:NavigationItem.Icon>
+                </sf:NavigationItem>
+                
+                <sf:NavigationItem ItemType="Separator" Style="{StaticResource SyncfusionPrimaryDefaultNavigationItemStyle}" />
+                
+                <sf:NavigationItem
+                    Height="40"
+                    Command="{Binding NavigateToTabControlExt}"
+                    CommandParameter="{x:Static enums:MenuType.Cars}"
+                    FontSize="14"
+                    FontWeight="DemiBold"
+                    Header="Автопарк"
+                    Style="{StaticResource SyncfusionPrimaryDefaultNavigationItemStyle}">
+                    <sf:NavigationItem.Icon>
+                        <Image
+                            Width="25"
+                            Height="25"
+                            Source="{StaticResource TruckWhiteFilled100}" />
                     </sf:NavigationItem.Icon>
                 </sf:NavigationItem>
 

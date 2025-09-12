@@ -4,16 +4,13 @@ using Core.Services.Consumables;
 using Core.Services.Consumables.Operations;
 using Core.Services.RepairsDataGrid;
 using Core.Services.ServicesDataGrid;
-using Core.Services.Summary;
 using UI.ViewModels.Tabs;
 using UI.ViewModels.DataGrid;
 using Data.Repositories.Consumables;
 using Data.Repositories.Consumables.Operations;
 using Data.Repositories.Repairs;
 using Data.Repositories.Services;
-using Data.Repositories.Summary;
 using EquipmentTracker.ViewModels.DataGrid.Services;
-using EquipmentTracker.ViewModels.SummarySheet;
 using EquipmentTracker.Views.DataGrid.Services;
 using UI.ViewModels.Common;
 using UI.ViewModels.Consumables;
@@ -27,7 +24,6 @@ using UI.Views.NavDrawer.NavDrawerItems;
 using UI.Views.NavDrawer.NavDrawerItems.ConsumablesTree;
 using UI.ViewModels.DataGrid.Services;
 using UI.Views.DataGrid.Services;
-using EquipmentTracker.Views.SummarySheet;
 
 namespace UI.Modules;
 
@@ -89,7 +85,6 @@ public class TabControlModule : IModule
         
         // Other tabs 
         containerRegistry.RegisterForNavigation<SchedulerView, SchedulerViewModel>();
-        containerRegistry.RegisterForNavigation<SettingsView, SettingsViewModel>();
         containerRegistry.RegisterForNavigation<AccountingView, AccountingViewModel>();
 
         #endregion

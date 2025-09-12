@@ -1,94 +1,140 @@
 ﻿using Common.Enums;
-
+using Common.Logging;
 using Models.FileSystem;
 
 using Data.UnitOfWork;
 
 using Core.Interfaces;
 using Core.Mappers;
+using Core.Services.Base;
 using Models.Entities.EquipmentSheet;
 using Models.Entities.PivotSheet;
 
 namespace Core.Services;
 
-public class FileSystemService(IUnitOfWork unitOfWork) : IFileSystemService
+public class FileSystemService(IUnitOfWork unitOfWork, IAppLogger<FileSystemService> logger) 
+    : DatabaseService<FileSystemService>(unitOfWork, logger), IFileSystemService
 {
+    
+    #region Interface realization
+    
     public async Task<List<FileSystemItemModel>> GetChildsAsync(MenuType menuType, Guid? parentId, CancellationToken ct)
     {
-        await unitOfWork.EnsureInitializedForReadAsync(ct);
+        return await ExecuteInLoggerAsync(async () =>
+        {
+            
+            await UnitOfWork.EnsureInitializedForReadAsync(ct);
         
-        var entities = await unitOfWork.FileSystemRepository
-            .GetChildsFileSystemItemsByMenuTypeAsync(menuType, parentId, ct);
+            var entities = await UnitOfWork.FileSystemRepository
+                .GetChildsFileSystemItemsByMenuTypeAsync(menuType, parentId, ct);
 
-        return entities.Select(FileSystemMapper.FileSystemItemEntityToModel)
-            .ToList();
+            return entities.Select(FileSystemMapper.FileSystemItemEntityToModel)
+                .ToList();
+            
+        }, nameof(GetChildsAsync), ct);
     }
 
     public async Task InsertChildAsync(FileSystemItemModel fileSystemItemModel, CancellationToken ct)
     {
-        await unitOfWork.ExecuteInTransactionAsync(async () =>
+        await ExecuteInLoggerAsync(async () =>
         {
-            switch (fileSystemItemModel)
+            
+            await UnitOfWork.ExecuteInTransactionAsync(async () =>
             {
-                case EquipmentSheetFileModel { EquipmentSheetId: not null } efModel:
+                
+                switch (fileSystemItemModel)
                 {
-                    var sheetEntity = new EquipmentSheetEntity
+                    case EquipmentSheetFileModel { EquipmentSheetId: not null } efModel:
                     {
-                        Id = efModel.EquipmentSheetId.Value,
-                    };
-                    await unitOfWork.EquipmentSheetRepository.AddAsync(sheetEntity, ct);
-                    break;
-                }
-                case PivotSheetFileModel { PivotSheetId: not null } pfModel:
-                {
-                    var pivotEntity = new PivotSheetEntity
+                        var sheetEntity = new EquipmentSheetEntity
+                        {
+                            Id = efModel.EquipmentSheetId.Value,
+                        };
+                        await UnitOfWork.EquipmentSheetRepository.AddAsync(sheetEntity, ct);
+                        break;
+                    }
+                    case PivotSheetFileModel { PivotSheetId: not null } pfModel:
                     {
-                        Id = pfModel.PivotSheetId.Value,
-                    };
-                    await unitOfWork.PivotSheetRepository.AddAsync(pivotEntity, ct);
-                    break;
+                        var pivotEntity = new PivotSheetEntity
+                        {
+                            Id = pfModel.PivotSheetId.Value,
+                        };
+                        await UnitOfWork.PivotSheetRepository.AddAsync(pivotEntity, ct);
+                        break;
+                    }
                 }
-            }
-
-            await unitOfWork.FileSystemRepository.AddFileSystemItemAsync(FileSystemMapper.FileSystemItemModelToEntity(fileSystemItemModel), ct);
-        }, ct);
+                await UnitOfWork.FileSystemRepository.AddFileSystemItemAsync(FileSystemMapper.FileSystemItemModelToEntity(fileSystemItemModel), ct);
+                
+            }, ct);
+            
+        }, nameof(InsertChildAsync), ct);
     }
 
-    public Task DeleteChildAsync(FileSystemItemModel fileSystemItemModel, CancellationToken ct)
+    public async Task DeleteChildAsync(FileSystemItemModel fileSystemItemModel, CancellationToken ct)
     {
-        throw new NotImplementedException();
+        await ExecuteInLoggerAsync(() => throw new NotImplementedException(), nameof(DeleteChildAsync), ct);
     }
 
     public async Task RenameFileSystemItemAsync(Guid renamedFileId, string newName, CancellationToken ct)
     {
-        await unitOfWork.ExecuteInTransactionAsync(async () =>
+        await ExecuteInLoggerAsync(async () =>
         {
-            await unitOfWork.FileSystemRepository.RenameFileSystemItemAsync(renamedFileId, newName, ct);
-        }, ct);
+            
+            await UnitOfWork.ExecuteInTransactionAsync(async () =>
+            {
+                
+                await UnitOfWork.FileSystemRepository.RenameFileSystemItemAsync(renamedFileId, newName, ct);
+                
+            }, ct);
+            
+        }, nameof(RenameFileSystemItemAsync), ct);
     }
 
     public async Task UpdateHasChildsAsync(Guid fileSystemItemId, bool hasChilds, CancellationToken ct)
     {
-        await unitOfWork.ExecuteInTransactionAsync(async () =>
+        await ExecuteInLoggerAsync(async () =>
         {
-            await unitOfWork.FileSystemRepository.UpdateHasChildsAsync(fileSystemItemId, hasChilds, ct);
-        }, ct);
+            
+            await UnitOfWork.ExecuteInTransactionAsync(async () =>
+            {
+                
+                await UnitOfWork.FileSystemRepository.UpdateHasChildsAsync(fileSystemItemId, hasChilds, ct);
+                
+            }, ct);
+            
+        }, nameof(UpdateHasChildsAsync), ct);
     }
 
     public async Task UpdateHasChildsAsync(List<(Guid Id, bool HasChilds)> newStatuses, CancellationToken ct = default)
     {
-        await unitOfWork.ExecuteInTransactionAsync(async () =>
+        await ExecuteInLoggerAsync(async () =>
         {
-            await unitOfWork.FileSystemRepository.UpdateHasChildsAsync(newStatuses, ct);
-        }, ct);
+            
+            await UnitOfWork.ExecuteInTransactionAsync(async () =>
+            {
+                
+                await UnitOfWork.FileSystemRepository.UpdateHasChildsAsync(newStatuses, ct);
+                
+            }, ct);
+            
+        }, nameof(UpdateHasChildsAsync), ct);
     }
 
 
     public async Task UpdateParentsAndOrdersAsync(List<(Guid Id, Guid? NewParentId, int NewOrder)> newPositions, CancellationToken ct)
     {
-        await unitOfWork.ExecuteInTransactionAsync(async () =>
+        await ExecuteInLoggerAsync(async () =>
         {
-            await unitOfWork.FileSystemRepository.UpdateParentsAndOrdersAsync(newPositions, ct);
-        }, ct);
+            
+            await UnitOfWork.ExecuteInTransactionAsync(async () =>
+            {
+                
+                await UnitOfWork.FileSystemRepository.UpdateParentsAndOrdersAsync(newPositions, ct);
+                
+            }, ct);
+            
+        }, nameof(UpdateParentsAndOrdersAsync), ct);
     }
+    
+    #endregion
 }

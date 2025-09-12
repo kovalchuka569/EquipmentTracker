@@ -7,15 +7,16 @@
              xmlns:enums="clr-namespace:Common.Enums;assembly=Common"
              xmlns:fileViewModel="clr-namespace:Presentation.ViewModels.Common.FileSystem"
              xmlns:behaviors="clr-namespace:Presentation.Behaviors"
-             UseLayoutRounding="True"
+             SnapsToDevicePixels="True"
              x:Name="Root">
     
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Syncfusion.Themes.Windows11Light.WPF;component/MenuAdv/MenuAdv.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/Syncfusion.Themes.Windows11Light.WPF;component/SfTreeView/SfTreeView.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/Syncfusion.Themes.Windows11Light.WPF;component/MSControl/TextBox.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/Presentation;component/Templates/ErrorTemplate.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Resources;component/Themes/Generic.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/Presentation;component/Styles/ClearImageStyle.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/Presentation;component/Styles/ContextMenuStyle.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/Presentation;component/Resources/Icons/Icons.xaml"/>
@@ -24,7 +25,7 @@
             <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
             <converters:FileFormatToIconConverter x:Key="FileFormatToIconConverter"/>
             <converters:InverseBooleanVisibilityConverter x:Key="InverseBooleanVisibilityConverter"/>
-            <converters:FileFormatToTextBlockStyle x:Key="FileFormatToTextBlockStyle"/>
+            <converters:FileFormatToTextBlockStyleConverter x:Key="FileFormatToTextBlockStyleConverter"/>
             
             <Style x:Key="MainTreeContextMenuStyle" TargetType="ContextMenu" BasedOn="{StaticResource ContextMenuStyle}">
                 <Style.Resources>
@@ -32,6 +33,7 @@
                 </Style.Resources>  
             </Style>
             
+            <!-- Used in FileFormatToTextBlockStyleConverter-->
             <Style x:Key="FileTextBlockStyle" TargetType="TextBlock">
                 <Setter Property="TextDecorations" Value="{x:Null}"/>
                 <Style.Triggers>
@@ -73,8 +75,8 @@
                     <TextBlock VerticalAlignment="Center"
                                Margin="6,0,0,0"
                                Text="{Binding Name}" 
-                               Style="{Binding Format, Converter={StaticResource FileFormatToTextBlockStyle},
-                               ConverterParameter={x:Reference Root}}">
+                               Style="{Binding Format, Converter={StaticResource FileFormatToTextBlockStyleConverter},
+                               ConverterParameter={StaticResource FileTextBlockStyle}}">
                         
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="MouseLeftButtonDown">
@@ -108,7 +110,7 @@
                              FontFamily="Microsoft Sans Serif">
                         
                         <Validation.ErrorTemplate>
-                            <StaticResource ResourceKey="ErrorTemplate"/>
+                            <StaticResource ResourceKey="DefaultErrorTemplate"/>
                         </Validation.ErrorTemplate>
                         
                     </TextBox>
@@ -238,83 +240,103 @@
     </UserControl.Resources>
     
     <Grid>
-        <Grid>
             <Grid>
-                <sf:SfTreeView
-                    ItemsSource="{Binding RootItems}"
-                    SelectedItems="{Binding SelectedItems, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                    ItemHeight="30"
-                    SelectionMode="Extended"
-                    ShowLines="True"
-                    ShowRootLines="True"
-                    LineStroke="#09244B"
-                    SelectionBackgroundColor="LightGray"
-                    AllowDeleting="True"
-                    AllowDragging="True"
-                    AllowDrop="True"
-                    AllowEditing="True"
-                    EditTrigger="F2"
-                    ExpandActionTrigger="Node"
-                    IsAnimationEnabled="False"
-                    ItemTemplate="{StaticResource TreeItemTemplate}"
-                    EditTemplate="{StaticResource TreeItemEditTemplate}"
-                    ContextMenu="{StaticResource TreeContextMenu}"
-                    DragPreviewTemplate="{StaticResource DragPreviewTemplate}">
-                    
-                    <sf:SfTreeView.HierarchyPropertyDescriptors>
-                        <sf:HierarchyPropertyDescriptor IsExpandedPropertyName="IsExpanded" 
-                                                        IsSelectedPropertyName="IsSelected"
-                                                        ChildPropertyName="Childs" 
-                                                        TargetType="{x:Type fileViewModel:FileSystemItemBaseViewModel}"/>
-                    </sf:SfTreeView.HierarchyPropertyDescriptors>
-                    
-                    <i:Interaction.Triggers>
-                        <i:EventTrigger EventName="Loaded">
-                            <i:InvokeCommandAction Command="{Binding TreeViewLoadedCommand}"/>
-                        </i:EventTrigger>
+                
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                
+                    <sf:MenuAdv Grid.Row="0"
+                                PopUpAnimationType="Slide"
+                                Background="WhiteSmoke">
+                
+                    <sf:MenuItemAdv Header="Оновити"
+                                    Command="{Binding RefreshTreeCommand}">
+                        <sf:MenuItemAdv.Icon>
+                            <Image Source="{StaticResource RefreshColoredLine64}"
+                                   UseLayoutRounding="True"
+                                   Width="16" Height="16"/>
+                        </sf:MenuItemAdv.Icon>
+                    </sf:MenuItemAdv>
                         
-                        <i:EventTrigger EventName="ItemEndEdit">
-                            <i:InvokeCommandAction Command="{Binding ItemEndEditCommand}"
-                                                   PassEventArgsToCommand="True"/>
-                        </i:EventTrigger>
+                </sf:MenuAdv>
+                
+                <Grid Grid.Row="1">
+                    <sf:SfTreeView
+                        ItemsSource="{Binding RootItems}"
+                        SelectedItems="{Binding SelectedItems, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        ItemHeight="30"
+                        SelectionMode="Extended"
+                        ShowLines="True"
+                        ShowRootLines="True"
+                        LineStroke="#09244B"
+                        SelectionBackgroundColor="LightGray"
+                        AllowDeleting="True"
+                        AllowDragging="True"
+                        AllowDrop="True"
+                        AllowEditing="True"
+                        EditTrigger="F2"
+                        ExpandActionTrigger="Node"
+                        IsAnimationEnabled="False"
+                        ItemTemplate="{StaticResource TreeItemTemplate}"
+                        EditTemplate="{StaticResource TreeItemEditTemplate}"
+                        ContextMenu="{StaticResource TreeContextMenu}"
+                        DragPreviewTemplate="{StaticResource DragPreviewTemplate}">
+                        
+                        <sf:SfTreeView.HierarchyPropertyDescriptors>
+                            <sf:HierarchyPropertyDescriptor IsExpandedPropertyName="IsExpanded" 
+                                                            IsSelectedPropertyName="IsSelected"
+                                                            ChildPropertyName="Childs" 
+                                                            TargetType="{x:Type fileViewModel:FileSystemItemBaseViewModel}"/>
+                        </sf:SfTreeView.HierarchyPropertyDescriptors>
+                        
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="Loaded">
+                                <i:InvokeCommandAction Command="{Binding TreeViewLoadedCommand}"/>
+                            </i:EventTrigger>
                             
-                        <i:EventTrigger EventName="NodeExpanding">
-                             <i:InvokeCommandAction Command="{Binding NodeExpandingCommand}"
+                            <i:EventTrigger EventName="ItemEndEdit">
+                                <i:InvokeCommandAction Command="{Binding ItemEndEditCommand}"
                                                        PassEventArgsToCommand="True"/>
-                        </i:EventTrigger>
-                            
-                        <i:EventTrigger EventName="ItemDropped">
-                            <i:InvokeCommandAction Command="{Binding ItemDroppedCommand}"
-                                                   PassEventArgsToCommand="True"/>
-                        </i:EventTrigger>
-                            
-                        <i:EventTrigger EventName="KeyDown">
-                        <i:InvokeCommandAction Command="{Binding KeyDownCommand}"
+                            </i:EventTrigger>
+                                
+                            <i:EventTrigger EventName="NodeExpanding">
+                                 <i:InvokeCommandAction Command="{Binding NodeExpandingCommand}"
+                                                           PassEventArgsToCommand="True"/>
+                            </i:EventTrigger>
+                                
+                            <i:EventTrigger EventName="ItemDropped">
+                                <i:InvokeCommandAction Command="{Binding ItemDroppedCommand}"
                                                        PassEventArgsToCommand="True"/>
-                        </i:EventTrigger>
-                    </i:Interaction.Triggers>
-                    
-                    <i:Interaction.Behaviors>
-                        <behaviors:SfTreeViewEditBehavior EditItem="{Binding EditItem, Mode=TwoWay}"/>
-                    </i:Interaction.Behaviors>
-                    
-                </sf:SfTreeView>
+                            </i:EventTrigger>
+                                
+                            <i:EventTrigger EventName="KeyDown">
+                            <i:InvokeCommandAction Command="{Binding KeyDownCommand}"
+                                                           PassEventArgsToCommand="True"/>
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                        
+                        <i:Interaction.Behaviors>
+                            <behaviors:SfTreeViewEditBehavior EditItem="{Binding EditItem, Mode=TwoWay}"/>
+                        </i:Interaction.Behaviors>
+                        
+                    </sf:SfTreeView>
+                </Grid>
             </Grid>
-            
-            <TextBlock Grid.Row="0"  
-                       Text="Файли відсутні" 
-                       Visibility="{Binding FilesEmptyTipVisibility, Converter={StaticResource BooleanToVisibilityConverter}}" 
-                       VerticalAlignment="Center" HorizontalAlignment="Center" 
-                       FontFamily="Microsoft Sans Serif" Foreground="#09244B" FontSize="14"/>
-            
-        </Grid>
         
-        <ContentControl Grid.Row="0"
+        <TextBlock  
+            Text="Файли відсутні" 
+            Visibility="{Binding FilesEmptyTipVisibility, Converter={StaticResource BooleanToVisibilityConverter}}" 
+            VerticalAlignment="Center" HorizontalAlignment="Center" 
+            FontFamily="Microsoft Sans Serif" Foreground="#09244B" FontSize="14"/>
+        
+        <ContentControl 
                         Content="{Binding OverlayContent}"
                         Visibility="{Binding IsOverlayVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
                         Panel.ZIndex="1"/>
         
-        <ContentControl Grid.Row="0"
+        <ContentControl 
                         Content="{Binding DialogContent}"
                         Visibility="{Binding IsDialogOpen, Converter={StaticResource BooleanToVisibilityConverter}}"
                         HorizontalAlignment="Center"

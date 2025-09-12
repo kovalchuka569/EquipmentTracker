@@ -10,6 +10,11 @@ namespace Common.Logging
         {
             _logger = logger;
         }
+
+        public void BeginScope(string actionName)
+        {
+            
+        }
         
         public void LogDebug(string message, params object[] args)
         {
@@ -21,9 +26,9 @@ namespace Common.Logging
             _logger.LogInformation(message, args);
         }
 
-        public void LogWarning(string message, params object[] args)
+        public void LogWarning(Exception exception,string message, params object[] args)
         {
-            _logger.LogWarning(message, args);
+            _logger.LogWarning(exception, message, args);
         }
 
         public void LogError(Exception exception, string message, params object[] args)

@@ -1,45 +1,47 @@
-﻿using Core.Common.Helpers;
-using Core.Interfaces;
+﻿using Core.Interfaces;
 using Core.Models;
-
-using Models.Common.Table.ColumnValidationRules;
+using Models.Common.Table.ColumnProperties;
 using Models.Equipment;
 
 namespace Core.Services;
 
 public class CellValidatorService : ICellValidatorService
 {
-    /// <summary>
-    /// Validates a single cell value based on the provided validation rules.
-    /// </summary>
-    /// <param name="cellValue">Cell value for validation</param>
-    /// <param name="currentRow">Current row</param>
-    /// <param name="columnValues">Column values for unique validation</param>
-    /// <param name="columnDataType">Column data type</param>
-    /// <param name="headerText">Column header text</param>
-    /// <param name="columnValidationRules">Aggregated validation rules for the column the cell belongs to</param>
-    /// <returns>Validation result containing status and error message if invalid</returns>
-    public CellValidationResult ValidateCell(object? cellValue, object currentRow, List<string?> columnValues, ColumnDataType columnDataType, string headerText, IColumnValidationRules columnValidationRules)
+    public CellValidationResult ValidateCell(object? cellValue, object currentRow, List<string?> columnValues, ColumnDataType columnDataType, string headerText, BaseColumnProperties columnProperties)
     {
         var result = new CellValidationResult();
-
+    
+        Console.WriteLine($"=== DEBUG для колонки '{headerText}' ===");
+        Console.WriteLine("Fullname: " + cellValue?.GetType().FullName);
+        Console.WriteLine("cellValue: '" + cellValue + "'");
+        Console.WriteLine("IsRequired: " + columnProperties.IsRequired);
+    
         var stringValue = cellValue switch
         {
             null => string.Empty,
             string str => str,
             _ => cellValue.ToString() ?? string.Empty
         };
-        
+    
+        Console.WriteLine("stringValue: '" + stringValue + "'");
+        Console.WriteLine("stringValue.Length: " + stringValue.Length);
+        Console.WriteLine("IsNullOrWhiteSpace: " + string.IsNullOrWhiteSpace(stringValue));
+        Console.WriteLine("Condition result: " + (columnProperties.IsRequired && string.IsNullOrWhiteSpace(stringValue)));
+    
         // Validate on required
-        if (columnValidationRules.IsRequired && string.IsNullOrWhiteSpace(stringValue))
+        if (columnProperties.IsRequired && string.IsNullOrWhiteSpace(stringValue))
         {
             result.IsValid = false;
             result.ErrorMessage = $"Значення для '{headerText}' обов'язкове для заповнення.";
+            Console.WriteLine("ВАЛИДАЦИЯ НЕ ПРОШЛА!");
             return result;
         }
+    
+        Console.WriteLine("ВАЛИДАЦИЯ ПРОШЛА!");
+        Console.WriteLine("=== END DEBUG ===");
 
         // Validate on unique
-        if (columnValidationRules.IsUnique)
+        if (columnProperties.IsUnique)
         {
             if (string.IsNullOrWhiteSpace(stringValue))
                 return result;
@@ -61,29 +63,9 @@ public class CellValidatorService : ICellValidatorService
         
         switch (columnDataType)
         {
-            case ColumnDataType.Text:
-
-                if (columnValidationRules is not TextColumnValidationRules textColumnValidationRules) return result;
-                
-                if (stringValue.Length < textColumnValidationRules.MinLength)
-                {
-                    result.IsValid = false;
-                    result.ErrorMessage = $"Значення для '{headerText}' не може бути коротше {TextLengthMessage(textColumnValidationRules.MinLength)} \n" +
-                                          $"Поточна довжина {TextLengthMessage(stringValue.Length)}";
-                    return result;
-                }
-                
-                if (stringValue.Length > textColumnValidationRules.MaxLength)
-                {
-                    result.IsValid = false;
-                    result.ErrorMessage = $"Значення для '{headerText}' не може бути довше {TextLengthMessage(textColumnValidationRules.MaxLength)} \n" +
-                                          $"Поточна довжина {TextLengthMessage(stringValue.Length)}";
-                    return result;
-                }
-                break;
-
             case ColumnDataType.Number:
-                if (columnValidationRules is not NumericColumnValidationRules numericColumnValidationRules) return result;
+                if(columnProperties is not NumberColumnProperties numberProps)
+                    return result;
 
                 if (!double.TryParse(stringValue, out double numericValue))
                 {
@@ -92,19 +74,20 @@ public class CellValidatorService : ICellValidatorService
                     return result;
                 }
                 
-                if (numericValue < numericColumnValidationRules.MinValue)
+                if (numericValue < numberProps.MinNumberValue)
                 {
                     result.IsValid = false;
-                    result.ErrorMessage = $"Значення для '{headerText}' не може бути меншим за {numericColumnValidationRules.MinValue}.";
+                    result.ErrorMessage = $"Значення для '{headerText}' не може бути меншим за {numberProps.MinNumberValue}.";
                     return result;
                 }
-                if (numericValue > numericColumnValidationRules.MaxValue)
+                if (numericValue > numberProps.MaxNumberValue)
                 {
                     result.IsValid = false;
-                    result.ErrorMessage = $"Значення для '{headerText}' не може бути більшим за {numericColumnValidationRules.MaxValue}.";
+                    result.ErrorMessage = $"Значення для '{headerText}' не може бути більшим за {numberProps.MaxNumberValue}.";
                     return result;
                 }
                 break;
+            case ColumnDataType.Text:
             case ColumnDataType.Date:
             case ColumnDataType.Boolean:
             case ColumnDataType.List:
@@ -116,10 +99,5 @@ public class CellValidatorService : ICellValidatorService
         }
 
         return result;
-    }
-    
-    private static string TextLengthMessage(int length)
-    {
-        return PluralizedHelper.GetPluralizedText(length, "символ", "символи", "символів");
     }
 }

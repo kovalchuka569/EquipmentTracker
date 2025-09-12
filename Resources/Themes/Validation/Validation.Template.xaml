@@ -1,0 +1,80 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="Validation.Style.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+    
+    <ControlTemplate x:Key="DefaultErrorTemplate">
+        <StackPanel>
+            
+            <Border Style="{StaticResource AdornedElementBorderStyle}">
+                <AdornedElementPlaceholder x:Name="AdornedElement"/>
+            </Border>
+
+            <ItemsControl ItemsSource="{Binding}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Width="{Binding ElementName=AdornedElement, Path=ActualWidth}"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Style="{StaticResource ErrorBorderStyle}">
+                            <TextBlock Text="{Binding ErrorContent}" 
+                                       Style="{StaticResource ErrorTextBlockStyle}"/>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            
+        </StackPanel>
+    </ControlTemplate>
+    
+    <ControlTemplate x:Key="UnfoldingErrorTemplate">
+        <Grid>
+            
+            <Border Style="{StaticResource AdornedElementBorderStyle}">
+                <AdornedElementPlaceholder x:Name="AdornedElement"/>
+            </Border>
+            
+            <Polygon Style="{StaticResource ErrorTriangleStyle}">
+                <Polygon.ToolTip>
+                    <ToolTip Style="{StaticResource ErrorToolTipStyle}">
+                        <ItemsControl ItemsSource="{Binding}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Style="{StaticResource ErrorBorderStyle}">
+                                        <TextBlock Text="{Binding ErrorContent}"
+                                                   Style="{StaticResource ErrorTextBlockStyle}"/>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ToolTip>
+                </Polygon.ToolTip>
+            </Polygon>
+            
+        </Grid>
+    </ControlTemplate>
+    
+    <ControlTemplate x:Key="StaticMessageErrorTemplateRight">
+        <StackPanel Orientation="Horizontal">
+            
+            <Border 
+                BorderBrush="Red"
+                BorderThickness="1"
+                CornerRadius="4">
+                <AdornedElementPlaceholder/>
+            </Border>
+            
+            <Border Style="{StaticResource ErrorBorderStyle}">
+                <TextBlock Text="Виправіть помилки" 
+                           Style="{StaticResource ErrorTextBlockStyle}"
+                           Margin="5,0,0,0"/>
+            </Border>
+            
+        </StackPanel>
+    </ControlTemplate>
+    
+</ResourceDictionary>

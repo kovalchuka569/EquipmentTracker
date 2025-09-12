@@ -23,7 +23,7 @@ public class RowValidatorService(ICellValidatorService cellValidatorService) : I
             var headerText = args.ColumnIdHeaderTextMap[columnId];
             
             var columnDataType = args.ColumnIdDataTypeMap[columnId];
-            var columnValidationRules = args.ColumnIdValidationRulesMap[columnId];
+            var columnProps = args.ColumnIdPropertiesMap[columnId];
             
             var cellValue = args.CurrentRow.Cells
                 .FirstOrDefault(c => c.ColumnMappingName == mappingName)
@@ -39,7 +39,7 @@ public class RowValidatorService(ICellValidatorService cellValidatorService) : I
                 .Where(s => !string.IsNullOrEmpty(s))                         
                 .ToList();
             
-            var cellResult = cellValidatorService.ValidateCell(cellValue, args.CurrentRow, columnValues, columnDataType, headerText, columnValidationRules);
+            var cellResult = cellValidatorService.ValidateCell(cellValue, args.CurrentRow, columnValues, columnDataType, headerText, columnProps);
 
             if (cellResult.IsValid) continue;
             result.IsValid = false;

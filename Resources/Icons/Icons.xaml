@@ -1,0 +1,68 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    
+    <ResourceDictionary.MergedDictionaries>
+        
+        <ResourceDictionary Source="AddColumn/AddColumn.xaml"/>
+        
+        <ResourceDictionary Source="Close/Close.xaml"/>
+        
+        <ResourceDictionary Source="DeleteColumn/DeleteColumn.xaml"/>
+        
+        <ResourceDictionary Source="DeleteRow/DeleteRow.xaml"/>
+        
+        <ResourceDictionary Source="EditColumn/EditColumn.xaml"/>
+        
+        <ResourceDictionary Source="Excel/Excel.xaml"/>
+        
+        <ResourceDictionary Source="Export/Export.xaml"/>
+        
+        <ResourceDictionary Source="Filter/Filter.xaml"/>
+        
+        <ResourceDictionary Source="FolderClosed/FolderClosed.xaml"/>
+        
+        <ResourceDictionary Source="FolderOpened/FolderOpened.xaml"/>
+        
+        <ResourceDictionary Source="Import/Import.xaml"/>
+        
+        <ResourceDictionary Source="Left/Left.xaml"/>
+        
+        <ResourceDictionary Source="Right/Right.xaml"/>
+        
+        <ResourceDictionary Source="Pdf/Pdf.xaml"/>
+        
+        <ResourceDictionary Source="Print/Print.xaml"/>
+        
+        <ResourceDictionary Source="Trash/Trash.xaml"/>
+        
+        <ResourceDictionary Source="TableSheet/TableSheet.xaml"/>
+        
+        <ResourceDictionary Source="AddTableSheet/AddTableSheet.xaml"/>
+        
+        <ResourceDictionary Source="AddFolder/AddFolder.xaml"/>
+        
+        <ResourceDictionary Source="Add/Add.xaml"/>
+        
+        <ResourceDictionary Source="FolderClosedEdit/FolderClosedEdit.xaml"/>
+        
+        <ResourceDictionary Source="AddPivotSheet/AddPivotSheet.xaml"/>
+        
+        <ResourceDictionary Source="Rename/Rename.xaml"/>
+        
+        <ResourceDictionary Source="PivotSheet/PivotSheet.xaml"/>
+        
+        <ResourceDictionary Source="ColumnError/ColumnError.xaml"/>
+        
+        <ResourceDictionary Source="Save/Save.xaml"/>
+        
+        <ResourceDictionary Source="Refresh/Refresh.xaml"/>
+        
+        <ResourceDictionary Source="Truck/Truck.xaml"/>
+        
+        <ResourceDictionary Source="Broom/Broom.xaml"/>
+        
+        <ResourceDictionary Source="Check/Check.xaml"/>
+        
+    </ResourceDictionary.MergedDictionaries>
+    
+</ResourceDictionary>

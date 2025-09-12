@@ -19,11 +19,11 @@ using Core.Interfaces;
 
 using Presentation.ViewModels.Common.FileSystem;
 using Presentation.Mappers;
-using Presentation.Extensions;
 
 using Common.Enums;
 using Common.Logging;
 using Core.Events.TabControl;
+using Core.Models.Consumables;
 
 namespace Presentation.ViewModels;
 
@@ -121,21 +121,15 @@ public class MainTreeViewModel : BaseViewModel<MainTreeViewModel>, INavigationAw
     #endregion
     
     #region Commands
-    public DelegateCommand TreeViewLoadedCommand { [UsedImplicitly] get; set; } = null!;
-    
-    public DelegateCommand<object> AddFileContextMenuCommand { [UsedImplicitly] get; set; } = null!;
-    
-    public DelegateCommand EditItemContextMenuCommand { [UsedImplicitly] get; set; } = null!;
-    
-    public DelegateCommand<TreeViewItemEndEditEventArgs> ItemEndEditCommand { [UsedImplicitly] get; set; } = null!;
-    
-    public DelegateCommand<NodeExpandingCollapsingEventArgs> NodeExpandingCommand { [UsedImplicitly] get; set; } = null!;
-    
-    public DelegateCommand<TreeViewItemDroppedEventArgs> ItemDroppedCommand { [UsedImplicitly] get; set; } = null!;
-    
-    public DelegateCommand<object> ItemTappedCommand { [UsedImplicitly] get; set; } = null!;
-    
-    public DelegateCommand<KeyEventArgs> KeyDownCommand { [UsedImplicitly] get; set; } = null!;
+    public AsyncDelegateCommand TreeViewLoadedCommand { [UsedImplicitly] get; set; } = null!;
+    public AsyncDelegateCommand<object> AddFileContextMenuCommand { [UsedImplicitly] get; set; } = null!;
+    public AsyncDelegateCommand EditItemContextMenuCommand { [UsedImplicitly] get; set; } = null!;
+    public AsyncDelegateCommand<TreeViewItemEndEditEventArgs> ItemEndEditCommand { [UsedImplicitly] get; set; } = null!;
+    public AsyncDelegateCommand<NodeExpandingCollapsingEventArgs> NodeExpandingCommand { [UsedImplicitly] get; set; } = null!;
+    public AsyncDelegateCommand<TreeViewItemDroppedEventArgs> ItemDroppedCommand { [UsedImplicitly] get; set; } = null!;
+    public AsyncDelegateCommand<object> ItemTappedCommand { [UsedImplicitly] get; set; } = null!;
+    public AsyncDelegateCommand<KeyEventArgs> KeyDownCommand { [UsedImplicitly] get; set; } = null!;
+    public AsyncDelegateCommand RefreshTreeCommand { [UsedImplicitly] get; set; } = null!;
     
     #endregion
     
@@ -143,21 +137,15 @@ public class MainTreeViewModel : BaseViewModel<MainTreeViewModel>, INavigationAw
 
     private void InitializeCommands()
     {
-        TreeViewLoadedCommand = DelegateCommandExtensions.FromAsyncHandler(OnTreeViewLoaded);
-
-        AddFileContextMenuCommand = DelegateCommandExtensions.FromAsyncHandler<object>(OnAddFile);
-
-        EditItemContextMenuCommand = DelegateCommandExtensions.FromAsyncHandler(OnEditItem);
-
-        KeyDownCommand = DelegateCommandExtensions.FromAsyncHandler<KeyEventArgs>(OnKeyDown);
-
-        ItemTappedCommand = DelegateCommandExtensions.FromAsyncHandler<object>(OnOpenFile);
-
-        ItemEndEditCommand = DelegateCommandExtensions.FromAsyncHandler<TreeViewItemEndEditEventArgs>(OnItemEndEdit);
-
-        NodeExpandingCommand = DelegateCommandExtensions.FromAsyncHandler<NodeExpandingCollapsingEventArgs>(OnItemExpandingCommand);
-
-        ItemDroppedCommand = DelegateCommandExtensions.FromAsyncHandler<TreeViewItemDroppedEventArgs>(OnItemDropped);
+        TreeViewLoadedCommand = new AsyncDelegateCommand(OnTreeViewLoaded);
+        AddFileContextMenuCommand = new AsyncDelegateCommand<object>(OnAddFile);
+        EditItemContextMenuCommand = new AsyncDelegateCommand(OnEditItem);
+        KeyDownCommand = new AsyncDelegateCommand<KeyEventArgs>(OnKeyDown);
+        ItemTappedCommand = new AsyncDelegateCommand<object>(OnOpenFile);
+        ItemEndEditCommand = new AsyncDelegateCommand<TreeViewItemEndEditEventArgs>(OnItemEndEdit);
+        NodeExpandingCommand = new AsyncDelegateCommand<NodeExpandingCollapsingEventArgs>(OnItemExpandingCommand);
+        ItemDroppedCommand = new AsyncDelegateCommand<TreeViewItemDroppedEventArgs>(OnItemDropped);
+        RefreshTreeCommand = new AsyncDelegateCommand(RefreshTree);
     }
     
     #endregion
@@ -170,6 +158,12 @@ public class MainTreeViewModel : BaseViewModel<MainTreeViewModel>, INavigationAw
         if(_isInitialized)
             return;
         
+        // Load root items
+        await LoadRootItems();
+    }
+
+    private async Task LoadRootItems()
+    {
         await ExecuteWithErrorHandlingAsync(async () =>
         {
             // Get root items.
@@ -480,6 +474,18 @@ public class MainTreeViewModel : BaseViewModel<MainTreeViewModel>, INavigationAw
     private void RaiseEmptyTipVisibility()
     {
         FilesEmptyTipVisibility = RootItems.Count == 0;
+    }
+
+    private async Task RefreshTree()
+    {
+        if (RootItems.Count == 0)
+            return;
+
+        // Clear all items
+        RootItems.Clear();
+        
+        // Load roots
+        await LoadRootItems();
     }
     
     #endregion

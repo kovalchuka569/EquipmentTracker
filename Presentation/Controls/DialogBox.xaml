@@ -31,7 +31,7 @@
                                        HoverContentFill="Black"
                                        ButtonCornerRadius="6"
                                        Margin="0,0,0,8" ContentPadding="8"
-                                       TextFontSize="14" TextFontFamily="Microsoft Sans Serif"
+                                       TextFontSize="14" TextFontFamily="Segoe UI"
                                        TextContent="{Binding Button1Text, ElementName=Root}"
                                        MouseLeftButtonUp="Button1_OnMouseLeftButtonUp">
                         
@@ -44,7 +44,7 @@
                                        HoverContentFill="Black" 
                                        ContentPadding="8"
                                        ButtonCornerRadius="6"
-                                       TextFontSize="14" TextFontFamily="Microsoft Sans Serif"
+                                       TextFontSize="14" TextFontFamily="Segoe UI"
                                        TextContent="{Binding Button2Text, ElementName=Root}"
                                        MouseLeftButtonUp="Button2_OnMouseLeftButtonUp"/>
                 </StackPanel>
@@ -97,11 +97,11 @@
                 <!-- Title -->
                 <TextBlock Text="{Binding Title, ElementName=Root}" Margin="0,24" 
                            HorizontalAlignment="Center"
-                           FontSize="18" FontFamily="Microsoft Sans Serif" FontWeight="SemiBold"/>
+                           FontSize="18" FontFamily="Segoe UI" FontWeight="SemiBold"/>
             
                 <!-- Message -->
                 <TextBlock Text="{Binding Message, ElementName=Root}" Margin="0,0,0,24" 
-                           FontSize="14" FontFamily="Microsoft Sans Serif" 
+                           FontSize="14" FontFamily="Segoe UI" 
                            HorizontalAlignment="Center"
                            TextWrapping="Wrap" />
             

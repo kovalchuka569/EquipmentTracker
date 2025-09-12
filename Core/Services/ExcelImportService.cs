@@ -1,21 +1,30 @@
 ﻿using System.Globalization;
 using System.IO;
 using Syncfusion.XlsIO;
-
 using Core.Interfaces;
-
+using Data.Shared;
 using Models.Common.Table;
 using Models.Equipment;
-using Models.Equipment.ColumnCreator;
 using Models.Services;
 
 namespace Core.Services;
 
-public class ExcelImportService : IExcelImportService
+public class ExcelImportService: IExcelImportService
 {
+    
+    #region Constants
+    
+    private const string FileNotFound = "File not found";
+    private const string SheetNotFound = "Sheet not found";
+    private const string FailedImportData = "Failed import data";
+    
+    #endregion
+    
+    #region Interface realization
+    
     public async Task<List<RowModel>> ImportRowsAsync(ExcelImportConfig importConfig)
     {
-        if (!File.Exists(importConfig.FilePath)) throw new FileNotFoundException("File not found");
+        if (!File.Exists(importConfig.FilePath)) throw new FileNotFoundException(FileNotFound);
 
         var result = new List<RowModel>();
 
@@ -33,7 +42,7 @@ public class ExcelImportService : IExcelImportService
             var workbook = application.Workbooks.Open(memoryStream);
             var worksheet = workbook.Worksheets[importConfig.SheetName];
             
-            if (worksheet is null) throw new InvalidOperationException("Sheet not found");
+            if (worksheet is null) throw new InvalidOperationException(SheetNotFound);
             
             var excelHeaders = GetExcelHeaders(worksheet, importConfig.HeadersRange);
             
@@ -97,10 +106,14 @@ public class ExcelImportService : IExcelImportService
         }
         catch (Exception e)
         {
-            throw new InvalidOperationException($"Failed to import Excel data: {e.Message}", e);
+            throw new InvalidOperationException(FailedImportData, e);
         }
     }
+    
+    #endregion
 
+    #region Private methods
+    
     private static Dictionary<string, int> GetExcelHeaders(IWorksheet worksheet, string headersRange)
     {
         var headers = new Dictionary<string, int>();
@@ -212,10 +225,8 @@ public class ExcelImportService : IExcelImportService
         if (DateTime.TryParse(input, CultureInfo.InvariantCulture, DateTimeStyles.None, out date))
             return date;
 
-        var formatsArray = ComboBoxDateFormat
-            .GetComboBoxDateFormats()
-            .ToList()
-            .Select(format => format.Format)
+        var formatsArray = DatePatterns.GetDatePatterns()
+            .Select(p => p.Pattern)
             .ToArray();
 
         if (DateTime.TryParseExact(input, formatsArray, CultureInfo.InvariantCulture, DateTimeStyles.None, out date))
@@ -254,4 +265,6 @@ public class ExcelImportService : IExcelImportService
 
         return result.ToString().Replace(',', '.');
     }
+    
+    #endregion
 }

@@ -53,7 +53,7 @@
         </ResourceDictionary>
     </UserControl.Resources>
     
-    <Border CornerRadius="8" BorderThickness="1" Background="White" Padding="24">
+    <Border CornerRadius="8" Background="White" Padding="24">
         <Grid>
             <!-- Close button -->
             <controls:HoverButton 

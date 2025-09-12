@@ -51,6 +51,16 @@
         
         <ResourceDictionary Source="PivotSheet/PivotSheet.xaml"/>
         
+        <ResourceDictionary Source="ColumnError/ColumnError.xaml"/>
+        
+        <ResourceDictionary Source="Save/Save.xaml"/>
+        
+        <ResourceDictionary Source="Refresh/Refresh.xaml"/>
+        
+        <ResourceDictionary Source="Truck/Truck.xaml"/>
+        
+        <ResourceDictionary Source="Broom/Broom.xaml"/>
+        
     </ResourceDictionary.MergedDictionaries>
     
 </ResourceDictionary>

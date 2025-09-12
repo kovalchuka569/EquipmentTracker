@@ -33,15 +33,18 @@ public class DialogManager : IDialogManager
         _dialogMappings[DialogType.ExcelImportConfigurator] = (typeof(ExcelImportConfiguratorView), typeof(ExcelImportConfiguratorViewModel));
         
         _dialogMappings[DialogType.DialogBox] = (typeof(DialogBoxView), typeof(DialogBoxViewModel));
+        
+        _dialogMappings[DialogType.ColumnDesigner] = (typeof(ColumnDesignerView), typeof(ColumnDesignerViewModel));
+        
+        _dialogMappings[DialogType.RemoveMarkedItems] = (typeof(MarkedItemsCleanerView), typeof(MarkedItemsCleanerViewModel));
     }
 
     public Task<IDialogResult> ShowDialogAsync(DialogType dialogType, IDialogHost dialogHost, IDialogParameters? parameters)
     {
         
         var viewModel = _container.Resolve(_dialogMappings[dialogType].ViewModelType);
-        var view = _container.Resolve(_dialogMappings[dialogType].ViewType) as FrameworkElement;
-        
-        if (view == null)
+
+        if (_container.Resolve(_dialogMappings[dialogType].ViewType) is not FrameworkElement view)
             throw new InvalidOperationException($"Could not create view for {dialogType}");
         
         view.DataContext = viewModel;

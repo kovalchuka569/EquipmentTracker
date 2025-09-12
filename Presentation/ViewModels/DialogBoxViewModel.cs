@@ -3,7 +3,7 @@ using Prism.Dialogs;
 using Prism.Mvvm;
 
 using Core.Interfaces;
-    
+using JetBrains.Annotations;
 using Presentation.Enums;
 using Presentation.EventArgs;
 using Presentation.Models;
@@ -60,7 +60,7 @@ public class DialogBoxViewModel : BindableBase, IDialogAware, IClosableDialog
     
     #region Commands implementation
     
-    public DelegateCommand<DialogBoxResultEventArgs>? DialogResultSelectedCommand { get; private set; }
+    public DelegateCommand<DialogBoxResultEventArgs>? DialogResultSelectedCommand { [UsedImplicitly] get; private set; }
 
     private void InitializeCommands()
     {

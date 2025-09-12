@@ -5,14 +5,12 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Media;
-
+using System.Windows.Media.Imaging;
 using Syncfusion.UI.Xaml.Grid;
 using Syncfusion.Windows.Shared;
 
-using Models.Common.Table;
-using Models.Common.Table.ColumnSpecificSettings;
-using Models.Common.Table.ColumnValidationRules;
 using Models.Equipment;
+using Models.Common.Table.ColumnProperties;
 
 using Presentation.Interfaces;
 
@@ -20,210 +18,224 @@ namespace Presentation.UIManagers;
 
 public class SyncfusionGridColumnManager(IGridInteractionManager interactionManager) : ISyncfusionGridColumnManager
 {
-    public GridColumn CreateColumn(ColumnModel columnModel, Style baseGridHeaderStyle)
+
+    private const string DeleteColumnImageUri =
+        "pack://application:,,,/Presentation;component/Resources/Icons/DeleteColumn/deletecolumn_colored_line_64.png";
+
+    private const string DeleteColumnToolTip = "Цей стовпець помічений для видалення";
+    
+    public GridColumn CreateColumn(BaseColumnProperties columnProps, Style baseGridHeaderStyle)
     {
-         switch (columnModel.DataType)
+         switch (columnProps.ColumnDataType)
          {
             case ColumnDataType.Number:
-                var numericColumnSpecificSettingsSpecificSettings = columnModel.SpecificSettings as NumericColumnSpecificSettings;
-                var validationRules = columnModel.ValidationRules as NumericColumnValidationRules;
+                if(columnProps is not NumberColumnProperties numberProps)
+                    return new GridNumericColumn();
+                
                 return new GridNumericColumn
                 {
-                    MappingName = columnModel.MappingName,
-                    HeaderText = columnModel.HeaderText,
-                    ValueBinding = new Binding
-                    {
-                        Path = new PropertyPath(columnModel.MappingName),
-                        Converter = new NullableDoubleToStringConverter
-                        {
-                            DecimalPlaces = numericColumnSpecificSettingsSpecificSettings?.NumberDecimalDigits ?? 2
-                        }
-                    },
-                    HeaderStyle = CreateHeaderStyle(columnModel, baseGridHeaderStyle),
+                    HeaderStyle = CreateMarkedForDeleteHeaderStyle(baseGridHeaderStyle, columnProps.MarkedForDelete),
+                    MappingName = columnProps.MappingName,
+                    HeaderText = columnProps.HeaderText,
                     TextAlignment = TextAlignment.Center,
                     TextWrapping = TextWrapping.Wrap,
-                    AllowFiltering = columnModel.AllowFiltering,
-                    AllowSorting = columnModel.AllowSorting,
-                    AllowGrouping = columnModel.AllowGrouping,
-                    AllowEditing = !columnModel.IsReadOnly,
+                    AllowFiltering = true,
+                    AllowSorting = true,
+                    AllowGrouping = true,
+                    AllowEditing = true,
                     AllowDragging = true,
-                    Width = columnModel.Width,
+                    UseBindingValue = true,
+                    Width = columnProps.HeaderWidth,
                     NumberDecimalSeparator = ",",
-                    NumberDecimalDigits = numericColumnSpecificSettingsSpecificSettings?.NumberDecimalDigits ?? 0,
-                    MaxValue = (decimal)validationRules?.MaxValue!,
+                    NumberDecimalDigits = numberProps.NumberDecimalDigits,
                     AllowNullValue = true,
-                    NullValue = null,
+                    NullText = string.Empty
                 };
             case ColumnDataType.Currency:
-                var currencyColumnSpecificSettings = columnModel.SpecificSettings as CurrencyColumnSpecificSettings;
-                return new GridNumericColumn
+                if(columnProps is not CurrencyColumnProperties currencyProps)
+                    return new GridCurrencyColumn();
+                
+                return new GridCurrencyColumn
                 {
-                    HeaderStyle = CreateHeaderStyle(columnModel, baseGridHeaderStyle),
-                    ValueBinding = new Binding
-                    {
-                        Path = new PropertyPath(columnModel.MappingName),
-                        Converter = new CurrencyValueConverter()
-                    },
-                    
-                    DisplayBinding = new Binding
-                    {
-                        Path = new PropertyPath(columnModel.MappingName),
-                        Converter = new CurrencyDisplayConverter
-                        {
-                            CurrencySymbol = currencyColumnSpecificSettings?.CurrencySymbol ?? "$",
-                            SymbolPosition = currencyColumnSpecificSettings?.CurrencyPosition ?? CurrencyPosition.After,
-                        }
-                        
-                    },
-                    MappingName = columnModel.MappingName,
-                    HeaderText = columnModel.HeaderText,
+                    HeaderStyle = CreateMarkedForDeleteHeaderStyle(baseGridHeaderStyle, columnProps.MarkedForDelete),
+                    MappingName = columnProps.MappingName,
+                    HeaderText = columnProps.HeaderText,
                     TextAlignment = TextAlignment.Center,
                     TextWrapping = TextWrapping.Wrap,
-                    AllowFiltering = columnModel.AllowFiltering,
-                    AllowSorting = columnModel.AllowSorting,
-                    AllowGrouping = columnModel.AllowGrouping,
-                    AllowEditing = !columnModel.IsReadOnly,
-                    NumberDecimalSeparator = " ",
+                    AllowFiltering = true,
+                    AllowSorting = true,
+                    AllowGrouping = true,
+                    AllowEditing = true,
+                    CurrencyDecimalSeparator = ".",
+                    CurrencyGroupSeparator = " ",
+                    CurrencyGroupSizes = [3],
+                    CurrencyDecimalDigits = 2,  
+                    CurrencySymbol = currencyProps.Symbol,
                     AllowDragging = true,
-                    Width = columnModel.Width,
+                    UseBindingValue = true,
+                    Width = columnProps.HeaderWidth,
                     AllowNullValue = true,
-                    NullValue = null,
+                    NullText = string.Empty,
                     ColumnMemberType = typeof(decimal?)
                 };
             case ColumnDataType.Date:
-                var dateColumnSpecificSettings = columnModel.SpecificSettings as DateColumnSpecificSettings;
+                if(columnProps is not DateColumnProperties dateColumnProps)
+                    return new GridDateTimeColumn();
+                
                 return new GridDateTimeColumn
                 {
-                    HeaderStyle = CreateHeaderStyle(columnModel, baseGridHeaderStyle),
-                    ValueBinding = new Binding
-                    {
-                        Path = new PropertyPath(columnModel.MappingName),
-                        Converter = new NullableDateTimeToStringConverter
-                        {
-                            Format = dateColumnSpecificSettings?.DateFormat ?? "d",
-                        },
-                    },
-                    HeaderText = columnModel.HeaderText,
+                    HeaderStyle = CreateMarkedForDeleteHeaderStyle(baseGridHeaderStyle, columnProps.MarkedForDelete),
+                    HeaderText = columnProps.HeaderText,
                     TextAlignment = TextAlignment.Center,
                     TextWrapping = TextWrapping.Wrap,
-                    MappingName = columnModel.MappingName,
-                    AllowFiltering = columnModel.AllowFiltering,
-                    AllowSorting = columnModel.AllowSorting,
-                    AllowGrouping = columnModel.AllowGrouping,
-                    AllowEditing = !columnModel.IsReadOnly,
+                    MappingName = columnProps.MappingName,
+                    AllowFiltering = true,
+                    AllowSorting = true,
+                    AllowGrouping = true,
+                    AllowEditing = true,
                     AllowDragging = true,
-                    Width = columnModel.Width,
+                    UseBindingValue = true,
+                    Width = columnProps.HeaderWidth,
                     Pattern = DateTimePattern.CustomPattern,
-                    CustomPattern = dateColumnSpecificSettings?.DateFormat ?? "d",
+                    CustomPattern = dateColumnProps.Pattern,
                     AllowNullValue = true,
-                    NullValue = null,
+                    NullText = string.Empty,
                 };
             case ColumnDataType.List:
-                var comboBoxSpecificSettings = columnModel.SpecificSettings as ComboBoxColumnSpecificSettings;
+                if (columnProps is not ListColumnProperties listColumnProps)
+                    return new GridComboBoxColumn();
+                
                 return new GridComboBoxColumn
                 {
-                    HeaderStyle = CreateHeaderStyle(columnModel, baseGridHeaderStyle),
-                    ValueBinding = new Binding
-                    {
-                        Path = new PropertyPath(columnModel.MappingName),
-                        TargetNullValue = ""
-                    },
-                    HeaderText = columnModel.HeaderText,
+                    HeaderStyle = CreateMarkedForDeleteHeaderStyle(baseGridHeaderStyle, columnProps.MarkedForDelete),
+                    HeaderText = columnProps.HeaderText,
                     TextAlignment = TextAlignment.Center,
                     TextWrapping = TextWrapping.Wrap,
-                    MappingName = columnModel.MappingName,
-                    AllowFiltering = columnModel.AllowFiltering,
-                    AllowSorting = columnModel.AllowSorting,
-                    AllowGrouping = columnModel.AllowGrouping,
-                    AllowEditing = !columnModel.IsReadOnly,
+                    MappingName = columnProps.MappingName,
+                    AllowFiltering = true,
+                    AllowSorting = true,
+                    AllowGrouping = true,
+                    AllowEditing = true,
                     AllowDragging = true,
-                    Width = columnModel.Width,
-                    ItemsSource = comboBoxSpecificSettings?.ListValues,
+                    UseBindingValue = true,
+                    Width = columnProps.HeaderWidth,
+                    ItemsSource = listColumnProps.ListValues,
                 };
             case ColumnDataType.Boolean:
                 return new GridCheckBoxColumn
                 {
-                    HeaderStyle = CreateHeaderStyle(columnModel, baseGridHeaderStyle),
-                    ValueBinding = new Binding
-                    {
-                        Path = new PropertyPath(columnModel.MappingName),
-                        TargetNullValue = ""
-                    },
-                    HeaderText = columnModel.HeaderText,
+                    HeaderStyle = CreateMarkedForDeleteHeaderStyle(baseGridHeaderStyle, columnProps.MarkedForDelete),
+                    HeaderText = columnProps.HeaderText,
                     TextAlignment = TextAlignment.Center,
-                    MappingName = columnModel.MappingName,
-                    AllowFiltering = columnModel.AllowFiltering,
-                    AllowSorting = columnModel.AllowSorting,
-                    AllowGrouping = columnModel.AllowGrouping,
-                    AllowEditing = !columnModel.IsReadOnly,
+                    MappingName = columnProps.MappingName,
+                    AllowFiltering = true,
+                    AllowSorting = true,
+                    AllowGrouping = true,
+                    AllowEditing = true,
                     AllowDragging = true,
-                    Width = columnModel.Width,
+                    UseBindingValue = true,
+                    Width = columnProps.HeaderWidth,
                     UpdateTrigger = UpdateSourceTrigger.PropertyChanged,
                 };
             case ColumnDataType.Hyperlink:
                 return new GridTemplateColumn
                 {
-                    HeaderStyle = CreateHeaderStyle(columnModel, baseGridHeaderStyle),
-                    CellTemplate = CreateHyperlinkCellTemplate(columnModel.MappingName),
-                    EditTemplate = CreateHyperlinkEditTemplate(columnModel.MappingName),
-                    ValueBinding = new Binding
-                    {
-                        Path = new PropertyPath(columnModel.MappingName),
-                        TargetNullValue = ""
-                    },
-                    HeaderText = columnModel.HeaderText,
+                    HeaderStyle = CreateMarkedForDeleteHeaderStyle(baseGridHeaderStyle, columnProps.MarkedForDelete),
+                    CellTemplate = CreateHyperlinkCellTemplate(columnProps.MappingName),
+                    EditTemplate = CreateHyperlinkEditTemplate(columnProps.MappingName),
+                    HeaderText = columnProps.HeaderText,
                     TextAlignment = TextAlignment.Center,
                     TextWrapping = TextWrapping.Wrap,
-                    MappingName = columnModel.MappingName,
-                    AllowFiltering = columnModel.AllowFiltering,
-                    AllowSorting = columnModel.AllowSorting,
-                    AllowGrouping = columnModel.AllowGrouping,
-                    AllowEditing = !columnModel.IsReadOnly,
+                    MappingName = columnProps.MappingName,
+                    AllowFiltering = true,
+                    AllowSorting = true,
+                    AllowGrouping = true,
+                    AllowEditing = true,
                     AllowDragging = true,
-                    Width = columnModel.Width,
+                    UseBindingValue = true,
+                    Width = columnProps.HeaderWidth,
                 };
             case ColumnDataType.Text:
             default: 
                 return new GridTextColumn
                 {
-                    HeaderStyle = CreateHeaderStyle(columnModel, baseGridHeaderStyle),
-                    ValueBinding = new Binding
-                    {
-                        Path = new PropertyPath(columnModel.MappingName),
-                        TargetNullValue = ""
-                    },
-                    HeaderText = columnModel.HeaderText,
+                    HeaderStyle = CreateMarkedForDeleteHeaderStyle(baseGridHeaderStyle, columnProps.MarkedForDelete),
+                    HeaderText = columnProps.HeaderText,
                     TextAlignment = TextAlignment.Center,
                     TextWrapping = TextWrapping.Wrap,
-                    MappingName = columnModel.MappingName,
-                    AllowFiltering = columnModel.AllowFiltering,
-                    AllowSorting = columnModel.AllowSorting,
-                    AllowGrouping = columnModel.AllowGrouping,
-                    AllowEditing = !columnModel.IsReadOnly,
+                    MappingName = columnProps.MappingName,
+                    AllowFiltering = true,
+                    AllowSorting = true,
+                    AllowGrouping = true,
+                    AllowEditing = true,
                     AllowDragging = true,
-                    Width = columnModel.Width,  
+                    UseBindingValue = true,
+                    Width = columnProps.HeaderWidth,  
                 };
         }
     }
-    
-    
 
-    private Style CreateHeaderStyle(ColumnModel columnModel, Style baseGridHeaderStyle)
+    private static Style CreateMarkedForDeleteHeaderStyle(Style baseGridHeaderStyle, bool markedForDelete)
     {
         var style = new Style(typeof(GridHeaderCellControl), baseGridHeaderStyle);
-        style.Setters.Add(new Setter(GridHeaderCellControl.BackgroundProperty, ConvertFromColor(columnModel.HeaderBackground)));
-        style.Setters.Add(new Setter(GridHeaderCellControl.ForegroundProperty, ConvertFromColor(columnModel.HeaderForeground)));
-        style.Setters.Add(new Setter(GridHeaderCellControl.FontFamilyProperty, columnModel.HeaderFontFamily));
-        style.Setters.Add(new Setter(GridHeaderCellControl.FontSizeProperty, columnModel.HeaderFontSize));
-        style.Setters.Add(new Setter(GridHeaderCellControl.FontWeightProperty, columnModel.HeaderFontWeight));
-        style.Setters.Add(new Setter(GridHeaderCellControl.BorderThicknessProperty, columnModel.HeaderBorderThickness));
-        style.Setters.Add(new Setter(GridHeaderCellControl.BorderBrushProperty, ConvertFromColor(columnModel.HeaderBorderColor)));
-        style.Setters.Add(new Setter(GridHeaderCellControl.VerticalContentAlignmentProperty, columnModel.HeaderVerticalAlignment));
-        style.Setters.Add(new Setter(GridHeaderCellControl.HorizontalContentAlignmentProperty, columnModel.HeaderHorizontalAlignment));
-        style.Setters.Add(new Setter(GridHeaderCellControl.IsEnabledProperty, !columnModel.IsReadOnly));
+    
+        if(!markedForDelete)
+            return style;
+    
+        style.Setters.Add(new Setter(Control.BorderThicknessProperty, new Thickness(1)));
+        style.Setters.Add(new Setter(Control.BorderBrushProperty, Brushes.Red));
+        style.Setters.Add(new Setter(FrameworkElement.ToolTipProperty, DeleteColumnToolTip));
+        style.Setters.Add(new Setter(UIElement.SnapsToDevicePixelsProperty, true));
+    
+        var eventSetter = new EventSetter(FrameworkElement.LoadedEvent, 
+            new RoutedEventHandler((s, _) => {
+                if (s is GridHeaderCellControl header && AdornerLayer.GetAdornerLayer(header) != null)
+                {
+                    var bitmap = new BitmapImage();
+                    bitmap.BeginInit();
+                    bitmap.UriSource = new Uri(DeleteColumnImageUri);
+                    bitmap.DecodePixelWidth = 16;
+                    bitmap.DecodePixelHeight = 16;
+                    bitmap.EndInit();
+                
+                    var adorner = new IconAdorner(header, bitmap);
+                    AdornerLayer.GetAdornerLayer(header)?.Add(adorner);
+                }
+            }));
+    
+        style.Setters.Add(eventSetter);
+
         return style;
     }
+
+    public class IconAdorner : Adorner
+    {
+        private readonly Image _icon;
     
+        public IconAdorner(UIElement adornedElement, ImageSource iconSource) : base(adornedElement)
+        {
+            _icon = new Image
+            {
+                UseLayoutRounding = true,
+                Source = iconSource,
+                Width = 16,
+                Height = 16
+            };
+        
+            AddVisualChild(_icon);
+        }
+    
+        protected override int VisualChildrenCount => 1;
+    
+        protected override Visual GetVisualChild(int index) => _icon;
+    
+        protected override Size ArrangeOverride(Size finalSize)
+        {
+            _icon.Arrange(new Rect(2, (finalSize.Height - 16) / 2, 16, 16));
+            return finalSize;
+        }
+    }
+
     private DataTemplate CreateHyperlinkCellTemplate(string mappingName)
     {
         var dataTemplate = new DataTemplate();
@@ -248,154 +260,6 @@ public class SyncfusionGridColumnManager(IGridInteractionManager interactionMana
         return dataTemplate;
     }
     
-    private class NullableDoubleToStringConverter : IValueConverter
-    {
-        public int DecimalPlaces { get; set; } = 2;
-
-        public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
-        {
-            if (value is null)
-                return string.Empty;
-
-            if (value is double d)
-            {
-                string format = $"F{DecimalPlaces}";
-                return d.ToString(format, culture);
-            }
-
-            return value;
-        }
-
-        public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
-        {
-            if (string.IsNullOrWhiteSpace(value?.ToString()))
-                return null;
-
-            if (double.TryParse(value.ToString(), NumberStyles.Any, culture, out var d))
-                return d;
-
-            return 0;
-        }
-    }
-    
-    private class CurrencyValueConverter : IValueConverter
-    {
-        public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
-        {
-            if (value == null || value == DBNull.Value)
-            {
-                return null;
-            }
-
-            try
-            {
-                var amount = System.Convert.ToDouble(value);
-                return amount;
-            }
-            catch (Exception)
-            {
-                return null;
-            }
-        }
-
-        public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
-        {
-        
-            if (value == null)
-            {
-                return null;
-            }
-
-            try
-            {
-                var result = System.Convert.ToDouble(value);
-                result = Math.Round(result, 2, MidpointRounding.AwayFromZero);
-                return result;
-            }
-            catch (Exception)
-            {
-                return null;
-            }
-        }
-    }
-    
-    private class CurrencyDisplayConverter : IValueConverter
-    {
-        public string CurrencySymbol { get; set; } = "$";
-
-        public CurrencyPosition SymbolPosition { get; set; } = CurrencyPosition.After;
-        
-        public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
-        {
-            if (value == null || value == DBNull.Value)
-            {
-                return string.Empty;
-            }
-
-            try
-            {
-                var amount = System.Convert.ToDouble(value);
-                var formatted = SymbolPosition == CurrencyPosition.After 
-                    ? $"{amount:N2} {CurrencySymbol}" 
-                    : $"{CurrencySymbol} {amount:N2}"; 
-                
-                return formatted;
-            }
-            catch (Exception)
-            {
-                return string.Empty;
-            }
-        }
-
-        public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
-        {
-        
-            if (value == null || string.IsNullOrWhiteSpace(value.ToString()))
-            {
-                return null;
-            }
-
-            var strValue = value.ToString();
-            var cleanValue = strValue?.Replace(CurrencySymbol, "").Replace(" ", "").Replace(",", ".");
-            
-            if (double.TryParse(cleanValue, NumberStyles.Float, CultureInfo.InvariantCulture, out var result))
-            {
-                return result;
-            }
-            return null;
-        }
-    }
-
-
-    
-    private class NullableDateTimeToStringConverter : IValueConverter
-    {
-        public string Format { get; set; } = "d";
-        public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
-        {
-            return value switch
-            {
-                null => string.Empty,
-                DateTime dt => dt == default ? string.Empty : dt.ToString(Format, culture), 
-                _ => value
-            };
-        }
-
-        public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
-        {
-            if (string.IsNullOrWhiteSpace(value?.ToString()))
-                return null;
-
-            if (DateTime.TryParse(value.ToString(), culture, DateTimeStyles.None, out var dt))
-                return dt;
-
-            return null;
-        }
-    }
-    
-    
-    
-
     private static DataTemplate CreateHyperlinkEditTemplate(string mappingName)
     {
         var dataTemplate = new DataTemplate();

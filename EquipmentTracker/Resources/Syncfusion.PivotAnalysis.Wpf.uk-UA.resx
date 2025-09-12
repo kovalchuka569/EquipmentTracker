@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="CancelButton" xml:space="preserve">
-    <value>Cancel</value>
+    <value>Скасувати</value>
   </data>
   <data name="OkButton" xml:space="preserve">
     <value>OK</value>
@@ -196,10 +196,10 @@
     <value>Move to _Right</value>
   </data>
   <data name="PivotGrid_DropColumnFields" xml:space="preserve">
-    <value>Drop Column Fields Here</value>
+    <value>Перетягніть стовпці сюди</value>
   </data>
   <data name="PivotGrid_DropRowFields" xml:space="preserve">
-    <value>Drop Row Fields Here</value>
+    <value>Перетягніть рядки сюди</value>
   </data>
   <data name="PivotGrid_Expand_All_Header" xml:space="preserve">
     <value>_Expand All Nodes</value>
@@ -217,25 +217,25 @@
     <value>E_xpand This Node</value>
   </data>
   <data name="PivotGrid_GroupingBar_DropFilterFileds" xml:space="preserve">
-    <value>Drop Filter Fields Here</value>
+    <value>Перетягніть поля для фільтрації сюди</value>
   </data>
   <data name="PivotGrid_GroupingBar_DropCalculations" xml:space="preserve">
-    <value>Drop Calculations Here</value>
+    <value>Перетягніть поля для обчислень сюди</value>
   </data>
   <data name="PivotGrid_Header_GrandTotal" xml:space="preserve">
-    <value>Grand</value>
+    <value>Загально</value>
   </data>
   <data name="PivotGrid_Header_SubTotal" xml:space="preserve">
     <value>Total</value>
   </data>
   <data name="PivotSchema_Button_Update" xml:space="preserve">
-    <value>Update</value>
+    <value>Оновити</value>
   </data>
   <data name="PivotSchema_CheckBox_DeferUpdate" xml:space="preserve">
-    <value>Defer Layout Update</value>
+    <value>Відкласти оновлення</value>
   </data>
   <data name="PivotSchema_CheckBox_ShowCalulation" xml:space="preserve">
-    <value>Show Calculations as column</value>
+    <value>Показати обчислення у вигляді стовпця</value>
   </data>
   <data name="PivotSchema_ComputationalInfoDialog_Caption_Description" xml:space="preserve">
     <value>_Description</value>
@@ -256,28 +256,28 @@
     <value>Properties</value>
   </data>
   <data name="PivotSchema_Header_AddReport" xml:space="preserve">
-    <value>Choose Field to add to report</value>
+    <value>Виберіть поле, яке потрібно додати до звіту</value>
   </data>
   <data name="PivotSchema_Header_DragArea" xml:space="preserve">
-    <value>Drag fields between areas below:</value>
+    <value>Перетягуйте поля між областями нижче:</value>
   </data>
   <data name="PivotSchema_Header_PivotTableFieldList" xml:space="preserve">
-    <value>PivotTable Field List</value>
+    <value>Список полів зведеної таблиці</value>
   </data>
   <data name="PivotSchema_ListBox_ColumnLabel" xml:space="preserve">
-    <value>Column Label</value>
+    <value>Стовпці</value>
   </data>
   <data name="PivotSchema_ListBox_ReportFilter" xml:space="preserve">
-    <value>Report Filter</value>
+    <value>Фільтри</value>
   </data>
   <data name="PivotSchema_ListBox_RowLabel" xml:space="preserve">
-    <value>Row Label</value>
+    <value>Рядки</value>
   </data>
   <data name="PivotSchema_ListBox_Values" xml:space="preserve">
-    <value>Values</value>
+    <value>Значення</value>
   </data>
   <data name="ShowFieldList_Dialog_HeaderText" xml:space="preserve">
-    <value>PivotTable Field List</value>
+    <value>Список полів зведеної таблиці</value>
   </data>
   <data name="PivotGrid_ToolTip_Column" xml:space="preserve">
     <value>Column: </value>
@@ -358,7 +358,7 @@
     <value>Sum</value>
   </data>
   <data name="Average" xml:space="preserve">
-    <value>Average</value>
+    <value>Середнє</value>
   </data>
   <data name="Max" xml:space="preserve">
     <value>Max</value>
@@ -430,7 +430,7 @@
     <value>RankLargestToSmallest</value>
   </data>
   <data name="Apply" xml:space="preserve">
-    <value>Apply</value>
+    <value>Застосувати</value>
   </data>
   <data name="ContextMenu_AllowFiltering" xml:space="preserve">
     <value>Allow _Filtering</value>
@@ -622,7 +622,7 @@
     <value>_Descending (Z to A) by:</value>
   </data>
   <data name="MoreOptions_RadioButton1_ShowItems" xml:space="preserve">
-    <value>Grand Total</value>
+    <value>Загальна сума</value>
   </data>
   <data name="LabelFilter_Window_Title" xml:space="preserve">
     <value>Label Filter</value>
@@ -679,7 +679,7 @@
     <value>_More Sort Options...</value>
   </data>
   <data name="AddDuplicateCalculatedFieldErrorMessage" xml:space="preserve">
-    <value>CalculatedField with same name is already exist.</value>
+    <value>Обчислюване поле з такою назвою вже існує.</value>
   </data>
   <data name="AddEmptyCalculatedFieldFormulaErrorMessage" xml:space="preserve">
     <value>Please provide formula to add new calculated field into PivotCalculations.</value>

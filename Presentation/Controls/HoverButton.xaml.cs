@@ -41,7 +41,7 @@ public partial class HoverButton
     
     public static readonly DependencyProperty TextFontSizeProperty = DependencyProperty.Register(nameof(TextFontSize), typeof(double), typeof(HoverButton), new PropertyMetadata(12.00));
 
-    public static readonly DependencyProperty TextFontFamilyProperty = DependencyProperty.Register(nameof(TextFontFamilyProperty), typeof(FontFamily), typeof(HoverButton), new PropertyMetadata(new FontFamily("Microsoft Sans Serif")));
+    public static readonly DependencyProperty TextFontFamilyProperty = DependencyProperty.Register(nameof(TextFontFamilyProperty), typeof(FontFamily), typeof(HoverButton), new PropertyMetadata(new FontFamily("Segoe UI")));
     
     #endregion
     

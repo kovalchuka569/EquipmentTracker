@@ -1,5 +1,5 @@
 ﻿using Models.Common.Table;
-using Models.Common.Table.ColumnValidationRules;
+using Models.Common.Table.ColumnProperties;
 using Models.Equipment;
 
 namespace Core.Models;
@@ -9,7 +9,7 @@ public class RowValidationArgs
     /// <summary>
     /// Current domain row model.
     /// </summary>
-    public RowModel CurrentRow { get; set; }
+    public RowModel CurrentRow { get; set; } = new();
     
     /// <summary>
     /// Dictionary of column mapping name to id.
@@ -27,9 +27,9 @@ public class RowValidationArgs
     public Dictionary<Guid, ColumnDataType> ColumnIdDataTypeMap { get; set; } = new();
     
     /// <summary>
-    /// Dictionary of column id to validation rules.
+    /// Dictionary of column id to properties.
     /// </summary>
-    public Dictionary<Guid, IColumnValidationRules> ColumnIdValidationRulesMap { get; set; } = new();
+    public Dictionary<Guid, BaseColumnProperties> ColumnIdPropertiesMap { get; set; } = new();
     
     /// <summary>
     /// List of all rows.

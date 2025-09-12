@@ -77,8 +77,6 @@
                            EnableAutoScroll="False"
                            EnableLabelEdit="False"
                            CloseMode="Delete"
-                           TabItemHoverBorderBrush="#09244B"
-                           TabItemSelectedBorderBrush="#09244B"
                            IsLazyLoaded="True"
                            IsCustomTabItemContextMenuEnabled="True"
                            AllowDragDrop="True"

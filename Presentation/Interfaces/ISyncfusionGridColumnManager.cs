@@ -1,12 +1,12 @@
 ﻿using System.Windows;
-
+using Models.Common.Table.ColumnProperties;
 using Syncfusion.UI.Xaml.Grid;
 
-using Models.Common.Table;
+using Presentation.ViewModels.Common.ColumnDesigner;
 
 namespace Presentation.Interfaces;
 
 public interface ISyncfusionGridColumnManager
 {
-    GridColumn CreateColumn(ColumnModel columnModel, Style basedGridHeaderStyle);
+    GridColumn CreateColumn(BaseColumnProperties columnProperties, Style basedGridHeaderStyle);
 }

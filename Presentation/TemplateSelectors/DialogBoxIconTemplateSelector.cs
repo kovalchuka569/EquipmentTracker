@@ -7,9 +7,9 @@ namespace Presentation.TemplateSelectors;
 
 public class DialogBoxIconTemplateSelector : DataTemplateSelector
 {
-    public DataTemplate TrashIconTemplate { get; set; }
+    public DataTemplate? TrashIconTemplate { get; set; }
     
-    public DataTemplate InfoIconTemplate { get; set; }
+    public DataTemplate? InfoIconTemplate { get; set; }
 
     public override DataTemplate? SelectTemplate(object? item, DependencyObject container)
     {
