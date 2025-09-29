@@ -3,66 +3,66 @@
     
     <ResourceDictionary.MergedDictionaries>
         
-        <ResourceDictionary Source="AddColumn/AddColumn.xaml"/>
-        
         <ResourceDictionary Source="Close/Close.xaml"/>
-        
-        <ResourceDictionary Source="DeleteColumn/DeleteColumn.xaml"/>
-        
-        <ResourceDictionary Source="DeleteRow/DeleteRow.xaml"/>
-        
-        <ResourceDictionary Source="EditColumn/EditColumn.xaml"/>
-        
-        <ResourceDictionary Source="Excel/Excel.xaml"/>
-        
-        <ResourceDictionary Source="Export/Export.xaml"/>
-        
-        <ResourceDictionary Source="Filter/Filter.xaml"/>
         
         <ResourceDictionary Source="FolderClosed/FolderClosed.xaml"/>
         
         <ResourceDictionary Source="FolderOpened/FolderOpened.xaml"/>
         
-        <ResourceDictionary Source="Import/Import.xaml"/>
-        
-        <ResourceDictionary Source="Left/Left.xaml"/>
-        
         <ResourceDictionary Source="Right/Right.xaml"/>
-        
-        <ResourceDictionary Source="Pdf/Pdf.xaml"/>
-        
-        <ResourceDictionary Source="Print/Print.xaml"/>
-        
-        <ResourceDictionary Source="Trash/Trash.xaml"/>
         
         <ResourceDictionary Source="TableSheet/TableSheet.xaml"/>
         
-        <ResourceDictionary Source="AddTableSheet/AddTableSheet.xaml"/>
-        
-        <ResourceDictionary Source="AddFolder/AddFolder.xaml"/>
-        
-        <ResourceDictionary Source="Add/Add.xaml"/>
-        
-        <ResourceDictionary Source="FolderClosedEdit/FolderClosedEdit.xaml"/>
-        
-        <ResourceDictionary Source="AddPivotSheet/AddPivotSheet.xaml"/>
-        
-        <ResourceDictionary Source="Rename/Rename.xaml"/>
-        
         <ResourceDictionary Source="PivotSheet/PivotSheet.xaml"/>
-        
-        <ResourceDictionary Source="ColumnError/ColumnError.xaml"/>
-        
-        <ResourceDictionary Source="Save/Save.xaml"/>
-        
-        <ResourceDictionary Source="Refresh/Refresh.xaml"/>
-        
-        <ResourceDictionary Source="Truck/Truck.xaml"/>
-        
-        <ResourceDictionary Source="Broom/Broom.xaml"/>
         
         <ResourceDictionary Source="Check/Check.xaml"/>
         
     </ResourceDictionary.MergedDictionaries>
+    
+    <BitmapImage x:Key="Broom.White.Line.64" UriSource="broom_white_line_64.png"/>
+    <BitmapImage x:Key="Import.Black.Line.64" UriSource="import_black_line_64.png"/>
+    <BitmapImage x:Key="Excel.Colored.Fill.64" UriSource="excel_colored_fill_64.png"/>
+    <BitmapImage x:Key="Pdf.Red.Line.64" UriSource="pdf_red_line_64.png"/>
+    <BitmapImage x:Key="Search.Black.Line.64" UriSource="search_black_line_64.png"/>
+    <BitmapImage x:Key="UpArrow.Black.Line.64" UriSource="uparrow_black_line_64.png"/>
+    <BitmapImage x:Key="DownArrow.Black.Line.64" UriSource="downarrow_black_line_64.png"/>
+    <BitmapImage x:Key="Close.Black.Line.64" UriSource="close_black_line_64.png"/>
+    <BitmapImage x:Key="Filter.Black.Line.64" UriSource="filter_black_line_64.png"/>
+    <BitmapImage x:Key="ColumnSettings.Black.Line.64" UriSource="columnsettings_black_line_64.png"/>
+    <BitmapImage x:Key="DeleteRow.Colored.Line.64" UriSource="deleterow_colored_line_64.png"/>
+    <BitmapImage x:Key="Close.White.Line.64" UriSource="close_white_line_64.png"/>
+    <BitmapImage x:Key="Remove.White.Line.64" UriSource="remove_white_line_64.png"/>
+    <BitmapImage x:Key="Add.White.Line.64" UriSource="add_white_line_64.png"/>
+    <BitmapImage x:Key="Save.White.Line.64" UriSource="save_white_line_64.png"/>
+    <BitmapImage x:Key="PivotSheet.Black.Line.64" UriSource="pivotsheet_black_line_64.png"/>
+    <BitmapImage x:Key="EquipmentSheet.Black.Line.64" UriSource="equipmentsheet_black_line_64.png"/>
+    <BitmapImage x:Key="EditKey.White.Line.64" UriSource="editkey_white_line_64.png"/>
+    <BitmapImage x:Key="Power.White.Line.64" UriSource="power_white_line_64.png"/>
+    <BitmapImage x:Key="Copy.Black.Line.64" UriSource="copy_black_line_64.png"/>
+    
+    <BitmapImage x:Key="Exit.White.Line.64" UriSource="exit_white_line_64.png"/>
+    <BitmapImage x:Key="Enter.White.Line.64" UriSource="enter_white_line_64.png"/>
+    
+    <BitmapImage x:Key="EyeOpened.Black.Line.64" UriSource="eyeopened_black_line_64.png"/>
+    <BitmapImage x:Key="EyeClosed.Black.Line.64" UriSource="eyeclosed_black_line_64.png"/>
+    
+    <BitmapImage x:Key="Folder.White.Line.64" UriSource="folder_white_line_64.png"/>
+    <BitmapImage x:Key="Folder.Colored.Line.64" UriSource="folder_colored_line_64.png"/>
+    <BitmapImage x:Key="FolderOpened.Colored.Line.64" UriSource="folderopened_colored_line_64.png"/>
+    
+    <BitmapImage x:Key="Refresh.Black.Line.64" UriSource="refresh_black_line_64.png"/>
+    <BitmapImage x:Key="Refresh.White.Line.64" UriSource="refresh_white_line_64.png"/>
+    
+    <BitmapImage x:Key="Print.White.Line.64" UriSource="print_white_line_64.png"/>
+    <BitmapImage x:Key="Print.Black.Line.64" UriSource="print_black_line_64.png"/>
+    
+    <BitmapImage x:Key="Unlink.Red.Line.256" UriSource="unlink_red_line_256.png"/>
+    <BitmapImage x:Key="Unlink.Red.Fil.64" UriSource="unlink_red_fill_64.png"/>
+    
+    <BitmapImage x:Key="Link.Green.Fill.64" UriSource="link_green_fill_64.png"/>
+    
+    <BitmapImage x:Key="Export.Black.Line.64" UriSource="export_black_line_64.png"/>
+    <BitmapImage x:Key="FileExport.White.Line.64" UriSource="fileexport_white_line_64.png"/>
+    <BitmapImage x:Key="FileImport.White.Line.64" UriSource="fileimport_white_line_64.png"/>
     
 </ResourceDictionary>

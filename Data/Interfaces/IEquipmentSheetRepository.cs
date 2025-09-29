@@ -34,7 +34,7 @@ public interface IEquipmentSheetRepository
     /// Allows partial updates without loading the entity into memory using EF Core's ExecuteUpdateAsync.
     /// </summary>
     /// <param name="id">The Id of the <see cref="EquipmentSheetEntity"/> to update.</param>
-    /// <param name="update">
+    /// <param name="updateExpression">
     /// A function defining which properties to update using <see cref="SetPropertyCalls{TEntity}"/>.
     /// </param>
     /// <param name="ct">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>

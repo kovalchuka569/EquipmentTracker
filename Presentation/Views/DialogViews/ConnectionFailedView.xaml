@@ -1,0 +1,137 @@
+﻿<UserControl x:Class="Presentation.Views.DialogViews.ConnectionFailedView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:behaviors="clr-namespace:Common.Behaviors;assembly=Common"
+             xmlns:converters="clr-namespace:Common.Converters;assembly=Common"
+             xmlns:localization="clr-namespace:Resources.Localization;assembly=Resources"
+             xmlns:sf="http://schemas.syncfusion.com/wpf">
+
+    <!-- Resources -->
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary
+                    Source="pack://application:,,,/Resources;component/ModuleResources/ConnectionFailedView.Resources.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            
+            <converters:NpgsqlExceptionMessageToLocalizedStringConverter x:Key="NpgsqlExceptionMessageToLocalizedStringConverter"
+                                                                         InvalidLoginOrPasswordMessage="{x:Static localization:Strings.DbInvalidLoginOrPass}"
+                                                                         InvalidDatabaseNameMessage="{x:Static localization:Strings.DbUnknownName}"/>
+            
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <!-- Root border -->
+    <Border Style="{StaticResource DialogBorderStyle}">
+        
+        <!-- Root grid-->
+        <Grid>
+
+            <!-- Close dialog button -->
+            <sf:ButtonAdv
+                Command="{Binding CancelDialogCommand}"
+                Style="{StaticResource CloseDialogButtonStyle}" />
+
+            <!-- Main grid -->
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />  <!-- Title -->
+                    <RowDefinition Height="1" />     <!-- Top separator -->
+                    <RowDefinition Height="Auto" />  <!-- Content -->
+                    <RowDefinition Height="1" />     <!-- Bottom separator -->
+                    <RowDefinition Height="Auto" />  <!-- Buttons -->
+                </Grid.RowDefinitions>
+
+                <!-- Title text block-->
+                <TextBlock Grid.Row="0"
+                           Style="{StaticResource DialogTitleTextBlockStyle}"
+                           Text="{x:Static localization:Strings.ConnectionFailed}" />
+
+                <!-- Top separator -->
+                <Border Grid.Row="1"
+                        Style="{StaticResource DialogSeparatorStyle}" />
+
+                <!-- Content stack panel-->
+                <StackPanel Grid.Row="2"
+                            Margin="{StaticResource Margin6}">
+                    
+                    <!-- Connection error image -->
+                    <Image Source="{StaticResource Unlink.Red.Line.256}"
+                           Style="{StaticResource LargeImageStyle}"
+                           Margin="{StaticResource Margin024024}"/>
+
+                    <!-- Error message with copy to clipboard button stack panel -->
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Center">
+
+                        <!-- Error message scroll viewer -->
+                        <ScrollViewer MaxHeight="350"
+                                      VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled"
+                                      Style="{StaticResource WPFScrollViewerStyle}">
+
+                            <!-- Connection error message text -->
+                            <TextBlock x:Name="ErrorMessageTextBlock"
+                                       Text="{Binding ConnectionErrorMessage, Converter={StaticResource NpgsqlExceptionMessageToLocalizedStringConverter}}"
+                                       FontSize="14"
+                                       Style="{x:Null}"
+                                       VerticalAlignment="Center"
+                                       HorizontalAlignment="Center"
+                                       TextWrapping="Wrap"
+                                       MaxWidth="400" />
+                            
+                        </ScrollViewer>
+
+                        <!-- Copy to clipboard button -->
+                        <sf:ButtonAdv SmallIcon="{StaticResource Copy.Black.Line.64}"
+                                      Margin="{StaticResource Margin6000}"
+                                      Style="{StaticResource DefaultRoundedGlyphButtonStyle}">
+                            <i:Interaction.Behaviors>
+                                <behaviors:CopyToClipboardBehavior
+                                    CopiedText="{Binding Text, ElementName=ErrorMessageTextBlock}" />
+                            </i:Interaction.Behaviors>
+                        </sf:ButtonAdv>
+
+                    </StackPanel>
+                    
+                </StackPanel>
+
+
+                <!-- Bottom separator -->
+                <Border Grid.Row="3"
+                        Style="{StaticResource DialogSeparatorStyle}" />
+
+                <!-- Buttons stack panel -->
+                <StackPanel Grid.Row="4"
+                            Orientation="Horizontal"
+                            Margin="{StaticResource Margin6}">
+
+                    <!-- Try again button -->
+                    <sf:ButtonAdv Command="{Binding TryAgainCommand}"
+                                  Label="{x:Static localization:Strings.TryAgain}"
+                                  SmallIcon="{StaticResource Refresh.White.Line.64}"
+                                  Style="{StaticResource DefaultPrimaryButtonStyle}" />
+
+                    <!-- Connection setup button -->
+                    <sf:ButtonAdv Command="{Binding ConnectionSetupCommand}"
+                                  Label="{x:Static localization:Strings.SetUpConnection}"
+                                  SmallIcon="{StaticResource EditKey.White.Line.64}"
+                                  Margin="{StaticResource Margin120120}"
+                                  Style="{StaticResource DefaultPrimaryButtonStyle}" />
+
+                    <!-- Exit button -->
+                    <sf:ButtonAdv Command="{Binding ExitCommand}"
+                                  Label="{x:Static localization:Strings.Exit}"
+                                  SmallIcon="{StaticResource Power.White.Line.64}"
+                                  Style="{StaticResource DefaultPrimaryButtonStyle}" />
+
+                </StackPanel>
+                
+            </Grid>
+            
+        </Grid>
+        
+    </Border>
+
+</UserControl>

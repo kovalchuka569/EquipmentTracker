@@ -33,7 +33,6 @@ public class DefaultEditorTemplateSelector : DataTemplateSelector
             {
                 ColumnDataType.None      => UndefinedEditorTemplate,
                 ColumnDataType.Text      => TextDefaultEditorTemplate,
-                ColumnDataType.Boolean   => BooleanDefaultEditorTemplate,
                 ColumnDataType.Number    => NumberDefaultEditorTemplate,
                 ColumnDataType.Date      => DateDefaultEditorTemplate,
                 ColumnDataType.Currency  => CurrencyDefaultEditorTemplate,

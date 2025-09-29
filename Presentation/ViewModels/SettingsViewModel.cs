@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Common.Logging;
-using Core.Interfaces;
+using Presentation.Contracts;
 using JetBrains.Annotations;
 using Notification.Wpf;
 using Presentation.Enums;

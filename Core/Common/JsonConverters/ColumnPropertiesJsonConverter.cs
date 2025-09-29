@@ -49,7 +49,6 @@ public class ColumnPropertiesJsonConverter : JsonConverter<BaseColumnProperties>
             ColumnDataType.Text      => new TextColumnProperties(),
             ColumnDataType.Number    => new NumberColumnProperties(),
             ColumnDataType.Date      => new DateColumnProperties(),
-            ColumnDataType.Boolean   => new BooleanColumnProperties(),
             ColumnDataType.Currency  => new CurrencyColumnProperties(),
             ColumnDataType.List      => new ListColumnProperties(),
             ColumnDataType.Hyperlink => new LinkColumnProperties(),

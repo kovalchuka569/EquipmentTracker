@@ -6,7 +6,6 @@ using Data.ApplicationDbContext;
 using Data.Interfaces;
 
 using Common.Enums;
-using Models.Entities.EquipmentSheet;
 
 namespace Data.Repositories;
 
@@ -44,7 +43,7 @@ public class FileSystemRepository(AppDbContext context) : IFileSystemRepository
         await context.FileSystemItems
             .Where(x => x.Id == fileSystemItemId)
             .ExecuteUpdateAsync(f => f
-                .SetProperty(i => i.Deleted, true), ct);
+                .SetProperty(i => i.IsMarkedForDelete, true), ct);
     }
 
     public async Task MoveFileSystemItemAsync(Guid fileSystemItemId, Guid newParentId, CancellationToken ct)
@@ -93,5 +92,12 @@ public class FileSystemRepository(AppDbContext context) : IFileSystemRepository
             entity.Order = updated.NewOrder;
             entity.ParentId = updated.NewParentId;
         }
+    }
+
+    public async Task UpdateIsMarkedForDeleteAsync(Guid fileSystemItemId, bool isMarkedForDelete, CancellationToken ct = default)
+    {
+        await context.FileSystemItems.Where(x => x.Id == fileSystemItemId)
+            .ExecuteUpdateAsync(f => f
+                .SetProperty(i => i.IsMarkedForDelete, isMarkedForDelete), ct);
     }
 }

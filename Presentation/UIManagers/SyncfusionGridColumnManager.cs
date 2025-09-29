@@ -19,9 +19,6 @@ namespace Presentation.UIManagers;
 public class SyncfusionGridColumnManager(IGridInteractionManager interactionManager) : ISyncfusionGridColumnManager
 {
 
-    private const string DeleteColumnImageUri =
-        "pack://application:,,,/Presentation;component/Resources/Icons/DeleteColumn/deletecolumn_colored_line_64.png";
-
     private const string DeleteColumnToolTip = "Цей стовпець помічений для видалення";
     
     public GridColumn CreateColumn(BaseColumnProperties columnProps, Style baseGridHeaderStyle)
@@ -121,22 +118,6 @@ public class SyncfusionGridColumnManager(IGridInteractionManager interactionMana
                     Width = columnProps.HeaderWidth,
                     ItemsSource = listColumnProps.ListValues,
                 };
-            case ColumnDataType.Boolean:
-                return new GridCheckBoxColumn
-                {
-                    HeaderStyle = CreateMarkedForDeleteHeaderStyle(baseGridHeaderStyle, columnProps.MarkedForDelete),
-                    HeaderText = columnProps.HeaderText,
-                    TextAlignment = TextAlignment.Center,
-                    MappingName = columnProps.MappingName,
-                    AllowFiltering = true,
-                    AllowSorting = true,
-                    AllowGrouping = true,
-                    AllowEditing = true,
-                    AllowDragging = true,
-                    UseBindingValue = true,
-                    Width = columnProps.HeaderWidth,
-                    UpdateTrigger = UpdateSourceTrigger.PropertyChanged,
-                };
             case ColumnDataType.Hyperlink:
                 return new GridTemplateColumn
                 {
@@ -185,55 +166,8 @@ public class SyncfusionGridColumnManager(IGridInteractionManager interactionMana
         style.Setters.Add(new Setter(Control.BorderThicknessProperty, new Thickness(1)));
         style.Setters.Add(new Setter(Control.BorderBrushProperty, Brushes.Red));
         style.Setters.Add(new Setter(FrameworkElement.ToolTipProperty, DeleteColumnToolTip));
-        style.Setters.Add(new Setter(UIElement.SnapsToDevicePixelsProperty, true));
-    
-        var eventSetter = new EventSetter(FrameworkElement.LoadedEvent, 
-            new RoutedEventHandler((s, _) => {
-                if (s is GridHeaderCellControl header && AdornerLayer.GetAdornerLayer(header) != null)
-                {
-                    var bitmap = new BitmapImage();
-                    bitmap.BeginInit();
-                    bitmap.UriSource = new Uri(DeleteColumnImageUri);
-                    bitmap.DecodePixelWidth = 16;
-                    bitmap.DecodePixelHeight = 16;
-                    bitmap.EndInit();
-                
-                    var adorner = new IconAdorner(header, bitmap);
-                    AdornerLayer.GetAdornerLayer(header)?.Add(adorner);
-                }
-            }));
-    
-        style.Setters.Add(eventSetter);
-
-        return style;
-    }
-
-    public class IconAdorner : Adorner
-    {
-        private readonly Image _icon;
-    
-        public IconAdorner(UIElement adornedElement, ImageSource iconSource) : base(adornedElement)
-        {
-            _icon = new Image
-            {
-                UseLayoutRounding = true,
-                Source = iconSource,
-                Width = 16,
-                Height = 16
-            };
         
-            AddVisualChild(_icon);
-        }
-    
-        protected override int VisualChildrenCount => 1;
-    
-        protected override Visual GetVisualChild(int index) => _icon;
-    
-        protected override Size ArrangeOverride(Size finalSize)
-        {
-            _icon.Arrange(new Rect(2, (finalSize.Height - 16) / 2, 16, 16));
-            return finalSize;
-        }
+        return style;
     }
 
     private DataTemplate CreateHyperlinkCellTemplate(string mappingName)

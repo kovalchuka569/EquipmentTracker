@@ -2,7 +2,7 @@
 
 using Prism.Dialogs;
 
-using Core.Interfaces;
+using Presentation.Contracts;
 
 using Presentation.Enums;
 

@@ -173,9 +173,6 @@ public class ExcelImportService: IExcelImportService
                 case ColumnDataType.Date:
                     return ParseDate(textValue);
                 
-                case ColumnDataType.Boolean:
-                    return ParseBool(textValue);
-                
                 case ColumnDataType.List:
                 case ColumnDataType.Text:
                 case ColumnDataType.Hyperlink:
@@ -233,21 +230,6 @@ public class ExcelImportService: IExcelImportService
             return date;
 
         return null;
-    }
-    
-    private static bool? ParseBool(string input)
-    {
-        input = input.Trim().ToLowerInvariant();
-
-        if (bool.TryParse(input, out var boolVal))
-            return boolVal;
-
-        return input switch
-        {
-            "yes" or "y" or "да" or "true" or "1" or "так" or "вкл" => true,
-            "no" or "n" or "нет" or "false" or "0" or "ні" or "выкл" or "викл" => false,
-            _ => null
-        };
     }
     
     private static string CleanNumberString(string input)

@@ -5,5 +5,7 @@ public enum DialogType
     ExcelImportConfigurator,
     DialogBox,
     ColumnDesigner,
-    RemoveMarkedItems
+    RemoveMarkedItems,
+    ConnectionFailed,
+    ConnectionSetup
 }

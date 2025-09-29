@@ -213,7 +213,7 @@
                         <Image
                             Width="25"
                             Height="25"
-                            Source="pack://application:,,,/Views/NavDrawer/Assets/settings_light.png" />
+                            Source="pack://application:,,,/Views/NavDrawer/Assets/settings_light.png"/>
                     </sf:NavigationItem.Icon>
                 </sf:NavigationItem>
 

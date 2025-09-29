@@ -1,0 +1,29 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    
+    <Color x:Key="Primary.Color">#FF005FB8</Color>
+    <Color x:Key="PrimaryDark1.Color">#00519E</Color>
+    <Color x:Key="PrimaryDark2.Color">#00376b</Color>
+    <Color x:Key="Warning.Color">#C70000</Color>
+    <Color x:Key="WarningDark1.Color">#8B0000</Color>
+    <Color x:Key="WarningDark2.Color">#420000</Color>
+    <Color x:Key="Neutral.Color">#D3D3D3</Color>
+    <Color x:Key="NeutralDark1.Color">#A9A9A9</Color>
+    <Color x:Key="NeutralDark2.Color">#808080</Color>
+    <Color x:Key="White.Color">#FFFFFF</Color>
+    <Color x:Key="Black.Color">#000000</Color>
+    
+    <SolidColorBrush x:Key="Primary.Brush" Color="{StaticResource Primary.Color}"/>
+    <SolidColorBrush x:Key="PrimaryDark1.Brush" Color="{StaticResource PrimaryDark1.Color}"/>
+    <SolidColorBrush x:Key="PrimaryDark2.Brush" Color="{StaticResource PrimaryDark2.Color}"/>
+    <SolidColorBrush x:Key="Warning.Brush" Color="{StaticResource Warning.Color}"/>
+    <SolidColorBrush x:Key="WarningDark1.Brush" Color="{StaticResource WarningDark1.Color}"/>
+    <SolidColorBrush x:Key="WarningDark2.Brush" Color="{StaticResource WarningDark2.Color}"/>
+    <SolidColorBrush x:Key="Neutral.Brush" Color="{StaticResource Neutral.Color}"/>
+    <SolidColorBrush x:Key="NeutralDark1.Brush" Color="{StaticResource NeutralDark1.Color}"/>
+    <SolidColorBrush x:Key="NeutralDark2.Brush" Color="{StaticResource NeutralDark2.Color}"/>
+    <SolidColorBrush x:Key="White.Brush" Color="{StaticResource White.Color}"/>
+    <SolidColorBrush x:Key="Black.Brush" Color="{StaticResource Black.Color}"/>
+    
+    
+</ResourceDictionary>

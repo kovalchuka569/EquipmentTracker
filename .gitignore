@@ -1,17 +1,14 @@
-﻿# Игнорировать временные файлы
-*.log
+﻿*.log
 *.tmp
 
-# Игнорировать директории obj и bin
 **/obj/
 **/bin/
 
-# Игнорировать файлы сборки
 *.dll
 *.exe
 
-# Игнорировать .idea для JetBrains
 .idea/
 
-# Игнорировать файлы Visual Studio
 .vs/
+
+LocalSecure

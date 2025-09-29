@@ -11,11 +11,6 @@ public class CellValidatorService : ICellValidatorService
     {
         var result = new CellValidationResult();
     
-        Console.WriteLine($"=== DEBUG для колонки '{headerText}' ===");
-        Console.WriteLine("Fullname: " + cellValue?.GetType().FullName);
-        Console.WriteLine("cellValue: '" + cellValue + "'");
-        Console.WriteLine("IsRequired: " + columnProperties.IsRequired);
-    
         var stringValue = cellValue switch
         {
             null => string.Empty,
@@ -23,22 +18,14 @@ public class CellValidatorService : ICellValidatorService
             _ => cellValue.ToString() ?? string.Empty
         };
     
-        Console.WriteLine("stringValue: '" + stringValue + "'");
-        Console.WriteLine("stringValue.Length: " + stringValue.Length);
-        Console.WriteLine("IsNullOrWhiteSpace: " + string.IsNullOrWhiteSpace(stringValue));
-        Console.WriteLine("Condition result: " + (columnProperties.IsRequired && string.IsNullOrWhiteSpace(stringValue)));
-    
         // Validate on required
         if (columnProperties.IsRequired && string.IsNullOrWhiteSpace(stringValue))
         {
             result.IsValid = false;
             result.ErrorMessage = $"Значення для '{headerText}' обов'язкове для заповнення.";
-            Console.WriteLine("ВАЛИДАЦИЯ НЕ ПРОШЛА!");
             return result;
         }
-    
-        Console.WriteLine("ВАЛИДАЦИЯ ПРОШЛА!");
-        Console.WriteLine("=== END DEBUG ===");
+        
 
         // Validate on unique
         if (columnProperties.IsUnique)
@@ -89,7 +76,6 @@ public class CellValidatorService : ICellValidatorService
                 break;
             case ColumnDataType.Text:
             case ColumnDataType.Date:
-            case ColumnDataType.Boolean:
             case ColumnDataType.List:
             case ColumnDataType.Hyperlink:
             case ColumnDataType.Currency:

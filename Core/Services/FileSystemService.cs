@@ -23,8 +23,6 @@ public class FileSystemService(IUnitOfWork unitOfWork, IAppLogger<FileSystemServ
         return await ExecuteInLoggerAsync(async () =>
         {
             
-            await UnitOfWork.EnsureInitializedForReadAsync(ct);
-        
             var entities = await UnitOfWork.FileSystemRepository
                 .GetChildsFileSystemItemsByMenuTypeAsync(menuType, parentId, ct);
 
@@ -39,7 +37,7 @@ public class FileSystemService(IUnitOfWork unitOfWork, IAppLogger<FileSystemServ
         await ExecuteInLoggerAsync(async () =>
         {
             
-            await UnitOfWork.ExecuteInTransactionAsync(async () =>
+            await ExecuteInTransactionAsync(async () =>
             {
                 
                 switch (fileSystemItemModel)
@@ -70,9 +68,14 @@ public class FileSystemService(IUnitOfWork unitOfWork, IAppLogger<FileSystemServ
         }, nameof(InsertChildAsync), ct);
     }
 
-    public async Task DeleteChildAsync(FileSystemItemModel fileSystemItemModel, CancellationToken ct)
+    public async Task UpdateHasMarkedForDelete(Guid fileSystemId, bool isMarkedForDelete, CancellationToken ct = default)
     {
-        await ExecuteInLoggerAsync(() => throw new NotImplementedException(), nameof(DeleteChildAsync), ct);
+        await ExecuteInLoggerAsync(async () =>
+        {
+            
+            await UnitOfWork.FileSystemRepository.UpdateIsMarkedForDeleteAsync(fileSystemId, isMarkedForDelete, ct);
+            
+        }, nameof(UpdateHasMarkedForDelete), ct);
     }
 
     public async Task RenameFileSystemItemAsync(Guid renamedFileId, string newName, CancellationToken ct)
@@ -80,7 +83,7 @@ public class FileSystemService(IUnitOfWork unitOfWork, IAppLogger<FileSystemServ
         await ExecuteInLoggerAsync(async () =>
         {
             
-            await UnitOfWork.ExecuteInTransactionAsync(async () =>
+            await ExecuteInTransactionAsync(async () =>
             {
                 
                 await UnitOfWork.FileSystemRepository.RenameFileSystemItemAsync(renamedFileId, newName, ct);
@@ -95,7 +98,7 @@ public class FileSystemService(IUnitOfWork unitOfWork, IAppLogger<FileSystemServ
         await ExecuteInLoggerAsync(async () =>
         {
             
-            await UnitOfWork.ExecuteInTransactionAsync(async () =>
+            await ExecuteInTransactionAsync(async () =>
             {
                 
                 await UnitOfWork.FileSystemRepository.UpdateHasChildsAsync(fileSystemItemId, hasChilds, ct);
@@ -110,7 +113,7 @@ public class FileSystemService(IUnitOfWork unitOfWork, IAppLogger<FileSystemServ
         await ExecuteInLoggerAsync(async () =>
         {
             
-            await UnitOfWork.ExecuteInTransactionAsync(async () =>
+            await ExecuteInTransactionAsync(async () =>
             {
                 
                 await UnitOfWork.FileSystemRepository.UpdateHasChildsAsync(newStatuses, ct);
@@ -126,7 +129,7 @@ public class FileSystemService(IUnitOfWork unitOfWork, IAppLogger<FileSystemServ
         await ExecuteInLoggerAsync(async () =>
         {
             
-            await UnitOfWork.ExecuteInTransactionAsync(async () =>
+            await ExecuteInTransactionAsync(async () =>
             {
                 
                 await UnitOfWork.FileSystemRepository.UpdateParentsAndOrdersAsync(newPositions, ct);

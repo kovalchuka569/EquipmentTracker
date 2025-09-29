@@ -1,0 +1,42 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+    
+    <Thickness x:Key="BorderThickness0">0</Thickness>
+    <Thickness x:Key="BorderThickness1013">1,0,1,3</Thickness>
+    <Thickness x:Key="BorderThickness1">1</Thickness>
+    
+    <CornerRadius x:Key="CornerRadius0600">0,6,0,0</CornerRadius>
+    <CornerRadius x:Key="CornerRadius0">0</CornerRadius>
+    <CornerRadius x:Key="CornerRadius2">2</CornerRadius>
+    <CornerRadius x:Key="CornerRadius4">4</CornerRadius>
+    <CornerRadius x:Key="CornerRadius6">6</CornerRadius>
+    <CornerRadius x:Key="CornerRadius8">8</CornerRadius>
+    <CornerRadius x:Key="CornerRadius16">16</CornerRadius>
+    
+    
+    <Thickness x:Key="Margin2">2</Thickness>
+    <Thickness x:Key="Margin6">6</Thickness>
+    <Thickness x:Key="Margin12">12</Thickness>
+    <Thickness x:Key="Margin6000">6,0,0,0</Thickness>
+    <Thickness x:Key="Margin120120">12,0,12,0</Thickness>
+    <Thickness x:Key="Margin0400">0,4,0,0</Thickness>
+    <Thickness x:Key="Margin024024">0,24,0,24</Thickness>
+    <Thickness x:Key="Margin00024">0,0,0,24</Thickness>
+    
+    <Thickness x:Key="Padding12">12</Thickness>
+    <Thickness x:Key="Padding36">36</Thickness>
+    
+    <sys:Double x:Key="TinyIconWidth">12</sys:Double>
+    <sys:Double x:Key="TinyIconHeight">12</sys:Double>
+    <sys:Double x:Key="SmallIconWidth">16</sys:Double>
+    <sys:Double x:Key="SmallIconHeight">16</sys:Double>
+    <sys:Double x:Key="LargeIconWidth">64</sys:Double>
+    <sys:Double x:Key="LargeIconHeight">64</sys:Double>
+    
+    <sys:Double x:Key="DefaultTextBoxWidth">200</sys:Double>
+    <sys:Double x:Key="BigTextBoxWidth">300</sys:Double>
+    
+    <sys:Double x:Key="FontSizeTitle">16</sys:Double>
+    
+</ResourceDictionary>

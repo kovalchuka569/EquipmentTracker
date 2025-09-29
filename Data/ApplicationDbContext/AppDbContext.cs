@@ -8,12 +8,15 @@ using Models.Entities.PivotSheet;
 using Data.Entities;
 using Data.Configurations;
 using Models.Entities.FileSystem;
-using Models.FileSystem;
 
 namespace Data.ApplicationDbContext
 {
-    public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
+    public class AppDbContext : DbContext
     {
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
+        {
+        }
+        
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -29,33 +32,7 @@ namespace Data.ApplicationDbContext
             await connection.OpenAsync(ct);
             return connection;
         }
-
-        public async Task BeginTransactionAsync(CancellationToken ct)
-        {
-            if (Database.CurrentTransaction == null)
-            {
-                await Database.BeginTransactionAsync(ct);
-            }
-        }
-
-        public async Task CommitTransactionAsync(CancellationToken ct)
-        {
-            if (Database.CurrentTransaction != null)
-            {
-               await Database.CurrentTransaction.CommitAsync(ct);
-            }
-        }
-
-        public async Task RollbackTransactionAsync(CancellationToken ct)
-        {
-            if (Database.CurrentTransaction != null)
-            {
-               await Database.CurrentTransaction.RollbackAsync(ct);
-            }
-        }
-
-
-
+        
         public DbSet<User> Users { get; set; }
         
 

@@ -28,7 +28,7 @@ public static class FileSystemMapper
         entity.ParentId = model.ParentId;
         entity.Format = model.Format;
         entity.MenuType = model.MenuType;
-        entity.Deleted = model.Deleted;
+        entity.IsMarkedForDelete = model.IsMarkedForDelete;
         
         return entity;
     }
@@ -56,7 +56,7 @@ public static class FileSystemMapper
         model.ParentId = entity.ParentId;
         model.Format = entity.Format;
         model.MenuType = entity.MenuType;
-        model.Deleted = entity.Deleted;
+        model.IsMarkedForDelete = entity.IsMarkedForDelete;
         
         return model;
     }

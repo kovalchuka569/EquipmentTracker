@@ -18,5 +18,5 @@ public class FileSystemItemModel
     
     public MenuType MenuType { get; set; } = MenuType.None;
     
-    public bool Deleted { get; set; }
+    public bool IsMarkedForDelete { get; set; }
 }

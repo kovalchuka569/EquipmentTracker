@@ -1,0 +1,229 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0-windows</TargetFramework>
+        <UseWPF>true</UseWPF>
+        <Nullable>enable</Nullable>
+	    <NoWarn>$(NoWarn);IDE0051</NoWarn>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Page Update="Views\EquipmentSheetView.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Controls\DialogBox.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Controls\HoverButton.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Styles\Animations\LoadUserControlAnimationBottomToTop.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </Page>
+      <Page Update="Styles\Animations\LoadUserControlOpacity.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </Page>
+      <Page Update="Styles\Animations\LoadGridAnimationBottomToTop.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </Page>
+      <Page Update="Styles\Animations\LoadUserControlAnimationLeftToRight.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </Page>
+      <Page Update="Styles\Animations\LoadUserControlAnimationRightToLeft.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </Page>
+      <Page Update="Styles\Animations\LoadSfChromelessWindowAnimationBottomToTop.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </Page>
+      <Page Update="Styles\Animations\LoadGridOpacity.xaml">
+        <Generator>MSBuild:Compile</Generator>
+      </Page>
+      <Page Update="Styles\ContextMenuStyle.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Views\NavDrawerView.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Views\TabControlView.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Views\GenericTabView.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Views\MainWindowView.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Views\DialogViews\ColumnDesignerView.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Views\DialogViews\DialogBoxView.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Views\DialogViews\ExcelImportConfiguratorView.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+      <Page Update="Views\DialogViews\MarkedItemsCleanerView.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="JetBrains.Annotations" Version="2025.2.0" />
+      <PackageReference Include="MaterialDesignThemes" Version="5.2.1" />
+      <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
+      <PackageReference Include="Prism.Wpf" Version="9.0.537" />
+      <PackageReference Include="SharpVectors.Wpf" Version="1.8.5" />
+      <PackageReference Include="Syncfusion.DataGridExcelExport.Wpf" Version="31.1.20" />
+      <PackageReference Include="Syncfusion.Grid.WPF" Version="31.1.20" />
+      <PackageReference Include="Syncfusion.Licensing" Version="31.1.20" />
+      <PackageReference Include="Syncfusion.SfColorPalette.WPF" Version="31.1.20" />
+      <PackageReference Include="Syncfusion.SfSkinManager.WPF" Version="31.1.20" />
+      <PackageReference Include="Syncfusion.Shared.WPF" Version="31.1.20" />
+      <PackageReference Include="Syncfusion.Themes.Office2019Colorful.WPF" Version="31.1.20" />
+      <PackageReference Include="Syncfusion.Themes.Windows11Light.WPF" Version="31.1.20" />
+      <PackageReference Include="Syncfusion.Tools.WPF" Version="31.1.20" />
+      <PackageReference Include="Syncfusion.UI.WPF.NET" Version="31.1.20" />
+    </ItemGroup>
+
+        <ItemGroup>
+          <Resource Include="Resources\Fonts\password.ttf" />
+          <Resource Include="Resources\Fonts\tylaco.ttf" />
+      <Resource Include="Resources\Icons\AddColumn\addcolumn_colored_line_20.png" />
+      <Resource Include="Resources\Icons\Close\close_black_line_32.png" />
+      <Resource Include="Resources\Icons\Close\close_dark_line_16.png" />
+      <Resource Include="Resources\Icons\Close\close_light_line_16.png" />
+      <Resource Include="Resources\Icons\Close\close_light_line_32.png" />
+      <Resource Include="Resources\Icons\DeleteColumn\deletecolumn_colored_line_20.png" />
+      <Resource Include="Resources\Icons\DeleteRow\deleterow_colored_line_20.png" />
+      <Resource Include="Resources\Icons\Excel\excel_colored_16.png" />
+      <Resource Include="Resources\Icons\Export\export_dark_line_16.png" />
+      <Resource Include="Resources\Icons\Export\export_light_line_16.png" />
+      <Resource Include="Resources\Icons\Filter\filter_dark_line_16.png" />
+      <Resource Include="Resources\Icons\Filter\filter_light_line_16.png" />
+      <Resource Include="Resources\Icons\FolderClosed\folderclosed_light_line_32.png" />
+      <Resource Include="Resources\Icons\Import\import_dark_line_16.png" />
+      <Resource Include="Resources\Icons\Import\import_light_line_16.png" />
+      <Resource Include="Resources\Icons\Left\left_dark_line_16.png" />
+      <Resource Include="Resources\Icons\Left\left_light_line_16.png" />
+      <Resource Include="Resources\Icons\Pdf\pdf_red_line_16.png" />
+      <Resource Include="Resources\Icons\PivotSheet\pivotsheet_dark_line_36.png" />
+      <Resource Include="Resources\Icons\Print\print_dark_line_32.png" />
+      <Resource Include="Resources\Icons\Print\print_light_line_32.png" />
+      <Resource Include="Resources\Icons\Right\right_dark_line_16.png" />
+      <Resource Include="Resources\Icons\Right\right_light_line_16.png" />
+      <Resource Include="Resources\Icons\TableSheet\tablesheet_dark_line_36.png" />
+      <Resource Include="Resources\Icons\Trash\trash_black_line_128.png" />
+      <Resource Include="Resources\Icons\Trash\trash_black_line_32.png" />
+      <Resource Include="Resources\Icons\Trash\trash_light_line_32.png" />
+      <None Remove="Resources\Fonts\Font Awesome 7 Free-Regular-400.ttf" />
+      <None Remove="Resources\Icons\Gears\gears_dark_fill_64.png" />
+      <None Remove="Resources\Icons\PivotSheet\pivotsheet_dark_line_24.png" />
+      <Resource Include="Resources\Icons\Gears\gears_dark_fill_64.png" />
+      <None Remove="Resources\Icons\FolderClosed\folderclosed_colored_line_48.png" />
+      <None Remove="Resources\Icons\FolderOpened\folderopened_colored_line_48.png" />
+      <None Remove="Resources\Icons\FolderClosed\folderclosed_colored_line_128.png" />
+      <None Remove="Resources\Icons\FolderOpened\folderopened_colored_line_128.png" />
+      <None Remove="Resources\Icons\FolderOpened\folderopened_dark_line_64.png" />
+      <Resource Include="Resources\Icons\FolderOpened\folderopened_dark_line_64.png" />
+      <None Remove="Resources\Icons\FolderOpened\folderopened_colored_line_24.png" />
+      <None Remove="Resources\Icons\FolderClosed\folderclosed_colored_line_24.png" />
+      <None Remove="Resources\Icons\TableSheet\tablesheet_dark_line_24.png" />
+      <None Remove="Resources\Icons\FolderOpened\folderopened_colored_line_24x19.png" />
+      <None Remove="Resources\Icons\TableSheet\tablesheet_dark_line_24x21.png" />
+      <None Remove="Resources\Icons\TableSheet\tablesheet_dark_line_48x42.png" />
+      <None Remove="Resources\Icons\FolderOpened\folderopened_colored_line_48x42.png" />
+      <None Remove="Resources\Icons\FolderClosed\folderclosed_colored_line_48x42.png" />
+      <None Remove="Resources\Icons\FolderClosed\folderclosed_colored_line_96x84.png" />
+      <None Remove="Resources\Icons\FolderOpened\folderopened_colored_line_96x84.png" />
+      <None Remove="Resources\Fonts\font_awesome_free_regular_400.otf" />
+      <None Remove="Resources\Icons\tablesheet_dark_line_24.svg" />
+      <None Remove="Resources\Icons\AddFolder\addfolder_colored_line_20.png" />
+      <Resource Include="Resources\Icons\AddFolder\addfolder_colored_line_20.png" />
+      <None Remove="Resources\Icons\AddTableSheet\addtablesheet_dark_line_20.png" />
+      <Resource Include="Resources\Icons\AddTableSheet\addtablesheet_dark_line_20.png" />
+      <None Remove="Resources\Icons\Add\add_green_line_20.png" />
+      <None Remove="Resources\Icons\FolderClosedEdit\folderclosededit_colored_line_20.png" />
+      <Resource Include="Resources\Icons\FolderClosedEdit\folderclosededit_colored_line_20.png" />
+      <None Remove="Resources\Icons\AddPivotSheet\addpivotsheet_dark_line_20.png" />
+      <Resource Include="Resources\Icons\AddPivotSheet\addpivotsheet_dark_line_20.png" />
+      <None Remove="Resources\Icons\Rename\rename_dark_line_20.png" />
+      <Resource Include="Resources\Icons\Rename\rename_dark_line_20.png" />
+      <None Remove="Resources\Icons\PivotSheet\pivotsheet_dark_line_24t.png" />
+      <None Remove="Resources\Icons\FolderOpened\folderopened_colored_line_24x21.svg" />
+      <None Remove="Resources\Icons\FolderClosed\folderclosed_colored_line_24x21.svg" />
+      <None Remove="Resources\Icons\FolderOpened\folderopened_colored_line_36.png" />
+      <Resource Include="Resources\Icons\FolderOpened\folderopened_colored_line_36.png" />
+      <None Remove="Resources\Icons\FolderOpened\tablesheet_dark_line_36.png" />
+      <None Remove="Resources\Icons\FolderOpened\tablesheet_dark_line_24.png" />
+      <None Remove="Resources\Icons\FolderOpened\pivotsheet_dark_line_36.png" />
+      <None Remove="Resources\Icons\FolderOpened\pivotsheet_dark_line_24.png" />
+      <None Remove="Resources\Icons\FolderClosed\folderclosed_colored_line_36.png" />
+      <Resource Include="Resources\Icons\FolderClosed\folderclosed_colored_line_36.png" />
+      <None Remove="Resources\Icons\EditColumn\editcolumn_colroed_line_20.png" />
+      <Resource Include="Resources\Icons\EditColumn\editcolumn_colored_line_20.png" />
+      <None Remove="Resources\Icons\EditColumn\editcolumn_colored_line_40.png" />
+      <Resource Include="Resources\Icons\EditColumn\editcolumn_colored_line_40.png" />
+      <None Remove="Resources\Icons\ColumnError\columnerror_colored_line_16.png" />
+      <Resource Include="Resources\Icons\ColumnError\columnerror_colored_line_16.png" />
+      <None Remove="Resources\Icons\ColumnError\columnerror_colored_line_32.png" />
+      <Resource Include="Resources\Icons\ColumnError\columnerror_colored_line_32.png" />
+      <None Remove="Resources\Icons\Save\save_light_line_48.png" />
+      <Resource Include="Resources\Icons\Save\save_light_line_48.png" />
+      <None Remove="Resources\Icons\Save\save_dark_line_48.png" />
+      <Resource Include="Resources\Icons\Save\save_dark_line_48.png" />
+      <None Remove="Resources\Icons\DeleteColumn\removecolumn_colored_line_32.png" />
+      <Resource Include="Resources\Icons\DeleteColumn\deletecolumn_colored_line_32.png" />
+      <None Remove="Resources\Icons\Refresh\refresh_colored_line_64.png" />
+      <Resource Include="Resources\Icons\Refresh\refresh_colored_line_64.png" />
+      <None Remove="Resources\Icons\DeleteColumn\deletecolumn_colored_line_64.png" />
+      <Resource Include="Resources\Icons\DeleteColumn\deletecolumn_colored_line_64.png" />
+      <None Remove="Resources\Icons\Truck\truck_white_filled_100.png" />
+      <Resource Include="Resources\Icons\Truck\truck_white_filled_100.png" />
+      <None Remove="Resources\Icons\Broom\broom_dark_line_64.png" />
+      <Resource Include="Resources\Icons\Broom\broom_dark_line_64.png" />
+      <None Remove="Resources\Icons\Broom\broom_light_line_64.png" />
+      <Resource Include="Resources\Icons\Broom\broom_light_line_64.png" />
+      <None Remove="Resources\Icons\DeleteRow\deleterow_colored_line_64.png" />
+      <Resource Include="Resources\Icons\DeleteRow\deleterow_colored_line_64.png" />
+      <None Remove="Resources\Icons\Add\add_green_line_64.png" />
+      <Resource Include="Resources\Icons\Add\add_green_line_64.png" />
+      <None Remove="Resources\Icons\TableSheet\tablesheet_dark_line_64.png" />
+      <Resource Include="Resources\Icons\TableSheet\tablesheet_dark_line_64.png" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Core\Core.csproj" />
+      <ProjectReference Include="..\LocalSecure\LocalSecure.csproj" />
+      <ProjectReference Include="..\Models\Models.csproj" />
+      <ProjectReference Include="..\Resources\Resources.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Resource Include="Resources\Icons\Add\add_green_line_20.png" />
+    </ItemGroup>
+
+</Project>

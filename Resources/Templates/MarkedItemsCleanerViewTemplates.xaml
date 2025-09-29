@@ -1,0 +1,54 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sf="http://schemas.syncfusion.com/wpf"
+                    xmlns:converters="clr-namespace:Common.Converters;assembly=Common">
+    
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/Resources;component/Themes/MarkedItemsRemovingDialog/MarkedItemsCleanerViewStyles.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+    
+    <converters:MarkedForDeleteItemTypeToImageConverter x:Key="MarkedForDeleteItemTypeToImageConverter"
+                                                        OpenedFolderIcon="{StaticResource FolderOpenedColoredLine64}"
+                                                        FolderIcon="{StaticResource FolderClosedColoredLine64}"
+                                                        EquipmentSheetIcon="{StaticResource TableSheetDarkLine64}"
+                                                        PivotSheetIcon="{StaticResource PivotSheetDarkLine64}"/>
+    
+    <converters:BooleanToColorConverter x:Key="BooleanToColorConverter"
+                                        TrueBrush="{StaticResource LightGrayColorBrush}"
+                                        FalseBrush="{StaticResource WhiteColorBrush}"/>
+    
+    <DataTemplate x:Key="TreeItemTemplate" DataType="{x:Type sf:TreeViewNode}">
+        <Border Background="{Binding IsChecked, Converter={StaticResource BooleanToColorConverter}}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/> <!-- CheckBox -->
+                    <ColumnDefinition Width="Auto"/> <!-- Icon -->
+                    <ColumnDefinition Width="*"/>    <!-- Title -->
+                </Grid.ColumnDefinitions>
+                
+                <CheckBox Grid.Column="0" 
+                          IsChecked="{Binding IsChecked, Mode=TwoWay}"/>
+                        
+                <Image Grid.Column="1"
+                       Margin="5,0,0,0"
+                       Width="20"
+                       Height="20"
+                       UseLayoutRounding="True">
+                            
+                    <Image.Source>
+                        <MultiBinding Converter="{StaticResource MarkedForDeleteItemTypeToImageConverter}">
+                            <Binding Path="Content.MarkedForDeleteItemType"/>
+                            <Binding Path="IsExpanded"/>
+                        </MultiBinding>
+                    </Image.Source>
+                </Image>
+                        
+                <TextBlock Grid.Column="2"
+                           Margin="5,0,0,0"
+                           Text="{Binding Content.Title}"/>
+                
+            </Grid>
+        </Border>
+    </DataTemplate>
+    
+</ResourceDictionary>

@@ -1,0 +1,242 @@
+﻿<UserControl x:Class="Presentation.Views.DialogViews.ExcelImportConfiguratorView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:sf="http://schemas.syncfusion.com/wpf"
+             xmlns:localization="clr-namespace:Resources.Localization;assembly=Resources"
+             mc:Ignorable="d"
+             Style="{DynamicResource LoadUserControlAnimationBottomToTop}"
+             Loaded="ExcelImportConfiguratorView_OnLoaded">
+    
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Syncfusion.Themes.Windows11Light.WPF;component/MSControl/ScrollViewer.xaml"/>
+                <ResourceDictionary Source="/Syncfusion.Themes.Windows11Light.WPF;component/MSControl/PrimaryButton.xaml"/>
+                <ResourceDictionary Source="/Syncfusion.Themes.Windows11Light.WPF;component/IntegerTextBox/IntegerTextBox.xaml"/>
+                <ResourceDictionary Source="/Syncfusion.Themes.Windows11Light.WPF;component/SfTextBoxExt/SfTextBoxExt.xaml"/>
+                <ResourceDictionary Source="/Syncfusion.Themes.Windows11Light.WPF;component/CheckListBox/CheckListBox.xaml"/>
+                <ResourceDictionary Source="/Syncfusion.Themes.Windows11Light.WPF;component/MSControl/ListView.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Presentation;component/Resources/Icons/Icons.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Resources;component/Styles/Dialog.Styles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Resources;component/Styles/SfButtonAdv.Styles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Presentation;component/Styles/Animations/LoadUserControlAnimationBottomToTop.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+            
+            <sf:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter"/>
+            
+            <ControlTemplate x:Key="ErrorTemplate">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <Border Grid.Row="0"    
+                            BorderBrush="Red"
+                            BorderThickness="1"
+                            CornerRadius="4">
+                        <AdornedElementPlaceholder x:Name="adornedElement"/>
+                    </Border>
+                    
+                    <Border Grid.Row="1" Background="Red" CornerRadius="4" Margin="0,2,0,0" Padding="5"
+                            MaxWidth="{Binding ActualWidth, ElementName=adornedElement}">
+                        
+                        <TextBlock Text="{Binding [0].ErrorContent}" 
+                                   TextWrapping="Wrap" TextTrimming="CharacterEllipsis" Foreground="White" FontSize="10"/>
+                    </Border>
+                </Grid>
+            </ControlTemplate>
+            
+        </ResourceDictionary>
+    </UserControl.Resources>
+    
+    <Border Style="{StaticResource DialogBorderStyle}">
+        <Grid>
+            <!-- Close button -->
+            <sf:ButtonAdv 
+                Command="{Binding CancelDialogCommand}"
+                Style="{StaticResource CloseDialogButtonStyle}"/>
+            
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>  <!-- Title -->
+                    <RowDefinition Height="1"/>     <!-- Top separator -->
+                    <RowDefinition Height="*"/>     <!-- Content -->
+                    <RowDefinition Height="1"/>     <!-- Bottom separator -->
+                    <RowDefinition Height="Auto"/>  <!-- Ok button -->
+                </Grid.RowDefinitions>
+                
+                <!-- Title -->
+                <TextBlock Grid.Row="0"
+                           Style="{StaticResource DialogTitleTextBlockStyle}"
+                           Text="{x:Static localization:Strings.ExcelImportConfiguration}"/>
+                           
+                <!-- Top separator -->
+                <Border Grid.Row="1" Background="{StaticResource Neutral.Brush}"/>
+                
+                <!-- Content -->
+                <Grid Grid.Row="2" Margin="12">
+                <StackPanel>
+                
+                <StackPanel Orientation="Horizontal" Margin="0,6">
+                    
+                            
+                            <Border CornerRadius="6" 
+                                    BorderBrush="LightGray" BorderThickness="1"
+                                    Margin="0,0,10,0"
+                                    Width="200"
+                                    MaxWidth="200">
+                                
+                                <TextBlock 
+                                    Text="{Binding FilePath}" 
+                                    FontSize="12"
+                                    TextTrimming="CharacterEllipsis"
+                                    VerticalAlignment="Center"
+                                    ToolTip="{Binding FilePath}"/>
+                                
+                            </Border>
+                    
+                    <Grid>
+                    
+                        <sf:ButtonAdv 
+                            Command="{Binding BrowseFileCommand}"
+                            Style="{StaticResource DefaultPrimaryButtonStyle}"
+                            Visibility="{Binding FilePathBusyIndicatorVisibility, Converter={StaticResource InverseBooleanToVisibilityConverter}}"
+                            Label="{x:Static localization:Strings.OpenFile}"
+                            SmallIcon="{StaticResource Folder.White.Line.64}"/>
+                    
+                        <sf:SfBusyIndicator 
+                                        VerticalAlignment="Center" HorizontalAlignment="Center"
+                                        Margin="10,0,0,0"
+                                        ViewboxWidth="25" ViewboxHeight="25"
+                                        AnimationType="Cupertino"
+                                        Visibility="{Binding FilePathBusyIndicatorVisibility, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                        Foreground="{StaticResource Primary.Brush}"/>
+                    
+                    </Grid>
+                    
+                </StackPanel>
+                
+                <TextBlock HorizontalAlignment="Left" 
+                           Text="Вибір Excel листа" 
+                           FontSize="12" FontWeight="Black"
+                           Margin="0,15,0,5"/>
+                
+                <Border BorderBrush="LightGray" CornerRadius="6" BorderThickness="1" Margin="0,6,0,15">
+                    <ScrollViewer Width="300" MaxWidth="300" Height="450" MaxHeight="450" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+                        <Grid>
+                            <ListView
+                                ItemsSource="{Binding Sheets}"
+                                SelectedItem="{Binding SelectedSheet, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                
+                                    <i:Interaction.Triggers>
+                                    <i:EventTrigger EventName="SelectionChanged">
+                                        <i:InvokeCommandAction Command="{Binding SheetSelectionChangedCommand}"/>
+                                    </i:EventTrigger>
+                                </i:Interaction.Triggers>
+                                    
+                            </ListView>
+                            
+                            <TextBlock Text="Листи відсутні" 
+                                       Visibility="{Binding NoSheetsTipVisibility, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                       Foreground="{StaticResource Neutral.Brush}"
+                                       FontSize="12"
+                                       VerticalAlignment="Center" HorizontalAlignment="Center"
+                                       Margin="10,5,10,10"/>
+                        </Grid>
+                        
+                    </ScrollViewer>
+                </Border>
+                
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,15">
+                    <StackPanel Margin="0,0,15,0">
+                        <TextBlock Text="Діапазон заголовків" FontSize="12" Margin="0,0,0,5"/>
+                        <sf:SfTextBoxExt Text="{Binding HeaderRangeString, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
+                                         Height="25" FontSize="13"
+                                         VerticalContentAlignment="Center" HorizontalAlignment="Center"
+                                         Width="100"
+                                         MaxWidth="100"
+                                         ToolTip="Початкова та кінцева комірка зчитування рядка заголовків">
+                            
+                            <Validation.ErrorTemplate>
+                                <StaticResource ResourceKey="ErrorTemplate"/>
+                            </Validation.ErrorTemplate>
+                            
+                        </sf:SfTextBoxExt>
+                    </StackPanel>
+                    
+                    <StackPanel ToolTip="Діапазон зчитування рядків">
+                        <TextBlock HorizontalAlignment="Center" Text="Діапазон рядків" FontSize="12" Margin="0,0,0,5"/>
+                        <StackPanel Orientation="Horizontal">
+                            <sf:IntegerTextBox 
+                                Value="{Binding RowRangeStart, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
+                                NullValue="{x:Null}"
+                                UseNullOption="True"
+                                IsNull="True"
+                                VerticalAlignment="Center" 
+                                MinValue="1"
+                                Height="25" Width="100"
+                                FontSize="13" 
+                                ShowSpinButton="True"
+                                MaxWidth="100">
+                                
+                                <Validation.ErrorTemplate>
+                                    <StaticResource ResourceKey="ErrorTemplate"/>
+                                </Validation.ErrorTemplate>
+                                
+                            </sf:IntegerTextBox>
+                            
+                            <TextBlock Text="—" FontSize="13" FontWeight="DemiBold" Margin="5,0" VerticalAlignment="Center"/>
+                            
+                            <sf:IntegerTextBox 
+                                Value="{Binding RowRangeEnd, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True}"
+                                NullValue="{x:Null}"
+                                UseNullOption="True"
+                                IsNull="True"
+                                VerticalAlignment="Center" 
+                                MinValue="1"
+                                Height="25" Width="100"
+                                FontSize="13" 
+                                ShowSpinButton="True"
+                                MaxWidth="100">
+                                
+                                <Validation.ErrorTemplate>
+                                    <StaticResource ResourceKey="ErrorTemplate"/>
+                                </Validation.ErrorTemplate>
+                                
+                            </sf:IntegerTextBox>
+                        </StackPanel>
+                    </StackPanel>
+                </StackPanel>
+            </StackPanel>
+                    </Grid>
+                
+                <!-- Bottom separator -->
+                <Border Grid.Row="3" Background="{StaticResource Neutral.Brush}"/>
+                
+                <!-- Ok button -->
+                <sf:ButtonAdv Grid.Row="4"
+                              Style="{StaticResource OkDialogButtonStyle}"
+                              Command="{Binding ImportCommand}"
+                              IsEnabled="{Binding ImportButtonIsEnabled}"
+                              Label="{x:Static localization:Strings.Import}"/>
+                
+            </Grid>
+            
+            
+        </Grid>
+    </Border>
+    
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="PreviewKeyDown">
+            <i:InvokeCommandAction Command="{Binding UserControlKeyDownCommand}"
+                                   PassEventArgsToCommand="True"/>
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+    
+</UserControl>

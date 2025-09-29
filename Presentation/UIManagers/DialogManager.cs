@@ -7,12 +7,12 @@ using Prism.Commands;
 using Prism.Dialogs;
 using Prism.Ioc;
 
-using Core.Interfaces;
+using Presentation.Contracts;
 
 using Presentation.Enums;
 using Presentation.Interfaces;
-using Presentation.ViewModels;
-using Presentation.Views;
+using Presentation.ViewModels.DialogViewModels;
+using Presentation.Views.DialogViews;
 
 namespace Presentation.UIManagers;
 
@@ -37,6 +37,10 @@ public class DialogManager : IDialogManager
         _dialogMappings[DialogType.ColumnDesigner] = (typeof(ColumnDesignerView), typeof(ColumnDesignerViewModel));
         
         _dialogMappings[DialogType.RemoveMarkedItems] = (typeof(MarkedItemsCleanerView), typeof(MarkedItemsCleanerViewModel));
+        
+        _dialogMappings[DialogType.ConnectionFailed] = (typeof(ConnectionFailedView), typeof(ConnectionFailedViewModel));
+        
+        _dialogMappings[DialogType.ConnectionSetup] = (typeof(ConnectionSetupView), typeof(ConnectionSetupViewModel));
     }
 
     public Task<IDialogResult> ShowDialogAsync(DialogType dialogType, IDialogHost dialogHost, IDialogParameters? parameters)

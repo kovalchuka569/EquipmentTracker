@@ -6,13 +6,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Syncfusion.Shared.WPF" Version="31.1.17" />
-      <PackageReference Include="Syncfusion.Themes.Windows11Light.WPF" Version="31.1.17" />
-      <PackageReference Include="Syncfusion.UI.WPF.NET" Version="31.1.17" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\Controls\Controls.csproj" />
+      <PackageReference Include="Syncfusion.Shared.WPF" Version="31.1.20" />
+      <PackageReference Include="Syncfusion.Themes.Windows11Light.WPF" Version="31.1.20" />
+      <PackageReference Include="Syncfusion.UI.WPF.NET" Version="31.1.20" />
     </ItemGroup>
 
     <ItemGroup>
@@ -171,65 +167,22 @@
         <XamlRuntime>Wpf</XamlRuntime>
         <SubType>Designer</SubType>
       </Page>
+      <Page Update="Global\Fonts\Fonts.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
     </ItemGroup>
 
     <ItemGroup>
-      <Resource Include="Icons\AddColumn\addcolumn_colored_line_20.png" />
-      <Resource Include="Icons\AddFolder\addfolder_colored_line_20.png" />
-      <Resource Include="Icons\AddPivotSheet\addpivotsheet_dark_line_20.png" />
-      <Resource Include="Icons\AddTableSheet\addtablesheet_dark_line_20.png" />
-      <Resource Include="Icons\Add\add_green_line_20.png" />
-      <Resource Include="Icons\Add\add_green_line_64.png" />
-      <Resource Include="Icons\Broom\broom_dark_line_64.png" />
-      <Resource Include="Icons\Broom\broom_light_line_64.png" />
-      <Resource Include="Icons\Close\close_black_line_32.png" />
-      <Resource Include="Icons\Close\close_dark_line_16.png" />
-      <Resource Include="Icons\Close\close_light_line_16.png" />
-      <Resource Include="Icons\Close\close_light_line_32.png" />
-      <Resource Include="Icons\ColumnError\columnerror_colored_line_16.png" />
-      <Resource Include="Icons\ColumnError\columnerror_colored_line_32.png" />
-      <Resource Include="Icons\DeleteColumn\deletecolumn_colored_line_20.png" />
-      <Resource Include="Icons\DeleteColumn\deletecolumn_colored_line_32.png" />
-      <Resource Include="Icons\DeleteColumn\deletecolumn_colored_line_64.png" />
-      <Resource Include="Icons\DeleteRow\deleterow_colored_line_20.png" />
-      <Resource Include="Icons\DeleteRow\deleterow_colored_line_64.png" />
-      <Resource Include="Icons\EditColumn\editcolumn_colored_line_20.png" />
-      <Resource Include="Icons\EditColumn\editcolumn_colored_line_40.png" />
-      <Resource Include="Icons\Excel\excel_colored_16.png" />
-      <Resource Include="Icons\Export\export_dark_line_16.png" />
-      <Resource Include="Icons\Export\export_light_line_16.png" />
-      <Resource Include="Icons\Filter\filter_dark_line_16.png" />
-      <Resource Include="Icons\Filter\filter_light_line_16.png" />
-      <Resource Include="Icons\FolderClosedEdit\folderclosededit_colored_line_20.png" />
-      <Resource Include="Icons\FolderClosed\folderclosed_colored_line_36.png" />
-      <Resource Include="Icons\FolderClosed\folderclosed_light_line_32.png" />
-      <Resource Include="Icons\FolderOpened\folderopened_colored_line_36.png" />
-      <Resource Include="Icons\FolderOpened\folderopened_dark_line_64.png" />
-      <Resource Include="Icons\Gears\gears_dark_fill_64.png" />
-      <Resource Include="Icons\Import\import_dark_line_16.png" />
-      <Resource Include="Icons\Import\import_light_line_16.png" />
-      <Resource Include="Icons\Left\left_dark_line_16.png" />
-      <Resource Include="Icons\Left\left_light_line_16.png" />
-      <Resource Include="Icons\Pdf\pdf_red_line_16.png" />
-      <Resource Include="Icons\PivotSheet\pivotsheet_dark_line_36.png" />
-      <Resource Include="Icons\Print\print_dark_line_32.png" />
-      <Resource Include="Icons\Print\print_light_line_32.png" />
-      <Resource Include="Icons\Refresh\refresh_colored_line_64.png" />
-      <Resource Include="Icons\Rename\rename_dark_line_20.png" />
-      <Resource Include="Icons\Right\right_dark_line_16.png" />
-      <Resource Include="Icons\Right\right_light_line_16.png" />
-      <Resource Include="Icons\Save\save_dark_line_48.png" />
-      <Resource Include="Icons\Save\save_light_line_48.png" />
-      <Resource Include="Icons\TableSheet\tablesheet_dark_line_36.png" />
-      <Resource Include="Icons\Trash\trash_black_line_128.png" />
-      <Resource Include="Icons\Trash\trash_black_line_32.png" />
-      <Resource Include="Icons\Trash\trash_light_line_32.png" />
-      <Resource Include="Icons\Truck\truck_white_filled_100.png" />
       <None Remove="Icons\Close\close_white_line_64.png" />
+      <Resource Include="Global\Fonts\password.ttf" />
+      <Resource Include="Global\Fonts\tylaco.ttf" />
       <Resource Include="Icons\Close\close_white_line_64.png" />
       <None Remove="Icons\Close\close_dark_line_64.png" />
       <Resource Include="Icons\Close\close_dark_line_64.png" />
       <None Remove="Icons\Right\arrow_right_line.png" />
+      <Resource Include="Icons\close_white_line_64.png" />
       <Resource Include="Icons\Right\arrowright_line_dark_64.png" />
       <None Remove="Icons\Right\arrow_right_line (1).png" />
       <Resource Include="Icons\Right\arrowright_line_white_64.png" />
@@ -237,6 +190,95 @@
       <Resource Include="Icons\Check\check_dark_line_64.png" />
       <None Remove="Icons\Check\check_line (1).png" />
       <Resource Include="Icons\Check\check_white_line_64.png" />
+      <None Remove="Icons\FolderClosed\folderclosed_colored_line_64.png" />
+      <Resource Include="Icons\FolderClosed\folderclosed_colored_line_64.png" />
+      <None Remove="Icons\FolderOpened\folderopened_colored_line_64.png" />
+      <Resource Include="Icons\FolderOpened\folderopened_colored_line_64.png" />
+      <None Remove="Icons\PivotSheet\pivotsheet_dark_line_64.png" />
+      <Resource Include="Icons\PivotSheet\pivotsheet_dark_line_64.png" />
+      <None Remove="Icons\TableSheet\tablesheet_dark_line_64.png" />
+      <Resource Include="Icons\TableSheet\tablesheet_dark_line_64.png" />
+      <None Remove="Icons\broom_line.png" />
+      <Resource Include="Icons\broom_white_line_64.png" />
+      <None Remove="Icons\print_white_line_64.png" />
+      <Resource Include="Icons\print_white_line_64.png" />
+      <None Remove="Icons\print_black_line_64.png" />
+      <Resource Include="Icons\print_black_line_64.png" />
+      <None Remove="Icons\align_arrow_up_line.png" />
+      <Resource Include="Icons\export_black_line_64.png" />
+      <None Remove="Icons\arrow_to_down_line.png" />
+      <Resource Include="Icons\import_black_line_64.png" />
+      <None Remove="Icons\pngwing.com.png" />
+      <Resource Include="Icons\excel_colored_fill_64.png" />
+      <None Remove="Icons\pngwing.com (1).png" />
+      <Resource Include="Icons\pdf_red_line_64.png" />
+      <None Remove="Icons\refresh_black_line_64.png" />
+      <Resource Include="Icons\refresh_black_line_64.png" />
+      <None Remove="Icons\search_black_line_64.png" />
+      <Resource Include="Icons\search_black_line_64.png" />
+      <None Remove="Icons\close_black_line_64.png" />
+      <Resource Include="Icons\close_black_line_64.png" />
+      <None Remove="Icons\uparrow_black_line_64.png" />
+      <Resource Include="Icons\uparrow_black_line_64.png" />
+      <None Remove="Icons\downarrow_black_line_64.png" />
+      <Resource Include="Icons\downarrow_black_line_64.png" />
+      <None Remove="Icons\filter_line.png" />
+      <Resource Include="Icons\filter_black_line_64.png" />
+      <None Remove="Icons\columnsettings_black_line_64.png" />
+      <Resource Include="Icons\columnsettings_black_line_64.png" />
+      <None Remove="Icons\deleterow_colored_line_64.png" />
+      <Resource Include="Icons\deleterow_colored_line_64.png" />
+      <None Remove="Icons\delete_2_line.png" />
+      <Resource Include="Icons\remove_white_line_64.png" />
+      <None Remove="Icons\add_white_line_64.png" />
+      <Resource Include="Icons\add_white_line_64.png" />
+      <None Remove="Icons\save_2_line.png" />
+      <Resource Include="Icons\save_white_line_64.png" />
+      <None Remove="Icons\folder_line.png" />
+      <Resource Include="Icons\folder_white_line_64.png" />
+      <None Remove="Icons\folderopened_colored_line_64.png" />
+      <Resource Include="Icons\folderopened_colored_line_64.png" />
+      <None Remove="Icons\folderclosed_colored_line_64.png" />
+      <Resource Include="Icons\folder_colored_line_64.png" />
+      <None Remove="Icons\tablesheet_black_line_64.png" />
+      <Resource Include="Icons\equipmentsheet_black_line_64.png" />
+      <None Remove="Icons\pivotsheet_black_line_64.png" />
+      <Resource Include="Icons\pivotsheet_black_line_64.png" />
+      <None Remove="Icons\enter_white_line_64.png" />
+      <Resource Include="Icons\enter_white_line_64.png" />
+      <None Remove="Icons\eye_line.png" />
+      <None Remove="Icons\eye_close_line.png" />
+      <None Remove="Icons\eye_line (1).png" />
+      <Resource Include="Icons\eyeopened_black_line_64.png" />
+      <None Remove="Icons\eye_close_line (1).png" />
+      <Resource Include="Icons\eyeclosed_black_line_64.png" />
+      <None Remove="Global\Fonts\segoeui.ttf" />
+      <Resource Include="Global\Fonts\segoeui.ttf" />
+      <None Remove="Icons\refresh_white_line_64.png" />
+      <Resource Include="Icons\refresh_white_line_64.png" />
+      <None Remove="Icons\exit_line.png" />
+      <Resource Include="Icons\exit_white_line_64.png" />
+      <None Remove="Icons\editkey_white_line_64.png" />
+      <Resource Include="Icons\editkey_white_line_64.png" />
+      <None Remove="Icons\serverfailed_colored_fill_128.png" />
+      <None Remove="Icons\unlink_black_line_256.png" />
+      <None Remove="Icons\power_white_line_64.png" />
+      <Resource Include="Icons\power_white_line_64.png" />
+      <None Remove="Icons\unlink_red_line_64.png" />
+      <None Remove="Icons\link_green_line_64.png" />
+      <None Remove="Icons\link_green_fill_64.png" />
+      <None Remove="Icons\unlink_red_fill_64.png" />
+      <Resource Include="Icons\unlink_red_fill_64.png" />
+      <None Remove="Icons\unlink_red_line_256.png" />
+      <Resource Include="Icons\unlink_red_line_256.png" />
+      <None Remove="Icons\link_fill (1).png" />
+      <Resource Include="Icons\link_green_fill_64.png" />
+      <None Remove="Icons\copy_2_line.png" />
+      <Resource Include="Icons\copy_black_line_64.png" />
+      <None Remove="Icons\file_export_line.png" />
+      <Resource Include="Icons\fileexport_white_line_64.png" />
+      <None Remove="Icons\file_import_line (1).png" />
+      <Resource Include="Icons\fileimport_white_line_64.png" />
     </ItemGroup>
 
     <ItemGroup>
@@ -255,6 +297,10 @@
         <AutoGen>True</AutoGen>
         <DependentUpon>Strings.resx</DependentUpon>
       </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Common\Common.csproj" />
     </ItemGroup>
 
 </Project>

@@ -22,8 +22,6 @@ public class EquipmentSheetService(IUnitOfWork unitOfWork, IAppLogger<EquipmentS
     {
        return await ExecuteInLoggerAsync(async () =>
        {
-            
-            await UnitOfWork.EnsureInitializedForReadAsync(ct);
             var columnsJson = await UnitOfWork.EquipmentSheetRepository.GetColumnsJsonAsync(equipmentSheetId, ct);
             return DeserializeColumns(columnsJson);
             
@@ -34,8 +32,6 @@ public class EquipmentSheetService(IUnitOfWork unitOfWork, IAppLogger<EquipmentS
     {
         return await ExecuteInLoggerAsync(async () =>
         {
-            
-            await UnitOfWork.EnsureInitializedForReadAsync(ct);
             var rowsJson = await UnitOfWork.EquipmentSheetRepository.GetRowsJsonAsync(equipmentSheetId, ct);
             var rows = DeserializeRows(rowsJson);
             return rows.ToList();
@@ -47,8 +43,6 @@ public class EquipmentSheetService(IUnitOfWork unitOfWork, IAppLogger<EquipmentS
     {
         await ExecuteInLoggerAsync(async () =>
         {
-            
-            await UnitOfWork.EnsureInitializedForReadAsync(ct);
             var currentRowsJson = await UnitOfWork.EquipmentSheetRepository.GetRowsJsonAsync(equipmentSheetId, ct);
             var listRowsModel = DeserializeRows(currentRowsJson);
 
@@ -75,8 +69,6 @@ public class EquipmentSheetService(IUnitOfWork unitOfWork, IAppLogger<EquipmentS
     {
         await ExecuteInLoggerAsync(async () =>
         {
-            
-            await UnitOfWork.EnsureInitializedForReadAsync(ct);
             var currentRowsJson = await UnitOfWork.EquipmentSheetRepository.GetRowsJsonAsync(equipmentSheetId, ct);
             var listRowsModel = DeserializeRows(currentRowsJson);
             Console.WriteLine(listRowsModel.Count + "List rows models count");
@@ -132,7 +124,6 @@ public class EquipmentSheetService(IUnitOfWork unitOfWork, IAppLogger<EquipmentS
             if (haveNewCells)
             {
                 // Add new cells for existing rows
-                await UnitOfWork.EnsureInitializedForReadAsync(ct);
                 var listRowsModel = await GetActiveRowsByEquipmentSheetIdAsync(equipmentSheetId, ct);
         
                 var rowsDictionary = listRowsModel.ToDictionary(row => row.Id);
@@ -167,8 +158,6 @@ public class EquipmentSheetService(IUnitOfWork unitOfWork, IAppLogger<EquipmentS
     {
         await ExecuteInLoggerAsync(async () =>
         {
-            
-            await UnitOfWork.EnsureInitializedForReadAsync(ct);
             var columnsJson = await UnitOfWork.EquipmentSheetRepository.GetColumnsJsonAsync(equipmentSheetId, ct);
             var columns = DeserializeColumns(columnsJson);
 
@@ -197,8 +186,6 @@ public class EquipmentSheetService(IUnitOfWork unitOfWork, IAppLogger<EquipmentS
     {
         await ExecuteInLoggerAsync(async () =>
         {
-            
-            await UnitOfWork.EnsureInitializedForReadAsync(ct);
             var columnsJson = await UnitOfWork.EquipmentSheetRepository.GetColumnsJsonAsync(equipmentSheetId, ct);
             var columnsModels = DeserializeColumns(columnsJson);
         
@@ -231,8 +218,6 @@ public class EquipmentSheetService(IUnitOfWork unitOfWork, IAppLogger<EquipmentS
     {
         await ExecuteInLoggerAsync(async () =>
         {
-            
-            await UnitOfWork.EnsureInitializedForReadAsync(ct);
             var columnsJson = await UnitOfWork.EquipmentSheetRepository.GetColumnsJsonAsync(equipmentSheetId, ct);
             var columnProps = DeserializeColumns(columnsJson);
 
@@ -260,8 +245,6 @@ public class EquipmentSheetService(IUnitOfWork unitOfWork, IAppLogger<EquipmentS
     {
         await ExecuteInLoggerAsync(async () =>
         {
-            
-            await UnitOfWork.EnsureInitializedForReadAsync(ct);
             var currentRowsJson = await UnitOfWork.EquipmentSheetRepository.GetRowsJsonAsync(equipmentSheetId, ct);
             var rows = DeserializeRows(currentRowsJson);
         
@@ -312,8 +295,7 @@ public class EquipmentSheetService(IUnitOfWork unitOfWork, IAppLogger<EquipmentS
     {
         await ExecuteInLoggerAsync(async () =>
         {
-            
-            await UnitOfWork.EnsureInitializedForReadAsync(ct);
+            Console.WriteLine(newValue);
             var currentRowsJson = await UnitOfWork.EquipmentSheetRepository.GetRowsJsonAsync(equipmentSheetId, ct);
             var rows = DeserializeRows(currentRowsJson);
         
@@ -331,7 +313,6 @@ public class EquipmentSheetService(IUnitOfWork unitOfWork, IAppLogger<EquipmentS
 
             await ExecuteInTransactionAsync(async () =>
             {
-                
                 await UnitOfWork.EquipmentSheetRepository.UpdateAsync(
                     equipmentSheetId, 
                     s => s
@@ -348,7 +329,6 @@ public class EquipmentSheetService(IUnitOfWork unitOfWork, IAppLogger<EquipmentS
         await ExecuteInLoggerAsync(async () =>
         {
             
-            await UnitOfWork.EnsureInitializedForReadAsync(ct);
             var equipmentSheet = await UnitOfWork.EquipmentSheetRepository.GetByIdAsync(equipmentSheetId, ct);
             var rowModels = DeserializeRows(equipmentSheet.RowsJson);
             if (rowModels.Count == 0)
@@ -380,7 +360,6 @@ public class EquipmentSheetService(IUnitOfWork unitOfWork, IAppLogger<EquipmentS
     {
         await ExecuteInLoggerAsync(async () =>
         {
-            await UnitOfWork.EnsureInitializedForReadAsync(ct);
             var equipmentSheet = await UnitOfWork.EquipmentSheetRepository.GetByIdAsync(equipmentSheetId, ct);
             var columnProps = DeserializeColumns(equipmentSheet.ColumnsJson)
                 ?? throw new Exception(NoColumnsFoundInTheProvidedSheetExMessage);

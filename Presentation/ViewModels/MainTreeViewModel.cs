@@ -23,7 +23,6 @@ using Presentation.Mappers;
 using Common.Enums;
 using Common.Logging;
 using Core.Events.TabControl;
-using Core.Models.Consumables;
 
 namespace Presentation.ViewModels;
 
@@ -32,21 +31,13 @@ public class MainTreeViewModel : BaseViewModel<MainTreeViewModel>, INavigationAw
     #region Constants
     
     private const string LoadItemsErrorMessageUi = "Виникла помилка під час завантаження даних.";
-    
     private const string LoadItemsErrorMessageLogger = "Error while loading items.";
-    
     private const string InsertItemErrorMessageUi = "Виникла помилка під час додавання елементу.";
-    
     private const string InsertItemErrorMessageLogger = "Error while inserting root item.";
-
     private const string ItemEditErrorMessageUi = "Виникла помилка під час редагування елементу.";
-    
     private const string ItemEditErrorMessageLogger = "Error while editing root item.";
-
     private const string DraggedItemsErrorMessageUi = "Виникла помилка під час зміни розташування елемента.";
-    
     private const string DraggedItemsErrorMessageLogger = "Error while dragging root items.";
-
     private const int ChildsLoadingDelay = 150;
     
     #endregion

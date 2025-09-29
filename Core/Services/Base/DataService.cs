@@ -55,7 +55,8 @@ public abstract class DatabaseService<T> : BaseService<T>
             await action();
             
             Logger.LogDebug(CommitingTransactionMessage);
-            await UnitOfWork.CommitAsync(ct);
+            await UnitOfWork.SaveChangesAsync(ct);
+            await UnitOfWork.CommitTransactionAsync(ct);
         }
         catch (Exception ex)
         {

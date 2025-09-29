@@ -34,6 +34,7 @@ using Presentation.Interfaces;
 using Presentation.Models;
 using Presentation.UIManagers;
 using Presentation.ViewModels.Common.Table;
+using Presentation.Contracts;
 
 namespace Presentation.ViewModels;
 
@@ -51,7 +52,6 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
     private ISyncfusionGridColumnManager _columnManager;
     private ICellValidatorService _cellValidatorService;
     private IRowValidatorService _rowValidatorService;
-    private IRegionManager? _scopedRegionManager;
     private IEventAggregator? _scopedEventAggregator;
     private Guid _equipmentSheetId;
     private bool _isInitialized;
@@ -259,20 +259,6 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
         private set;
     } = null!;
 
-    public DelegateCommand<CurrentCellBeginEditEventArgs> CurrentCellBeginEditCommand
-    {
-        [UsedImplicitly] 
-        get;
-        private set;
-    } = null!;
-
-    public DelegateCommand<CurrentCellValueChangedEventArgs> CurrentCellValueChangedCommand
-    {
-        [UsedImplicitly] 
-        get;
-        private set;
-    } = null!;
-
     public DelegateCommand<AddNewRowInitiatingEventArgs> AddNewRowInitiatingCommand
     {
         [UsedImplicitly]
@@ -349,8 +335,6 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
         RowValidatingCommand = new DelegateCommand<RowValidatingEventArgs>(OnRowValidating);
         RowValidatedCommand = new DelegateCommand<RowValidatedEventArgs>(OnRowValidated);
         CurrentCellValidatingCommand = new DelegateCommand<CurrentCellValidatingEventArgs>(OnCurrentCellValidating);
-        CurrentCellBeginEditCommand = new DelegateCommand<CurrentCellBeginEditEventArgs>(OnCurrentCellBeginEdit);
-        CurrentCellValueChangedCommand = new DelegateCommand<CurrentCellValueChangedEventArgs>(OnCurrentCellValueChanged);
         AddNewRowInitiatingCommand = new DelegateCommand<AddNewRowInitiatingEventArgs>(OnAddNewRowInitiating);
         FilterItemsPopulatedCommand = new DelegateCommand<GridFilterItemsPopulatedEventArgs>(OnGridFilterItemsPopulated);
         MarkRowForDeleteCommand = new DelegateCommand(OnMarkRowsForDelete);
@@ -559,49 +543,9 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
         }
     }
 
-    // Programmatically separately for Grid CheckBox Column we save the row value,
-    // since it does not call RowValidating/RowValidated
-    private async void OnCurrentCellValueChanged(CurrentCellValueChangedEventArgs e)
-    {
-        // Enabling the RowValidating event if the changes happen in GridCheckBoxColumn
-        if (e.Column.GetType() != typeof(GridCheckBoxColumn)) 
-            return;
-
-        if (!_isAddingNewRow)
-        {
-            
-            // ONLY updating cell
-            var item = e.Record as ItemViewModel ?? throw new InvalidOperationException("Item is not item view model");
-
-            if (!item.RowViewModel.TryGetCellByMappingName(e.Column.MappingName, out var cell) || cell is null)
-            {
-                Console.WriteLine(e.Column.HeaderText);
-                return;
-            }
-
-            if (!cell.IsNew)
-            {
-                Console.WriteLine("!cell.IsNew");
-                var currentValue = cell.Value;
-
-                if (currentValue is null) 
-                    return;
-                
-                Console.WriteLine("current value is not null");
-
-                await _service.UpdateCellValueAsync(_equipmentSheetId, cell.Id, currentValue);
-            }
-        }
-
-        // Make not valid for activate row validation
-        _dataGrid.GetValidationHelper().SetCurrentRowValidated(false);
-    }
-
-    private bool _isAddingNewRow;
-
     private void OnAddNewRowInitiating(AddNewRowInitiatingEventArgs args)
     {
-        _isAddingNewRow = true;
+
         if (args.NewObject is not ItemViewModel itemViewModel) return;
 
         foreach (var entry in _columnMappingNameIdMap)
@@ -636,11 +580,6 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
             TextColumnProperties textColumnProperties => textColumnProperties.DefaultValue,
             _ => throw new ArgumentOutOfRangeException(nameof(domainProps))
         };
-    }
-
-    private void OnCurrentCellBeginEdit(CurrentCellBeginEditEventArgs args)
-    {
-        _isAddingNewRow = false;
     }
 
     private async void OnDataGridLoaded(SfDataGrid dataGrid)
@@ -745,6 +684,7 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
         // Update row if it exists
         else
         {
+            Console.WriteLine("UpdateRow");
             var updatedRowModel = RowViewModel.ToDomain(validatedItemViewModel.RowViewModel);
             await _service.UpdateRowAsync(_equipmentSheetId, rowId, updatedRowModel);
         }
@@ -823,14 +763,12 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
         if (_isInitialized)
         {
             _logger.LogInformation("Already initialized, skipping OnNavigatedTo");
-            UpdateOverlayVisibility();
             return;
         }
 
         try
         {
             GetNavigationParameters(navigationContext.Parameters);
-            SubscribeToRegionsChanges();
         }
         catch (Exception ex)
         {
@@ -1105,7 +1043,6 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
         var tabScopedServiceProvider = parameters.GetValue<IScopedProvider>("TabScopedServiceProvider");
         _service = tabScopedServiceProvider.Resolve<IEquipmentSheetService>();
         _excelImportService = tabScopedServiceProvider.Resolve<IExcelImportService>();
-        _scopedRegionManager ??= parameters["ScopedRegionManager"] as IRegionManager;
         _scopedEventAggregator ??= parameters["ScopedEventAggregator"] as IEventAggregator;
         _equipmentSheetId = (Guid)(parameters[EquipmentSheetConstants.EquipmentSheetId] ?? Guid.Empty);
     }
@@ -1115,39 +1052,12 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
         _dataGrid.RowDragDropController.Dropped += OnRowsDropped;
     }
 
-    private void SubscribeToRegionsChanges()
-    {
-        if (_scopedRegionManager == null) return;
-
-        _scopedRegionManager.Regions[EquipmentSheetConstants.ColumnCreatorRegion]
-            .ActiveViews.CollectionChanged += OnActiveViewsChanged;
-
-        UpdateOverlayVisibility();
-    }
-
-    private void OnActiveViewsChanged(object? sender, NotifyCollectionChangedEventArgs e)
-    {
-        UpdateOverlayVisibility();
-    }
-
-    private void UpdateOverlayVisibility()
-    {
-        if (_scopedRegionManager == null) return;
-
-        IsRegionOverlayVisible =
-            _scopedRegionManager.Regions[EquipmentSheetConstants.ColumnCreatorRegion].ActiveViews.Any();
-    }
-
     #endregion
 
     public void Destroy()
     {
         try
         {
-            if (_scopedRegionManager != null)
-            {
-                RegionCleanupHelper.CleanRegion(_scopedRegionManager, EquipmentSheetConstants.ColumnCreatorRegion);
-            }
 
             Items.Clear();
             Columns.Clear();

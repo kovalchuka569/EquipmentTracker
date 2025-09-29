@@ -1,0 +1,85 @@
+﻿<UserControl x:Class="Presentation.Views.DialogViews.MarkedItemsCleanerView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:sf="http://schemas.syncfusion.com/wpf"
+             xmlns:localization="clr-namespace:Resources.Localization;assembly=Resources"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:enums="clr-namespace:Common.Enums;assembly=Common"
+             xmlns:converters="clr-namespace:Presentation.Converters"
+             xmlns:templateSelectors="clr-namespace:Presentation.TemplateSelectors"
+             SnapsToDevicePixels="True">
+    
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Resources;component/Global/Common.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Resources;component/Global/Brushes.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Resources;component/Styles/ScrollViewer.Styles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Resources;component/Styles/Dialog.Styles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Resources;component/Themes/Generic.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            
+            
+            <converters:MarkedItemsRemovingStepToVisibilityConverter x:Key="MarkedItemsRemovingStepToVisibilityConverter"/>
+            
+            <converters:MarkedItemsRemovingStepToStringConverter x:Key="MarkedItemsRemovingStepToStringConverter"
+                                                                 RemovingTypeSelectionString="{x:Static localization:Strings.Next}"
+                                                                 RemovingItemsSelectionString="{x:Static localization:Strings.Next}"
+                                                                 RemovingFinishString="{x:Static localization:Strings.Finish}"/>
+            
+            <templateSelectors:MarkedItemsRemovingTemplateSelector x:Key="MarkedItemsRemovingTemplateSelector"
+                                                                   RemovingTypeSelectorTemplate="{StaticResource RemovingTypeSelectorTemplate}"
+                                                                   RemovingItemSelectionTemplate="{StaticResource RemovingItemsSelectorTemplate}"
+                                                                   RemovingProcessTemplate="{StaticResource RemovingItemsProcessTemplate}"
+                                                                   RemovingItemsFinishTemplate="{StaticResource RemovingItemsFinishTemplate}"/>
+            
+        </ResourceDictionary>
+    </UserControl.Resources>
+    
+    <Border Style="{StaticResource DialogBorderStyle}">
+        <Grid>
+            <sf:ButtonAdv Style="{StaticResource CloseDialogButtonStyle}"
+                          Command="{Binding CloseDialogCommand}"/>
+            
+            <Grid>
+                
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>  <!-- Title -->
+                    <RowDefinition Height="1"/>     <!-- Top separator -->
+                    <RowDefinition Height="*"/>     <!-- Content -->
+                    <RowDefinition Height="1"/>     <!-- Bottom separator -->
+                    <RowDefinition Height="Auto"/>  <!-- Ok button -->
+                </Grid.RowDefinitions>
+                
+                <!-- Title -->
+                <TextBlock Grid.Row="0"
+                           Style="{StaticResource DialogTitleTextBlockStyle}"
+                           Text="{x:Static localization:Strings.RemovingMarkedItems}"/>
+                
+                <!-- Top separator -->
+                <Border Grid.Row="1" Background="{StaticResource Neutral.Brush}"/>
+                
+                <!-- Content -->
+                <ScrollViewer Grid.Row="2"
+                              Style="{StaticResource DialogScrollViewerStyle}">
+                    
+                    <ContentControl Content="{Binding MarkedItemsRemovingStep}"
+                                    ContentTemplateSelector="{StaticResource MarkedItemsRemovingTemplateSelector}"/>
+                    
+                </ScrollViewer>
+                
+                <!-- Bottom separator -->
+                <Border Grid.Row="3" Background="{StaticResource Neutral.Brush}"/>
+                
+                <!-- Ok button -->
+                <sf:ButtonAdv Grid.Row="4"
+                              Command="{Binding OkButtonClickedCommand}"
+                              Style="{StaticResource OkDialogButtonStyle}"
+                              Label="{Binding MarkedItemsRemovingStep, Converter={StaticResource MarkedItemsRemovingStepToStringConverter}}"
+                              Visibility="{Binding MarkedItemsRemovingStep, Converter={StaticResource MarkedItemsRemovingStepToVisibilityConverter}}"/>
+                
+            </Grid>
+        </Grid>
+    </Border>
+    
+</UserControl>

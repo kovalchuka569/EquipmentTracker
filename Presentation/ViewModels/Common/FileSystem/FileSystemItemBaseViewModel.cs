@@ -46,7 +46,7 @@ public abstract class FileSystemItemBaseViewModel : BindableBase, IDataErrorInfo
 
     private int _order;
 
-    private bool _deleted;
+    private bool _isMarkedForDelete;
 
     private bool _isLoading;
 
@@ -164,10 +164,10 @@ public abstract class FileSystemItemBaseViewModel : BindableBase, IDataErrorInfo
     /// <summary>
     /// Indicates is the deleted file.
     /// </summary>
-    public bool Deleted
+    public bool IsMarkedForDelete
     {
-        get => _deleted;
-        set => SetProperty(ref _deleted, value);
+        get => _isMarkedForDelete;
+        set => SetProperty(ref _isMarkedForDelete, value);
     }
 
     /// <summary>

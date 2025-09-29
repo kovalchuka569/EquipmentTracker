@@ -10,8 +10,6 @@ public enum ColumnDataType
     
     Date,
     
-    Boolean,
-    
     List,
     
     Hyperlink,

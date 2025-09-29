@@ -13,7 +13,7 @@ public abstract class BaseViewModel<TSelf> : BindableBase
 {
     protected readonly NotificationManager NotificationManager;
     protected readonly IAppLogger<TSelf> Logger;
-
+    
     protected BaseViewModel(NotificationManager notificationManager, IAppLogger<TSelf> logger)
     {
         NotificationManager = notificationManager;

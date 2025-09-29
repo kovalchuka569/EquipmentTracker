@@ -42,7 +42,6 @@ public abstract class BaseColumnPropertiesViewModel : BindableBase, INotifyDataE
     new (ColumnDataType.Text,      ColumnDesignerConstants.ColumnDataTypeTextDisplay),
     new (ColumnDataType.Number,    ColumnDesignerConstants.ColumnDataTypeNumberDisplay),
     new (ColumnDataType.Date,      ColumnDesignerConstants.ColumnDataTypeDateDisplay),
-    new (ColumnDataType.Boolean,   ColumnDesignerConstants.ColumnDataTypeBooleanDisplay),
     new (ColumnDataType.List,      ColumnDesignerConstants.ColumnDataTypeListDisplay),
     new (ColumnDataType.Hyperlink, ColumnDesignerConstants.ColumnDataTypeHyperlinkDisplay),
     new (ColumnDataType.Currency,  ColumnDesignerConstants.ColumnDataTypeCurrencyDisplay)

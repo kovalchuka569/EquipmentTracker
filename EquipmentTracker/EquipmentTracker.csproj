@@ -48,6 +48,7 @@
 	<ItemGroup>
 		<ProjectReference Include="..\Core\Core.csproj" />
 		<ProjectReference Include="..\Data\Data.csproj" />
+		<ProjectReference Include="..\LocalSecure\LocalSecure.csproj" />
 		<ProjectReference Include="..\Models\Models.csproj" />
 		<ProjectReference Include="..\Presentation\Presentation.csproj" />
 	</ItemGroup>
@@ -81,16 +82,16 @@
       <PackageReference Include="Serilog.Extensions.Logging" Version="9.0.2" />
       <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
       <PackageReference Include="squirrel.windows" Version="1.9.0" />
-      <PackageReference Include="Syncfusion.DataGridExcelExport.Wpf" Version="31.1.17" />
-      <PackageReference Include="Syncfusion.Licensing" Version="31.1.17" />
-      <PackageReference Include="Syncfusion.SfColorPalette.WPF" Version="31.1.17" />
-      <PackageReference Include="Syncfusion.SfSkinManager.WPF" Version="31.1.17" />
-      <PackageReference Include="Syncfusion.Shared.WPF" Version="31.1.17" />
-      <PackageReference Include="Syncfusion.Themes.Office2019Colorful.WPF" Version="31.1.17" />
-      <PackageReference Include="Syncfusion.Themes.Windows11Dark.WPF" Version="31.1.17" />
-      <PackageReference Include="Syncfusion.Themes.Windows11Light.WPF" Version="31.1.17" />
-      <PackageReference Include="Syncfusion.Tools.WPF" Version="31.1.17" />
-      <PackageReference Include="Syncfusion.UI.WPF.NET" Version="31.1.17" />
+      <PackageReference Include="Syncfusion.DataGridExcelExport.Wpf" Version="31.1.20" />
+      <PackageReference Include="Syncfusion.Licensing" Version="31.1.20" />
+      <PackageReference Include="Syncfusion.SfColorPalette.WPF" Version="31.1.20" />
+      <PackageReference Include="Syncfusion.SfSkinManager.WPF" Version="31.1.20" />
+      <PackageReference Include="Syncfusion.Shared.WPF" Version="31.1.20" />
+      <PackageReference Include="Syncfusion.Themes.Office2019Colorful.WPF" Version="31.1.20" />
+      <PackageReference Include="Syncfusion.Themes.Windows11Dark.WPF" Version="31.1.20" />
+      <PackageReference Include="Syncfusion.Themes.Windows11Light.WPF" Version="31.1.20" />
+      <PackageReference Include="Syncfusion.Tools.WPF" Version="31.1.20" />
+      <PackageReference Include="Syncfusion.UI.WPF.NET" Version="31.1.20" />
       <PackageReference Include="Unity.Container" Version="5.11.11" />
     </ItemGroup>
 
@@ -386,6 +387,13 @@
       <EmbeddedResource Update="Resources\Syncfusion.Shared.Wpf.uk-UA.resx">
         <LastGenOutput>Syncfusion.Shared.Wpf.uk-UA.Designer.cs</LastGenOutput>
       </EmbeddedResource>
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="appsettings.json" />
+      <Content Include="appsettings.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
     </ItemGroup>
 
 	

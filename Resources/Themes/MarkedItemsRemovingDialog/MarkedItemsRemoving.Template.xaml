@@ -3,12 +3,25 @@
                     xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
                     xmlns:sf="http://schemas.syncfusion.com/wpf"
                     xmlns:enums="clr-namespace:Common.Enums;assembly=Common"
+                    xmlns:converters="clr-namespace:Common.Converters;assembly=Common"
                     xmlns:localization="clr-namespace:Resources.Localization">
     
     <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="/Syncfusion.Themes.Windows11Light.WPF;component/MSControl/CheckBox.xaml"/>
         <ResourceDictionary Source="/Syncfusion.Themes.Windows11Light.WPF;component/MSControl/RadioButton.xaml"/>
         <ResourceDictionary Source="/Syncfusion.Themes.Windows11Light.WPF;component/SfTreeView/SfTreeView.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/Resources;component/Icons/Icons.xaml"/>
     </ResourceDictionary.MergedDictionaries>
+    
+    <converters:MarkedForDeleteItemTypeToImageConverter x:Key="MarkedForDeleteItemTypeToImageConverter"
+        FolderIcon="{StaticResource FolderClosedColoredLine64}"
+        OpenedFolderIcon="{StaticResource FolderOpenedColoredLine64}"
+        EquipmentSheetIcon="{StaticResource TableSheetDarkLine64}"
+        PivotSheetIcon="{StaticResource PivotSheetDarkLine64}"/>
+    
+    <converters:BooleanToColorConverter x:Key="BooleanToColorConverter"
+                                        TrueBrush="#E8E8E8"
+                                        FalseBrush="White"/>
     
     <DataTemplate x:Key="RemovingTypeSelectorTemplate">
         <StackPanel 
@@ -48,6 +61,67 @@
     </DataTemplate>
     
     <DataTemplate x:Key="RemovingItemsSelectorTemplate">
+        <sf:SfTreeView
+            ItemsSource="{Binding DataContext.MarkedForDeleteItems,
+                                                RelativeSource={RelativeSource AncestorType=UserControl}}"
+            CheckedItems="{Binding DataContext.CheckedForDeleteItems,
+                                                RelativeSource={RelativeSource AncestorType=UserControl},
+                                                Mode=TwoWay}"
+            NodePopulationMode="Instant"
+            ChildPropertyName="Childs"
+            SelectionMode="Multiple"
+            ItemTemplateDataContextType="Node"
+            CheckBoxMode="Recursive"
+            AutoExpandMode="AllNodes"
+            IsAnimationEnabled="True"
+            AllowDragging="False"
+            AllowEditing="False"
+            AllowDeleting="False"
+            Width="800"
+            Height="800">
+            <sf:SfTreeView.ItemTemplate>
+                <DataTemplate>
+                    <Grid Background="{Binding IsChecked, Converter={StaticResource BooleanToColorConverter}}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/> <!-- CheckBox -->
+                            <ColumnDefinition Width="Auto"/> <!-- Icon -->
+                            <ColumnDefinition Width="*"/>    <!-- Title -->
+                        </Grid.ColumnDefinitions>
+                        
+                        <CheckBox Grid.Column="0" 
+                                  FocusVisualStyle="{x:Null}"
+                                  IsChecked="{Binding IsChecked, Mode=TwoWay}"/>
+                        
+                        <Image Grid.Column="1"
+                               Margin="5,0,0,0"
+                               Width="20"
+                               Height="20"
+                               UseLayoutRounding="True">
+                            
+                            <Image.Source>
+                                <MultiBinding Converter="{StaticResource MarkedForDeleteItemTypeToImageConverter}">
+                                    <Binding Path="Content.MarkedForDeleteItemType"/>
+                                    <Binding Path="IsExpanded"/>
+                                </MultiBinding>
+                            </Image.Source>
+                        </Image>
+                        
+                        <TextBlock Grid.Column="2"
+                                   Margin="5,0,0,0"
+                                   Text="{Binding Content.Title}"/>
+                        
+                    </Grid>
+                </DataTemplate>
+            </sf:SfTreeView.ItemTemplate>
+            
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="Loaded">
+                    <i:InvokeCommandAction Command="{Binding DataContext.SelectedItemsTreeLoadedCommand, 
+                    RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+            
+        </sf:SfTreeView>
     </DataTemplate>
     
     <DataTemplate x:Key="RemovingItemsProcessTemplate">

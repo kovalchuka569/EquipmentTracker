@@ -9,7 +9,6 @@ public class ColumnTypeTemplateSelector : DataTemplateSelector
     public DataTemplate TextTemplate { get; set; }
     public DataTemplate NumberTemplate { get; set; }
     public DataTemplate DateTemplate { get; set; }
-    public DataTemplate BooleanTemplate { get; set; }
     public DataTemplate ListTemplate { get; set; }
     public DataTemplate CurrencyTemplate { get; set; }
     public DataTemplate HyperlinkTemplate { get; set; }
@@ -26,8 +25,6 @@ public class ColumnTypeTemplateSelector : DataTemplateSelector
                     return NumberTemplate;
                 case ColumnDataType.Date:
                     return DateTemplate;
-                case ColumnDataType.Boolean:
-                    return BooleanTemplate;
                 case ColumnDataType.List:
                     return ListTemplate;
                 case ColumnDataType.Currency:

@@ -22,11 +22,12 @@ public interface IFileSystemService
     public Task InsertChildAsync (FileSystemItemModel fileSystemItemModel, CancellationToken ct = default);
     
     /// <summary>
-    /// Deletes the specified child file system item asynchronously.
+    /// Deletes the specified file system item asynchronously.
     /// </summary>
-    /// <param name="fileSystemItemModel">The child file system item to delete.</param>
+    /// <param name="fileSystemId">ID of file system item.</param>
+    /// <param name="isMarkedForDelete">New has marked for delete flag value for file.</param>
     /// <param name="ct">Cancellation token.</param>
-    public Task DeleteChildAsync (FileSystemItemModel fileSystemItemModel, CancellationToken ct = default);
+    public Task UpdateHasMarkedForDelete (Guid fileSystemId, bool isMarkedForDelete, CancellationToken ct = default);
     
     /// <summary>
     /// Renames the specified file system item asynchronously.

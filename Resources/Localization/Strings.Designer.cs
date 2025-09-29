@@ -60,11 +60,182 @@ namespace Resources.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Add.
+        /// </summary>
+        public static string Add {
+            get {
+                return ResourceManager.GetString("Add", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Authorization.
+        /// </summary>
+        public static string Authorization {
+            get {
+                return ResourceManager.GetString("Authorization", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Auto removing marked items.
         /// </summary>
         public static string AutoRemovingMarkedItems {
             get {
                 return ResourceManager.GetString("AutoRemovingMarkedItems", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Close.
+        /// </summary>
+        public static string Close {
+            get {
+                return ResourceManager.GetString("Close", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Columns.
+        /// </summary>
+        public static string Columns {
+            get {
+                return ResourceManager.GetString("Columns", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Column settings.
+        /// </summary>
+        public static string ColumnSettings {
+            get {
+                return ResourceManager.GetString("ColumnSettings", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Connection failed.
+        /// </summary>
+        public static string ConnectionFailed {
+            get {
+                return ResourceManager.GetString("ConnectionFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Contains.
+        /// </summary>
+        public static string Contains {
+            get {
+                return ResourceManager.GetString("Contains", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Incorrect login or password to connect to the database..
+        /// </summary>
+        public static string DbInvalidLoginOrPass {
+            get {
+                return ResourceManager.GetString("DbInvalidLoginOrPass", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Database name.
+        /// </summary>
+        public static string DbName {
+            get {
+                return ResourceManager.GetString("DbName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Database password.
+        /// </summary>
+        public static string DbPassword {
+            get {
+                return ResourceManager.GetString("DbPassword", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Database port.
+        /// </summary>
+        public static string DbPort {
+            get {
+                return ResourceManager.GetString("DbPort", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unknown database name.
+        /// </summary>
+        public static string DbUnknownName {
+            get {
+                return ResourceManager.GetString("DbUnknownName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Username.
+        /// </summary>
+        public static string DbUsername {
+            get {
+                return ResourceManager.GetString("DbUsername", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ends with.
+        /// </summary>
+        public static string EndsWith {
+            get {
+                return ResourceManager.GetString("EndsWith", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Excel import configuration.
+        /// </summary>
+        public static string ExcelImportConfiguration {
+            get {
+                return ResourceManager.GetString("ExcelImportConfiguration", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Exit.
+        /// </summary>
+        public static string Exit {
+            get {
+                return ResourceManager.GetString("Exit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Export.
+        /// </summary>
+        public static string Export {
+            get {
+                return ResourceManager.GetString("Export", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Export.
+        /// </summary>
+        public static string ExportDbKey {
+            get {
+                return ResourceManager.GetString("ExportDbKey", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Export the database connection key..
+        /// </summary>
+        public static string ExportKeySaveFileDialogTitle {
+            get {
+                return ResourceManager.GetString("ExportKeySaveFileDialogTitle", resourceCulture);
             }
         }
         
@@ -78,11 +249,146 @@ namespace Resources.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Fix mistakes.
+        /// </summary>
+        public static string FixMistakes {
+            get {
+                return ResourceManager.GetString("FixMistakes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Forgot password?.
+        /// </summary>
+        public static string ForgotPassword {
+            get {
+                return ResourceManager.GetString("ForgotPassword", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to from Excel.
+        /// </summary>
+        public static string FromExcel {
+            get {
+                return ResourceManager.GetString("FromExcel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Host.
+        /// </summary>
+        public static string Host {
+            get {
+                return ResourceManager.GetString("Host", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Import.
+        /// </summary>
+        public static string Import {
+            get {
+                return ResourceManager.GetString("Import", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Import key.
+        /// </summary>
+        public static string ImportDbKey {
+            get {
+                return ResourceManager.GetString("ImportDbKey", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Import the database connection key..
+        /// </summary>
+        public static string ImportKeyDialogTitle {
+            get {
+                return ResourceManager.GetString("ImportKeyDialogTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Log in.
+        /// </summary>
+        public static string LogIn {
+            get {
+                return ResourceManager.GetString("LogIn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mark for delete.
+        /// </summary>
+        public static string MarkForDelete {
+            get {
+                return ResourceManager.GetString("MarkForDelete", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Next.
         /// </summary>
         public static string Next {
             get {
                 return ResourceManager.GetString("Next", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Open file.
+        /// </summary>
+        public static string OpenFile {
+            get {
+                return ResourceManager.GetString("OpenFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Password.
+        /// </summary>
+        public static string Password {
+            get {
+                return ResourceManager.GetString("Password", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Print.
+        /// </summary>
+        public static string Print {
+            get {
+                return ResourceManager.GetString("Print", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Refresh.
+        /// </summary>
+        public static string Refresh {
+            get {
+                return ResourceManager.GetString("Refresh", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Remember password.
+        /// </summary>
+        public static string RememberPassword {
+            get {
+                return ResourceManager.GetString("RememberPassword", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Remove.
+        /// </summary>
+        public static string Remove {
+            get {
+                return ResourceManager.GetString("Remove", resourceCulture);
             }
         }
         
@@ -96,11 +402,173 @@ namespace Resources.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Save.
+        /// </summary>
+        public static string Save {
+            get {
+                return ResourceManager.GetString("Save", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Search.
+        /// </summary>
+        public static string Search {
+            get {
+                return ResourceManager.GetString("Search", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Search type.
+        /// </summary>
+        public static string SearchType {
+            get {
+                return ResourceManager.GetString("SearchType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Selective removing marked items.
         /// </summary>
         public static string SelectiveRemovingMarkedItems {
             get {
                 return ResourceManager.GetString("SelectiveRemovingMarkedItems", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Connection setup.
+        /// </summary>
+        public static string SetUpConnection {
+            get {
+                return ResourceManager.GetString("SetUpConnection", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Connection to the database has been established..
+        /// </summary>
+        public static string SnackbarMessage_DbConnectionEstablished {
+            get {
+                return ResourceManager.GetString("SnackbarMessage_DbConnectionEstablished", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error exporting key..
+        /// </summary>
+        public static string SnackbarMessage_KeyExportFailed {
+            get {
+                return ResourceManager.GetString("SnackbarMessage_KeyExportFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The key was successfully exported..
+        /// </summary>
+        public static string SnackbarMessage_KeyExportSucess {
+            get {
+                return ResourceManager.GetString("SnackbarMessage_KeyExportSucess", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error importing key..
+        /// </summary>
+        public static string SnackbarMessage_KeyImportFailed {
+            get {
+                return ResourceManager.GetString("SnackbarMessage_KeyImportFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The key was successfully imported..
+        /// </summary>
+        public static string SnackbarMessage_KeyImportSuccess {
+            get {
+                return ResourceManager.GetString("SnackbarMessage_KeyImportSuccess", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error saving key..
+        /// </summary>
+        public static string SnackbarMessage_KeySaveFailed {
+            get {
+                return ResourceManager.GetString("SnackbarMessage_KeySaveFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The key was successfully saved..
+        /// </summary>
+        public static string SnackbarMessage_KeySaveSuccess {
+            get {
+                return ResourceManager.GetString("SnackbarMessage_KeySaveSuccess", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Starts with.
+        /// </summary>
+        public static string StartsWith {
+            get {
+                return ResourceManager.GetString("StartsWith", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Testing connection.
+        /// </summary>
+        public static string TestingDbConnection {
+            get {
+                return ResourceManager.GetString("TestingDbConnection", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to to Excel.
+        /// </summary>
+        public static string ToExcel {
+            get {
+                return ResourceManager.GetString("ToExcel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to to Pdf.
+        /// </summary>
+        public static string ToPdf {
+            get {
+                return ResourceManager.GetString("ToPdf", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Try again.
+        /// </summary>
+        public static string TryAgain {
+            get {
+                return ResourceManager.GetString("TryAgain", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unmark for delete.
+        /// </summary>
+        public static string UnmarkForDelete {
+            get {
+                return ResourceManager.GetString("UnmarkForDelete", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Username.
+        /// </summary>
+        public static string Username {
+            get {
+                return ResourceManager.GetString("Username", resourceCulture);
             }
         }
     }

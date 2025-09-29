@@ -1,0 +1,140 @@
+﻿<UserControl
+    x:Class="Presentation.Views.AuthorizationView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="clr-namespace:Common.Converters;assembly=Common"
+    xmlns:behaviors="clr-namespace:Common.Behaviors;assembly=Common"
+    xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:localization="clr-namespace:Resources.Localization;assembly=Resources"
+    xmlns:sf="http://schemas.syncfusion.com/wpf">
+
+    <!-- Resources -->
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary
+                    Source="pack://application:,,,/Resources;component/ModuleResources/AuthorizationView.Resources.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+            <converters:BooleanToImageConverter x:Key="BooleanToImageConverter" 
+                                                TrueImage="{StaticResource Link.Green.Fill.64}"
+                                                FalseImage="{StaticResource Unlink.Red.Fil.64}"/>
+
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <!-- Root grid -->
+    <Grid Style="{StaticResource RootGridStyle}">
+
+        <!-- Main grid -->
+        <Grid>
+
+            <!-- Authorization border -->
+            <Border Style="{StaticResource AuthorizationBorderStyle}">
+
+                <!-- Authorization main stack panel-->
+                <StackPanel>
+
+                    <!-- Title text block -->
+                    <TextBlock Margin="{StaticResource Margin00024}"
+                               Style="{StaticResource TitleTextBlockStyle}"
+                               Text="{x:Static localization:Strings.Authorization}" />
+
+                    <!--  Username input layout  -->
+                    <sf:SfTextInputLayout Hint="{x:Static localization:Strings.Username}"
+                                          Style="{StaticResource SyncfusionSfTextInputLayoutStyle}"
+                                          ContainerType="Filled">
+                        <TextBox Width="{StaticResource DefaultTextBoxWidth}"
+                                 HorizontalAlignment="Left" />
+                    </sf:SfTextInputLayout>
+
+                    <!-- Password & show/hide password button stack panel -->
+                    <StackPanel Orientation="Horizontal">
+
+                        <!--  Password input layout  -->
+                        <sf:SfTextInputLayout
+                            x:Name="PasswordLayout"
+                            Hint="{x:Static localization:Strings.Password}"
+                            Style="{StaticResource SyncfusionSfTextInputLayoutStyle}"
+                            ContainerType="Filled">
+
+                            <PasswordBox x:Name="InnerPasswordBox"
+                                         Width="{StaticResource DefaultTextBoxWidth}" />
+
+                        </sf:SfTextInputLayout>
+
+                        <!--  Hide/show password button  -->
+                        <sf:ButtonAdv SmallIcon="{StaticResource EyeOpened.Black.Line.64}"
+                                      Style="{StaticResource DefaultRoundedGlyphButtonStyle}">
+
+                            <i:Interaction.Behaviors>
+                                <behaviors:ShowHidePasswordBehavior
+                                    HideIcon="{StaticResource EyeClosed.Black.Line.64}"
+                                    PasswordBox="{Binding ElementName=InnerPasswordBox}"
+                                    ShowIcon="{StaticResource EyeOpened.Black.Line.64}"
+                                    TextInputLayout="{Binding ElementName=PasswordLayout}" />
+                            </i:Interaction.Behaviors>
+
+                        </sf:ButtonAdv>
+
+                    </StackPanel>
+
+                    <!--  Remember password checkbox -->
+                    <CheckBox Margin="{StaticResource Margin00024}"
+                              Content="{x:Static localization:Strings.RememberPassword}" />
+
+                    <!-- Log in button -->
+                    <sf:ButtonAdv
+                        Margin="{StaticResource Margin00024}"
+                        Label="{x:Static localization:Strings.LogIn}"
+                        SmallIcon="{StaticResource Enter.White.Line.64}"
+                        Style="{StaticResource DefaultPrimaryButtonStyle}" />
+
+                    <!--  Forgot password button  -->
+                    <sf:ButtonAdv Label="{x:Static localization:Strings.ForgotPassword}"
+                                  Style="{StaticResource DefaultButtonWithoutIconStyle}" />
+
+                </StackPanel>
+            </Border>
+
+        </Grid>
+        
+        <!-- Database connection status/setup button -->
+        <sf:ButtonAdv Command="{Binding ConnectionSetupCommand}"
+                      SmallIcon="{Binding IsConnectedToDatabase, Converter={StaticResource BooleanToImageConverter}}"
+                      VerticalAlignment="Top"
+                      HorizontalAlignment="Right"
+                      Margin="{StaticResource Margin12}"
+                      Style="{StaticResource DefaultRoundedGlyphButtonStyle}"/>
+
+        <!-- Overlay content control -->
+        <ContentControl Content="{Binding OverlayContent}"
+                        Visibility="{Binding IsOverlayOpen, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+        <!-- Dialog content control -->
+        <ContentControl Grid.Row="0"
+                        Content="{Binding DialogContent}"
+                        Visibility="{Binding IsDialogOpen, Converter={StaticResource BooleanToVisibilityConverter}}"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Panel.ZIndex="5" />
+        
+        <!-- Dialog content control -->
+        <ContentControl Grid.Row="0"
+                        Content="{Binding BusyContent}"
+                        Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibilityConverter}}"
+                        Panel.ZIndex="6" />
+
+    </Grid>
+
+    <i:Interaction.Triggers>
+
+        <!-- View loaded trigger -->
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding AuthorizationViewLoadedCommand}" />
+        </i:EventTrigger>
+
+    </i:Interaction.Triggers>
+
+</UserControl>

@@ -22,33 +22,12 @@ public interface IFileSystemRepository
     public Task AddFileSystemItemAsync(FileSystemItemEntity item, CancellationToken ct = default);
     
     /// <summary>
-    /// Update file system item entity.
-    /// </summary>
-    /// <param name="item">Updated file system item entity.</param>
-    public void UpdateFileSystemItemAsync(FileSystemItemEntity item);
-    
-    /// <summary>
     /// Rename file system item by ID.
     /// </summary>
     /// <param name="fileSystemItemId"> File system item ID.</param>
     /// <param name="newName">New name</param>
     /// <param name="ct">Cancellation token.</param>
     public Task RenameFileSystemItemAsync(Guid fileSystemItemId, string newName, CancellationToken ct = default);
-    
-    /// <summary>
-    /// Soft deleting file system item by ID.
-    /// </summary>
-    /// <param name="fileSystemItemId">File system item ID.</param>
-    /// <param name="ct">Cancellation token.</param>
-    public Task SoftDeleteFileSystemItemAsync(Guid fileSystemItemId, CancellationToken ct);
-    
-    /// <summary>
-    /// Move file system item to new parent by new parent ID.
-    /// </summary>
-    /// <param name="fileSystemItemId">File system item ID.</param>
-    /// <param name="newParentId">New parent ID.</param>
-    /// <param name="ct">Cancellation token.</param>
-    public Task MoveFileSystemItemAsync(Guid fileSystemItemId, Guid newParentId, CancellationToken ct);
     
     /// <summary>
     /// Updates the HasChilds flag for the specified file system item in the database.
@@ -84,5 +63,13 @@ public interface IFileSystemRepository
     /// </param>
     /// <param name="ct">Cancellation token.</param>
     public Task UpdateParentsAndOrdersAsync(List<(Guid Id, Guid? NewParentId, int NewOrder)> newPositions, CancellationToken ct = default);
+    
+    /// <summary>
+    /// Updates is marked for delete file system item.
+    /// </summary>
+    /// <param name="fileSystemItemId">File system item ID.</param>
+    /// <param name="isMarkedForDelete">Is marked for delete new value.</param>
+    /// <param name="ct">Cancellation token.</param>
+    public Task UpdateIsMarkedForDeleteAsync(Guid fileSystemItemId, bool isMarkedForDelete, CancellationToken ct = default);
 }
 

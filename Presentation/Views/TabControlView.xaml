@@ -73,7 +73,7 @@
     <Grid>
         <sf:TabControlExt  CloseButtonType="Individual"
                            IsSynchronizedWithCurrentItem="True"
-                           TabItemHeaderStyle="Curve"
+                           TabItemHeaderStyle="Fill"
                            EnableAutoScroll="False"
                            EnableLabelEdit="False"
                            CloseMode="Delete"

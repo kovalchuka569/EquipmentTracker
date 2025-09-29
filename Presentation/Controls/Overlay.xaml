@@ -1,9 +1,0 @@
-﻿<UserControl x:Class="Presentation.Controls.Overlay"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Name="Root">
-    
-    <Rectangle Fill="{Binding OverlayColor, ElementName=Root}"
-               Opacity="{Binding OverlayOpacity, ElementName=Root}"/>
-    
-</UserControl>

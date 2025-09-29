@@ -16,7 +16,7 @@ public static class FileSystemMapper
     
     private const string FileFormatNotSupportedException = "File format is not supported.";
     
-    private const string UnknownViewModelTypeException = "Unknow view model typу.";
+    private const string UnknownViewModelTypeException = "Unknow view model type.";
     
     private const string UnknownModelTypeException = "Unknown model type.";
     
@@ -67,7 +67,7 @@ public static class FileSystemMapper
         model.ParentId = viewModel.ParentId;
         model.Format = viewModel.Format;
         model.MenuType = viewModel.MenuType;
-        model.Deleted = viewModel.Deleted;
+        model.IsMarkedForDelete = viewModel.IsMarkedForDelete;
         
         return model;
     }
@@ -95,7 +95,7 @@ public static class FileSystemMapper
         viewModel.ParentId = domain.ParentId;
         viewModel.Format = domain.Format;
         viewModel.MenuType = domain.MenuType;
-        viewModel.Deleted = domain.Deleted;
+        viewModel.IsMarkedForDelete = domain.IsMarkedForDelete;
 
         if (viewModel.HasChilds)
         {
