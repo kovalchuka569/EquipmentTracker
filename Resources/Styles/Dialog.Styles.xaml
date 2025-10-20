@@ -1,21 +1,14 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    
                     xmlns:localization="clr-namespace:Resources.Localization"
                     xmlns:sf="http://schemas.syncfusion.com/wpf">
-    
-    <ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary Source="pack://application:,,,/Resources;component/Icons/Icons.xaml"/>
-        <ResourceDictionary Source="pack://application:,,,/Resources;component/Global/Common.xaml"/>
-        <ResourceDictionary Source="pack://application:,,,/Resources;component/Global/Brushes.xaml"/>
-        <ResourceDictionary Source="pack://application:,,,/Resources;component/Styles/SfButtonAdv.Styles.xaml"/>
-    </ResourceDictionary.MergedDictionaries>
     
     <Style x:Key="CloseDialogButtonStyle" TargetType="sf:ButtonAdv" BasedOn="{StaticResource PrimaryButtonWithoutLabelStyle}">
         <Setter Property="SmallIcon" Value="{StaticResource Close.White.Line.64}"/>
         <Setter Property="Background" Value="{StaticResource Warning.Brush}"/>
         <Setter Property="CornerRadius" Value="{StaticResource CornerRadius0600}"/>
-        <Setter Property="VerticalAlignment" Value="Top"/>
+        <Setter Property="Margin" Value="0,-1,-1,-1"/>
+        <Setter Property="VerticalAlignment" Value="Stretch"/>
         <Setter Property="HorizontalAlignment" Value="Right"/>
         <Setter Property="ToolTip" Value="{x:Static localization:Strings.Close}"/>
         <Style.Triggers>

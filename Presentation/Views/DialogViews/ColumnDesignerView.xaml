@@ -3,7 +3,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              xmlns:sf="http://schemas.syncfusion.com/wpf"
-             xmlns:controls="clr-namespace:Presentation.Controls"
              xmlns:localization="clr-namespace:Resources.Localization;assembly=Resources"
              xmlns:templateSelectors="clr-namespace:Presentation.TemplateSelectors"
              xmlns:converters="clr-namespace:Presentation.Converters"
@@ -19,12 +18,8 @@
                 <ResourceDictionary Source="/Syncfusion.Themes.Windows11Light.WPF;component/IntegerTextBox/IntegerTextBox.xaml" />
                 <ResourceDictionary Source="/Syncfusion.Themes.Windows11Light.WPF;component/DoubleTextBox/DoubleTextBox.xaml" />
                 <ResourceDictionary Source="/Syncfusion.Themes.Windows11Light.WPF;component/CurrencyTextBox/CurrencyTextBox.xaml" />
-                <ResourceDictionary Source="/Syncfusion.Themes.Windows11Light.WPF;component/PropertyGrid/PropertyGrid.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/Resources;component/Global/Common.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/Resources;component/Themes/Generic.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/Resources;component/Icons/Icons.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/Resources;component/Styles/Dialog.Styles.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/Resources;component/Styles/SfButtonAdv.Styles.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/Presentation;component/Resources/Icons/Icons.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/Presentation;component/Styles/Animations/LoadUserControlAnimationBottomToTop.xaml" />
             </ResourceDictionary.MergedDictionaries>
@@ -373,19 +368,18 @@
 
 
     <Border Style="{StaticResource DialogBorderStyle}">
-
+            
         <Grid>
-            
-            <sf:ButtonAdv
-                Style="{StaticResource CloseDialogButtonStyle}"
-                Command="{Binding CancelDialogCommand}"/>
-            
-            <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" /> <!-- Title -->
                     <RowDefinition Height="1" />  <!-- Separator -->
                     <RowDefinition Height="*" />    <!-- Content -->
                 </Grid.RowDefinitions>
+                
+                <!-- Close dialog button -->
+                <sf:ButtonAdv Grid.Row="0" 
+                              Style="{StaticResource CloseDialogButtonStyle}"
+                              Command="{Binding CancelDialogCommand}"/>
 
                 <TextBlock Grid.Row="0"
                            Text="{x:Static localization:Strings.ColumnSettings}"
@@ -609,6 +603,5 @@
                 </ScrollViewer>
 
             </Grid>
-        </Grid>
     </Border>
 </UserControl>

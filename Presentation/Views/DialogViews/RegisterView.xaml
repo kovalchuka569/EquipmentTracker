@@ -1,0 +1,231 @@
+﻿<UserControl x:Class="Presentation.Views.DialogViews.RegisterView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             xmlns:behaviors="clr-namespace:Common.Behaviors;assembly=Common"
+             xmlns:behavior="clr-namespace:Presentation.Behaviors"
+             xmlns:constraints="clr-namespace:Common.Constraints;assembly=Common"
+             xmlns:localization="clr-namespace:Resources.Localization;assembly=Resources"
+             xmlns:mx="clr-namespace:Presentation.MarkupExtensions"
+             xmlns:sf="http://schemas.syncfusion.com/wpf">
+
+    <!-- Resources -->
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Resources;component/ModuleResources/RegisterView.Resources.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <!-- Root border -->
+    <Border Style="{StaticResource DialogBorderStyle}">
+
+        <!-- Main grid -->
+        <Grid>
+            
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />  <!-- Title -->
+                <RowDefinition Height="1" />     <!-- Top separator -->
+                <RowDefinition Height="*" />     <!-- Content -->
+                <RowDefinition Height="1" />     <!-- Bottom separator -->
+                <RowDefinition Height="Auto" />  <!-- Send button -->
+            </Grid.RowDefinitions>
+
+            <!-- Close dialog button -->
+            <sf:ButtonAdv Grid.Row="0"
+                          Command="{Binding CancelDialogCommand}"
+                          Style="{StaticResource CloseDialogButtonStyle}" />
+
+            <!-- Title text block-->
+            <TextBlock Grid.Row="0"
+                       Style="{StaticResource DialogTitleTextBlockStyle}"
+                       Text="{x:Static localization:Strings.RegistrationForm}" />
+
+            <!-- Top separator -->
+            <Border Grid.Row="1"
+                    Style="{StaticResource DialogSeparatorStyle}" />
+
+            <!-- Content stack panel-->
+            <StackPanel Grid.Row="2"
+                        Margin="32,6">
+
+                <!-- First name input layout -->
+                <sf:SfTextInputLayout
+                    Style="{StaticResource DefaultSfTextInputStyle}"
+                    Hint="{x:Static localization:Strings.FirstName}"
+                    CharMaxLength="{x:Static constraints:UserConstraints.NameMaxLength}"
+                    CharCountVisibility="Visible"
+                    ContainerType="Outlined"
+                    Width="{StaticResource DefaultTextBoxWidth}" >
+
+                    <i:Interaction.Behaviors>
+                        <behaviors:SfTextInputLayoutValidationBehavior />
+                    </i:Interaction.Behaviors>
+
+                    <TextBox
+                        x:Name="FirstNameTextBox"
+                        Text="{mx:FieldValidationExtension Path=FirstName, 
+                                   MinLength={x:Static constraints:UserConstraints.NameMinLength}, 
+                                   MaxLength={x:Static constraints:UserConstraints.NameMaxLength},
+                                   ForbidEmpty=True,
+                                   CheckLength=True,
+                                   CheckAllowedChars=True,
+                                   AllowLetters=True,
+                                   AllowDigits=False,
+                                   AllowSpecialChars=False,
+                                   AllowWhitespace=False,
+                                   ForbidWhitespace=True}"
+                        HorizontalAlignment="Left"/>
+
+                </sf:SfTextInputLayout>
+
+                <!-- Last name input layout -->
+                <sf:SfTextInputLayout
+                    Style="{StaticResource DefaultSfTextInputStyle}"
+                    CharMaxLength="{x:Static constraints:UserConstraints.NameMaxLength}"
+                    CharCountVisibility="Visible"
+                    ContainerType="Outlined"
+                    Hint="{x:Static localization:Strings.LastName}"
+                    Width="{StaticResource DefaultTextBoxWidth}"
+                    HorizontalAlignment="Left">
+
+                    <i:Interaction.Behaviors>
+                        <behaviors:SfTextInputLayoutValidationBehavior />
+                    </i:Interaction.Behaviors>
+
+                    <TextBox
+                        x:Name="LastNameTextBox"
+                        Text="{mx:FieldValidationExtension Path=LastName, 
+                                   MinLength={x:Static constraints:UserConstraints.NameMinLength}, 
+                                   MaxLength={x:Static constraints:UserConstraints.NameMaxLength},
+                                   ForbidEmpty=True,
+                                   CheckLength=True,
+                                   CheckAllowedChars=True,
+                                   AllowLetters=True,
+                                   AllowDigits=False,
+                                   AllowSpecialChars=False,
+                                   AllowWhitespace=False,
+                                   ForbidWhitespace=True}" />
+
+                </sf:SfTextInputLayout>
+
+                <!-- Login input layout -->
+                <sf:SfTextInputLayout
+                    Style="{StaticResource DefaultSfTextInputStyle}"
+                    CharMaxLength="{x:Static constraints:UserConstraints.LoginMaxLength}"
+                    CharCountVisibility="Visible"
+                    ContainerType="Outlined"
+                    Hint="{x:Static localization:Strings.Username}"
+                    Width="{StaticResource DefaultTextBoxWidth}"
+                    HorizontalAlignment="Left">
+
+                    <i:Interaction.Behaviors>
+                        <behaviors:SfTextInputLayoutValidationBehavior />
+                    </i:Interaction.Behaviors>
+
+                    <TextBox
+                        x:Name="LoginTextBox"
+                        Text="{mx:FieldValidationExtension Path=Login, 
+                                   MinLength={x:Static constraints:UserConstraints.LoginMinLength}, 
+                                   MaxLength={x:Static constraints:UserConstraints.LoginMaxLength},
+                                   ForbidEmpty=True, 
+                                   CheckLength=True,
+                                   CheckAllowedChars=True,
+                                   AllowLetters=True,
+                                   AllowDigits=True,
+                                   AllowSpecialChars=False,
+                                   AllowWhitespace=False,
+                                   ForbidWhitespace=True}" />
+
+                </sf:SfTextInputLayout>
+                
+                <!-- Password input layout -->
+                <sf:SfTextInputLayout
+                    Style="{StaticResource DefaultSfTextInputStyle}"
+                    Width="{StaticResource DefaultTextBoxWidth}"
+                    CharMaxLength="{x:Static constraints:UserConstraints.PasswordMaxLength}"
+                    CharCountVisibility="Visible"
+                    ContainerType="Outlined"
+                    TrailingViewPosition="Inside"
+                    Hint="{x:Static localization:Strings.Password}"
+                    HorizontalAlignment="Left">
+
+                    <i:Interaction.Behaviors>
+                        <behaviors:SfTextInputLayoutValidationBehavior />
+                        <behaviors:ShowHidePasswordBehavior
+                            HideIcon="{StaticResource EyeClosed.Black.Line.64}"
+                            PasswordFont="{StaticResource PasswordFontFamily}"
+                            ShowIcon="{StaticResource EyeOpened.Black.Line.64}"
+                            ShowHideButton="{Binding ElementName=ShowHideButton}" />
+                    </i:Interaction.Behaviors>
+
+                    <TextBox
+                        x:Name="PasswordTextBox"
+                        Text="{mx:FieldValidationExtension Path=Password, 
+                                MinLength={x:Static constraints:UserConstraints.PasswordMinLength}, 
+                                MaxLength={x:Static constraints:UserConstraints.PasswordMaxLength},
+                                SequentialCharsLength={x:Static constraints:UserConstraints.SequentialCharsLength},
+                                MaxConsecutiveChars={x:Static constraints:UserConstraints.PassMaxConsecutiveChars},
+                                MinUppercase={x:Static constraints:UserConstraints.PassMinUppercases},
+                                MinLowercase={x:Static constraints:UserConstraints.PassMinLowercases},
+                                MinDigits={x:Static constraints:UserConstraints.PassMinDigits},
+                                MinSpecialChars={x:Static constraints:UserConstraints.PassMinSpecialChars},
+                                AllowedSpecialChars={x:Static constraints:UserConstraints.PassAllowedSpecialChars},
+                                ForbidEmpty=True, 
+                                CheckLength=True,
+                                RequireUppercase=True,
+                                RequireLowercase=True,
+                                RequireDigits=True,
+                                RequireSpecialChars=True,
+                                CheckAllowedChars=True,
+                                AllowLetters=True,
+                                AllowDigits=True,
+                                AllowSpecialChars=True,
+                                AllowWhitespace=False,
+                                ForbidWhitespace=True,
+                                ForbidSequentialChars=True}" />
+                    
+                    <!-- Show/Hide password button -->
+                    <sf:SfTextInputLayout.TrailingView>
+                        <sf:ButtonAdv
+                            x:Name="ShowHideButton"
+                            SmallIcon="{StaticResource EyeOpened.Black.Line.64}"
+                            Style="{StaticResource TransparencyRoundedGlyphButtonStyle}" />
+                    </sf:SfTextInputLayout.TrailingView>
+
+                </sf:SfTextInputLayout>
+                
+            </StackPanel>
+
+            <!-- Bottom separator -->
+            <Border Grid.Row="3"
+                    Style="{StaticResource DialogSeparatorStyle}" />
+
+            <!-- Send button -->
+            <sf:ButtonAdv Grid.Row="4"
+                          Command="{Binding SendCommand}"
+                          Margin="{StaticResource Margin6}"
+                          SmallIcon="{StaticResource Send.White.Line.64}"
+                          Label="{x:Static localization:Strings.Send}"
+                          Style="{StaticResource DefaultPrimaryButtonStyle}">
+                
+                <i:Interaction.Behaviors>
+                    <behavior:DisableButtonOnValidationErrorBehavior>
+                        <behavior:DisableButtonOnValidationErrorBehavior.ElementNames>
+                            <x:Array Type="sys:String">
+                                <sys:String>FirstNameTextBox</sys:String>
+                                <sys:String>LastNameTextBox</sys:String>
+                                <sys:String>LoginTextBox</sys:String>
+                                <sys:String>PasswordTextBox</sys:String>
+                            </x:Array>
+                        </behavior:DisableButtonOnValidationErrorBehavior.ElementNames>
+                    </behavior:DisableButtonOnValidationErrorBehavior>
+                </i:Interaction.Behaviors>
+                
+            </sf:ButtonAdv>
+
+        </Grid>
+    </Border>
+</UserControl>

@@ -1,8 +1,10 @@
 ﻿using System.Reflection;
 using JetBrains.Annotations;
+using Presentation.Views;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Navigation.Regions;
+using Unity;
 
 namespace Presentation.ViewModels;
 
@@ -10,13 +12,15 @@ public class MainWindowViewModel : BindableBase
 {
     #region Dependencies
     
-    private readonly IRegionManager _regionManager;
+    [Dependency]
+    public required IRegionManager RegionManager = null!;
     
     #endregion
     
     #region Private fields
-    
+
     private string _currentVersion = $"v{Assembly.GetExecutingAssembly().GetName().Version?.ToString(3)}";
+    private object? _snackbarContent;
     
     #endregion
 
@@ -27,14 +31,20 @@ public class MainWindowViewModel : BindableBase
         get => _currentVersion;
         set => SetProperty(ref _currentVersion, value);
     }
+
+    public object? SnackbarContent
+    {
+        get => _snackbarContent;
+        set => SetProperty(ref _snackbarContent, value);
+    }
     
     #endregion
     
     #region Constructor
     
-    public MainWindowViewModel(IRegionManager regionManager)
+    public MainWindowViewModel()
     {
-        _regionManager = regionManager;
+        SnackbarContent = new SnackbarView();
         
         InitializeCommands();
     }
@@ -56,7 +66,7 @@ public class MainWindowViewModel : BindableBase
     
     private void OnMainWindowLoadedCommandExecute()
     {
-        _regionManager.RequestNavigate("MainRegion", "AuthorizationView");
+        RegionManager.RequestNavigate("MainRegion", nameof(AuthorizationView));
     }
     
     #endregion

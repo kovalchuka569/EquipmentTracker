@@ -4,29 +4,24 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
-
 using JetBrains.Annotations;
-
 using Prism.Events;
 using Prism.Commands;
 using Prism.Navigation.Regions;
-
 using Syncfusion.UI.Xaml.TreeView;
-
 using Notification.Wpf;
-
 using Core.Interfaces;
-
 using Presentation.ViewModels.Common.FileSystem;
 using Presentation.Mappers;
-
 using Common.Enums;
 using Common.Logging;
 using Core.Events.TabControl;
+using Presentation.ViewModels.Common;
+using Unity;
 
 namespace Presentation.ViewModels;
 
-public class MainTreeViewModel : BaseViewModel<MainTreeViewModel>, INavigationAware, IRegionMemberLifetime
+public class MainTreeViewModel : InteractiveViewModelBase, IRegionMemberLifetime
 {
     #region Constants
     
@@ -44,9 +39,17 @@ public class MainTreeViewModel : BaseViewModel<MainTreeViewModel>, INavigationAw
     
     #region Dependencies
     
-    private readonly IEventAggregator _eventAggregator;
+    [Dependency]
+    public required IAppLogger<MainTreeViewModel> Logger { get; init; } = null!;
     
-    private readonly IFileSystemService _fileSystemService;
+    [Dependency]
+    public required IEventAggregator EventAggregator { get; init; } = null!;
+    
+    [Dependency]
+    public required IFileSystemService FileSystemService { get; init; } = null!;
+    
+    [Dependency]
+    public required NotificationManager NotificationManager { get; init; } = null!;
     
     #endregion
     
@@ -96,16 +99,8 @@ public class MainTreeViewModel : BaseViewModel<MainTreeViewModel>, INavigationAw
     
     #region Constructor
     
-    public MainTreeViewModel(
-        IEventAggregator eventAggregator,
-        IFileSystemService fileSystemService,
-        NotificationManager notificationManager,
-        IAppLogger<MainTreeViewModel> logger
-        ) : base(notificationManager, logger)
+    public MainTreeViewModel()
     {
-        _eventAggregator = eventAggregator;
-        _fileSystemService = fileSystemService;
-        
         InitializeCommands();
     }
     
@@ -158,7 +153,7 @@ public class MainTreeViewModel : BaseViewModel<MainTreeViewModel>, INavigationAw
         await ExecuteWithErrorHandlingAsync(async () =>
         {
             // Get root items.
-            var rootFileItems = await _fileSystemService.GetChildsAsync(_menuType, null);
+            var rootFileItems = await FileSystemService.GetChildsAsync(_menuType, null);
 
             // Sort by order.
             var sortedRootFileItems = rootFileItems.OrderBy(x => x.Order);
@@ -173,7 +168,11 @@ public class MainTreeViewModel : BaseViewModel<MainTreeViewModel>, INavigationAw
             // Raise files empty tip visibility
             RaiseEmptyTipVisibility();
             
-        }, LoadItemsErrorMessageUi, LoadItemsErrorMessageLogger);
+        }, onError: e =>
+        {
+            Logger.LogError(e, LoadItemsErrorMessageLogger);
+            NotificationManager.Show(LoadItemsErrorMessageUi, NotificationType.Error);
+        });
     }
     
     private Task OnKeyDown(KeyEventArgs args)
@@ -226,7 +225,7 @@ public class MainTreeViewModel : BaseViewModel<MainTreeViewModel>, INavigationAw
                 parentItem.HasChilds = true;
                 parentItem.IsExpanded = true;
                 
-                await _fileSystemService.UpdateHasChildsAsync(parentItem.Id, true);
+                await FileSystemService.UpdateHasChildsAsync(parentItem.Id, true);
             }
             // Else add in root
             else
@@ -239,12 +238,16 @@ public class MainTreeViewModel : BaseViewModel<MainTreeViewModel>, INavigationAw
             var newItemDomain = FileSystemMapper.ToDomain(newItem);
 
             // Persist in DB
-            await _fileSystemService.InsertChildAsync(newItemDomain);
+            await FileSystemService.InsertChildAsync(newItemDomain);
             
             // Raise files empty tip visibility
            RaiseEmptyTipVisibility();
             
-        }, InsertItemErrorMessageUi, InsertItemErrorMessageLogger);
+        }, onError: e =>
+        {
+            Logger.LogError(e, InsertItemErrorMessageLogger);
+            NotificationManager.Show(InsertItemErrorMessageUi, NotificationType.Error);
+        });
     }
 
     private Task OnOpenFile(object parameter)
@@ -257,11 +260,11 @@ public class MainTreeViewModel : BaseViewModel<MainTreeViewModel>, INavigationAw
         switch (baseItem)
         {
             case EquipmentSheetFileViewModel ef:
-                _eventAggregator.GetEvent<OpenNewTabEvent>()
+                EventAggregator.GetEvent<OpenNewTabEvent>()
                     .Publish(GetOpenFileEventArgs(baseItem.Name, viewName, "EquipmentSheetId", ef.EquipmentSheetId));
                 break;
             case PivotSheetFileViewModel pf:
-                _eventAggregator.GetEvent<OpenNewTabEvent>()
+                EventAggregator.GetEvent<OpenNewTabEvent>()
                         .Publish(GetOpenFileEventArgs(baseItem.Name, viewName, "PivotSheetId", pf.PivotSheetId));
                 break;
         }
@@ -297,8 +300,12 @@ public class MainTreeViewModel : BaseViewModel<MainTreeViewModel>, INavigationAw
                 return;
             }
             
-            await _fileSystemService.RenameFileSystemItemAsync(item.Id, item.Name);
-        }, ItemEditErrorMessageUi, ItemEditErrorMessageLogger);
+            await FileSystemService.RenameFileSystemItemAsync(item.Id, item.Name);
+        }, onError: e =>
+        {
+            Logger.LogError(e, ItemEditErrorMessageLogger);
+            NotificationManager.Show(ItemEditErrorMessageUi, NotificationType.Error);
+        });
     }
     
     private async Task OnItemExpandingCommand(NodeExpandingCollapsingEventArgs args)
@@ -385,16 +392,19 @@ public class MainTreeViewModel : BaseViewModel<MainTreeViewModel>, INavigationAw
         }
 
         await ExecuteWithErrorHandlingAsync(async () =>
-            {
-                // 8. Persist all order and parent changes to the database
-                if (changes.Count != 0)
-                    await _fileSystemService.UpdateParentsAndOrdersAsync(changes);
+        {
+            // 8. Persist all order and parent changes to the database
+            if (changes.Count != 0)
+                await FileSystemService.UpdateParentsAndOrdersAsync(changes);
 
-                // 9. Persist any HasChilds changes to the database
-                if (hasChildrenChanges.Count != 0)
-                    await _fileSystemService.UpdateHasChildsAsync(hasChildrenChanges);
-            },
-            DraggedItemsErrorMessageUi, DraggedItemsErrorMessageLogger);
+            // 9. Persist any HasChilds changes to the database
+            if (hasChildrenChanges.Count != 0)
+                await FileSystemService.UpdateHasChildsAsync(hasChildrenChanges);
+        }, e =>
+        {
+            Logger.LogError(e, DraggedItemsErrorMessageLogger);
+            NotificationManager.Show(DraggedItemsErrorMessageUi, NotificationType.Error);
+        });
     }
 
     private async Task LoadChildsAsync(FileSystemItemBaseViewModel item)
@@ -411,7 +421,7 @@ public class MainTreeViewModel : BaseViewModel<MainTreeViewModel>, INavigationAw
                 item.Childs.Remove(dummy);
 
             // Load from DB
-            var childsFromDb = await _fileSystemService.GetChildsAsync(_menuType, item.Id);
+            var childsFromDb = await FileSystemService.GetChildsAsync(_menuType, item.Id);
             var sortedChilds = childsFromDb.OrderBy(c => c.Order).ToList();
 
             var existing = item.Childs.ToDictionary(c => c.Id);
@@ -437,12 +447,16 @@ public class MainTreeViewModel : BaseViewModel<MainTreeViewModel>, INavigationAw
                 item.Childs.Add(orphan);
 
             item.SetChildsLoaded(true);
-            
+
             item.IsExpanded = true;
-        }, 
-            LoadItemsErrorMessageUi, LoadItemsErrorMessageLogger,
-            onError: _ => item.IsLoading = false,
-            onFinally: () => item.IsLoading = false);
+        },
+        e =>
+        {
+            item.IsLoading = false;
+            Logger.LogError(e, DraggedItemsErrorMessageLogger);
+            NotificationManager.Show(DraggedItemsErrorMessageUi, NotificationType.Error);
+        },
+        onFinally: () => item.IsLoading = false);
     }
     
     private List<(Guid Id, Guid? ParentId, int Order)> ReindexRootItems()
@@ -485,17 +499,15 @@ public class MainTreeViewModel : BaseViewModel<MainTreeViewModel>, INavigationAw
     
     public bool KeepAlive => true;
     
-    public void OnNavigatedTo(NavigationContext navigationContext)
+    public override void OnNavigatedTo(NavigationContext navigationContext)
     {
+        base.OnNavigatedTo(navigationContext);
+        
         if(_isInitialized)
             return;
         
         _menuType = navigationContext.Parameters.GetValue<MenuType>("MenuType");
     }
-
-    public bool IsNavigationTarget(NavigationContext navigationContext) => true;
-
-    public void OnNavigatedFrom(NavigationContext navigationContext) { }
     
     #endregion
 }

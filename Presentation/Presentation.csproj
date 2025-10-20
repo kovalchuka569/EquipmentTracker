@@ -13,16 +13,6 @@
         <XamlRuntime>Wpf</XamlRuntime>
         <SubType>Designer</SubType>
       </Page>
-      <Page Update="Controls\DialogBox.xaml">
-        <Generator>MSBuild:Compile</Generator>
-        <XamlRuntime>Wpf</XamlRuntime>
-        <SubType>Designer</SubType>
-      </Page>
-      <Page Update="Controls\HoverButton.xaml">
-        <Generator>MSBuild:Compile</Generator>
-        <XamlRuntime>Wpf</XamlRuntime>
-        <SubType>Designer</SubType>
-      </Page>
       <Page Update="Styles\Animations\LoadUserControlAnimationBottomToTop.xaml">
         <Generator>MSBuild:Compile</Generator>
       </Page>

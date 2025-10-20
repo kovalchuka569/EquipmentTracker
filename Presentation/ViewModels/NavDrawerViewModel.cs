@@ -1,17 +1,15 @@
 ﻿using System.Collections.Generic;
-
 using Prism.Events;
-using Prism.Mvvm;
 using Prism.Commands;
-
 using Core.Events.TabControl;
-
 using Common.Enums;
+using Presentation.ViewModels.Common;
+using Presentation.Views;
 
 
 namespace Presentation.ViewModels;
 
-public class NavDrawerViewModel : BindableBase
+public class NavDrawerViewModel : ViewModelBase
 {
     private readonly IEventAggregator _eventAggregator;
     
@@ -54,6 +52,7 @@ public class NavDrawerViewModel : BindableBase
             MenuType.Office => "Офісна техніка",
             MenuType.Cars => "Автопарк",
             MenuType.Consumables => "Розхідні матеріали",
+            MenuType.Users => "Користувачі та права доступу",
             MenuType.History => "Історія",
             MenuType.Scheduler => "Календар",
             MenuType.Settings => "Налаштування",
@@ -71,6 +70,7 @@ public class NavDrawerViewModel : BindableBase
                 MenuType.Office or
                 MenuType.Cars => "MainTreeView",
 
+            MenuType.Users => nameof(UserManagerView),
             MenuType.Consumables => "ConsumablesTreeView",
             MenuType.History => "AccountingView",
             MenuType.Scheduler => "SchedulerView",

@@ -1,15 +1,10 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary Source="pack://application:,,,/Resources;component/Global/Brushes.xaml" />
-        <ResourceDictionary Source="pack://application:,,,/Resources;component/Global/Common.xaml" />
-        <ResourceDictionary Source="pack://application:,,,/Resources;component/Global/Fonts/Fonts.xaml" />
-        <ResourceDictionary Source="pack://application:,,,/Resources;component/Icons/Icons.xaml"/>
         <ResourceDictionary Source="pack://application:,,,/Resources;component/Styles/Views/AuthorizationView.Styles.xaml" />
         <ResourceDictionary Source="pack://application:,,,/Resources;component/Styles/Image.Styles.xaml"/>
         <ResourceDictionary Source="pack://application:,,,/Resources;component/Styles/TextBlock.Styles.xaml"/>
-        <ResourceDictionary Source="pack://application:,,,/Resources;component/Styles/SfButtonAdv.Styles.xaml"/>
-        <ResourceDictionary Source="/Syncfusion.Themes.Windows11Light.WPF;component/sftextinputlayout/sftextinputlayout.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/Resources;component/Styles/SfTextInputLayout.Styles.xaml"/>
         <ResourceDictionary Source="/Syncfusion.Themes.Windows11Light.WPF;component/mscontrol/checkbox.xaml"/>
     </ResourceDictionary.MergedDictionaries>
 </ResourceDictionary>

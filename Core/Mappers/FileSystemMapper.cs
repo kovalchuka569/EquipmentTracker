@@ -1,11 +1,11 @@
-﻿using Models.Entities.FileSystem;
+﻿using Data.Entities.MainTree;
 using Models.FileSystem;
 
 namespace Core.Mappers;
 
 public static class FileSystemMapper
 {
-    public static FileSystemItemEntity FileSystemItemModelToEntity(FileSystemItemModel model)
+    public static MainTreeItemEntity FileSystemItemModelToEntity(FileSystemItemModel model)
     {
         var entity = model switch
         {
@@ -18,7 +18,7 @@ public static class FileSystemMapper
             {
                 PivotSheetId = pf.PivotSheetId
             },
-            _ => new FileSystemItemEntity()
+            _ => new MainTreeItemEntity()
         };
 
         entity.Id = model.Id;
@@ -33,7 +33,7 @@ public static class FileSystemMapper
         return entity;
     }
 
-    public static FileSystemItemModel FileSystemItemEntityToModel(FileSystemItemEntity entity)
+    public static FileSystemItemModel FileSystemItemEntityToModel(MainTreeItemEntity entity)
     {
         var model = entity switch
         {

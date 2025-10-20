@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
-using Models.Entities.EquipmentSheet;
+using Data.Entities;
 using Data.ApplicationDbContext;
 using Data.Interfaces;
 using Microsoft.EntityFrameworkCore.Query;

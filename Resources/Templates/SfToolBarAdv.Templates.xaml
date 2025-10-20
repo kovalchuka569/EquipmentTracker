@@ -1,0 +1,340 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+                    xmlns:localization="clr-namespace:Resources.Localization"
+                    xmlns:behaviors="clr-namespace:Common.Behaviors;assembly=Common"
+                    xmlns:sf="http://schemas.syncfusion.com/wpf">
+
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/Resources;component/Styles/Image.Styles.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/Resources;component/Styles/SfDropDownButtonAdv.Styles.xaml" />
+        <ResourceDictionary Source="/Syncfusion.Themes.Windows11Light.WPF;component/toolbaradv/toolbaradv.xaml" />
+    </ResourceDictionary.MergedDictionaries>
+    
+    <DataTemplate x:Key="SfDataGridTopToolBarContent">
+        
+        <StackPanel x:Name="PART_Root"
+                    Orientation="Horizontal"
+                    DataContext="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ContentControl}}">
+
+            <!-- Refresh button -->
+            <sf:ButtonAdv x:Name="PART_RefreshButton"
+                          Style="{StaticResource DefaultButtonWithoutLabelStyle}"
+                          SmallIcon="{StaticResource Refresh.Black.Line.64}"
+                          ToolTip="{x:Static localization:Strings.Refresh}" />
+
+            <!-- Print button -->
+            <sf:ButtonAdv x:Name="PART_PrintButton"
+                          Style="{StaticResource DefaultButtonWithoutLabelStyle}"
+                          SmallIcon="{StaticResource Print.Black.Line.64}"
+                          ToolTip="{x:Static localization:Strings.Print}" />
+
+            <!-- Import button -->
+            <sf:DropDownButtonAdv x:Name="PART_ImportDropDownButtonAdv"
+                                  Style="{StaticResource DefaultDropDownButtonWithoutLabelStyle}"
+                                  SmallIcon="{StaticResource Import.Black.Line.64}"
+                                  ToolTip="{x:Static localization:Strings.Import}">
+                <sf:DropDownMenuGroup IconBarEnabled="True">
+
+                    <!-- Import from excel -->
+                    <sf:DropDownMenuItem x:Name="PART_ImportFromExcelDropDownMenuItem"
+                                         HorizontalAlignment="Left"
+                                         Header="{x:Static localization:Strings.FromExcel}"
+                                         ToolTip="{Binding Header, RelativeSource={RelativeSource Self}}">
+                        <sf:DropDownMenuItem.Icon>
+                            <Image Style="{StaticResource SmallImageStyle}"
+                                   Source="{StaticResource Excel.Colored.Fill.64}" />
+                        </sf:DropDownMenuItem.Icon>
+
+                    </sf:DropDownMenuItem>
+                </sf:DropDownMenuGroup>
+            </sf:DropDownButtonAdv>
+
+            <!-- Export button -->
+            <sf:DropDownButtonAdv x:Name="PART_ExportDropDownButtonAdv"
+                                  Style="{StaticResource DefaultDropDownButtonWithoutLabelStyle}"
+                                  SmallIcon="{StaticResource Export.Black.Line.64}"
+                                  ToolTip="{x:Static localization:Strings.Export}">
+                <sf:DropDownMenuGroup IconBarEnabled="True">
+
+                    <!-- Export to excel -->
+                    <sf:DropDownMenuItem x:Name="PART_ExportToExcelDropDownMenuItem"
+                                         HorizontalAlignment="Left"
+                                         Header="{x:Static localization:Strings.ToExcel}"
+                                         ToolTip="{Binding Header, RelativeSource={RelativeSource Self}}">
+                        <sf:DropDownMenuItem.Icon>
+                            <Image Style="{StaticResource SmallImageStyle}"
+                                   Source="{StaticResource Excel.Colored.Fill.64}"
+                                   ToolTip="{x:Static localization:Strings.Export}" />
+                        </sf:DropDownMenuItem.Icon>
+                    </sf:DropDownMenuItem>
+
+                    <!-- Export to pdf -->
+                    <sf:DropDownMenuItem x:Name="PART_ExportToPdfDropDownMenuItem"
+                                         HorizontalAlignment="Left"
+                                         Header="{x:Static localization:Strings.ToPdf}"
+                                         ToolTip="{Binding Header, RelativeSource={RelativeSource Self}}">
+                        <sf:DropDownMenuItem.Icon>
+                            <Image Style="{StaticResource SmallImageStyle}"
+                                   Source="{StaticResource Pdf.Red.Line.64}" />
+                        </sf:DropDownMenuItem.Icon>
+                    </sf:DropDownMenuItem>
+
+                </sf:DropDownMenuGroup>
+            </sf:DropDownButtonAdv>
+            
+            <!-- Search button -->
+            <sf:ButtonAdv x:Name="PART_SearchButton"
+                          Style="{StaticResource DefaultButtonWithoutLabelStyle}"
+                          SmallIcon="{StaticResource Search.Black.Line.64}"
+                          ToolTip="{x:Static localization:Strings.Search}">
+                <i:Interaction.Behaviors>
+                    <behaviors:SfButtonAdvPopupBehavior Popup="{Binding ElementName=PART_SearchPopup}"/>
+                </i:Interaction.Behaviors>
+            </sf:ButtonAdv>
+
+            <!-- Search popup -->
+            <Popup x:Name="PART_SearchPopup"
+                   AllowsTransparency="True"
+                   PopupAnimation="Slide"
+                   Placement="Bottom"
+                   StaysOpen="False"
+                   VerticalOffset="4"
+                   PlacementTarget="{Binding ElementName=PART_SearchButton}">
+                <Border CornerRadius="{StaticResource CornerRadius4}"
+                        Background="{StaticResource White.Brush}"
+                        BorderThickness="{StaticResource BorderThickness1}"
+                        BorderBrush="{StaticResource NeutralDark1.Brush}">
+                    <StackPanel Orientation="Horizontal" Margin="{StaticResource Margin6}">
+                        
+                        <!-- Search type selector button -->
+                        <sf:DropDownButtonAdv x:Name="PART_SearchTypeDropDownButtonAdv"
+                                              Style="{StaticResource DefaultDropDownButtonWithoutLabelStyle}"
+                                              SmallIcon="{StaticResource Filter.Black.Line.64}"
+                                              ToolTip="{x:Static localization:Strings.SearchType}">
+                            <sf:DropDownMenuGroup>
+
+                                <!-- Start with search type -->
+                                <sf:DropDownMenuItem x:Name="PART_StartWithDropDownItem">
+                                    <sf:DropDownMenuItem.Template>
+                                        <ControlTemplate>
+                                            <RadioButton x:Name="PART_StartWithRadioButton"
+                                                         Content="{x:Static localization:Strings.StartsWith}" 
+                                                         Tag="{x:Static sf:SearchType.StartsWith}"
+                                                         GroupName="SearchType"/>
+                                        </ControlTemplate>
+                                    </sf:DropDownMenuItem.Template>
+                                </sf:DropDownMenuItem>
+
+                                <!-- Contains search type -->
+                                <sf:DropDownMenuItem x:Name="PART_ContainsDropDownItem">
+                                    <sf:DropDownMenuItem.Template>
+                                        <ControlTemplate>
+                                            <RadioButton x:Name="PART_ContainsRadioButton"
+                                                         Content="{x:Static localization:Strings.Contains}" 
+                                                         Tag="{x:Static sf:SearchType.Contains}"
+                                                         IsChecked="True"
+                                                         GroupName="SearchType" />
+                                        </ControlTemplate>
+                                    </sf:DropDownMenuItem.Template>
+                                </sf:DropDownMenuItem>
+                                
+                                <!-- End with search type -->
+                                <sf:DropDownMenuItem x:Name="PART_EndWithDropDownItem">
+                                    <sf:DropDownMenuItem.Template>
+                                        <ControlTemplate>
+                                            <RadioButton x:Name="PART_EndWithRadioButton"
+                                                         Content="{x:Static localization:Strings.EndsWith}" 
+                                                         Tag="{x:Static sf:SearchType.EndsWith}"
+                                                         GroupName="SearchType" />
+                                        </ControlTemplate>
+                                    </sf:DropDownMenuItem.Template>
+                                </sf:DropDownMenuItem>
+
+                            </sf:DropDownMenuGroup>
+                        </sf:DropDownButtonAdv>
+                        
+                        <!-- Search TextBox -->
+                        <TextBox x:Name="PART_SearchTextBox"
+                                 Width="{StaticResource DefaultTextBoxWidth}" 
+                                 Margin="6,0"/>
+                        
+                        <!-- Previous search result button -->
+                        <sf:ButtonAdv x:Name="PART_PreviousSearchResultButton"
+                                      Style="{StaticResource DefaultRoundedGlyphButtonStyle}" 
+                                      SmallIcon="{StaticResource UpArrow.Black.Line.64}"/>
+                        
+                        <!-- Next search result button -->
+                        <sf:ButtonAdv x:Name="PART_NextSearchResultButton"
+                                      Style="{StaticResource DefaultRoundedGlyphButtonStyle}" 
+                                      SmallIcon="{StaticResource DownArrow.Black.Line.64}"
+                                      Margin="6,0"/>
+                        
+                        <!-- Clear search button -->
+                        <sf:ButtonAdv x:Name="PART_ClearSearchButton"
+                                      Style="{StaticResource DefaultRoundedGlyphButtonStyle}" 
+                                      SmallIcon="{StaticResource Close.Black.Line.64}"/>
+                    </StackPanel>
+                </Border>
+            </Popup>
+            
+            <!-- Column settings button -->
+            <sf:ButtonAdv x:Name="PART_ColumnSettingsButton"
+                          Style="{StaticResource DefaultButtonWithoutLabelStyle}"
+                          SmallIcon="{StaticResource ColumnSettings.Black.Line.64}"
+                          ToolTip="{x:Static localization:Strings.ColumnSettings}"/>
+            
+
+        </StackPanel>
+    </DataTemplate>
+    
+    <DataTemplate x:Key="UsersDataGridToolBarTemplate">
+        
+        <StackPanel x:Name="PART_Root"
+                    Orientation="Horizontal"
+                    DataContext="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ContentControl}}">
+
+            <!-- Refresh button -->
+            <sf:ButtonAdv x:Name="PART_RefreshButton"
+                          Style="{StaticResource DefaultButtonWithoutLabelStyle}"
+                          SmallIcon="{StaticResource Refresh.Black.Line.64}"
+                          ToolTip="{x:Static localization:Strings.Refresh}" />
+
+            <!-- Print button -->
+            <sf:ButtonAdv x:Name="PART_PrintButton"
+                          Style="{StaticResource DefaultButtonWithoutLabelStyle}"
+                          SmallIcon="{StaticResource Print.Black.Line.64}"
+                          ToolTip="{x:Static localization:Strings.Print}" />
+
+            <!-- Export button -->
+            <sf:DropDownButtonAdv x:Name="PART_ExportDropDownButtonAdv"
+                                  Style="{StaticResource DefaultDropDownButtonWithoutLabelStyle}"
+                                  SmallIcon="{StaticResource Export.Black.Line.64}"
+                                  ToolTip="{x:Static localization:Strings.Export}">
+                <sf:DropDownMenuGroup IconBarEnabled="True">
+
+                    <!-- Export to excel -->
+                    <sf:DropDownMenuItem x:Name="PART_ExportToExcelDropDownMenuItem"
+                                         HorizontalAlignment="Left"
+                                         Header="{x:Static localization:Strings.ToExcel}"
+                                         ToolTip="{Binding Header, RelativeSource={RelativeSource Self}}">
+                        <sf:DropDownMenuItem.Icon>
+                            <Image Style="{StaticResource SmallImageStyle}"
+                                   Source="{StaticResource Excel.Colored.Fill.64}"
+                                   ToolTip="{x:Static localization:Strings.Export}" />
+                        </sf:DropDownMenuItem.Icon>
+                    </sf:DropDownMenuItem>
+
+                    <!-- Export to pdf -->
+                    <sf:DropDownMenuItem x:Name="PART_ExportToPdfDropDownMenuItem"
+                                         HorizontalAlignment="Left"
+                                         Header="{x:Static localization:Strings.ToPdf}"
+                                         ToolTip="{Binding Header, RelativeSource={RelativeSource Self}}">
+                        <sf:DropDownMenuItem.Icon>
+                            <Image Style="{StaticResource SmallImageStyle}"
+                                   Source="{StaticResource Pdf.Red.Line.64}" />
+                        </sf:DropDownMenuItem.Icon>
+                    </sf:DropDownMenuItem>
+
+                </sf:DropDownMenuGroup>
+            </sf:DropDownButtonAdv>
+            
+            <!-- Search button -->
+            <sf:ButtonAdv x:Name="PART_SearchButton"
+                          Style="{StaticResource DefaultButtonWithoutLabelStyle}"
+                          SmallIcon="{StaticResource Search.Black.Line.64}"
+                          ToolTip="{x:Static localization:Strings.Search}">
+                <i:Interaction.Behaviors>
+                    <behaviors:SfButtonAdvPopupBehavior Popup="{Binding ElementName=PART_SearchPopup}"/>
+                </i:Interaction.Behaviors>
+            </sf:ButtonAdv>
+
+            <!-- Search popup -->
+            <Popup x:Name="PART_SearchPopup"
+                   AllowsTransparency="True"
+                   PopupAnimation="Slide"
+                   Placement="Bottom"
+                   StaysOpen="False"
+                   VerticalOffset="4"
+                   PlacementTarget="{Binding ElementName=PART_SearchButton}">
+                <Border CornerRadius="{StaticResource CornerRadius4}"
+                        Background="{StaticResource White.Brush}"
+                        BorderThickness="{StaticResource BorderThickness1}"
+                        BorderBrush="{StaticResource NeutralDark1.Brush}">
+                    <StackPanel Orientation="Horizontal" Margin="{StaticResource Margin6}">
+                        
+                        <!-- Search type selector button -->
+                        <sf:DropDownButtonAdv x:Name="PART_SearchTypeDropDownButtonAdv"
+                                              Style="{StaticResource DefaultDropDownButtonWithoutLabelStyle}"
+                                              SmallIcon="{StaticResource Filter.Black.Line.64}"
+                                              ToolTip="{x:Static localization:Strings.SearchType}">
+                            <sf:DropDownMenuGroup>
+
+                                <!-- Start with search type -->
+                                <sf:DropDownMenuItem x:Name="PART_StartWithDropDownItem">
+                                    <sf:DropDownMenuItem.Template>
+                                        <ControlTemplate>
+                                            <RadioButton x:Name="PART_StartWithRadioButton"
+                                                         Content="{x:Static localization:Strings.StartsWith}" 
+                                                         Tag="{x:Static sf:SearchType.StartsWith}"
+                                                         GroupName="SearchType"/>
+                                        </ControlTemplate>
+                                    </sf:DropDownMenuItem.Template>
+                                </sf:DropDownMenuItem>
+
+                                <!-- Contains search type -->
+                                <sf:DropDownMenuItem x:Name="PART_ContainsDropDownItem">
+                                    <sf:DropDownMenuItem.Template>
+                                        <ControlTemplate>
+                                            <RadioButton x:Name="PART_ContainsRadioButton"
+                                                         Content="{x:Static localization:Strings.Contains}" 
+                                                         Tag="{x:Static sf:SearchType.Contains}"
+                                                         IsChecked="True"
+                                                         GroupName="SearchType" />
+                                        </ControlTemplate>
+                                    </sf:DropDownMenuItem.Template>
+                                </sf:DropDownMenuItem>
+                                
+                                <!-- End with search type -->
+                                <sf:DropDownMenuItem x:Name="PART_EndWithDropDownItem">
+                                    <sf:DropDownMenuItem.Template>
+                                        <ControlTemplate>
+                                            <RadioButton x:Name="PART_EndWithRadioButton"
+                                                         Content="{x:Static localization:Strings.EndsWith}" 
+                                                         Tag="{x:Static sf:SearchType.EndsWith}"
+                                                         GroupName="SearchType" />
+                                        </ControlTemplate>
+                                    </sf:DropDownMenuItem.Template>
+                                </sf:DropDownMenuItem>
+
+                            </sf:DropDownMenuGroup>
+                        </sf:DropDownButtonAdv>
+                        
+                        <!-- Search TextBox -->
+                        <TextBox x:Name="PART_SearchTextBox"
+                                 Width="{StaticResource DefaultTextBoxWidth}" 
+                                 Margin="6,0"/>
+                        
+                        <!-- Previous search result button -->
+                        <sf:ButtonAdv x:Name="PART_PreviousSearchResultButton"
+                                      Style="{StaticResource DefaultRoundedGlyphButtonStyle}" 
+                                      SmallIcon="{StaticResource UpArrow.Black.Line.64}"/>
+                        
+                        <!-- Next search result button -->
+                        <sf:ButtonAdv x:Name="PART_NextSearchResultButton"
+                                      Style="{StaticResource DefaultRoundedGlyphButtonStyle}" 
+                                      SmallIcon="{StaticResource DownArrow.Black.Line.64}"
+                                      Margin="6,0"/>
+                        
+                        <!-- Clear search button -->
+                        <sf:ButtonAdv x:Name="PART_ClearSearchButton"
+                                      Style="{StaticResource DefaultRoundedGlyphButtonStyle}" 
+                                      SmallIcon="{StaticResource Close.Black.Line.64}"/>
+                    </StackPanel>
+                </Border>
+            </Popup>
+
+        </StackPanel>
+    </DataTemplate>
+    
+</ResourceDictionary>

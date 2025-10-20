@@ -1,0 +1,112 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:sf="http://schemas.syncfusion.com/wpf"
+                    xmlns:cv="clr-namespace:Resources.Converters"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/Resources;component/Global/Common.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/Resources;component/Icons/Icons.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/Resources;component/Styles/SfButtonAdv.Styles.xaml" />
+    </ResourceDictionary.MergedDictionaries>
+    
+    <Style TargetType="Border" x:Key="SnackBarItemBorderAnimatedStyle">
+        <Setter Property="Opacity" Value="0"/>
+        <Setter Property="RenderTransform">
+            <Setter.Value>
+                <TranslateTransform X="0" Y="10"/> 
+            </Setter.Value>
+        </Setter>
+
+        <Style.Triggers>
+            <EventTrigger RoutedEvent="Loaded">
+                <BeginStoryboard>
+                    <Storyboard>
+                        <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                         From="0" To="1"
+                                         Duration="0:0:0.3"
+                                         AccelerationRatio="0.3"
+                                         DecelerationRatio="0.7"/>
+                        
+                        <DoubleAnimation Storyboard.TargetProperty="RenderTransform.(TranslateTransform.X)"
+                                         From="50" To="0"
+                                         Duration="0:0:0.3"
+                                         AccelerationRatio="0.3"
+                                         DecelerationRatio="0.7"/>
+                    </Storyboard>
+                </BeginStoryboard>
+            </EventTrigger>
+        </Style.Triggers>
+    </Style>
+    
+    <cv:SnackbarStyleToBrushConverter x:Key="SnackbarStyleToBrushConverter"
+                                      NoneBrush="{StaticResource DarkBackground.Brush}"
+                                      PrimaryBrush="{StaticResource Primary.Brush}"
+                                      SuccessBrush="{StaticResource Success.Brush}"
+                                      WarningBrush="{StaticResource Warning.Brush}"
+                                      CautionBrush="{StaticResource Caution.Brush}"
+                                      InfoBrush="{StaticResource DarkBackground.Brush}"/>
+    
+    <cv:SnackbarStyleToImageConverter x:Key="SnackbarStyleToImageConverter"
+                                      NoneImage="{StaticResource Information.White.Line.64}"
+                                      PrimaryImage="{StaticResource Information.White.Line.64}"
+                                      SuccessImage="{StaticResource Check.White.Line.64}"
+                                      WarningImage="{StaticResource AlertOctagon.White.Line.64}"
+                                      CautionImage="{StaticResource Alert.White.Line.64}"
+                                      InfoImage="{StaticResource Information.White.Line.64}"/>
+    
+    <DataTemplate x:Key="TextSnackbarItemTemplate">
+        
+        <!-- Main border -->
+        <Border Style="{StaticResource SnackBarItemBorderAnimatedStyle}"
+                CornerRadius="{StaticResource CornerRadius6}"
+                Margin="0,6,0,6"
+                Background="{Binding SnackbarStyle, 
+                            Converter={StaticResource SnackbarStyleToBrushConverter}}">
+            
+            <!-- Main grid -->
+            <Grid Margin="{StaticResource Margin6}">
+                
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/> <!-- Icon -->
+                    <ColumnDefinition Width="*"/>    <!-- Message -->
+                    <ColumnDefinition Width="Auto"/> <!-- Close button -->
+                </Grid.ColumnDefinitions>
+                
+                    <!-- Icon image -->
+                <Image Grid.Column="0" 
+                       Width="{StaticResource SnackbarIconWidth}"
+                       Height="{StaticResource SnackbarIconHeight}"
+                       Source="{Binding SnackbarStyle, 
+                            Converter={StaticResource SnackbarStyleToImageConverter}}"/>
+                
+                <!-- Message text block -->
+                <TextBlock Grid.Column="1" 
+                           Text="{Binding Message}"
+                           Foreground="{StaticResource White.Brush}"
+                           TextTrimming="CharacterEllipsis"
+                           TextWrapping="Wrap"
+                           Margin="12,0,12,0"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Left"/>
+                
+                <!-- Close button-->
+                <sf:ButtonAdv Grid.Column="2" 
+                              Width="{StaticResource SnackbarCloseButtonWidth}"
+                              Height="{StaticResource SnackbarCloseButtonHeight}"
+                              Style="{StaticResource TransparencyRoundedGlyphButtonStyle}"
+                              SmallIcon="{StaticResource Close.White.Line.64}"
+                              Command="{Binding DataContext.CloseSnackbarItemCommand, 
+                                RelativeSource={RelativeSource AncestorType=UserControl}}"
+                              CommandParameter="{Binding}"
+                              HorizontalAlignment="Right"/>
+            </Grid>
+            
+        </Border>  
+        
+    </DataTemplate>
+    
+    <DataTemplate x:Key="ProgressSnackbarItemTemplate">
+        
+    </DataTemplate>
+    
+</ResourceDictionary>

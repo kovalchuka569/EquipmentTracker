@@ -1,8 +1,8 @@
-﻿using Common.Exceptions;
-
-namespace Core.Interfaces;
+﻿namespace Core.Interfaces;
 
 public interface IDbConnectionService
 {
     Task TestConnectionAsync(string connectionString);
+    
+    Task PreheatConnectionAsync();
 }

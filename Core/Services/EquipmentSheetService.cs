@@ -22,6 +22,7 @@ public class EquipmentSheetService(IUnitOfWork unitOfWork, IAppLogger<EquipmentS
     {
        return await ExecuteInLoggerAsync(async () =>
        {
+           Console.WriteLine($"EQUIPMENTSHEET ID: {equipmentSheetId}");
             var columnsJson = await UnitOfWork.EquipmentSheetRepository.GetColumnsJsonAsync(equipmentSheetId, ct);
             return DeserializeColumns(columnsJson);
             

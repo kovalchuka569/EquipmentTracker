@@ -3,6 +3,7 @@
     <PropertyGroup>
         <TargetFramework>net8.0-windows</TargetFramework>
         <UseWPF>true</UseWPF>
+        <Nullable>enable</Nullable>
     </PropertyGroup>
 
     <ItemGroup>
@@ -175,9 +176,12 @@
     </ItemGroup>
 
     <ItemGroup>
+      <None Remove="Icons\alertoctagon_white_line_64.png" />
+      <None Remove="Icons\alert_white_line_64.png" />
       <None Remove="Icons\Close\close_white_line_64.png" />
-      <Resource Include="Global\Fonts\password.ttf" />
       <Resource Include="Global\Fonts\tylaco.ttf" />
+      <Resource Include="Icons\alertoctagon_white_line_64.png" />
+      <Resource Include="Icons\alert_white_line_64.png" />
       <Resource Include="Icons\Close\close_white_line_64.png" />
       <None Remove="Icons\Close\close_dark_line_64.png" />
       <Resource Include="Icons\Close\close_dark_line_64.png" />
@@ -279,6 +283,31 @@
       <Resource Include="Icons\fileexport_white_line_64.png" />
       <None Remove="Icons\file_import_line (1).png" />
       <Resource Include="Icons\fileimport_white_line_64.png" />
+      <None Remove="Icons\send_line.png" />
+      <Resource Include="Icons\send_white_line_64.png" />
+      <None Remove="Global\Fonts\password.ttf" />
+      <Resource Include="Global\Fonts\password.ttf" />
+      <None Remove="Icons\group_fill.png" />
+      <Resource Include="Icons\users_white_fill_64.png" />
+      <None Remove="Icons\user_add_line.png" />
+      <Resource Include="Icons\useradd_black_line_64.png" />
+      <None Remove="Icons\cross_red_line_64.png" />
+      <Resource Include="Icons\cross_red_line_64.png" />
+      <None Remove="Icons\check_green_line_64.png" />
+      <None Remove="Icons\check_line (2).png" />
+      <Resource Include="Icons\check_green_line_64.png" />
+      <None Remove="Icons\alert_fill.png" />
+      <Resource Include="Icons\alert_red_fill_128.png" />
+      <None Remove="Icons\information_line.png" />
+      <None Remove="Icons\alert_line.png" />
+      <None Remove="Icons\alertoctagon_white_line_32.png" />
+      <None Remove="Icons\close_line (1).png" />
+      <None Remove="Icons\information_white_line_64.png" />
+      <Resource Include="Icons\information_white_line_64.png" />
+      <None Remove="Icons\cross_white_line_64.png" />
+      <Resource Include="Icons\cross_white_line_64.png" />
+      <None Remove="Icons\check_line (4).png" />
+      <Resource Include="Icons\check_white_line_64.png" />
     </ItemGroup>
 
     <ItemGroup>
@@ -288,6 +317,28 @@
       </EmbeddedResource>
       <EmbeddedResource Update="Localization\Strings.uk-ua.resx">
         <Generator>Public</Generator>
+        <DependentUpon>Strings.resx</DependentUpon>
+      </EmbeddedResource>
+      <EmbeddedResource Update="Localization\ValidationUIMessages.resx">
+        <Generator>PublicResXFileCodeGenerator</Generator>
+        <LastGenOutput>ValidationUIMessages.Designer.cs</LastGenOutput>
+      </EmbeddedResource>
+      <EmbeddedResource Update="Localization\ValidationUIMessages.uk-ua.resx">
+        <DependentUpon>ValidationUIMessages.resx</DependentUpon>
+      </EmbeddedResource>
+      <EmbeddedResource Update="Localization\Plurals.resx">
+        <Generator>PublicResXFileCodeGenerator</Generator>
+        <LastGenOutput>Plurals.Designer.cs</LastGenOutput>
+      </EmbeddedResource>
+      <EmbeddedResource Update="Localization\SnackbarMessages.resx">
+        <Generator>PublicResXFileCodeGenerator</Generator>
+        <LastGenOutput>SnackbarMessages.Designer.cs</LastGenOutput>
+      </EmbeddedResource>
+      <EmbeddedResource Update="Localization\SnackbarMessages.uk-ua.resx">
+        <DependentUpon>SnackbarMessages.resx</DependentUpon>
+      </EmbeddedResource>
+      <EmbeddedResource Update="Localization\Plurals.uk-ua.resx">
+        <DependentUpon>Plurals.resx</DependentUpon>
       </EmbeddedResource>
     </ItemGroup>
 
@@ -296,6 +347,21 @@
         <DesignTime>True</DesignTime>
         <AutoGen>True</AutoGen>
         <DependentUpon>Strings.resx</DependentUpon>
+      </Compile>
+      <Compile Update="Localization\ValidationUIMessages.Designer.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>ValidationUIMessages.resx</DependentUpon>
+      </Compile>
+      <Compile Update="Localization\Plurals.Designer.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>Plurals.resx</DependentUpon>
+      </Compile>
+      <Compile Update="Localization\SnackbarMessages.Designer.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>SnackbarMessages.resx</DependentUpon>
       </Compile>
     </ItemGroup>
 

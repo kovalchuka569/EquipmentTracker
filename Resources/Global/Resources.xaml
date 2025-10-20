@@ -1,0 +1,13 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ResourceDictionary.MergedDictionaries>
+        <!-- Global -->
+        <ResourceDictionary Source="pack://application:,,,/Resources;component/Global/Brushes.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/Resources;component/Global/Common.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/Resources;component/Global/Fonts/Fonts.xaml" />
+        <ResourceDictionary Source="pack://application:,,,/Resources;component/Icons/Icons.xaml"/>
+        
+        <!-- Syncfusion control styles -->
+        <ResourceDictionary Source="pack://application:,,,/Resources;component/Styles/SfButtonAdv.Styles.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+</ResourceDictionary>

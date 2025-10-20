@@ -1,13 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-
 using Npgsql;
-
-using Models.Entities.EquipmentSheet;
-using Models.Entities.PivotSheet;
-
 using Data.Entities;
-using Data.Configurations;
-using Models.Entities.FileSystem;
+using Data.Entities.MainTree;
 
 namespace Data.ApplicationDbContext
 {
@@ -20,9 +14,8 @@ namespace Data.ApplicationDbContext
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.ApplyConfiguration(new FileSystemItemConfiguration());
-            modelBuilder.ApplyConfiguration(new EquipmentSheetConfigurations());
-            modelBuilder.ApplyConfiguration(new PivotSheetConfigurations());
+            
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
         }
         
         public async Task<NpgsqlConnection> OpenNewConnectionAsync(CancellationToken ct = default)
@@ -33,13 +26,9 @@ namespace Data.ApplicationDbContext
             return connection;
         }
         
-        public DbSet<User> Users { get; set; }
-        
-
-        public DbSet<FileSystemItemEntity> FileSystemItems { get; set; }
-        
+        public DbSet<UserEntity> Users { get; set; }
+        public DbSet<MainTreeItemEntity> MainTreeItems { get; set; }
         public DbSet<PivotSheetEntity> PivotSheets { get; set; }
-        
         public DbSet<EquipmentSheetEntity> EquipmentSheets { get; set; }
     }
 }

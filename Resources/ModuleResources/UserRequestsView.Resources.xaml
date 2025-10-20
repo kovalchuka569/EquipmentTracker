@@ -1,0 +1,10 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/Resources;component/Styles/Dialog.Styles.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/Resources;component/Styles/TextBlock.Styles.xaml"/>
+        <ResourceDictionary Source="/Syncfusion.Themes.Windows11Light.WPF;component/mscontrol/listview.xaml"/>
+        <ResourceDictionary Source="/Syncfusion.Themes.Windows11Light.WPF;component/mscontrol/scrollviewer.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/Resources;component/Templates/ViewTemplates/UserRequests.Templates.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+</ResourceDictionary>

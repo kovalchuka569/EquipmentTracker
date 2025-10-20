@@ -5,7 +5,8 @@ using Presentation.ViewModels;
 using Presentation.Views;
 
 using Presentation.Interfaces;
-using Presentation.UIManagers;
+using Presentation.Services;
+using Presentation.Services.Interfaces;
 using Presentation.ViewModels.DialogViewModels;
 using Presentation.Views.DialogViews;
 
@@ -15,17 +16,17 @@ public class PresentationModule : IModule
 {
     public void RegisterTypes(IContainerRegistry containerRegistry)
     {
-        // Interfaces and UIManagers
+        // Interfaces and services
         containerRegistry.RegisterScoped<IGenericTabManager, GenericTabManager>();
-        containerRegistry.RegisterScoped<ICleanRegionManager, CleanRegionManager>();
         containerRegistry.RegisterScoped<IExcelExportManager, ExcelExportManager>();
         containerRegistry.RegisterScoped<IPdfExportManager, PdfExportManager>();
         containerRegistry.RegisterScoped<ISyncfusionGridPrintManager, SyncfusionGridPrintManager>();
         containerRegistry.RegisterScoped<ISyncfusionGridColumnManager, SyncfusionGridColumnManager>();
-        containerRegistry.RegisterScoped<IDialogManager, DialogManager>();
+        containerRegistry.RegisterScoped<IDialogService, DialogService>();
         containerRegistry.RegisterScoped<IGridInteractionManager, GridInteractionManager>();
-        containerRegistry.RegisterScoped<IOverlayManager, OverlayManager>();
-        containerRegistry.RegisterScoped<IBusyIndicatorManager, BusyIndicatorManager>();
+        containerRegistry.RegisterScoped<IOverlayService, OverlayService>();
+        containerRegistry.RegisterScoped<IBusyIndicatorService, BusyIndicatorService>();
+        containerRegistry.RegisterScoped<ISfDataGridExportManager, SfDataGridExportManager>();
         
         // Views and view models
         containerRegistry.RegisterForNavigation<MainWindowView, MainWindowViewModel>();
@@ -36,6 +37,7 @@ public class PresentationModule : IModule
         containerRegistry.RegisterForNavigation<EquipmentSheetView, EquipmentSheetViewModel>();
         containerRegistry.RegisterForNavigation<PivotSheetView, PivotSheetViewModel>();
         containerRegistry.RegisterForNavigation<SettingsView, SettingsViewModel>();
+        containerRegistry.RegisterForNavigation<UserManagerView, UserManagerViewModel>();
         
         // Dialogs
         containerRegistry.RegisterForNavigation<DialogBoxView, DialogBoxViewModel>();
@@ -44,6 +46,10 @@ public class PresentationModule : IModule
         containerRegistry.RegisterForNavigation<MarkedItemsCleanerView, MarkedItemsCleanerViewModel>();
         containerRegistry.RegisterForNavigation<ConnectionFailedView, ConnectionFailedViewModel>();
         containerRegistry.RegisterForNavigation<ConnectionSetupView, ConnectionSetupViewModel>();
+        containerRegistry.RegisterForNavigation<RegisterView, RegisterViewModel>();
+        
+        // Notifications
+        containerRegistry.RegisterForNavigation<SnackbarView, SnackbarViewModel>();
     }
 
     public void OnInitialized(IContainerProvider containerProvider) { }

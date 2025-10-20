@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-using Models.Entities.FileSystem;
+using Data.Entities.MainTree;
 
 using Data.ApplicationDbContext;
 using Data.Interfaces;
@@ -11,28 +11,28 @@ namespace Data.Repositories;
 
 public class FileSystemRepository(AppDbContext context) : IFileSystemRepository
 {
-    public async Task<List<FileSystemItemEntity>> GetChildsFileSystemItemsByMenuTypeAsync(MenuType menuType, Guid? parentId, CancellationToken ct)
+    public async Task<List<MainTreeItemEntity>> GetChildsFileSystemItemsByMenuTypeAsync(MenuType menuType, Guid? parentId, CancellationToken ct)
     {
-        return await context.FileSystemItems
+        return await context.MainTreeItems
             .AsNoTracking()
             .Where(f => f.ParentId == parentId 
                         && f.MenuType == menuType)
             .ToListAsync(ct);
     }
 
-    public async Task AddFileSystemItemAsync(FileSystemItemEntity item, CancellationToken ct)
+    public async Task AddFileSystemItemAsync(MainTreeItemEntity item, CancellationToken ct)
     {
-        await context.FileSystemItems.AddAsync(item, ct);
+        await context.MainTreeItems.AddAsync(item, ct);
     }
 
-    public void UpdateFileSystemItemAsync(FileSystemItemEntity item)
+    public void UpdateFileSystemItemAsync(MainTreeItemEntity item)
     {
-        context.FileSystemItems.Update(item);
+        context.MainTreeItems.Update(item);
     }
 
     public async Task RenameFileSystemItemAsync(Guid fileSystemItemId, string newName, CancellationToken ct)
     {
-        await context.FileSystemItems
+        await context.MainTreeItems
             .Where(x => x.Id == fileSystemItemId)
             .ExecuteUpdateAsync(f => f
                 .SetProperty(i => i.Name, newName), ct);
@@ -40,7 +40,7 @@ public class FileSystemRepository(AppDbContext context) : IFileSystemRepository
 
     public async Task SoftDeleteFileSystemItemAsync(Guid fileSystemItemId, CancellationToken ct)
     {
-        await context.FileSystemItems
+        await context.MainTreeItems
             .Where(x => x.Id == fileSystemItemId)
             .ExecuteUpdateAsync(f => f
                 .SetProperty(i => i.IsMarkedForDelete, true), ct);
@@ -48,7 +48,7 @@ public class FileSystemRepository(AppDbContext context) : IFileSystemRepository
 
     public async Task MoveFileSystemItemAsync(Guid fileSystemItemId, Guid newParentId, CancellationToken ct)
     {
-        await context.FileSystemItems
+        await context.MainTreeItems
             .Where(x => x.Id == fileSystemItemId)
             .ExecuteUpdateAsync(f => f
                 .SetProperty(i => i.ParentId, newParentId), ct);
@@ -56,7 +56,7 @@ public class FileSystemRepository(AppDbContext context) : IFileSystemRepository
 
     public async Task UpdateHasChildsAsync(Guid fileSystemItemId, bool hasChilds, CancellationToken ct)
     {
-        await context.FileSystemItems
+        await context.MainTreeItems
             .Where(x => x.Id == fileSystemItemId)
             .ExecuteUpdateAsync(f => f
                 .SetProperty(i => i.HasChilds, hasChilds), ct);
@@ -67,7 +67,7 @@ public class FileSystemRepository(AppDbContext context) : IFileSystemRepository
         
         var ids = newStatuses.Select(x => x.Id).ToList();
         
-        var entities = await context.FileSystemItems
+        var entities = await context.MainTreeItems
             .Where(x => ids.Contains(x.Id))
             .ToListAsync(ct);
 
@@ -82,7 +82,7 @@ public class FileSystemRepository(AppDbContext context) : IFileSystemRepository
     {
         var ids = newPositions.Select(x => x.Id).ToList();
         
-        var entities = await context.FileSystemItems
+        var entities = await context.MainTreeItems
             .Where(e => ids.Contains(e.Id))
             .ToListAsync(ct);
         
@@ -96,7 +96,7 @@ public class FileSystemRepository(AppDbContext context) : IFileSystemRepository
 
     public async Task UpdateIsMarkedForDeleteAsync(Guid fileSystemItemId, bool isMarkedForDelete, CancellationToken ct = default)
     {
-        await context.FileSystemItems.Where(x => x.Id == fileSystemItemId)
+        await context.MainTreeItems.Where(x => x.Id == fileSystemItemId)
             .ExecuteUpdateAsync(f => f
                 .SetProperty(i => i.IsMarkedForDelete, isMarkedForDelete), ct);
     }

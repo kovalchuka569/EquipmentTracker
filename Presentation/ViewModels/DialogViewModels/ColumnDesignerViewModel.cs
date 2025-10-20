@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
@@ -8,7 +7,6 @@ using System.Reflection;
 using Prism.Commands;
 using Prism.Dialogs;
 using Notification.Wpf;
-using Presentation.Contracts;
 using Common.Logging;
 using JetBrains.Annotations;
 using Models.Common.Table.ColumnProperties;
@@ -17,14 +15,14 @@ using Presentation.Attributes;
 using Presentation.EventArgs;
 using Presentation.Models;
 using Presentation.ViewModels.Common.ColumnDesigner;
-
+using Presentation.ViewModels.DialogViewModels.Common;
 using DescriptionAttribute = Presentation.Attributes.DescriptionAttribute;
 using DisplayNameAttribute = Presentation.Attributes.DisplayNameAttribute;
 using EditorAttribute = Presentation.Attributes.EditorAttribute;
 
 namespace Presentation.ViewModels.DialogViewModels;
 
-public class ColumnDesignerViewModel : BaseViewModel<ColumnDesignerViewModel>, IClosableDialog, IDialogAware
+public class ColumnDesignerViewModel : DialogViewModelBase
 {
     
     #region Private fields
@@ -32,7 +30,6 @@ public class ColumnDesignerViewModel : BaseViewModel<ColumnDesignerViewModel>, I
     private ObservableCollection<BaseColumnPropertiesViewModel> _columnProperties = new();
     private BaseColumnPropertiesViewModel? _selectedColumnProperties;
     private ObservableCollection<ColumnPropertyEntry> _selectedColumnPropertyEntries = new();
-    private DelegateCommand<IDialogResult>? _closeDialogFromHostCommand;
 
     #endregion
 
@@ -79,8 +76,7 @@ public class ColumnDesignerViewModel : BaseViewModel<ColumnDesignerViewModel>, I
 
     #region Constructor
 
-    public ColumnDesignerViewModel(NotificationManager notificationManager, IAppLogger<ColumnDesignerViewModel> logger)
-        : base(notificationManager, logger)
+    public ColumnDesignerViewModel()
     {
         InitializeCommands();
         
@@ -337,35 +333,17 @@ public class ColumnDesignerViewModel : BaseViewModel<ColumnDesignerViewModel>, I
                 {"ColumnEditResult", columnEditResult}
             }
         };
-        _closeDialogFromHostCommand?.Execute(result);
+        OnDialogClosed(result);
     }
     
     #endregion
 
-    #region IClosableDialog implementation
-
-    public void SetCloseCommand(DelegateCommand<IDialogResult>? closeCommand)
-    {
-        _closeDialogFromHostCommand = closeCommand;
-    }
-
-    #endregion
-
     #region IDialogAware implementation
 
-    public bool CanCloseDialog() => true;
-
-    public void OnDialogClosed()
+    public override void OnDialogOpened(IDialogParameters parameters)
     {
-        var result = new DialogResult
-        {
-            Result = ButtonResult.Cancel
-        };
-        _closeDialogFromHostCommand?.Execute(result);
-    }
-
-    public void OnDialogOpened(IDialogParameters parameters)
-    {
+        base.OnDialogOpened(parameters);
+        
         var columnProperties = parameters.GetValue<List<BaseColumnProperties>>("ColumnProperties");
         
         foreach(var vm in ColumnPropertiesViewModelFactory
@@ -379,8 +357,6 @@ public class ColumnDesignerViewModel : BaseViewModel<ColumnDesignerViewModel>, I
             SelectedColumnProperties = _columnProperties.First();
         }
     }
-
-    public DialogCloseListener RequestClose { get; } = new();
 
     #endregion
 

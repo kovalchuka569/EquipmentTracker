@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore.Query;
-using Models.Entities.EquipmentSheet;
+using Data.Entities;
 
 namespace Data.Interfaces;
 

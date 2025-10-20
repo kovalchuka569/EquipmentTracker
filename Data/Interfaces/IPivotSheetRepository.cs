@@ -1,4 +1,4 @@
-﻿using Models.Entities.PivotSheet;
+﻿using Data.Entities;
 
 namespace Data.Interfaces;
 

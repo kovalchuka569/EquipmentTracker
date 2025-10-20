@@ -6,12 +6,13 @@ using Common.Constants;
 
 using JetBrains.Annotations;
 using Notification.Wpf;
+using Presentation.ViewModels.DialogViewModels.Common;
 using Prism.Commands;
 using Prism.Dialogs;
 
 namespace Presentation.ViewModels.DialogViewModels;
 
-public class ConnectionFailedViewModel : BaseDialogViewModel<ConnectionFailedViewModel>
+public class ConnectionFailedViewModel : DialogViewModelBase
 {
     
     #region Private Fields
@@ -32,8 +33,7 @@ public class ConnectionFailedViewModel : BaseDialogViewModel<ConnectionFailedVie
     
     #region Constructor
     
-    public ConnectionFailedViewModel(NotificationManager notificationManager, IAppLogger<ConnectionFailedViewModel> logger) 
-        : base(notificationManager, logger)
+    public ConnectionFailedViewModel()
     {
         InitializeCommands();
     }

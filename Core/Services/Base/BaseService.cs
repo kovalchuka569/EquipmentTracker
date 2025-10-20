@@ -38,13 +38,13 @@ public abstract class BaseService<T>
 
     #region Protected methods
 
-        /// <summary>
+    /// <summary>
     /// Executes a given asynchronous action while logging its start, completion, and any failures, including the time taken for the operation.
     /// </summary>
     /// <param name="action">The asynchronous action to be executed.</param>
     /// <param name="operationName">A descriptive name for the operation, used in log messages.</param>
-    /// <param name="ct">A cancellation token that can be used to cancel the work.</param>
-    protected async Task ExecuteInLoggerAsync(Func<Task> action, string operationName, CancellationToken ct = default)
+    /// <param name="cancellationToken">A cancellation token that can be used to cancel the work.</param>
+    protected async Task ExecuteInLoggerAsync(Func<Task> action, string operationName, CancellationToken cancellationToken = default)
     {
         var stopwatch = Stopwatch.StartNew();
         Logger.LogInformation(StartingOperationLog, operationName);
@@ -69,9 +69,9 @@ public abstract class BaseService<T>
     /// <typeparam name="TResult">The type of the result returned by the action.</typeparam>
     /// <param name="action">The asynchronous action to be executed.</param>
     /// <param name="operationName">A descriptive name for the operation, used in log messages.</param>
-    /// <param name="ct">A cancellation token that can be used to cancel the work.</param>
+    /// <param name="cancellationToken">A cancellation token that can be used to cancel the work.</param>
     /// <returns>A task that represents the asynchronous operation, containing the result from the executed action.</returns>
-    protected async Task<TResult> ExecuteInLoggerAsync<TResult>(Func<Task<TResult>> action, string operationName, CancellationToken ct = default)
+    protected async Task<TResult> ExecuteInLoggerAsync<TResult>(Func<Task<TResult>> action, string operationName, CancellationToken cancellationToken = default)
     {
         var stopwatch = Stopwatch.StartNew();
         Logger.LogInformation(StartingOperationLog, operationName);

@@ -11,16 +11,20 @@ public class UnitOfWork : IUnitOfWork, IDisposable, IAsyncDisposable
     private IDbContextTransaction? _transaction;
     private bool _disposed;
 
+    public IUserRepository UserRepository { get; }
     public IFileSystemRepository FileSystemRepository { get; }
     public IEquipmentSheetRepository EquipmentSheetRepository { get; }
     public IPivotSheetRepository PivotSheetRepository { get; }
+    
     public UnitOfWork(AppDbContext context,
+        IUserRepository userRepository,
         IFileSystemRepository fileSystemRepository,
         IEquipmentSheetRepository equipmentSheetRepository,
         IPivotSheetRepository pivotSheetRepository)
     {
         _context = context;
         
+        UserRepository = userRepository;
         FileSystemRepository = fileSystemRepository;
         EquipmentSheetRepository = equipmentSheetRepository;
         PivotSheetRepository = pivotSheetRepository;

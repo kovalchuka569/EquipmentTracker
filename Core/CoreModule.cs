@@ -7,13 +7,14 @@ public class CoreModule : IModule
 {
     public void RegisterTypes(IContainerRegistry containerRegistry)
     {
-        
+        containerRegistry.RegisterScoped<IAuthService, AuthService>();
         containerRegistry.RegisterScoped<IEquipmentSheetService, EquipmentSheetService>();
         containerRegistry.RegisterScoped<IExcelImportService, ExcelImportService>();
         containerRegistry.RegisterScoped<ICellValidatorService, CellValidatorService>();
         containerRegistry.RegisterScoped<IRowValidatorService, RowValidatorService>();
         containerRegistry.RegisterScoped<IFileSystemService, FileSystemService>();
         containerRegistry.RegisterScoped<IDbConnectionService, DbConnectionService>();
+        containerRegistry.RegisterScoped<IUserManagerService, UserManagerService>();
     }
 
     public void OnInitialized(IContainerProvider containerProvider) { }

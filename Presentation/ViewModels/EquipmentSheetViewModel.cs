@@ -2,89 +2,72 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
 using Prism.Commands;
 using Prism.Dialogs;
 using Prism.Events;
 using Prism.Ioc;
-using Prism.Mvvm;
 using Prism.Navigation;
 using Prism.Navigation.Regions;
 using Syncfusion.UI.Xaml.Grid;
 using Syncfusion.UI.Xaml.Grid.Helpers;
 using Notification.Wpf;
 using Common.Logging;
-using Core.Common.Helpers;
-using Core.Common.RegionHelpers;
 using Core.Interfaces;
 using Core.Models;
 using JetBrains.Annotations;
 using Models.Common.Table.ColumnProperties;
-using Models.Constants;
 using Models.Dialogs;
 using Models.Equipment;
 using Models.Services;
-using Presentation.Enums;
 using Presentation.Interfaces;
 using Presentation.Models;
-using Presentation.UIManagers;
 using Presentation.ViewModels.Common.Table;
-using Presentation.Contracts;
+using Presentation.ViewModels.Common;
+using Presentation.ViewModels.DialogViewModels;
+using Unity;
 
 namespace Presentation.ViewModels;
 
-public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestructible, IRegionMemberLifetime,
-    IDialogHost, IOverlayHost
+public class EquipmentSheetViewModel : InteractiveViewModelBase, IRegionMemberLifetime
 {
-    private readonly IAppLogger<EquipmentSheetViewModel> _logger;
-    private readonly NotificationManager _notificationManager;
-    private IEquipmentSheetService _service;
-    private IExcelImportService _excelImportService;
-    private IDialogManager _dialogManager;
-    private IOverlayManager _overlayManager;
-    private IExcelExportManager _excelExportManager;
-    private IPdfExportManager _pdfExportManager;
-    private ISyncfusionGridColumnManager _columnManager;
-    private ICellValidatorService _cellValidatorService;
-    private IRowValidatorService _rowValidatorService;
+    [Dependency]
+    public required IAppLogger<EquipmentSheetViewModel> Logger { get; init; } = null!;
+    
+    [Dependency]
+    public required NotificationManager NotificationManager { get; init; } = null!;
+    
+    [Dependency]
+    public required IEquipmentSheetService Service { get; init; } = null!;
+    
+    [Dependency]
+    public required IExcelImportService ExcelImportService { get; init; } = null!;
+    
+    [Dependency]
+    public required IExcelExportManager ExcelExportManager { get; init; } = null!;
+    
+    [Dependency]
+    public required IPdfExportManager PdfExportManager { get; init; } = null!;
+    
+    [Dependency]
+    public required ISyncfusionGridColumnManager ColumnManager { get; init; } = null!;
+    
+    [Dependency]
+    public required ICellValidatorService CellValidatorService { get; init; } = null!;
+    
+    [Dependency]
+    public required IRowValidatorService RowValidatorService { get; init; } = null!;
+    
     private IEventAggregator? _scopedEventAggregator;
     private Guid _equipmentSheetId;
     private bool _isInitialized;
 
-    public EquipmentSheetViewModel(
-        IAppLogger<EquipmentSheetViewModel> logger,
-        NotificationManager notificationManager,
-        ISyncfusionGridColumnManager columnManager,
-        IDialogManager dialogManager,
-        IOverlayManager overlayManager,
-        IExcelExportManager excelExportManager,
-        IPdfExportManager pdfExportManager,
-        ICellValidatorService cellValidatorService,
-        IRowValidatorService rowValidatorService,
-        IEquipmentSheetService service,
-        IExcelImportService excelImportService)
+    public EquipmentSheetViewModel()
     {
-        _logger = logger;
-        _notificationManager = notificationManager;
-        _columnManager = columnManager;
-        _dialogManager = dialogManager;
-        _overlayManager = overlayManager;
-        _excelExportManager = excelExportManager;
-        _pdfExportManager = pdfExportManager;
-        _cellValidatorService = cellValidatorService;
-        _rowValidatorService = rowValidatorService;
-        _service = service;
-        _excelImportService = excelImportService;
-
         InitializeCommands();
     }
-
-    public bool IsNavigationTarget(NavigationContext navigationContext) => true;
 
     #region Properties
 
@@ -139,46 +122,6 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
         set => SetProperty(ref _selectedItems, value);
     }
 
-    private object? _dialogContent;
-
-    public object? DialogContent
-    {
-        get => _dialogContent;
-        set => SetProperty(ref _dialogContent, value);
-    }
-
-    private object? _overlayContent;
-
-    public object? OverlayContent
-    {
-        get => _overlayContent;
-        set => SetProperty(ref _overlayContent, value);
-    }
-
-    private bool _isOverlayOpen;
-
-    public bool IsOverlayOpen
-    {
-        get => _isOverlayOpen;
-        set => SetProperty(ref _isOverlayOpen, value);
-    }
-
-    private bool _isDialogOpen;
-
-    public bool IsDialogOpen
-    {
-        get => _isDialogOpen;
-        set => SetProperty(ref _isDialogOpen, value);
-    }
-
-    private bool _isRegionOverlayVisible;
-
-    public bool IsRegionOverlayVisible
-    {
-        get => _isRegionOverlayVisible;
-        set => SetProperty(ref _isRegionOverlayVisible, value);
-    }
-
     private bool _isLoading;
 
     public bool IsLoading
@@ -203,7 +146,7 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
 
     #region Commands
 
-    public DelegateCommand<SfDataGrid> DataGridLoadedCommand
+    public DelegateCommand<SfDataGrid> EquipmentDataGridLoadedCommand
     {
         [UsedImplicitly] 
         get; 
@@ -218,13 +161,6 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
     } = null!;
 
     public DelegateCommand ExportToPdfCommand
-    {
-        [UsedImplicitly] 
-        get; 
-        private set;
-    } = null!;
-
-    public DelegateCommand PrintCommand
     {
         [UsedImplicitly] 
         get; 
@@ -327,10 +263,9 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
 
     private void InitializeCommands()
     {
-        DataGridLoadedCommand = new DelegateCommand<SfDataGrid>(OnDataGridLoaded);
+        EquipmentDataGridLoadedCommand = new DelegateCommand<SfDataGrid>(OnEquipmentDataGridLoadedCommandExecuted);
         ExportToExcelCommand = new DelegateCommand(OnExportToExcel);
         ExportToPdfCommand = new DelegateCommand(OnExportToPdf);
-        PrintCommand = new DelegateCommand(OnPrint);
         ExcelImportCommand = new DelegateCommand(OnExcelImport);
         RowValidatingCommand = new DelegateCommand<RowValidatingEventArgs>(OnRowValidating);
         RowValidatedCommand = new DelegateCommand<RowValidatedEventArgs>(OnRowValidated);
@@ -364,56 +299,61 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
 
     private async void OnExcelImport()
     {
-        _overlayManager.ShowOverlay(this);
+        
+        var dialogResult = await DialogService 
+            .Show<ExcelImportConfiguratorViewModel>()
+            .In(this)
+            .WithOverlay()
+            .Await();
+        
+        if (dialogResult is not { Result: ButtonResult.OK, Parameters: { } dialogParameters })
+            return;
+        
+        var excelImportConfigurationResult =
+            dialogParameters.GetValue<ExcelImportConfigurationResult>("ExcelImportConfigurationResult");
+
+        var availableColumns = _columnIdDomainMap.Values
+            .Select(c => (c.HeaderText, c.MappingName, c.ColumnDataType)).ToList();
+
+        var excelImportConfig = new ExcelImportConfig
+        {
+            FilePath = excelImportConfigurationResult.SelectedFilePath,
+            SheetName = excelImportConfigurationResult.SelectedSheetName,
+            HeadersRange = excelImportConfigurationResult.HeadersRange,
+            RowRangeStart = excelImportConfigurationResult.RowRangeStart,
+            RowRangeEnd = excelImportConfigurationResult.RowRangeEnd,
+            AvailableColumns = availableColumns
+        };
+
+        var importedRows = await ExcelImportService.ImportRowsAsync(excelImportConfig);
+
+        // Pushing existing rows depending on how many were imported
+        foreach (var item in Items) item.RowViewModel.Position += importedRows.Count;
+
+        // Reverse the order of imported rows to match the original order
+        importedRows.Reverse();
+
+        // Insert new items at the beginning of the items collection
+        var pos = 1;
+        foreach (var row in importedRows)
+        {
+            row.Position = pos++;
+            var itemViewModel = new ItemViewModel(RowViewModel.FromDomain(row));
+            Items.Insert(0, itemViewModel);
+        }
+
         try
         {
-            var result = await _dialogManager.ShowDialogAsync(DialogType.ExcelImportConfigurator, this);
-
-            if (result is not { Result: ButtonResult.OK, Parameters: { } dialogParameters })
-                return;
-
-            var excelImportConfigurationResult =
-                dialogParameters.GetValue<ExcelImportConfigurationResult>("ExcelImportConfigurationResult");
-
-            var availableColumns = _columnIdDomainMap.Values
-                .Select(c => (c.HeaderText, c.MappingName, c.ColumnDataType)).ToList();
-
-            var excelImportConfig = new ExcelImportConfig
-            {
-                FilePath = excelImportConfigurationResult.SelectedFilePath,
-                SheetName = excelImportConfigurationResult.SelectedSheetName,
-                HeadersRange = excelImportConfigurationResult.HeadersRange,
-                RowRangeStart = excelImportConfigurationResult.RowRangeStart,
-                RowRangeEnd = excelImportConfigurationResult.RowRangeEnd,
-                AvailableColumns = availableColumns
-            };
-
-            var importedRows = await _excelImportService.ImportRowsAsync(excelImportConfig);
-
-            // Pushing existing rows depending on how many were imported
-            foreach (var item in Items)
-            {
-                item.RowViewModel.Position += importedRows.Count;
-            }
-
-            // Reverse the order of imported rows to match the original order
-            importedRows.Reverse();
-
-            // Insert new items at the beginning of the items collection
-            var pos = 1;
-            foreach (var row in importedRows)
-            {
-                row.Position = pos++;
-                var itemViewModel = new ItemViewModel(RowViewModel.FromDomain(row));
-                Items.Insert(0, itemViewModel);
-            }
-
-            await _service.InsertRowsAsync(_equipmentSheetId, importedRows);
+            await Service.InsertRowsAsync(_equipmentSheetId, importedRows);
+        }
+        catch (Exception e)
+        {
+            Logger.LogError(e, "An error occured while importing data.");
+            throw;
         }
         finally
         {
             RaisePropertyChanged(nameof(RowsEmptyTipVisibility));
-            _overlayManager.HideOverlay(this);
         }
     }
 
@@ -430,13 +370,13 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
 
             _columnIdDomainMap[updatedColumnId].HeaderWidth = width;
 
-            await _service.UpdateColumnWidthAsync(_equipmentSheetId, updatedColumnId, width);
+            await Service.UpdateColumnWidthAsync(_equipmentSheetId, updatedColumnId, width);
         }
         catch (Exception e)
         {
             args.Cancel = true;
-            _notificationManager.Show("Помилка оновлення ширини", NotificationType.Error);
-            _logger.LogError(e, "Error updating column width");
+            NotificationManager.Show("Помилка оновлення ширини", NotificationType.Error);
+            Logger.LogError(e, "Error updating column width");
         }
     }
 
@@ -458,12 +398,12 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
 
             try
             {
-                await _service.UpdateColumnsPositionsAsync(_equipmentSheetId, newColumnPositions);
+                await Service.UpdateColumnsPositionsAsync(_equipmentSheetId, newColumnPositions);
             }
             catch (Exception e)
             {
-                _notificationManager.Show("Помилка оновлення позицій характеристик", NotificationType.Error);
-                _logger.LogError(e, "Error updating columns positions");
+                NotificationManager.Show("Помилка оновлення позицій характеристик", NotificationType.Error);
+                Logger.LogError(e, "Error updating columns positions");
                 throw;
             }
         }
@@ -523,7 +463,7 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
             updatedRowIds.Add(itemViewModel.RowViewModel.Id);
         }
         
-        await _service.UpdateRowsMarkedForDeleteAsync(_equipmentSheetId, updatedRowIds, isMarkedForDelete);
+        await Service.UpdateRowsMarkedForDeleteAsync(_equipmentSheetId, updatedRowIds, isMarkedForDelete);
         
         RefreshMarkForDeleteContextMenuItemVisibility();
     }
@@ -582,7 +522,7 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
         };
     }
 
-    private async void OnDataGridLoaded(SfDataGrid dataGrid)
+    private async void OnEquipmentDataGridLoadedCommandExecuted(SfDataGrid dataGrid)
     {
         _dataGrid = dataGrid;
         _gridHeaderBasedStyle = _dataGrid.TryFindResource("BasedGridHeaderStyle") as Style ??
@@ -618,12 +558,12 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
                     .ToList()
             };
 
-            rowValidateResult = _rowValidatorService.ValidateRow(rowValidationArgs);
+            rowValidateResult = RowValidatorService.ValidateRow(rowValidationArgs);
         }
         catch (Exception ex)
         {
-            _notificationManager.Show("Помилка під час валідації рядка");
-            _logger.LogError(ex, "Exception occurred during row validation");
+            NotificationManager.Show("Помилка під час валідації рядка");
+            Logger.LogError(ex, "Exception occurred during row validation");
             throw;
         }
 
@@ -665,13 +605,13 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
                     row.RowViewModel.Position++; // Others move up by one position
                 }
 
-                await _service.InsertRowAsync(_equipmentSheetId,
+                await Service.InsertRowAsync(_equipmentSheetId,
                     RowViewModel.ToDomain(validatedItemViewModel.RowViewModel)); // Save new row in
             }
             catch (Exception ex)
             {
-                _notificationManager.Show("Помилка створення запису", NotificationType.Error);
-                _logger.LogError(ex, "Failed to creating row");
+                NotificationManager.Show("Помилка створення запису", NotificationType.Error);
+                Logger.LogError(ex, "Failed to creating row");
                 throw;
             }
             finally
@@ -686,7 +626,7 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
         {
             Console.WriteLine("UpdateRow");
             var updatedRowModel = RowViewModel.ToDomain(validatedItemViewModel.RowViewModel);
-            await _service.UpdateRowAsync(_equipmentSheetId, rowId, updatedRowModel);
+            await Service.UpdateRowAsync(_equipmentSheetId, rowId, updatedRowModel);
         }
     }
 
@@ -720,7 +660,7 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
             .Where(s => !string.IsNullOrEmpty(s))
             .ToList();
 
-        var validationResult = _cellValidatorService.ValidateCell(e.NewValue, currentRow, allColumnValues,
+        var validationResult = CellValidatorService.ValidateCell(e.NewValue, currentRow, allColumnValues,
             columnDataType, columnHeaderText, columnPropertiesDomain);
         if (!validationResult.IsValid)
         {
@@ -740,29 +680,25 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
 
     private void OnExportToExcel()
     {
-        _excelExportManager.ExportToExcel(_dataGrid, "default", _notificationManager);
+        ExcelExportManager.ExportToExcel(_dataGrid, "default", NotificationManager);
     }
 
     private void OnExportToPdf()
     {
-        _pdfExportManager.ExportToPdf(_dataGrid, "default", _notificationManager);
+        PdfExportManager.ExportToPdf(_dataGrid, "default", NotificationManager);
     }
-
-    private void OnPrint()
-    {
-        _dataGrid.PrintSettings.PrintManagerBase = new SyncfusionGridPrintManager(_dataGrid);
-        _dataGrid.ShowPrintPreview();
-    }
-
+    
     #endregion
 
     #region Navigation
 
-    public void OnNavigatedTo(NavigationContext navigationContext)
+    public override void OnNavigatedTo(NavigationContext navigationContext)
     {
+        base.OnNavigatedTo(navigationContext);
+        
         if (_isInitialized)
         {
-            _logger.LogInformation("Already initialized, skipping OnNavigatedTo");
+            Logger.LogInformation("Already initialized, skipping OnNavigatedTo");
             return;
         }
 
@@ -772,13 +708,15 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to initialize EquipmentSheetViewModel");
+            Logger.LogError(ex, "Failed to initialize EquipmentSheetViewModel");
             throw;
         }
     }
 
-    public void OnNavigatedFrom(NavigationContext navigationContext)
+    public override void OnNavigatedFrom(NavigationContext navigationContext)
     {
+        base.OnNavigatedFrom(navigationContext);
+        
         _dataGrid.GetValidationHelper().SetCurrentRowValidated(false);
     }
 
@@ -815,10 +753,10 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to load data");
+            Logger.LogError(ex, "Failed to load data");
             try
             {
-                _notificationManager.Show("Помилка завантаження даних", NotificationType.Error);
+                NotificationManager.Show("Помилка завантаження даних", NotificationType.Error);
             }
             catch
             {
@@ -835,7 +773,7 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
 
     private async Task<ObservableCollection<ItemViewModel>> GetRowsAsync()
     {
-        var rowModels = await _service.GetActiveRowsByEquipmentSheetIdAsync(_equipmentSheetId);
+        var rowModels = await Service.GetActiveRowsByEquipmentSheetIdAsync(_equipmentSheetId);
         return new ObservableCollection<ItemViewModel>(
             rowModels
                 .Select(rm => new ItemViewModel(RowViewModel.FromDomain(rm))));
@@ -843,9 +781,9 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
 
     private async Task<Columns> GetColumnsAsync()
     {
-        // var columnModels = await _service.GetActiveColumnsByEquipmentSheetIdAsync(_equipmentSheetId);
+        // var columnModels = await Service.GetActiveColumnsByEquipmentSheetIdAsync(_equipmentSheetId);
 
-        var columnModels = await _service.GetColumnPropsByEquipmentSheetIdAsync(_equipmentSheetId);
+        var columnModels = await Service.GetColumnPropsByEquipmentSheetIdAsync(_equipmentSheetId);
 
         var frozenColumns = columnModels
             .Where(x => x.IsFrozen)
@@ -869,7 +807,7 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
             _columnIdHeaderTextMap.Add(domain.Id, domain.HeaderText);
             _columnMappingNameIdMap.Add(domain.MappingName, domain.Id);
 
-            var column = _columnManager.CreateColumn(domain, _gridHeaderBasedStyle);
+            var column = ColumnManager.CreateColumn(domain, _gridHeaderBasedStyle);
             columns.Add(column);
         }
 
@@ -891,20 +829,23 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
             { "ColumnProperties", columnProperties }
         };
 
-        _overlayManager.ShowOverlay(this);
-        var result = await _dialogManager.ShowDialogAsync(DialogType.ColumnDesigner, this, dialogParams);
-        _overlayManager.HideOverlay(this);
+        var dialogResult = await DialogService 
+            .Show<ColumnDesignerViewModel>()
+            .WithParameters(dialogParams)
+            .In(this)
+            .WithOverlay()
+            .Await();
 
-        if (result.Result is ButtonResult.Cancel)
+        if (dialogResult.Result is ButtonResult.Cancel)
             return;
 
-        var columnEditingResult = result.Parameters.GetValue<ColumnEditResult>("ColumnEditResult");
+        var columnEditingResult = dialogResult.Parameters.GetValue<ColumnEditResult>("ColumnEditResult");
 
         if (columnEditingResult.NewColumns.Count > 0)
-            await _service.AddColumnPropsAsync(_equipmentSheetId, columnEditingResult.NewColumns, []);
+            await Service.AddColumnPropsAsync(_equipmentSheetId, columnEditingResult.NewColumns, []);
 
         if (columnEditingResult.EditedColumns.Count > 0)
-            await _service.UpdateColumnPropsAsync(_equipmentSheetId, columnEditingResult.EditedColumns);
+            await Service.UpdateColumnPropsAsync(_equipmentSheetId, columnEditingResult.EditedColumns);
 
         var markedForDeleteList = columnEditingResult.EditedColumns
             .Where(c => c.MarkedForDelete)
@@ -913,7 +854,7 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
 
         if (markedForDeleteList.Count > 0)
         {
-            await _service.UpdateColumnsMarkedForDeleteAsync(_equipmentSheetId, markedForDeleteList, true);
+            await Service.UpdateColumnsMarkedForDeleteAsync(_equipmentSheetId, markedForDeleteList, true);
         }
         
         var notMarkedForDeleteList = columnEditingResult.EditedColumns
@@ -923,7 +864,7 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
         
         if (notMarkedForDeleteList.Count > 0)
         {
-            await _service.UpdateColumnsMarkedForDeleteAsync(_equipmentSheetId, notMarkedForDeleteList, false);
+            await Service.UpdateColumnsMarkedForDeleteAsync(_equipmentSheetId, notMarkedForDeleteList, false);
         }
 
         await RefreshColumns();
@@ -1026,12 +967,12 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
         try
         {
             var rowsModels = Items.Select(row => RowViewModel.ToDomain(row.RowViewModel)).ToList();
-            await _service.UpdateRowsAsync(_equipmentSheetId, rowsModels, true);
+            await Service.UpdateRowsAsync(_equipmentSheetId, rowsModels, true);
         }
         catch (Exception e)
         {
-            _notificationManager.Show("Помилка оновлення позицій записів", NotificationType.Error);
-            _logger.LogError(e, "Failed to update rows in sorting");
+            NotificationManager.Show("Помилка оновлення позицій записів", NotificationType.Error);
+            Logger.LogError(e, "Failed to update rows in sorting");
             throw;
         }
     }
@@ -1041,10 +982,9 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
     private void GetNavigationParameters(INavigationParameters parameters)
     {
         var tabScopedServiceProvider = parameters.GetValue<IScopedProvider>("TabScopedServiceProvider");
-        _service = tabScopedServiceProvider.Resolve<IEquipmentSheetService>();
-        _excelImportService = tabScopedServiceProvider.Resolve<IExcelImportService>();
         _scopedEventAggregator ??= parameters["ScopedEventAggregator"] as IEventAggregator;
-        _equipmentSheetId = (Guid)(parameters[EquipmentSheetConstants.EquipmentSheetId] ?? Guid.Empty);
+        _equipmentSheetId = (Guid)(parameters["EquipmentSheetId"] ?? Guid.Empty);
+        Console.WriteLine($"FROM GetNavigationParameters:  {_equipmentSheetId}");
     }
 
     private void SubscribeToRowsDragDropEvents()
@@ -1054,8 +994,9 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
 
     #endregion
 
-    public void Destroy()
+    public override void Destroy()
     {
+        base.Destroy();
         try
         {
 
@@ -1066,7 +1007,7 @@ public class EquipmentSheetViewModel : BindableBase, INavigationAware, IDestruct
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to destroy data");
+            Logger.LogError(ex, "Failed to destroy data");
         }
     }
 }

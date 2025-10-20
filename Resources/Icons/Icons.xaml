@@ -30,7 +30,6 @@
     <BitmapImage x:Key="Filter.Black.Line.64" UriSource="filter_black_line_64.png"/>
     <BitmapImage x:Key="ColumnSettings.Black.Line.64" UriSource="columnsettings_black_line_64.png"/>
     <BitmapImage x:Key="DeleteRow.Colored.Line.64" UriSource="deleterow_colored_line_64.png"/>
-    <BitmapImage x:Key="Close.White.Line.64" UriSource="close_white_line_64.png"/>
     <BitmapImage x:Key="Remove.White.Line.64" UriSource="remove_white_line_64.png"/>
     <BitmapImage x:Key="Add.White.Line.64" UriSource="add_white_line_64.png"/>
     <BitmapImage x:Key="Save.White.Line.64" UriSource="save_white_line_64.png"/>
@@ -39,6 +38,22 @@
     <BitmapImage x:Key="EditKey.White.Line.64" UriSource="editkey_white_line_64.png"/>
     <BitmapImage x:Key="Power.White.Line.64" UriSource="power_white_line_64.png"/>
     <BitmapImage x:Key="Copy.Black.Line.64" UriSource="copy_black_line_64.png"/>
+    <BitmapImage x:Key="Send.White.Line.64" UriSource="send_white_line_64.png"/>
+    <BitmapImage x:Key="Information.White.Line.64" UriSource="information_white_line_64.png"/>
+    
+    <BitmapImage x:Key="Check.Green.Line.64" UriSource="check_green_line_64.png"/>
+    <BitmapImage x:Key="Check.White.Line.64" UriSource="check_white_line_64.png"/>
+    
+    <BitmapImage x:Key="Alert.Red.Fill.128" UriSource="alert_red_fill_128.png"/>
+    <BitmapImage x:Key="Alert.White.Line.64" UriSource="alert_white_line_64.png"/>
+    <BitmapImage x:Key="AlertOctagon.White.Line.64" UriSource="alertoctagon_white_line_64.png"/>
+    
+    <BitmapImage x:Key="Cross.Red.Line.64" UriSource="cross_red_line_64.png"/>
+    <BitmapImage x:Key="Cross.White.Line.64" UriSource="cross_white_line_64.png"/>
+    <BitmapImage x:Key="Close.White.Line.64" UriSource="close_white_line_64.png"/>
+    
+    <BitmapImage x:Key="Users.White.Fill.64" UriSource="users_white_fill_64.png"/>
+    <BitmapImage x:Key="UserAdd.Black.Line.64" UriSource="useradd_black_line_64.png"/>
     
     <BitmapImage x:Key="Exit.White.Line.64" UriSource="exit_white_line_64.png"/>
     <BitmapImage x:Key="Enter.White.Line.64" UriSource="enter_white_line_64.png"/>

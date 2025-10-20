@@ -9,6 +9,7 @@ public enum MenuType
     Office,
     Cars,
     Consumables,
+    Users,
     History,
     Scheduler,
     Settings

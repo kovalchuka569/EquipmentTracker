@@ -1,25 +1,22 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using JetBrains.Annotations;
 using Microsoft.Win32;
-
 using Syncfusion.XlsIO;
-
 using Models.Dialogs;
-using Presentation.Contracts;
+using Presentation.ViewModels.DialogViewModels.Common;
 using Prism.Commands;
 using Prism.Dialogs;
-using Prism.Mvvm;
 
 
 namespace Presentation.ViewModels.DialogViewModels;
 
-public class ExcelImportConfiguratorViewModel : BindableBase, IDialogAware, IClosableDialog, IDataErrorInfo
+public class ExcelImportConfiguratorViewModel : DialogViewModelBase
 {
     #region UI properties
     
@@ -124,13 +121,13 @@ public class ExcelImportConfiguratorViewModel : BindableBase, IDialogAware, IClo
 
     #region Commands management
     
-    public DelegateCommand? CancelDialogCommand { get; private set; }
+    public DelegateCommand? CancelDialogCommand { [UsedImplicitly] get; private set; }
     
-    public DelegateCommand<KeyEventArgs>? UserControlKeyDownCommand { get; private set; }
+    public DelegateCommand<KeyEventArgs>? UserControlKeyDownCommand { [UsedImplicitly] get; private set; }
     
-    public DelegateCommand? BrowseFileCommand { get; private set; }
+    public DelegateCommand? BrowseFileCommand { [UsedImplicitly] get; private set; }
     
-    public DelegateCommand? ImportCommand { get; private set; }
+    public DelegateCommand? ImportCommand { [UsedImplicitly] get; private set; }
     
     private void InitializeCommands()
     {
@@ -167,7 +164,7 @@ public class ExcelImportConfiguratorViewModel : BindableBase, IDialogAware, IClo
             }
         };
         
-        _closeDialogFromHostCommand?.Execute(result);
+        OnDialogClosed(result);
     }
 
     private async void OnBrowseFile()
@@ -211,7 +208,7 @@ public class ExcelImportConfiguratorViewModel : BindableBase, IDialogAware, IClo
         {
             Result = ButtonResult.Cancel
         };
-        _closeDialogFromHostCommand?.Execute(result);
+       OnDialogClosed(result);
     }
     #endregion
 
@@ -332,25 +329,6 @@ public class ExcelImportConfiguratorViewModel : BindableBase, IDialogAware, IClo
     private int ColumnToIndex(string column)
     {
         return column.Aggregate(0, (current, c) => current * 26 + c - 'A' + 1);
-    }
-
-    #endregion
-
-    #region Interface implementations
-
-    private DelegateCommand<IDialogResult>? _closeDialogFromHostCommand;
-
-    public bool CanCloseDialog() => true;
-
-    public void OnDialogClosed() { }
-
-    public void OnDialogOpened(IDialogParameters parameters) { }
-
-    public DialogCloseListener RequestClose { get; } = new();
-    
-    public void SetCloseCommand(DelegateCommand<IDialogResult>? closeCommand)
-    {
-        _closeDialogFromHostCommand = closeCommand;
     }
 
     #endregion

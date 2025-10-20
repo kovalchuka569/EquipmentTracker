@@ -1,0 +1,8 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/Resources;component/Styles/SfToolBarAdv.Styles.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/Resources;component/Templates/SfToolBarAdv.Templates.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/Syncfusion.Themes.Windows11Light.WPF;component/sfdatagrid/sfdatagrid.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+</ResourceDictionary>

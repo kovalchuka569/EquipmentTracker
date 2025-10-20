@@ -1,0 +1,8 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="pack://application:,,,/Resources;component/Styles/Dialog.Styles.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/Resources;component/Themes/Validation/Validation.Template.xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/Resources;component/Styles/SfTextInputLayout.Styles.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+</ResourceDictionary>

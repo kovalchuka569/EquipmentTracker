@@ -12,14 +12,13 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary
-                    Source="pack://application:,,,/Resources;component/ModuleResources/AuthorizationView.Resources.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/Resources;component/ModuleResources/AuthorizationView.Resources.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
             <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
-            <converters:BooleanToImageConverter x:Key="BooleanToImageConverter" 
+            <converters:BooleanToImageConverter x:Key="BooleanToImageConverter"
                                                 TrueImage="{StaticResource Link.Green.Fill.64}"
-                                                FalseImage="{StaticResource Unlink.Red.Fil.64}"/>
+                                                FalseImage="{StaticResource Unlink.Red.Fil.64}" />
 
         </ResourceDictionary>
     </UserControl.Resources>
@@ -40,73 +39,94 @@
                     <TextBlock Margin="{StaticResource Margin00024}"
                                Style="{StaticResource TitleTextBlockStyle}"
                                Text="{x:Static localization:Strings.Authorization}" />
-
-                    <!--  Username input layout  -->
+                    
+                    <!--  Login input layout  -->
                     <sf:SfTextInputLayout Hint="{x:Static localization:Strings.Username}"
-                                          Style="{StaticResource SyncfusionSfTextInputLayoutStyle}"
-                                          ContainerType="Filled">
-                        <TextBox Width="{StaticResource DefaultTextBoxWidth}"
+                                          Style="{StaticResource DefaultSfTextInputStyle}"
+                                          ContainerType="Outlined">
+                        
+                        <i:Interaction.Behaviors>
+                            <behaviors:SfTextInputLayoutValidationBehavior />
+                        </i:Interaction.Behaviors>
+                        
+                        <TextBox Text="{Binding Login, 
+                                 UpdateSourceTrigger=PropertyChanged, 
+                                 ValidatesOnNotifyDataErrors=True, 
+                                 NotifyOnValidationError=True, 
+                                 ValidatesOnDataErrors=True}"
+                                 Width="{StaticResource DefaultTextBoxWidth}"
                                  HorizontalAlignment="Left" />
+                        
                     </sf:SfTextInputLayout>
 
-                    <!-- Password & show/hide password button stack panel -->
-                    <StackPanel Orientation="Horizontal">
+                    <!-- Password input layout -->
+                    <sf:SfTextInputLayout
+                        Hint="{x:Static localization:Strings.Password}"
+                        Style="{StaticResource DefaultSfTextInputStyle}"
+                        ContainerType="Outlined">
 
-                        <!--  Password input layout  -->
-                        <sf:SfTextInputLayout
-                            x:Name="PasswordLayout"
-                            Hint="{x:Static localization:Strings.Password}"
-                            Style="{StaticResource SyncfusionSfTextInputLayoutStyle}"
-                            ContainerType="Filled">
+                        <i:Interaction.Behaviors>
+                            <behaviors:SfTextInputLayoutValidationBehavior />
+                            <behaviors:ShowHidePasswordBehavior
+                                HideIcon="{StaticResource EyeClosed.Black.Line.64}"
+                                PasswordFont="{StaticResource PasswordFontFamily}"
+                                ShowIcon="{StaticResource EyeOpened.Black.Line.64}"
+                                ShowHideButton="{Binding ElementName=ShowHideButton}" />
+                        </i:Interaction.Behaviors>
 
-                            <PasswordBox x:Name="InnerPasswordBox"
-                                         Width="{StaticResource DefaultTextBoxWidth}" />
+                        <TextBox Text="{Binding Password, 
+                                 UpdateSourceTrigger=PropertyChanged, 
+                                 ValidatesOnNotifyDataErrors=True, 
+                                 NotifyOnValidationError=True, 
+                                 ValidatesOnDataErrors=True}"
+                                 Width="{StaticResource DefaultTextBoxWidth}" />
 
-                        </sf:SfTextInputLayout>
+                        <!-- Show/Hide password button -->
+                        <sf:SfTextInputLayout.TrailingView>
+                            <sf:ButtonAdv
+                                x:Name="ShowHideButton"
+                                SmallIcon="{StaticResource EyeOpened.Black.Line.64}"
+                                Style="{StaticResource TransparencyRoundedGlyphButtonStyle}" />
+                        </sf:SfTextInputLayout.TrailingView>
 
-                        <!--  Hide/show password button  -->
-                        <sf:ButtonAdv SmallIcon="{StaticResource EyeOpened.Black.Line.64}"
-                                      Style="{StaticResource DefaultRoundedGlyphButtonStyle}">
+                    </sf:SfTextInputLayout>
 
-                            <i:Interaction.Behaviors>
-                                <behaviors:ShowHidePasswordBehavior
-                                    HideIcon="{StaticResource EyeClosed.Black.Line.64}"
-                                    PasswordBox="{Binding ElementName=InnerPasswordBox}"
-                                    ShowIcon="{StaticResource EyeOpened.Black.Line.64}"
-                                    TextInputLayout="{Binding ElementName=PasswordLayout}" />
-                            </i:Interaction.Behaviors>
-
-                        </sf:ButtonAdv>
-
-                    </StackPanel>
-
-                    <!--  Remember password checkbox -->
-                    <CheckBox Margin="{StaticResource Margin00024}"
-                              Content="{x:Static localization:Strings.RememberPassword}" />
-
+                    <!-- Remember login checkbox -->
+                    <CheckBox IsChecked="{Binding IsRememberLogin, Mode=TwoWay}"
+                              Margin="{StaticResource Margin00012}"
+                              Content="{x:Static localization:Strings.RememberLogin}"/>
+                    
                     <!-- Log in button -->
                     <sf:ButtonAdv
+                        Command="{Binding AuthorizeCommand}"
                         Margin="{StaticResource Margin00024}"
                         Label="{x:Static localization:Strings.LogIn}"
                         SmallIcon="{StaticResource Enter.White.Line.64}"
                         Style="{StaticResource DefaultPrimaryButtonStyle}" />
 
-                    <!--  Forgot password button  -->
+                    <!-- Forgot password button -->
                     <sf:ButtonAdv Label="{x:Static localization:Strings.ForgotPassword}"
-                                  Style="{StaticResource DefaultButtonWithoutIconStyle}" />
+                                  Style="{StaticResource DefaultHyperlinkButtonStyle}"
+                                  Margin="{StaticResource Margin00012}" />
+
+                    <!-- Get access/register button -->
+                    <sf:ButtonAdv Label="{x:Static localization:Strings.GetAccess}"
+                                  Style="{StaticResource DefaultHyperlinkButtonStyle}"
+                                  Command="{Binding GetAccessCommand}" />
 
                 </StackPanel>
+
             </Border>
 
         </Grid>
-        
+
         <!-- Database connection status/setup button -->
         <sf:ButtonAdv Command="{Binding ConnectionSetupCommand}"
                       SmallIcon="{Binding IsConnectedToDatabase, Converter={StaticResource BooleanToImageConverter}}"
                       VerticalAlignment="Top"
                       HorizontalAlignment="Right"
                       Margin="{StaticResource Margin12}"
-                      Style="{StaticResource DefaultRoundedGlyphButtonStyle}"/>
+                      Style="{StaticResource DefaultRoundedGlyphButtonStyle}" />
 
         <!-- Overlay content control -->
         <ContentControl Content="{Binding OverlayContent}"
@@ -119,8 +139,8 @@
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"
                         Panel.ZIndex="5" />
-        
-        <!-- Dialog content control -->
+
+        <!-- Busy content control -->
         <ContentControl Grid.Row="0"
                         Content="{Binding BusyContent}"
                         Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibilityConverter}}"

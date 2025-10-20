@@ -1,4 +1,4 @@
-﻿using Core.Common.Helpers;
+﻿using Presentation.Helpers;
 using Models.Equipment;
 
 namespace Presentation.ViewModels.Common.ColumnDesigner;

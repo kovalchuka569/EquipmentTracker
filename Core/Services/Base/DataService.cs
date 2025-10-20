@@ -35,7 +35,7 @@ public abstract class DatabaseService<T> : BaseService<T>
     {
         UnitOfWork = unitOfWork;
     }
-    
+
     #endregion
 
     #region Protected methods
@@ -44,24 +44,24 @@ public abstract class DatabaseService<T> : BaseService<T>
     /// Executes a given action within a database transaction.
     /// </summary>
     /// <param name="action">The asynchronous action to be executed.</param>
-    /// <param name="ct">A cancellation token that can be used to cancel the work.</param>
-    protected async Task ExecuteInTransactionAsync(Func<Task> action, CancellationToken ct = default)
+    /// <param name="cancellationToken">A cancellation token that can be used to cancel the work.</param>
+    protected async Task ExecuteInTransactionAsync(Func<Task> action, CancellationToken cancellationToken = default)
     {
         try
         {
             Logger.LogDebug(BeginningTransactionMessage);
-            await UnitOfWork.BeginTransactionAsync(ct);
+            await UnitOfWork.BeginTransactionAsync(cancellationToken);
             
             await action();
             
             Logger.LogDebug(CommitingTransactionMessage);
-            await UnitOfWork.SaveChangesAsync(ct);
-            await UnitOfWork.CommitTransactionAsync(ct);
+            await UnitOfWork.SaveChangesAsync(cancellationToken);
+            await UnitOfWork.CommitTransactionAsync(cancellationToken);
         }
         catch (Exception ex)
         {
             Logger.LogWarning(ex, RollingBackTransactionMessage);
-            await UnitOfWork.RollbackAsync(ct);
+            await UnitOfWork.RollbackAsync(cancellationToken);
             throw;
         }
     }

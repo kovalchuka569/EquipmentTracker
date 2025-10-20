@@ -7,8 +7,7 @@ using Data.UnitOfWork;
 using Core.Interfaces;
 using Core.Mappers;
 using Core.Services.Base;
-using Models.Entities.EquipmentSheet;
-using Models.Entities.PivotSheet;
+using Data.Entities;
 
 namespace Core.Services;
 

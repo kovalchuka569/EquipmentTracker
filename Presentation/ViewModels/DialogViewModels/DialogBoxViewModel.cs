@@ -1,134 +1,120 @@
-﻿using Prism.Commands;
-using Prism.Dialogs;
-using Prism.Mvvm;
-
-using Presentation.Contracts;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using Common.Constants;
+using Common.Enums;
 using JetBrains.Annotations;
-using Presentation.Enums;
-using Presentation.EventArgs;
 using Presentation.Models;
-    
+using Presentation.ViewModels.Common.DialogBox;
+using Presentation.ViewModels.DialogViewModels.Common;
+using Prism.Commands;
+using Prism.Dialogs;
+
 namespace Presentation.ViewModels.DialogViewModels;
 
-public class DialogBoxViewModel : BindableBase, IDialogAware, IClosableDialog
+public class DialogBoxViewModel : DialogViewModelBase
 {
-    #region UI Fields
-    
     private string _title = string.Empty;
+    private string _message = string.Empty;
+    private DialogBoxIcon _icon = DialogBoxIcon.None;
+    private List<DialogBoxButtonInfo> _buttons = [];
+    
     public string Title
     {
         get => _title;
         set => SetProperty(ref _title, value);
     }
 
-    private string _message = string.Empty;
     public string Message
     {
         get => _message;
         set => SetProperty(ref _message, value);
     }
-    
-    private DialogBoxIcon _icon = DialogBoxIcon.None;
+
     public DialogBoxIcon Icon
     {
         get => _icon;
         set => SetProperty(ref _icon, value);
     }
-    
-    private DialogBoxButtons _buttons = DialogBoxButtons.None;
-    public DialogBoxButtons Buttons
+
+    public List<DialogBoxButtonInfo> Buttons
     {
         get => _buttons;
-        set => SetProperty(ref _buttons, value);
-    }
-    
-    private string _button1Text = string.Empty;
-    public string Button1Text
-    {
-        get => _button1Text;
-        set => SetProperty(ref _button1Text, value);
-    }
-    
-    private string _button2Text = string.Empty;
-    public string Button2Text
-    {
-        get => _button2Text;
-        set => SetProperty(ref _button2Text, value);
-    }
-    
-    #endregion
-    
-    #region Commands implementation
-    
-    public DelegateCommand<DialogBoxResultEventArgs>? DialogResultSelectedCommand { [UsedImplicitly] get; private set; }
-
-    private void InitializeCommands()
-    {
-        DialogResultSelectedCommand = new DelegateCommand<DialogBoxResultEventArgs>(OnDialogResultSelected);
-    }
-    
-    #endregion
-    
-    #region Private methods
-    
-    private void OnDialogResultSelected(DialogBoxResultEventArgs result)
-    {
-        
-        var dialogResult = new DialogResult
+        set
         {
-            Parameters = new DialogParameters
-            {
-                {
-                    "DialogBoxResult", result.DialogResult
-                }
-            }
-        };
-        _closeDialogFromHostCommand?.Execute(dialogResult);
+            SetProperty(ref _buttons, value);
+            UpdateVisibleButtons();
+        }
     }
     
-    #endregion
-    
-    #region Interfaces implementations
-    
-    private DelegateCommand<IDialogResult>? _closeDialogFromHostCommand;
-    
-    public bool CanCloseDialog() => true;
+    [UsedImplicitly]
+    public ObservableCollection<DialogBoxButtonViewModel> VisibleButtons { get; } = new();
 
-    public void OnDialogClosed()
+
+    public DelegateCommand? Button1Command { get; private set; }
+    public DelegateCommand? Button2Command { get; private set; }
+    public DelegateCommand? Button3Command { get; private set; }
+    
+    public override void OnDialogOpened(IDialogParameters parameters)
     {
-        var dialogResult = new DialogResult
-        {
-            Parameters = new DialogParameters
-            {
-                {
-                    "DialogBoxResult", DialogBoxResult.None
-                }
-            }
-        };
-        _closeDialogFromHostCommand?.Execute(dialogResult);
+        Title = parameters.GetValue<string>(DialogBoxParameterKeys.TitleKey);
+        Message = parameters.GetValue<string>(DialogBoxParameterKeys.MessageKey);
+        Icon = parameters.GetValue<DialogBoxIcon>(DialogBoxParameterKeys.IconKey);
+        Buttons = parameters.GetValue<List<DialogBoxButtonInfo>>(DialogBoxParameterKeys.ButtonsParametersKey);
     }
-
-    public void OnDialogOpened(IDialogParameters parameters)
+    
+    private void UpdateCommands()
     {
-        var dialogBoxParameters = parameters.GetValue<DialogBoxParameters>("DialogBoxParameters");
-        Title = dialogBoxParameters.Title;
-        Message = dialogBoxParameters.Message;
-        Icon = dialogBoxParameters.Icon;
-        Buttons = dialogBoxParameters.Buttons;
+        Button1Command = _buttons.Count > 0 
+            ? new DelegateCommand(() => CloseWithButton(1, _buttons[0].Text))
+            : null;
+            
+        Button2Command = _buttons.Count > 1 
+            ? new DelegateCommand(() => CloseWithButton(2, _buttons[1].Text))
+            : null;
+            
+        Button3Command = _buttons.Count > 2 
+            ? new DelegateCommand(() => CloseWithButton(3, _buttons[2].Text))
+            : null;
 
-        if (dialogBoxParameters.ButtonsText is null) return;
+        RaisePropertyChanged(nameof(Button1Command));
+        RaisePropertyChanged(nameof(Button2Command));
+        RaisePropertyChanged(nameof(Button3Command));
+    }
+    
+    private void UpdateVisibleButtons()
+    {
+        UpdateCommands();
+        VisibleButtons.Clear();
         
-        Button1Text = dialogBoxParameters.ButtonsText[0];
-        Button2Text = dialogBoxParameters.ButtonsText[1];
-        
-        InitializeCommands();
-    }
-
-    public DialogCloseListener RequestClose { get; } = new();
-    public void SetCloseCommand(DelegateCommand<IDialogResult>? closeCommand)
-    {
-        _closeDialogFromHostCommand = closeCommand;
+        if (_buttons.Count > 0 && Button1Command != null)
+            VisibleButtons.Add(new DialogBoxButtonViewModel
+            { 
+                Text = _buttons[0].Text, 
+                Style = _buttons[0].Style, 
+                Command = Button1Command 
+            });
+            
+        if (_buttons.Count > 1 && Button2Command != null)
+            VisibleButtons.Add(new DialogBoxButtonViewModel 
+            { 
+                Text = _buttons[1].Text, 
+                Style = _buttons[1].Style, 
+                Command = Button2Command 
+            });
+            
+        if (_buttons.Count > 2 && Button3Command != null)
+            VisibleButtons.Add(new DialogBoxButtonViewModel 
+            { 
+                Text = _buttons[2].Text, 
+                Style = _buttons[2].Style, 
+                Command = Button3Command 
+            });
     }
     
-    #endregion
+    private void CloseWithButton(int buttonId, string buttonText) => 
+        OnDialogClosed(new DialogParameters 
+        { 
+            { DialogBoxParameterKeys.ClickedButtonKey, buttonId },
+            { DialogBoxParameterKeys.ClickedButtonTextKey, buttonText }
+        });
 }

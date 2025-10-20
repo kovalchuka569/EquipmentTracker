@@ -3,15 +3,14 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Threading.Tasks;
 using Common.Enums;
-using Common.Logging;
 using JetBrains.Annotations;
-using Notification.Wpf;
 using Presentation.ViewModels.Common.MarkedItemsCleaner;
+using Presentation.ViewModels.DialogViewModels.Common;
 using Prism.Commands;
 
 namespace Presentation.ViewModels.DialogViewModels;
 
-public class MarkedItemsCleanerViewModel : BaseDialogViewModel<MarkedItemsCleanerViewModel>
+public class MarkedItemsCleanerViewModel : DialogViewModelBase
 {
     #region Private fields
     
@@ -52,8 +51,7 @@ public class MarkedItemsCleanerViewModel : BaseDialogViewModel<MarkedItemsCleane
 
     #region Constructor
     
-    public MarkedItemsCleanerViewModel(NotificationManager notificationManager,
-        IAppLogger<MarkedItemsCleanerViewModel> logger) : base(notificationManager, logger)
+    public MarkedItemsCleanerViewModel()
     {
         InitializeCommands();
 

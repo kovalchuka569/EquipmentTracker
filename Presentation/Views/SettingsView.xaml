@@ -9,8 +9,6 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/Presentation;component/Resources/Icons/Icons.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/Resources;component/Styles/SfButtonAdv.Styles.xaml"/>
-                <ResourceDictionary Source="pack://application:,,,/Resources;component/Icons/Icons.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             
             

@@ -1,4 +1,4 @@
-﻿using Models.Entities.FileSystem;
+﻿using Data.Entities.MainTree;
 using Common.Enums;
 
 namespace Data.Interfaces;
@@ -12,14 +12,14 @@ public interface IFileSystemRepository
     /// <param name="parentId">Parent ID.</param>
     /// <param name="ct">Cancellation token.</param>
     /// <returns>List of file system item entities.</returns>
-    public Task<List<FileSystemItemEntity>> GetChildsFileSystemItemsByMenuTypeAsync(MenuType menuType, Guid? parentId, CancellationToken ct = default);
+    public Task<List<MainTreeItemEntity>> GetChildsFileSystemItemsByMenuTypeAsync(MenuType menuType, Guid? parentId, CancellationToken ct = default);
     
     /// <summary>
     /// Add a new file system item entity
     /// </summary>
     /// <param name="item">New file system item entity.</param>
     /// <param name="ct">Cancellation token.</param>
-    public Task AddFileSystemItemAsync(FileSystemItemEntity item, CancellationToken ct = default);
+    public Task AddFileSystemItemAsync(MainTreeItemEntity item, CancellationToken ct = default);
     
     /// <summary>
     /// Rename file system item by ID.

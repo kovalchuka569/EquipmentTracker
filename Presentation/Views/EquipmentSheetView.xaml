@@ -54,12 +54,6 @@
     <Grid>
         
         <Grid>
-            
-            <ToolBarTray>
-                <ToolBar VerticalAlignment="Top">
-                    
-                </ToolBar>
-            </ToolBarTray>
 
             <sf:ToolBarManager ToolBarState="Docking" >
                 <sf:ToolBarManager.TopToolBarTray>

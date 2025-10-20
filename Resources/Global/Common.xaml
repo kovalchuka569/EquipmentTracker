@@ -16,13 +16,23 @@
     
     
     <Thickness x:Key="Margin2">2</Thickness>
+    <Thickness x:Key="Margin4">4</Thickness>
     <Thickness x:Key="Margin6">6</Thickness>
     <Thickness x:Key="Margin12">12</Thickness>
+    <Thickness x:Key="Margin12000">12,0,0,0</Thickness>
+    <Thickness x:Key="Margin24">24</Thickness>
     <Thickness x:Key="Margin6000">6,0,0,0</Thickness>
     <Thickness x:Key="Margin120120">12,0,12,0</Thickness>
+    <Thickness x:Key="Margin012012">0,12,0,12</Thickness>
     <Thickness x:Key="Margin0400">0,4,0,0</Thickness>
     <Thickness x:Key="Margin024024">0,24,0,24</Thickness>
+    <Thickness x:Key="Margin00012">0,0,0,12</Thickness>
     <Thickness x:Key="Margin00024">0,0,0,24</Thickness>
+    <Thickness x:Key="Margin0060">0,0,6,0</Thickness>
+    <Thickness x:Key="Margin00120">0,0,12,0</Thickness>
+    <Thickness x:Key="Margin00240">0,0,24,0</Thickness>
+    <Thickness x:Key="Margin240240">24,0,24,0</Thickness>
+    <Thickness x:Key="Margin24000">24,0,0,0</Thickness>
     
     <Thickness x:Key="Padding12">12</Thickness>
     <Thickness x:Key="Padding36">36</Thickness>
@@ -33,10 +43,23 @@
     <sys:Double x:Key="SmallIconHeight">16</sys:Double>
     <sys:Double x:Key="LargeIconWidth">64</sys:Double>
     <sys:Double x:Key="LargeIconHeight">64</sys:Double>
+    <sys:Double x:Key="SnackbarIconWidth">24</sys:Double>
+    <sys:Double x:Key="SnackbarIconHeight">24</sys:Double>
+    <sys:Double x:Key="SnackbarCloseButtonWidth">18</sys:Double>
+    <sys:Double x:Key="SnackbarCloseButtonHeight">18</sys:Double>
     
     <sys:Double x:Key="DefaultTextBoxWidth">200</sys:Double>
     <sys:Double x:Key="BigTextBoxWidth">300</sys:Double>
     
+    <sys:Double x:Key="SnackbarMainPopupWidth">400</sys:Double>
+    <sys:Double x:Key="SnackbarMainPopupHeight">600</sys:Double>
+    <sys:Double x:Key="SnackbarTextLineHeight">20</sys:Double>
+    <sys:Double x:Key="SnackbarTextLineWidth">60</sys:Double>
+    <sys:Double x:Key="SnackbarItemHeight">176</sys:Double>
+    
+    <sys:Double x:Key="DialogBoxMessageFontSize">14</sys:Double>
     <sys:Double x:Key="FontSizeTitle">16</sys:Double>
+    <sys:Double x:Key="EmptyPlaceholderTextSize">14</sys:Double>
+    
     
 </ResourceDictionary>

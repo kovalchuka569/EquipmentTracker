@@ -4,12 +4,14 @@ using JetBrains.Annotations;
 using Notification.Wpf;
 using Prism.Commands;
 using Resources.Localization;
-using LocalDbConnectionService.Interfaces;
+using LocalSecure.Interfaces;
+using Presentation.ViewModels.DialogViewModels.Common;
 using Prism.Dialogs;
+using Unity;
 
 namespace Presentation.ViewModels.DialogViewModels;
 
-public class ConnectionSetupViewModel : BaseDialogViewModel<ConnectionSetupViewModel>
+public class ConnectionSetupViewModel : DialogViewModelBase
 {
     #region Constants
     
@@ -19,12 +21,19 @@ public class ConnectionSetupViewModel : BaseDialogViewModel<ConnectionSetupViewM
 
     #region Dependencies
     
-    private readonly IDbKeyService _dbKeyService;
+    [Dependency]
+    public required IAppLogger<ConnectionSetupViewModel> Logger { get; init; } = null!;
+    
+    [Dependency]
+    public required IDbKeyService DbKeyService { get; init; } = null!;
+    
+    [Dependency]
+    public required NotificationManager NotificationManager { get; init; } = null!;
 
     #endregion
 
     #region Private fields
-
+    
     private string _host = string.Empty;
     private string _port = string.Empty;
     private string _database = string.Empty;
@@ -69,13 +78,8 @@ public class ConnectionSetupViewModel : BaseDialogViewModel<ConnectionSetupViewM
     
     #region Constructor
 
-    public ConnectionSetupViewModel(NotificationManager notificationManager,
-        IAppLogger<ConnectionSetupViewModel> logger,
-        IDbKeyService dbKeyService)
-        : base(notificationManager, logger)
+    public ConnectionSetupViewModel()
     {
-        _dbKeyService = dbKeyService;
-
         InitializeCommands();
     }
     
@@ -95,29 +99,30 @@ public class ConnectionSetupViewModel : BaseDialogViewModel<ConnectionSetupViewM
     #endregion
 
     #region Private methods
-    
+
     private async Task OnSaveCommandExecutedAsync()
     {
         await ExecuteWithErrorHandlingAsync(async () =>
-        {
-            var connectionString = $"Host={Host};Port={Port};Database={Database};Username={Username};Password={Password}";
-            
-            // Save connection string through the local db key service
-            await _dbKeyService.SaveKeyInFileAsync(connectionString);
-
-            // Show success snackbar
-            NotificationManager.Show(Strings.SnackbarMessage_KeySaveSuccess, NotificationType.Success);
-            
-            // Close connection setup dialog
-            var result = new DialogResult
             {
-                Result = ButtonResult.OK
-            };
-            OnDialogClosed(result);
-            
-        }, Strings.SnackbarMessage_KeySaveFailed, 
-            SaveKeyErrorLogMessage, 
-            onFinally: ClearFields); 
+                // Save connection string through the local db key service
+                await DbKeyService.SaveDbConnectionStringInFileAsync(_host, _port, _database, _username, _password);
+
+                // Show success snackbar
+                NotificationManager.Show(Strings.SnackbarMessage_KeySaveSuccess, NotificationType.Success);
+
+                // Close connection setup dialog
+                var result = new DialogResult
+                {
+                    Result = ButtonResult.OK
+                };
+                OnDialogClosed(result);
+            },
+            onFinally: ClearFields,
+            onError: e =>
+            {
+                Logger.LogError(e, SaveKeyErrorLogMessage);
+                NotificationManager.Show(Strings.SnackbarMessage_KeySaveFailed, NotificationType.Error);
+            });
     }
 
     private void ClearFields()

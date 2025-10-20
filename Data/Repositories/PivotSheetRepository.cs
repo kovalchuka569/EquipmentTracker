@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-using Models.Entities.PivotSheet;
+using Data.Entities;
 
 using Data.ApplicationDbContext;
 using Data.Interfaces;

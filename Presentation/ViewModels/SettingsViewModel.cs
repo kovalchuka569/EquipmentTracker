@@ -1,73 +1,17 @@
-﻿using System;
-using System.Threading.Tasks;
-using Common.Logging;
-using Presentation.Contracts;
+﻿using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Notification.Wpf;
-using Presentation.Enums;
-using Presentation.Interfaces;
+using Presentation.ViewModels.Common;
+using Presentation.ViewModels.DialogViewModels;
 using Prism.Commands;
 
 namespace Presentation.ViewModels;
 
-public class SettingsViewModel : BaseViewModel<SettingsViewModel>, IDialogHost, IOverlayHost
+public class SettingsViewModel : InteractiveViewModelBase
 {
-    
-    #region Dependencies
-
-    private readonly IDialogManager _dialogManager;
-    private readonly IOverlayManager _overlayManager;
-    
-    #endregion
-    
-    #region Private Fields
-    
-    private bool _isDialogOpen;
-    private object? _dialogContent;
-    private bool _isOverlayOpen;
-    private object? _overlayContent;
-    
-    #endregion
-    
-    #region Public fields
-
-    public bool IsDialogOpen
-    {
-        get => _isDialogOpen;
-        set => SetProperty(ref _isDialogOpen, value);
-    }
-
-    public object? DialogContent
-    {
-        get => _dialogContent;
-        set => SetProperty(ref _dialogContent, value);
-    }
-
-    public bool IsOverlayOpen
-    {
-        get => _isOverlayOpen;
-        set => SetProperty(ref _isOverlayOpen, value);
-    }
-
-    public object? OverlayContent
-    {
-        get => _overlayContent;
-        set => SetProperty(ref _overlayContent, value);
-    }
-    
-    #endregion
-    
     #region Constructor
     
-    public SettingsViewModel(NotificationManager notificationManager, 
-        IAppLogger<SettingsViewModel> logger,
-        IDialogManager dialogManager,
-        IOverlayManager overlayManager) 
-        : base(notificationManager, logger)
+    public SettingsViewModel()
     {
-        _dialogManager = dialogManager;
-        _overlayManager = overlayManager;
-        
         InitializeCommands();
     }
     
@@ -82,8 +26,6 @@ public class SettingsViewModel : BaseViewModel<SettingsViewModel>, IDialogHost, 
         private set;
     } = null!;
     
-    
-
     private void InitializeCommands()
     {
         ShowRemoveMarkedItemsDialogCommand = new AsyncDelegateCommand(OnShowRemoveMarkedItemsDialog);
@@ -93,12 +35,11 @@ public class SettingsViewModel : BaseViewModel<SettingsViewModel>, IDialogHost, 
 
     private async Task OnShowRemoveMarkedItemsDialog()
     {
-        _overlayManager.ShowOverlay(this);
-
-       await _dialogManager.ShowDialogAsync(DialogType.RemoveMarkedItems, this);
-
-        _overlayManager.HideOverlay(this);
-        
+        await DialogService 
+            .Show<MarkedItemsCleanerViewModel>()
+            .In(this)
+            .WithOverlay()
+            .Await();
     }
     
 }

@@ -2,9 +2,7 @@
     x:Class="Presentation.Views.MainWindowView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:Presentation.Views"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:prism="http://prismlibrary.com/"
     xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
     xmlns:sf="clr-namespace:Syncfusion.Windows.Shared;assembly=Syncfusion.Shared.WPF"
@@ -27,6 +25,7 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../Resources/Icons/Gears/Gears.xaml" />
+                <ResourceDictionary Source="/Syncfusion.Themes.Windows11Light.WPF;component/mscontrol/tooltip.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
             <local:VersionTemplate x:Key="VersionTemplate">
@@ -48,7 +47,11 @@
 
     </sf:ChromelessWindow.Resources>
     
-    <ContentControl prism:RegionManager.RegionName="MainRegion"/>
+    <Grid>
+        <TextBlock Text="{Binding FramesPerSeconds}" VerticalAlignment="Top" HorizontalAlignment="Left"/>
+        <ContentControl prism:RegionManager.RegionName="MainRegion"/>
+        <ContentControl Content="{Binding SnackbarContent}"/>
+    </Grid>
     
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Loaded">

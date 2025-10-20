@@ -3,11 +3,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
-
 using Prism.Mvvm;
-
 using Common.Enums;
-
 using Presentation.Mappers;
 
 namespace Presentation.ViewModels.Common.FileSystem;

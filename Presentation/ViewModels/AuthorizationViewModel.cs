@@ -2,109 +2,104 @@
 using System.Threading.Tasks;
 using Common.Constants;
 using Common.Enums;
-
-using Common.Logging;
 using Core.Interfaces;
-using Presentation.Contracts;
 using JetBrains.Annotations;
-using LocalDbConnectionService.Interfaces;
+using LocalSecure.Interfaces;
+using LocalSecure.Managers;
 using Notification.Wpf;
-using Presentation.Enums;
-using Presentation.Interfaces;
+using Presentation.ViewModels.Common;
+using Presentation.ViewModels.DialogViewModels;
+using Presentation.Views;
 using Prism.Commands;
 using Prism.Dialogs;
+using Prism.Navigation.Regions;
 using Resources.Localization;
+using Unity;
 
 namespace Presentation.ViewModels;
 
-public class AuthorizationViewModel : BaseViewModel<AuthorizationViewModel>, IDialogHost, IOverlayHost, IBusyIndicatorHost
+public class AuthorizationViewModel : InteractiveViewModelBase
 {
-    
-    #region Dependenies
 
-    private readonly IDialogManager _dialogManager;
-    private readonly IOverlayManager _overlayManager;
-    private readonly IBusyIndicatorManager _busyIndicatorManager;
-    private readonly IDbConnectionService _dbConnectionService;
-    private readonly IDbKeyService _dbKeyService;
+    #region Dependenies
+    
+    [Dependency]
+    public required IDbConnectionService DbConnectionService = null!;
+    
+    [Dependency]
+    public required IDbKeyService DbKeyService = null!;
+    
+    [Dependency]
+    public required IAuthService AuthService = null!;
+    
+    [Dependency]
+    public required NotificationManager NotificationManager = null!;
 
     #endregion
-    
+
     #region Private fields
-    
-    private bool _isDialogOpen;
-    private object? _dialogContent;
-    private bool _isOverlayOpen;
-    private object? _overlayContent;
-    private bool _isBusy;
-    private object? _busyContent;
 
     private bool _isConnectedToDatabase;
-    
+
+    private string _login = string.Empty;
+    private string _password = string.Empty;
+
+    private bool _isRememberLogin;
+
     #endregion
 
     #region Public fields
-
-    public bool IsDialogOpen
-    {
-        get => _isDialogOpen;
-        set => SetProperty(ref _isDialogOpen, value);
-    }
-
-    public object? DialogContent
-    {
-        get => _dialogContent;
-        set => SetProperty(ref _dialogContent, value);
-    }
-
-    public bool IsOverlayOpen
-    {
-        get => _isOverlayOpen;
-        set => SetProperty(ref _isOverlayOpen, value);
-    }
-
-    public object? OverlayContent
-    {
-        get => _overlayContent;
-        set => SetProperty(ref _overlayContent, value);
-    }
-
-    public bool IsBusy
-    {
-        get => _isBusy;
-        set => SetProperty(ref _isBusy, value);
-    }
-
-    public object? BusyContent
-    {
-        get => _busyContent;
-        set => SetProperty(ref _busyContent, value);
-    }
 
     public bool IsConnectedToDatabase
     {
         get => _isConnectedToDatabase;
         set => SetProperty(ref _isConnectedToDatabase, value);
     }
-    
-    #endregion
-    
-    public AuthorizationViewModel(NotificationManager notificationManager, 
-        IAppLogger<AuthorizationViewModel> logger, 
-        IDialogManager dialogManager, 
-        IOverlayManager overlayManager,
-        IBusyIndicatorManager busyIndicatorManager,
-        IDbConnectionService dbConnectionService,
-        IDbKeyService dbKeyService) 
-        : base(notificationManager, logger)
+
+    public string Login
     {
-        _dialogManager = dialogManager;
-        _overlayManager = overlayManager;
-        _busyIndicatorManager = busyIndicatorManager;
-        _dbConnectionService = dbConnectionService;
-        _dbKeyService = dbKeyService;
-        
+        get => _login;
+        set
+        {
+            if (!SetProperty(ref _login, value))
+                return;
+            
+            RemoveError(nameof(Login), ValidationUIMessages.InvalidLogin);
+            RemoveError(nameof(Login), ValidationUIMessages.WaitingConfirmation);
+                
+            if (IsRememberLogin)
+                RememberLogin();
+        }
+    }
+
+    public string Password
+    {
+        get => _password;
+        set
+        {
+            if (SetProperty(ref _password, value))
+                RemoveError(nameof(Password), ValidationUIMessages.InvalidPassword);
+        }
+    }
+
+    public bool IsRememberLogin
+    {
+        get => _isRememberLogin;
+        set
+        {
+            if (!SetProperty(ref _isRememberLogin, value))
+                return;
+
+            RememberLogin();
+        }
+    }
+
+    #endregion
+
+    public AuthorizationViewModel()
+    {
         InitializeCommands();
+        GetRememberLogin();
     }
 
 
@@ -112,82 +107,101 @@ public class AuthorizationViewModel : BaseViewModel<AuthorizationViewModel>, IDi
 
     public AsyncDelegateCommand AuthorizationViewLoadedCommand { [UsedImplicitly] get; private set; } = null!;
     public AsyncDelegateCommand ConnectionSetupCommand { [UsedImplicitly] get; private set; } = null!;
+    public AsyncDelegateCommand GetAccessCommand { [UsedImplicitly] get; private set; } = null!;
+    public AsyncDelegateCommand AuthorizeCommand { [UsedImplicitly] get; private set; } = null!;
 
     private void InitializeCommands()
     {
         AuthorizationViewLoadedCommand = new AsyncDelegateCommand(TestDatabaseConnectionAsync);
         ConnectionSetupCommand = new AsyncDelegateCommand(ShowConnectionSetupDialogAsync);
+        GetAccessCommand = new AsyncDelegateCommand(OnGetAccessCommandExecuted);
+        AuthorizeCommand = new AsyncDelegateCommand(OnAuthorizeCommandExecuted);
     }
-    
+
     #endregion
 
     private async Task TestDatabaseConnectionAsync()
     {
         try
         {
-            await _busyIndicatorManager.ExecuteWithBusyIndicatorAndOverlayAsync(async () =>
-            {
-                // Gets the connection string from local key service
-                var connectionString = await _dbKeyService.LoadKeyAsync();
+            await BusyIndicatorService
+                .ShowBusyIndicator()
+                .In(this)
+                .WithHeader(Strings.TestingDbConnection)
+                .WithOverlay()
+                .ExecuteAsync(async () =>
+                {
+                    // Gets the connection string from local key service
+                    var connectionString = DbKeyService.LoadDbConnectionString();
+
+                    // Testing this connection string
+                    await DbConnectionService.TestConnectionAsync(connectionString);
                 
-                // Testing this connection string
-                await _dbConnectionService.TestConnectionAsync(connectionString);
-                
-                // Shows success snackbar
-                NotificationManager.Show(Strings.SnackbarMessage_DbConnectionEstablished, NotificationType.Success);
-                
-                return Task.CompletedTask;
-            }, _overlayManager, this, this, Strings.TestingDbConnection);
+                    // Warming up connection
+                    await DbConnectionService.PreheatConnectionAsync();
+
+                    // Shows success snackbar
+                    NotificationManager.Show(Strings.SnackbarMessage_DbConnectionEstablished, NotificationType.Success);
+                });
 
             IsConnectedToDatabase = true;
         }
         catch (Exception e)
         {
             IsConnectedToDatabase = false;
-            await ShowConnectionFailedDialogAsync(e.Message); // Shows connection failed dialog if we have exception in test connection service method
+            await ShowConnectionFailedDialogAsync(e
+                .Message); // Shows connection failed dialog if we have exception in test connection service method
         }
     }
 
     private async Task ShowConnectionSetupDialogAsync()
     {
         // Show dialog and await dialog result
-        var dialogResult = await _overlayManager.ExecuteWithOverlayAsync(
-            () => _dialogManager.ShowDialogAsync(DialogType.ConnectionSetup, this),
-            this);
-        
+        var dialogResult = await DialogService 
+            .Show<ConnectionSetupViewModel>()
+            .In(this)
+            .WithOverlay()
+            .Await();
+
         // Returns if dialog canceled
-        if(dialogResult.Result == ButtonResult.Cancel)
+        if (dialogResult.Result == ButtonResult.Cancel)
             return;
-        
+
         // Test connection 
         await TestDatabaseConnectionAsync();
     }
 
     private async Task ShowConnectionFailedDialogAsync(string connectionExceptionMessage)
     {
+        // Put exception message in dialog parameters
         var dialogParameters = new DialogParameters
         {
-            {ParameterKeys.ConnectionFailedDialogParameterExMessageKey, connectionExceptionMessage} // Put exception message in dialog parameters
+            {
+                ParameterKeys.ConnectionFailedDialogParameterExMessageKey, connectionExceptionMessage
+            } 
         };
-        
-        // Show dialog and await dialog result
-        var dialogResult = await _overlayManager.ExecuteWithOverlayAsync(
-            () => _dialogManager.ShowDialogAsync(dialogType: DialogType.ConnectionFailed, dialogHost: this, parameters: dialogParameters),
-            this);
-        
+
+        var dialogResult = await DialogService 
+            .Show<ConnectionFailedViewModel>()
+            .WithParameters(dialogParameters)
+            .In(this)
+            .WithOverlay()
+            .Await();
+
         // Returns if dialog result does not have parameters (dialog canceled)
-        if(dialogResult.Parameters.Count == 0)
+        if (dialogResult.Parameters.Count == 0)
             return;
-        
+
         // Gets connection failed dialog result from parameters
         var connectionFailedDialogResult = dialogResult.Parameters
             .GetValue<ConnectionFailedDialogResult>(ParameterKeys.ConnectionFailedDialogResultKey);
 
 
-       await ProcessConnectionFailedDialogResultAsync(connectionFailedDialogResult); // Process dialog result
+        await ProcessConnectionFailedDialogResultAsync(connectionFailedDialogResult); // Process dialog result
     }
 
-    private async Task ProcessConnectionFailedDialogResultAsync(ConnectionFailedDialogResult connectionFailedDialogResult)
+    private async Task ProcessConnectionFailedDialogResultAsync(
+        ConnectionFailedDialogResult connectionFailedDialogResult)
     {
         switch (connectionFailedDialogResult)
         {
@@ -198,8 +212,63 @@ public class AuthorizationViewModel : BaseViewModel<AuthorizationViewModel>, IDi
                 await ShowConnectionSetupDialogAsync(); // Show connection setup dialog
                 break;
             default:
-                throw new ArgumentOutOfRangeException(nameof(connectionFailedDialogResult), connectionFailedDialogResult, null);
-        } 
+                throw new ArgumentOutOfRangeException(nameof(connectionFailedDialogResult),
+                    connectionFailedDialogResult, null);
+        }
+    }
+
+    private async Task OnGetAccessCommandExecuted()
+    {
+        await DialogService 
+            .Show<RegisterViewModel>()
+            .In(this)
+            .WithOverlay()
+            .Await();
+    }
+
+    private async Task OnAuthorizeCommandExecuted()
+    {
+        var user = await AuthService.GetUserAsync(_login);
+
+        if (user is null)
+        {
+            AddError(nameof(Login), ValidationUIMessages.InvalidLogin);
+            return;
+        }
+
+        if (user.Status is UserStatus.AwaitingConfirmation)
+        {
+            AddError(nameof(Login), ValidationUIMessages.WaitingConfirmation);
+            return;
+        }
+
+        if (!PasswordHasher.VerifyPassword(Password, user.PasswordHash))
+        {
+            AddError(nameof(Password), ValidationUIMessages.InvalidPassword);
+            return;
+        }
+
+        RegionManager.RequestNavigate("MainRegion", nameof(NavDrawerView));
+    }
+
+    private void RememberLogin()
+    {
+        LoginSaver.SaveLogin(IsRememberLogin ? Login : string.Empty);
+    }
+
+    private void GetRememberLogin()
+    {
+        var login = LoginSaver.GetSavedLogin();
+
+        if (string.IsNullOrEmpty(login))
+        {
+            Login = string.Empty;
+            IsRememberLogin = false;
+            return;
+        }
+
+        Login = login;
+        IsRememberLogin = true;
     }
 }
     

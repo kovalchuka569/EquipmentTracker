@@ -4,6 +4,7 @@ namespace Data.UnitOfWork;
 
 public interface IUnitOfWork
 {
+    public IUserRepository UserRepository { get; }
     public IFileSystemRepository FileSystemRepository { get; }
 
     public IEquipmentSheetRepository EquipmentSheetRepository { get; }

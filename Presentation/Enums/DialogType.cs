@@ -7,5 +7,7 @@ public enum DialogType
     ColumnDesigner,
     RemoveMarkedItems,
     ConnectionFailed,
-    ConnectionSetup
+    ConnectionSetup,
+    Register,
+    UserRequests,
 }

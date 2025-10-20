@@ -21,7 +21,6 @@
                 <ResourceDictionary Source="/Syncfusion.Themes.Windows11Light.WPF;component/MSControl/ListView.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/Presentation;component/Resources/Icons/Icons.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/Resources;component/Styles/Dialog.Styles.xaml"/>
-                <ResourceDictionary Source="pack://application:,,,/Resources;component/Styles/SfButtonAdv.Styles.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/Presentation;component/Styles/Animations/LoadUserControlAnimationBottomToTop.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             
@@ -57,10 +56,6 @@
     
     <Border Style="{StaticResource DialogBorderStyle}">
         <Grid>
-            <!-- Close button -->
-            <sf:ButtonAdv 
-                Command="{Binding CancelDialogCommand}"
-                Style="{StaticResource CloseDialogButtonStyle}"/>
             
             <Grid>
                 <Grid.RowDefinitions>
@@ -70,6 +65,11 @@
                     <RowDefinition Height="1"/>     <!-- Bottom separator -->
                     <RowDefinition Height="Auto"/>  <!-- Ok button -->
                 </Grid.RowDefinitions>
+                
+                <!-- Close dialog button -->
+                <sf:ButtonAdv Grid.Row="0" 
+                              Style="{StaticResource CloseDialogButtonStyle}"
+                              Command="{Binding CancelDialogCommand}"/>
                 
                 <!-- Title -->
                 <TextBlock Grid.Row="0"

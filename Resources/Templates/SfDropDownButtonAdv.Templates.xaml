@@ -13,7 +13,7 @@
                 CornerRadius="{StaticResource CornerRadius4}"
                 Background="{TemplateBinding Background}"
                 BorderBrush="{TemplateBinding BorderBrush}"
-                BorderThickness="{StaticResource BorderThickness0}"
+                BorderThickness="{TemplateBinding BorderThickness}"
                 Padding="{TemplateBinding Padding}">
             <Grid>
 
@@ -21,7 +21,7 @@
                         CornerRadius="{StaticResource CornerRadius4}"
                         Background="{TemplateBinding Background}"
                         BorderBrush="{TemplateBinding BorderBrush}"
-                        BorderThickness="{StaticResource BorderThickness0}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
                         Padding="{TemplateBinding Padding}">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -77,7 +77,7 @@
                 CornerRadius="{StaticResource CornerRadius4}"
                 Background="{TemplateBinding Background}"
                 BorderBrush="{TemplateBinding BorderBrush}"
-                BorderThickness="{StaticResource BorderThickness0}"
+                BorderThickness="{TemplateBinding BorderThickness}"
                 Padding="{TemplateBinding Padding}">
             <Grid>
 
@@ -85,7 +85,7 @@
                         CornerRadius="{StaticResource CornerRadius4}"
                         Background="{TemplateBinding Background}"
                         BorderBrush="{TemplateBinding BorderBrush}"
-                        BorderThickness="{StaticResource BorderThickness0}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
                         Padding="{TemplateBinding Padding}">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -118,7 +118,7 @@
                     <Border Background="{StaticResource White.Brush}"
                             BorderBrush="{TemplateBinding Background}"
                             CornerRadius="{StaticResource CornerRadius4}"
-                            BorderThickness="{StaticResource BorderThickness1}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
                             Margin="{StaticResource Margin0400}">
                         <ContentPresenter />
                     </Border>

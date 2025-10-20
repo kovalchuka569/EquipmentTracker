@@ -21,9 +21,6 @@
                 <ResourceDictionary Source="pack://application:,,,/Presentation;component/Styles/ClearImageStyle.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/Presentation;component/Styles/ContextMenuStyle.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/Presentation;component/Resources/Icons/Icons.xaml"/>
-                <ResourceDictionary Source="pack://application:,,,/Resources;component/Icons/Icons.xaml"/>
-                <ResourceDictionary Source="pack://application:,,,/Resources;component/Global/Common.xaml"/>
-                <ResourceDictionary Source="pack://application:,,,/Resources;component/Global/Brushes.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/Resources;component/Styles/Image.Styles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             

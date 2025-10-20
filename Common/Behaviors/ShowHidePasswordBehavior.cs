@@ -7,38 +7,46 @@ using Syncfusion.Windows.Tools.Controls;
 
 namespace Common.Behaviors;
 
-public class ShowHidePasswordBehavior : Behavior<ButtonAdv>
+public class ShowHidePasswordBehavior : Behavior<SfTextInputLayout>
 {
-    
     #region Dependency properties
     
-    public static readonly DependencyProperty PasswordBoxProperty = DependencyProperty.Register(nameof(PasswordBox), typeof(PasswordBox), typeof(ShowHidePasswordBehavior));
-    public static readonly DependencyProperty TextInputLayoutProperty = DependencyProperty.Register(nameof(TextInputLayout), typeof(SfTextInputLayout), typeof(ShowHidePasswordBehavior));
-    public static readonly DependencyProperty ShowIconProperty = DependencyProperty.Register(nameof(ShowIcon), typeof(ImageSource), typeof(ShowHidePasswordBehavior));
-    public static readonly DependencyProperty HideIconProperty = DependencyProperty.Register(nameof(HideIcon), typeof(ImageSource), typeof(ShowHidePasswordBehavior));
-    public static readonly DependencyProperty PasswordBoxTextProperty = DependencyProperty.Register(nameof(PasswordBoxText), typeof(string), typeof(ShowHidePasswordBehavior), new FrameworkPropertyMetadata(string.Empty, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnPasswordBoxTextChanged));
+    public static readonly DependencyProperty PasswordFontProperty=
+        DependencyProperty.Register(nameof(PasswordFont), typeof(FontFamily), typeof(ShowHidePasswordBehavior));
+
+    public static readonly DependencyProperty ShowHideButtonProperty =
+        DependencyProperty.Register(nameof(ShowHideButton), typeof(ButtonAdv), typeof(ShowHidePasswordBehavior));
+
+    public static readonly DependencyProperty ShowIconProperty =
+        DependencyProperty.Register(nameof(ShowIcon), typeof(ImageSource), typeof(ShowHidePasswordBehavior));
+
+    public static readonly DependencyProperty HideIconProperty =
+        DependencyProperty.Register(nameof(HideIcon), typeof(ImageSource), typeof(ShowHidePasswordBehavior));
 
     #endregion
-    
+
     #region Private fields
     
-    private TextBox? _textBox;
     private bool _isPasswordVisible;
-    
+    private TextBox _textBox = new();
+    private double _textBoxWidth;
+    private double _textBoxHeight;
+    private FontFamily _defaultFontFamily = new();
+
     #endregion
 
     #region Public fields
-    
-    public PasswordBox? PasswordBox
+
+    public FontFamily? PasswordFont
     {
-        get => (PasswordBox?)GetValue(PasswordBoxProperty);
-        set => SetValue(PasswordBoxProperty, value);
+        get => (FontFamily?)GetValue(PasswordFontProperty);
+        set => SetValue(PasswordFontProperty, value);
     }
 
-    public SfTextInputLayout? TextInputLayout
+    public ButtonAdv? ShowHideButton
     {
-        get => (SfTextInputLayout?)GetValue(TextInputLayoutProperty);
-        set => SetValue(TextInputLayoutProperty, value);
+        get => (ButtonAdv?)GetValue(ShowHideButtonProperty);
+        set => SetValue(ShowHideButtonProperty, value);
     }
 
     public ImageSource? ShowIcon
@@ -53,106 +61,65 @@ public class ShowHidePasswordBehavior : Behavior<ButtonAdv>
         set => SetValue(HideIconProperty, value);
     }
 
-    public string PasswordBoxText
-    {
-        get => (string)GetValue(PasswordBoxTextProperty);
-        set => SetValue(PasswordBoxTextProperty, value);
-    }
-    
     #endregion
-    
+
     #region Private methods
 
     protected override void OnAttached()
     {
         base.OnAttached();
-        AssociatedObject.Click += ShowHideButton_Click;
+
+        AssociatedObject.Loaded += OnLoaded;
+    }
+
+    private void OnLoaded(object? sender, RoutedEventArgs e)
+    {
+        if (ShowHideButton != null)
+            ShowHideButton.Click += ShowHideButton_Click;
         
-        if (PasswordBox != null) 
-            PasswordBox.PasswordChanged += PasswordBoxOnPasswordChanged;
-
-        CreateTextBox();
-
-        UpdatePasswordVisibility();
+        if(AssociatedObject.InputView is TextBox textBox)
+        {
+            _textBox = textBox;
+            _defaultFontFamily = textBox.FontFamily;
+            _textBoxWidth = textBox.ActualWidth;
+            _textBoxHeight = textBox.ActualHeight;
+        }
+        
+        UpdatePasswordVisibility(); 
+        UpdateIcon();
     }
 
     protected override void OnDetaching()
     {
         base.OnDetaching();
-        AssociatedObject.Click -= ShowHideButton_Click;
         
-        if (PasswordBox != null) 
-            PasswordBox.PasswordChanged -= PasswordBoxOnPasswordChanged;
+        AssociatedObject.Loaded -= OnLoaded;
+
+        if (ShowHideButton != null)
+            ShowHideButton.Click -= ShowHideButton_Click;
     }
     
-    private void PasswordBoxOnPasswordChanged(object sender, RoutedEventArgs e)
-    {
-        if(sender is not PasswordBox passwordBox)
-            return;
-        
-        PasswordBoxText = passwordBox.Password;
-    }
-    
-    private static void OnPasswordBoxTextChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-    {
-        if (d is not ShowHidePasswordBehavior behavior) return;
-        if (behavior.PasswordBox == null) return;
-
-        string newPassword = e.NewValue?.ToString() ?? string.Empty;
-        
-        if (behavior.PasswordBox.Password != newPassword)
-            behavior.PasswordBox.Password = newPassword;
-    }
-
-    private void CreateTextBox()
-    {
-        if (PasswordBox == null || TextInputLayout == null) return;
-
-        _textBox = new TextBox
-        {
-            Width = PasswordBox.Width,
-            Visibility = Visibility.Collapsed,
-            FontFamily = PasswordBox.FontFamily,
-            FontSize = PasswordBox.FontSize
-        };
-
-        _textBox.TextChanged += (_, _) =>
-        {
-            if (PasswordBox != null)
-                PasswordBox.Password = _textBox?.Text ?? string.Empty;
-        };
-
-        var parent = PasswordBox.Parent as Panel;
-        parent?.Children.Add(_textBox);
-    }
 
     private void ShowHideButton_Click(object sender, RoutedEventArgs e)
     {
         _isPasswordVisible = !_isPasswordVisible;
-        
+
         UpdatePasswordVisibility();
+        UpdateIcon();
     }
 
     private void UpdatePasswordVisibility()
     {
-        if (PasswordBox == null || _textBox == null || TextInputLayout == null) return;
-
-        if (_isPasswordVisible)
-        {
-            _textBox.Text = PasswordBox.Password;
-            _textBox.Visibility = Visibility.Visible;
-            PasswordBox.Visibility = Visibility.Collapsed;
-            TextInputLayout.InputView = _textBox;
-            AssociatedObject.SmallIcon = ShowIcon;
-        }
-        else
-        {
-            PasswordBox.Visibility = Visibility.Visible;
-            _textBox.Visibility = Visibility.Collapsed;
-            TextInputLayout.InputView = PasswordBox;
-            AssociatedObject.SmallIcon = HideIcon;
-        }
+        _textBox.FontFamily = _isPasswordVisible ? _defaultFontFamily : PasswordFont;
+        _textBox.Width = _textBoxWidth;
+        _textBox.Height = _textBoxHeight;
     }
     
+    private void UpdateIcon()
+    {
+        if (ShowHideButton != null && ShowIcon != null && HideIcon != null)
+            ShowHideButton.SmallIcon = _isPasswordVisible ? HideIcon : ShowIcon;
+    }
+
     #endregion
 }

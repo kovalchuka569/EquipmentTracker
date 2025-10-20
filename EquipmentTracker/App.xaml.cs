@@ -1,14 +1,15 @@
-﻿using System.Windows;
+﻿using System.Globalization;
+using System.Windows;
 using Common;
-using UI.Modules;
 using Microsoft.Extensions.Logging;
 using Common.Logging;
 using Core;
 using Data;
-using LocalDbConnectionService;
-using LocalDbConnectionService.KeyManagers;
+using LocalSecure;
+using LocalSecure.KeyManagers;
 using Presentation;
 using Presentation.Views;
+using Syncfusion.Licensing;
 using UI.ViewModels.Updater;
 using UI.Views.Updater;
 
@@ -19,9 +20,8 @@ public partial class App
 
     public App()
     {
-        Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("uk-UA");
-        
-        SyncfusionKeyManager.RegisterSyncfusionKey();
+        Thread.CurrentThread.CurrentUICulture = new CultureInfo("uk-UA"); 
+        SyncfusionLicenseProvider.RegisterLicense(SyncfusionKeyManager.SyncfusionLicenseKey);
     }
     
     protected override void RegisterTypes(IContainerRegistry containerRegistry)
@@ -35,12 +35,10 @@ public partial class App
     protected override void ConfigureModuleCatalog(IModuleCatalog moduleCatalog)
     {
         moduleCatalog.AddModule<LocalSecureModule>();
-        moduleCatalog.AddModule<CommonModule>();
-        moduleCatalog.AddModule<PresentationModule>();
-        moduleCatalog.AddModule<CoreModule>();
         moduleCatalog.AddModule<DataModule>();
-        moduleCatalog.AddModule<AuthModule>();
-        moduleCatalog.AddModule<TabControlModule>();
+        moduleCatalog.AddModule<CommonModule>();
+        moduleCatalog.AddModule<CoreModule>();
+        moduleCatalog.AddModule<PresentationModule>();
     }
 
     protected override Window CreateShell()

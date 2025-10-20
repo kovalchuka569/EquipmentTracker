@@ -12,8 +12,6 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="pack://application:,,,/Resources;component/Global/Common.xaml"/>
-                <ResourceDictionary Source="pack://application:,,,/Resources;component/Global/Brushes.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/Resources;component/Styles/ScrollViewer.Styles.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/Resources;component/Styles/Dialog.Styles.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/Resources;component/Themes/Generic.xaml"/>
@@ -38,8 +36,6 @@
     
     <Border Style="{StaticResource DialogBorderStyle}">
         <Grid>
-            <sf:ButtonAdv Style="{StaticResource CloseDialogButtonStyle}"
-                          Command="{Binding CloseDialogCommand}"/>
             
             <Grid>
                 
@@ -50,6 +46,11 @@
                     <RowDefinition Height="1"/>     <!-- Bottom separator -->
                     <RowDefinition Height="Auto"/>  <!-- Ok button -->
                 </Grid.RowDefinitions>
+                
+                <!-- Close dialog button -->
+                <sf:ButtonAdv Grid.Row="0" 
+                              Style="{StaticResource CloseDialogButtonStyle}"
+                              Command="{Binding CancelDialogCommand}"/>
                 
                 <!-- Title -->
                 <TextBlock Grid.Row="0"

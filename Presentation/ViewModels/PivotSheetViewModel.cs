@@ -7,24 +7,25 @@ using System.Threading.Tasks;
 using Common.Logging;
 using Core.Interfaces;
 using Notification.Wpf;
-using Presentation.ViewModels.Common.PivotGrid;
 using Prism.Commands;
 using Prism.Navigation.Regions;
 using JetBrains.Annotations;
-using Models.Common.Table;
 using Models.Equipment;
+using Presentation.Interfaces;
+using Presentation.ViewModels.Common;
 using Presentation.ViewModels.Common.Table;
 using Syncfusion.PivotAnalysis.Base;
-using Syncfusion.Windows.Controls.PivotSchemaDesigner;
+using Unity;
 
 namespace Presentation.ViewModels;
 
-public class PivotSheetViewModel : BaseViewModel<PivotSheetViewModel>, INavigationAware
+public class PivotSheetViewModel : InteractiveViewModelBase
 {
     
     #region Dependencies
 
-    private IEquipmentSheetService _equipmentSheetService;
+    [Dependency]
+    public required IEquipmentSheetService EquipmentSheetService { get; init; } = null!;
     
     #endregion
     
@@ -74,13 +75,9 @@ public class PivotSheetViewModel : BaseViewModel<PivotSheetViewModel>, INavigati
     #endregion
     
     #region Constructor
-    
-    public PivotSheetViewModel(NotificationManager notificationManager, 
-        IAppLogger<PivotSheetViewModel> logger,
-        IEquipmentSheetService equipmentSheetService) : base(notificationManager, logger)
+
+    public PivotSheetViewModel()
     {
-        _equipmentSheetService = equipmentSheetService;
-        
         InitializeCommands();
     }
     
@@ -211,7 +208,7 @@ public class PivotSheetViewModel : BaseViewModel<PivotSheetViewModel>, INavigati
     private async Task<List<RowViewModel>> GetRowsAsync()
     {
         var id = Guid.Parse("ab34de4f-d5ea-4c27-94ed-8b3b758c7008");
-        var rowModels = await _equipmentSheetService.GetActiveRowsByEquipmentSheetIdAsync(id);
+        var rowModels = await EquipmentSheetService.GetActiveRowsByEquipmentSheetIdAsync(id);
         Console.WriteLine("Row models count: " + rowModels.Count);
         return new List<RowViewModel>(
             rowModels
@@ -241,16 +238,15 @@ public class PivotSheetViewModel : BaseViewModel<PivotSheetViewModel>, INavigati
 
     #region Navigation 
     
-    public void OnNavigatedTo(NavigationContext navigationContext)
+    public override void OnNavigatedTo(NavigationContext navigationContext)
     {
+        base.OnNavigatedTo(navigationContext);
+        
         if(!_isInitialized)
          return;
         
         _pivotSheetId = navigationContext.Parameters.GetValue<Guid>("PivotSheetId");
     }
-
-    public bool IsNavigationTarget(NavigationContext navigationContext) => true;
-    public void OnNavigatedFrom(NavigationContext navigationContext) { }
     
     #endregion
 }
