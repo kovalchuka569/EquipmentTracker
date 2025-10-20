@@ -1,18 +1,14 @@
 ﻿<UserControl x:Class="Presentation.Views.EquipmentSheetView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:grid="clr-namespace:Syncfusion.UI.Xaml.Grid;assembly=Syncfusion.SfGrid.WPF"
              xmlns:sf="http://schemas.syncfusion.com/wpf"
              xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
-             xmlns:prism="http://prismlibrary.com/"
              xmlns:localization="clr-namespace:Resources.Localization;assembly=Resources"
-             xmlns:behaviors="clr-namespace:Common.Behaviors;assembly=Common"
+             xmlns:bh="clr-namespace:Presentation.Behaviors"
              xmlns:syncfusionskin="clr-namespace:Syncfusion.SfSkinManager;assembly=Syncfusion.SfSkinManager.WPF"
              syncfusionskin:SfSkinManager.Theme="{syncfusionskin:SkinManagerExtension ThemeName=Windows11Light}"
-             SnapsToDevicePixels="True"
-             mc:Ignorable="d">
+             SnapsToDevicePixels="True">
     
     <UserControl.Resources>
         <ResourceDictionary>
@@ -26,10 +22,11 @@
                 <ResourceDictionary Source="pack://application:,,,/Presentation;component/Resources/Icons/Icons.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/Presentation;component/Styles/ContextMenuStyle.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/Presentation;component/Styles/ClearImageStyle.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Resources;component/Templates/SfToolBarAdv.Templates.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/Resources;component/Templates/SfDataGrid.Templates.xaml"/>
-                <ResourceDictionary Source="pack://application:,,,/Resources;component/Styles/SfDataGrid.Styles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Resources;component/Styles/SfToolBarAdv.Styles.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/Resources;component/Styles/Image.Styles.xaml"/>
-                <ResourceDictionary Source="pack://application:,,,/Resources;component/Global/Brushes.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Resources;component/Styles/TextBlock.Styles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             
             <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
@@ -57,18 +54,24 @@
     <Grid>
         
         <Grid>
+            
+            <ToolBarTray>
+                <ToolBar VerticalAlignment="Top">
+                    
+                </ToolBar>
+            </ToolBarTray>
 
-            <sf:ToolBarManager>
+            <sf:ToolBarManager ToolBarState="Docking" >
                 <sf:ToolBarManager.TopToolBarTray>
                     <sf:ToolBarTrayAdv>
                         <sf:ToolBarAdv Style="{StaticResource DefaultSfToolBarStyle}">
                             <ContentControl ContentTemplate="{StaticResource SfDataGridTopToolBarContent}">
                                 <i:Interaction.Behaviors>
-                                    <behaviors:SfDataGridToolBarBehavior
-                                        SearchHelper="{Binding SearchHelper, ElementName=SfDataGrid}"
+                                    <bh:SfDataGridToolBarBehavior
+                                        SfDataGrid="{Binding ElementName=SfDataGrid}"
                                         RefreshCommand="{Binding RefreshDataGridCommand}"
-                                        PrintCommand="{Binding PrintCommand}"
                                         ImportFromExcelCommand="{Binding ExcelImportCommand}"
+                                        GridPrintCommand="{Binding GridPrintCommand}"
                                         ExportToExcelCommand="{Binding ExportToExcelCommand}"
                                         ExportToPdfCommand="{Binding ExportToPdfCommand}"
                                         ColumnSettingsCommand="{Binding OpenColumnsDesignerCommand}" />
@@ -148,7 +151,7 @@
 
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="Loaded">
-                                <i:InvokeCommandAction Command="{Binding DataGridLoadedCommand}"
+                                <i:InvokeCommandAction Command="{Binding EquipmentDataGridLoadedCommand}"
                                                        CommandParameter="{Binding ElementName=SfDataGrid}" />
                             </i:EventTrigger>
                             <i:EventTrigger EventName="SelectionChanged">
@@ -200,6 +203,11 @@
                                                        PassEventArgsToCommand="True" />
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
+                        
+                        <i:Interaction.Behaviors>
+                            <bh:SfDataGridPrintBehavior GridPrintCommand="{Binding PrintCommand}"
+                                                        GridPrintParameters="{Binding GridPrintParameters}"/>
+                        </i:Interaction.Behaviors>
 
                         <grid:SfDataGrid.Resources>
                             <Style x:Key="BasedGridHeaderStyle" TargetType="grid:GridHeaderCellControl" BasedOn="{StaticResource SyncfusionGridHeaderCellControlStyle}"/>
