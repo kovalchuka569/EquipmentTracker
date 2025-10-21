@@ -1,10 +1,9 @@
-﻿using Notification.Wpf;
-
+﻿using Presentation.Services.Interfaces;
 using Syncfusion.UI.Xaml.Grid;
 
 namespace Presentation.Interfaces;
 
 public interface IExcelExportManager
 {
-    void ExportToExcel(SfDataGrid dataGrid, string fileName, NotificationManager notificationManager);
+    void ExportToExcel(SfDataGrid dataGrid, string fileName, ISnackbarService snackbarService);
 }

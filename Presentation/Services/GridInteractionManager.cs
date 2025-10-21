@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Windows;
 using System.Windows.Documents;
-
-using Notification.Wpf;
-
 using Presentation.Interfaces;
 
 namespace Presentation.Services;
 
-public class GridInteractionManager(NotificationManager notificationManager) : IGridInteractionManager
+public class GridInteractionManager : IGridInteractionManager
 {
     
     public void OnHyperlinkCellClick(object sender, RoutedEventArgs e)
@@ -32,12 +29,8 @@ public class GridInteractionManager(NotificationManager notificationManager) : I
             }
             catch (Exception ex)
             {
-                notificationManager.Show( "Помилка",$"Не вдалось відкрити посилання: {ex.Message}", NotificationType.Error);
+                // ignored
             }
-        }
-        else
-        {
-            notificationManager.Show("Посилання некоректне і не може бути відкрите.", NotificationType.Information);
         }
     }
 }

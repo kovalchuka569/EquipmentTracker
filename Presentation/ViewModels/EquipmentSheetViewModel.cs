@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using Common.Enums;
 using Prism.Commands;
 using Prism.Dialogs;
 using Prism.Events;
@@ -13,7 +14,6 @@ using Prism.Navigation;
 using Prism.Navigation.Regions;
 using Syncfusion.UI.Xaml.Grid;
 using Syncfusion.UI.Xaml.Grid.Helpers;
-using Notification.Wpf;
 using Common.Logging;
 using Core.Interfaces;
 using Core.Models;
@@ -24,41 +24,34 @@ using Models.Equipment;
 using Models.Services;
 using Presentation.Interfaces;
 using Presentation.Models;
+using Presentation.Services.Interfaces;
 using Presentation.ViewModels.Common.Table;
 using Presentation.ViewModels.Common;
 using Presentation.ViewModels.DialogViewModels;
+using Resources.Localization;
 using Unity;
 
 namespace Presentation.ViewModels;
 
 public class EquipmentSheetViewModel : InteractiveViewModelBase, IRegionMemberLifetime
 {
-    [Dependency]
-    public required IAppLogger<EquipmentSheetViewModel> Logger { get; init; } = null!;
+    [Dependency] public required IAppLogger<EquipmentSheetViewModel> Logger { get; init; } = null!;
     
-    [Dependency]
-    public required NotificationManager NotificationManager { get; init; } = null!;
+    [Dependency] public required ISnackbarService SnackbarService { get; init; } = null!;
     
-    [Dependency]
-    public required IEquipmentSheetService Service { get; init; } = null!;
+    [Dependency] public required IEquipmentSheetService Service { get; init; } = null!;
     
-    [Dependency]
-    public required IExcelImportService ExcelImportService { get; init; } = null!;
+    [Dependency] public required IExcelImportService ExcelImportService { get; init; } = null!;
     
-    [Dependency]
-    public required IExcelExportManager ExcelExportManager { get; init; } = null!;
+    [Dependency] public required IExcelExportManager ExcelExportManager { get; init; } = null!;
     
-    [Dependency]
-    public required IPdfExportManager PdfExportManager { get; init; } = null!;
+    [Dependency] public required IPdfExportManager PdfExportManager { get; init; } = null!;
     
-    [Dependency]
-    public required ISyncfusionGridColumnManager ColumnManager { get; init; } = null!;
+    [Dependency] public required ISyncfusionGridColumnManager ColumnManager { get; init; } = null!;
     
-    [Dependency]
-    public required ICellValidatorService CellValidatorService { get; init; } = null!;
+    [Dependency] public required ICellValidatorService CellValidatorService { get; init; } = null!;
     
-    [Dependency]
-    public required IRowValidatorService RowValidatorService { get; init; } = null!;
+    [Dependency] public required IRowValidatorService RowValidatorService { get; init; } = null!;
     
     private IEventAggregator? _scopedEventAggregator;
     private Guid _equipmentSheetId;
@@ -375,7 +368,13 @@ public class EquipmentSheetViewModel : InteractiveViewModelBase, IRegionMemberLi
         catch (Exception e)
         {
             args.Cancel = true;
-            NotificationManager.Show("Помилка оновлення ширини", NotificationType.Error);
+            
+            SnackbarService
+                .Show()
+                .WithMessage(SnackbarMessages.ResizingColumn_ErrorMessage)
+                .OfType(SnackType.Warning)
+                .Now();
+            
             Logger.LogError(e, "Error updating column width");
         }
     }
@@ -402,7 +401,12 @@ public class EquipmentSheetViewModel : InteractiveViewModelBase, IRegionMemberLi
             }
             catch (Exception e)
             {
-                NotificationManager.Show("Помилка оновлення позицій характеристик", NotificationType.Error);
+                SnackbarService
+                    .Show()
+                    .WithMessage(SnackbarMessages.UpdateColumnPosition_ErrorMessage)
+                    .OfType(SnackType.Warning)
+                    .Now();
+
                 Logger.LogError(e, "Error updating columns positions");
                 throw;
             }
@@ -562,7 +566,12 @@ public class EquipmentSheetViewModel : InteractiveViewModelBase, IRegionMemberLi
         }
         catch (Exception ex)
         {
-            NotificationManager.Show("Помилка під час валідації рядка");
+            SnackbarService
+                .Show()
+                .WithMessage(SnackbarMessages.ValidationRow_ErrorMessage)
+                .OfType(SnackType.Warning)
+                .Now();
+            
             Logger.LogError(ex, "Exception occurred during row validation");
             throw;
         }
@@ -610,7 +619,12 @@ public class EquipmentSheetViewModel : InteractiveViewModelBase, IRegionMemberLi
             }
             catch (Exception ex)
             {
-                NotificationManager.Show("Помилка створення запису", NotificationType.Error);
+                SnackbarService
+                    .Show()
+                    .WithMessage(SnackbarMessages.AddElement_ErrorMessage)
+                    .OfType(SnackType.Warning)
+                    .Now();
+                
                 Logger.LogError(ex, "Failed to creating row");
                 throw;
             }
@@ -680,12 +694,12 @@ public class EquipmentSheetViewModel : InteractiveViewModelBase, IRegionMemberLi
 
     private void OnExportToExcel()
     {
-        ExcelExportManager.ExportToExcel(_dataGrid, "default", NotificationManager);
+        ExcelExportManager.ExportToExcel(_dataGrid, "default", SnackbarService);
     }
 
     private void OnExportToPdf()
     {
-        PdfExportManager.ExportToPdf(_dataGrid, "default", NotificationManager);
+        PdfExportManager.ExportToPdf(_dataGrid, "default", SnackbarService);
     }
     
     #endregion
@@ -756,7 +770,12 @@ public class EquipmentSheetViewModel : InteractiveViewModelBase, IRegionMemberLi
             Logger.LogError(ex, "Failed to load data");
             try
             {
-                NotificationManager.Show("Помилка завантаження даних", NotificationType.Error);
+                SnackbarService
+                    .Show()
+                    .WithMessage(SnackbarMessages.LoadData_ErrorMessage)
+                    .OfType(SnackType.Warning)
+                    .Now();
+                
             }
             catch
             {
@@ -971,7 +990,12 @@ public class EquipmentSheetViewModel : InteractiveViewModelBase, IRegionMemberLi
         }
         catch (Exception e)
         {
-            NotificationManager.Show("Помилка оновлення позицій записів", NotificationType.Error);
+            SnackbarService
+                .Show()
+                .WithMessage(SnackbarMessages.UpdateRowPosition_ErrorMessage)
+                .OfType(SnackType.Warning)
+                .Now();
+            
             Logger.LogError(e, "Failed to update rows in sorting");
             throw;
         }

@@ -1,10 +1,11 @@
 ﻿using System.Threading.Tasks;
+using Common.Enums;
 using Common.Logging;
 using JetBrains.Annotations;
-using Notification.Wpf;
 using Prism.Commands;
 using Resources.Localization;
 using LocalSecure.Interfaces;
+using Presentation.Services.Interfaces;
 using Presentation.ViewModels.DialogViewModels.Common;
 using Prism.Dialogs;
 using Unity;
@@ -21,14 +22,11 @@ public class ConnectionSetupViewModel : DialogViewModelBase
 
     #region Dependencies
     
-    [Dependency]
-    public required IAppLogger<ConnectionSetupViewModel> Logger { get; init; } = null!;
+    [Dependency] public required IAppLogger<ConnectionSetupViewModel> Logger = null!;
     
-    [Dependency]
-    public required IDbKeyService DbKeyService { get; init; } = null!;
+    [Dependency] public required IDbKeyService DbKeyService = null!;
     
-    [Dependency]
-    public required NotificationManager NotificationManager { get; init; } = null!;
+    [Dependency] public required ISnackbarService SnackbarService = null!;
 
     #endregion
 
@@ -108,7 +106,11 @@ public class ConnectionSetupViewModel : DialogViewModelBase
                 await DbKeyService.SaveDbConnectionStringInFileAsync(_host, _port, _database, _username, _password);
 
                 // Show success snackbar
-                NotificationManager.Show(Strings.SnackbarMessage_KeySaveSuccess, NotificationType.Success);
+                SnackbarService
+                    .Show()
+                    .WithMessage(Strings.SnackbarMessage_KeySaveSuccess)
+                    .OfType(SnackType.Success)
+                    .Now();
 
                 // Close connection setup dialog
                 var result = new DialogResult
@@ -121,7 +123,12 @@ public class ConnectionSetupViewModel : DialogViewModelBase
             onError: e =>
             {
                 Logger.LogError(e, SaveKeyErrorLogMessage);
-                NotificationManager.Show(Strings.SnackbarMessage_KeySaveFailed, NotificationType.Error);
+                
+                SnackbarService
+                    .Show()
+                    .WithMessage(Strings.SnackbarMessage_KeySaveFailed)
+                    .OfType(SnackType.Warning)
+                    .Now();
             });
     }
 

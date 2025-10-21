@@ -3,42 +3,7 @@
                     xmlns:cv="clr-namespace:Resources.Converters"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     
-    <ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary Source="pack://application:,,,/Resources;component/Global/Common.xaml" />
-        <ResourceDictionary Source="pack://application:,,,/Resources;component/Icons/Icons.xaml" />
-        <ResourceDictionary Source="pack://application:,,,/Resources;component/Styles/SfButtonAdv.Styles.xaml" />
-    </ResourceDictionary.MergedDictionaries>
-    
-    <Style TargetType="Border" x:Key="SnackBarItemBorderAnimatedStyle">
-        <Setter Property="Opacity" Value="0"/>
-        <Setter Property="RenderTransform">
-            <Setter.Value>
-                <TranslateTransform X="0" Y="10"/> 
-            </Setter.Value>
-        </Setter>
-
-        <Style.Triggers>
-            <EventTrigger RoutedEvent="Loaded">
-                <BeginStoryboard>
-                    <Storyboard>
-                        <DoubleAnimation Storyboard.TargetProperty="Opacity"
-                                         From="0" To="1"
-                                         Duration="0:0:0.3"
-                                         AccelerationRatio="0.3"
-                                         DecelerationRatio="0.7"/>
-                        
-                        <DoubleAnimation Storyboard.TargetProperty="RenderTransform.(TranslateTransform.X)"
-                                         From="50" To="0"
-                                         Duration="0:0:0.3"
-                                         AccelerationRatio="0.3"
-                                         DecelerationRatio="0.7"/>
-                    </Storyboard>
-                </BeginStoryboard>
-            </EventTrigger>
-        </Style.Triggers>
-    </Style>
-    
-    <cv:SnackbarStyleToBrushConverter x:Key="SnackbarStyleToBrushConverter"
+    <cv:SnackTypeToBrushConverter x:Key="SnackTypeToBrushConverter"
                                       NoneBrush="{StaticResource DarkBackground.Brush}"
                                       PrimaryBrush="{StaticResource Primary.Brush}"
                                       SuccessBrush="{StaticResource Success.Brush}"
@@ -46,7 +11,7 @@
                                       CautionBrush="{StaticResource Caution.Brush}"
                                       InfoBrush="{StaticResource DarkBackground.Brush}"/>
     
-    <cv:SnackbarStyleToImageConverter x:Key="SnackbarStyleToImageConverter"
+    <cv:SnackTypeToImageConverter x:Key="SnackTypeToImageConverter"
                                       NoneImage="{StaticResource Information.White.Line.64}"
                                       PrimaryImage="{StaticResource Information.White.Line.64}"
                                       SuccessImage="{StaticResource Check.White.Line.64}"
@@ -54,16 +19,24 @@
                                       CautionImage="{StaticResource Alert.White.Line.64}"
                                       InfoImage="{StaticResource Information.White.Line.64}"/>
     
-    <DataTemplate x:Key="TextSnackbarItemTemplate">
+    
+    
+    <DataTemplate x:Key="TextSnackTemplate">
         
         <!-- Main border -->
-        <Border Style="{StaticResource SnackBarItemBorderAnimatedStyle}"
+        <Border x:Name="TextSnackBorder"
+                MaxWidth="{StaticResource SnackbarWidth}"
+                Opacity="0"
                 CornerRadius="{StaticResource CornerRadius6}"
                 Margin="0,6,0,6"
-                Background="{Binding SnackbarStyle, 
-                            Converter={StaticResource SnackbarStyleToBrushConverter}}">
+                Background="{Binding Type, 
+                            Converter={StaticResource SnackTypeToBrushConverter}}">
             
-            <!-- Main grid -->
+            <Border.RenderTransform>
+                <TranslateTransform X="0" Y="10"/>
+            </Border.RenderTransform>
+            
+                <!-- Main grid -->
             <Grid Margin="{StaticResource Margin6}">
                 
                 <Grid.ColumnDefinitions>
@@ -76,8 +49,8 @@
                 <Image Grid.Column="0" 
                        Width="{StaticResource SnackbarIconWidth}"
                        Height="{StaticResource SnackbarIconHeight}"
-                       Source="{Binding SnackbarStyle, 
-                            Converter={StaticResource SnackbarStyleToImageConverter}}"/>
+                       Source="{Binding Type, 
+                            Converter={StaticResource SnackTypeToImageConverter}}"/>
                 
                 <!-- Message text block -->
                 <TextBlock Grid.Column="1" 
@@ -103,9 +76,47 @@
             
         </Border>  
         
-    </DataTemplate>
-    
-    <DataTemplate x:Key="ProgressSnackbarItemTemplate">
+                <DataTemplate.Triggers>
+            <DataTrigger Binding="{Binding Showed}" Value="True">
+                    <DataTrigger.EnterActions>
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimation Storyboard.TargetName="TextSnackBorder"
+                                                 Storyboard.TargetProperty="Opacity"
+                                                 From="0" To="1"
+                                                 Duration="0:0:0.3"
+                                                 AccelerationRatio="0.3"
+                                                 DecelerationRatio="0.7"/>
+                        
+                                <DoubleAnimation Storyboard.TargetName="TextSnackBorder"
+                                                 Storyboard.TargetProperty="RenderTransform.(TranslateTransform.X)"
+                                                 From="100" To="0"
+                                                 Duration="0:0:0.3"
+                                                 AccelerationRatio="0.3"
+                                                 DecelerationRatio="0.7"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </DataTrigger.EnterActions>
+                </DataTrigger>
+            
+                <DataTrigger Binding="{Binding Showed}" Value="False">
+                    <DataTrigger.EnterActions>
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimation Storyboard.TargetName="TextSnackBorder"
+                                                 Storyboard.TargetProperty="Opacity"
+                                                 From="1" To="0"
+                                                 Duration="0:0:0.3"/>
+                        
+                                <DoubleAnimation Storyboard.TargetName="TextSnackBorder"
+                                                 Storyboard.TargetProperty="RenderTransform.(TranslateTransform.X)"
+                                                 From="0" To="100"
+                                                 Duration="0:0:0.3"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </DataTrigger.EnterActions>
+                </DataTrigger>
+        </DataTemplate.Triggers>
         
     </DataTemplate>
     

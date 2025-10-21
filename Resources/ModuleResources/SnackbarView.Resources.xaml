@@ -1,13 +1,7 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:cv="clr-namespace:Resources.Converters">
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="pack://application:,,,/Resources;component/Templates/ViewTemplates/SnackbarView.Templates.xaml"/>
     </ResourceDictionary.MergedDictionaries>
-    
-    <cv:SnackbarContainerToTemplateConverter x:Key="SnackbarContainerToTemplateConverter" 
-                                             TextTemplate="{StaticResource TextSnackbarItemTemplate}"
-                                             ProgressTemplate="{StaticResource ProgressSnackbarItemTemplate}"/>
-    
 </ResourceDictionary>

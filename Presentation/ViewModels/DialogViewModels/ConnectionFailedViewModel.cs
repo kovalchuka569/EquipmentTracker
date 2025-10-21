@@ -1,11 +1,7 @@
 ﻿using System.Windows;
-
-using Common.Logging;
 using Common.Enums;
 using Common.Constants;
-
 using JetBrains.Annotations;
-using Notification.Wpf;
 using Presentation.ViewModels.DialogViewModels.Common;
 using Prism.Commands;
 using Prism.Dialogs;

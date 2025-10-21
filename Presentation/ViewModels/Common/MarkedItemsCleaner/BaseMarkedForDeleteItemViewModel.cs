@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using Common.Enums;
-using Common.Logging;
-using Notification.Wpf;
 using Prism.Mvvm;
 
 namespace Presentation.ViewModels.Common.MarkedItemsCleaner;

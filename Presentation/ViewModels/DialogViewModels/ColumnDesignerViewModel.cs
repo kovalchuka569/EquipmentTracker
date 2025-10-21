@@ -6,8 +6,6 @@ using System.Linq;
 using System.Reflection;
 using Prism.Commands;
 using Prism.Dialogs;
-using Notification.Wpf;
-using Common.Logging;
 using JetBrains.Annotations;
 using Models.Common.Table.ColumnProperties;
 using Models.Equipment;

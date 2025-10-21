@@ -1,10 +1,11 @@
 ﻿using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Common.Enums;
 using Common.Logging;
 using Core.Interfaces;
 using JetBrains.Annotations;
-using Notification.Wpf;
+using Presentation.Services.Interfaces;
 using Presentation.ViewModels.Common.Users;
 using Presentation.ViewModels.DialogViewModels.Common;
 using Prism.Commands;
@@ -25,14 +26,11 @@ public class UserRequestsViewModel : DialogViewModelBase
 
     #region Dependecies
     
-    [Dependency]
-    public required IAppLogger<UserRequestsViewModel> Logger { get; init; } = null!;
+    [Dependency] public required IAppLogger<UserRequestsViewModel> Logger = null!;
 
-    [Dependency]
-    public required IUserManagerService UserManagerService { get; init; } = null!;
+    [Dependency] public required IUserManagerService UserManagerService = null!;
     
-    [Dependency]
-    public required NotificationManager NotificationManager { get; init; } = null!;
+    [Dependency] public required ISnackbarService SnackbarService = null!;
     
     #endregion
     
@@ -90,7 +88,12 @@ public class UserRequestsViewModel : DialogViewModelBase
             onError: e =>
             {
                 Logger.LogError(e, ApproveErrorLogMessage);
-                NotificationManager.Show(SnackbarMessages.ApproveQueryUser_ErrorMessage, NotificationType.Error);
+                
+                SnackbarService
+                    .Show()
+                    .WithMessage(SnackbarMessages.ApproveQueryUser_ErrorMessage)
+                    .OfType(SnackType.Warning)
+                    .Now();
             });
     }
     
@@ -108,7 +111,12 @@ public class UserRequestsViewModel : DialogViewModelBase
         onError: e =>
         {
             Logger.LogError(e, RejectErrorLogMessage);
-            NotificationManager.Show(SnackbarMessages.RejectQueryUser_ErrorMessage, NotificationType.Error);
+            
+            SnackbarService
+                .Show()
+                .WithMessage(SnackbarMessages.RejectQueryUser_ErrorMessage)
+                .OfType(SnackType.Warning)
+                .Now();
         });
     }
 }

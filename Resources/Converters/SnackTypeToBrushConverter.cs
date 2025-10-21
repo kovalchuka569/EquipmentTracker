@@ -6,7 +6,7 @@ using Common.Enums;
 
 namespace Resources.Converters;
 
-public class SnackbarStyleToBrushConverter : IValueConverter
+public class SnackTypeToBrushConverter : IValueConverter
 {
     public Brush? NoneBrush { get; set; }
     public Brush? PrimaryBrush { get; set; }
@@ -17,17 +17,17 @@ public class SnackbarStyleToBrushConverter : IValueConverter
     
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        if(value is not SnackbarStyle snackbarStyle)
+        if(value is not SnackType snackType)
             return null;
 
-        return snackbarStyle switch
+        return snackType switch
         {
-            SnackbarStyle.None => NoneBrush,
-            SnackbarStyle.Primary => PrimaryBrush,
-            SnackbarStyle.Success => SuccessBrush,
-            SnackbarStyle.Warning => WarningBrush,
-            SnackbarStyle.Info => InfoBrush,
-            SnackbarStyle.Caution => CautionBrush,
+            SnackType.None => NoneBrush,
+            SnackType.Primary => PrimaryBrush,
+            SnackType.Success => SuccessBrush,
+            SnackType.Warning => WarningBrush,
+            SnackType.Info => InfoBrush,
+            SnackType.Caution => CautionBrush,
             _ => (object?)null
         };
     }

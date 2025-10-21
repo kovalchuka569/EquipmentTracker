@@ -76,7 +76,7 @@
                         <DataTemplate>
                             <sf:ButtonAdv Label="{Binding Text}"
                                           Command="{Binding Command}"
-                                          Style="{Binding Style, Converter={StaticResource ButtonStyleToStyleConverter}}"
+                                          Style="{Binding Type, Converter={StaticResource ButtonStyleToStyleConverter}}"
                                           Margin="12"
                                           HorizontalAlignment="Stretch"/>
                         </DataTemplate>

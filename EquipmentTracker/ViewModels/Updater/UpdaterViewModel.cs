@@ -1,11 +1,5 @@
 ﻿using System.Net.Http;
-using System.Reflection;
 using Squirrel;
-using Prism.Mvvm;
-using Prism.Commands;
-using System.Threading.Tasks;
-using Notification.Wpf;
-using System.Windows;
 
 namespace UI.ViewModels.Updater;
 
@@ -13,7 +7,6 @@ public class UpdaterViewModel : BindableBase
 {
     UpdateManager _updateManager;
     private readonly IRegionManager _regionManager;
-    private readonly NotificationManager _notificationManager;
     private string _updateStatusContent = "Перевірка оновлень...";
     private bool _updateQuestionVisibility;
     private bool _busyIndicatorVisibility = true;
@@ -60,9 +53,11 @@ public class UpdaterViewModel : BindableBase
     public DelegateCommand UpdateCommand { get; }
     public DelegateCommand NoUpdateCommand { get; }
     public DelegateCommand UserControlLoadedCommand { get; }
-    public UpdaterViewModel(NotificationManager notificationManager, IRegionManager regionManager)
+    public UpdaterViewModel(
+       // NotificationManager notificationManager, 
+        IRegionManager regionManager)
     {
-        _notificationManager = notificationManager;
+       // _notificationManager = notificationManager;
         _regionManager = regionManager;
         
         UpdateCommand = new DelegateCommand(OnUpdate);
@@ -81,7 +76,7 @@ public class UpdaterViewModel : BindableBase
             if (!await IsInternetAvailable())
             {
                 UpdateStatusContent = "Відсутнє підключення до мережі";
-                _notificationManager.Show("Для оновлення програми, будь-ласка підключіться до мережі інтернет!", NotificationType.Warning);
+                //_notificationManager.Show("Для оновлення програми, будь-ласка підключіться до мережі інтернет!", NotificationType.Warning);
                 await Task.Delay(1500);
                 OnNavigateInAuth();
                 return;

@@ -83,7 +83,6 @@
 
     <ItemGroup>
       <PackageReference Include="JetBrains.Annotations" Version="2025.2.0" />
-      <PackageReference Include="MaterialDesignThemes" Version="5.2.1" />
       <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
       <PackageReference Include="Prism.Wpf" Version="9.0.537" />
       <PackageReference Include="SharpVectors.Wpf" Version="1.8.5" />

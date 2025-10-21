@@ -1,17 +1,11 @@
 ﻿using System.Collections.ObjectModel;
 using System.Drawing;
-using System.Windows;
-using System.Windows.Controls;
 using Common.Logging;
-using Core.Events.DataGrid;
 using Core.Events.DataGrid.Consumables;
 using Core.Events.TabControl;
-using Core.Services.Common.DataGridColumns;
 using Core.Services.Consumables;
 using Microsoft.Win32;
 using Models.ConsumablesDataGrid;
-using Notification.Wpf;
-using Prism.Events;
 using Syncfusion.Pdf;
 using Syncfusion.UI.Xaml.Grid;
 using Syncfusion.UI.Xaml.Grid.Converter;
@@ -23,7 +17,7 @@ namespace UI.ViewModels.Consumables
     {
         private readonly IAppLogger<ConsumablesDataGridViewModel> _logger;
         private readonly IConsumablesDataGridService _service;
-        private readonly NotificationManager _notificationManager;
+       // private readonly NotificationManager _notificationManager;
         private readonly IEventAggregator _globalEventAggregator;
         private IRegionManager _scopedRegionManager;
         private IEventAggregator _scopedEventAggregator;
@@ -125,12 +119,12 @@ namespace UI.ViewModels.Consumables
         public ConsumablesDataGridViewModel(
             IAppLogger<ConsumablesDataGridViewModel> logger,
             IConsumablesDataGridService service, 
-            NotificationManager notificationManager, 
+           // NotificationManager notificationManager, 
             IEventAggregator globalEventAggregator)
         {
             _logger = logger;
             _service = service;
-            _notificationManager = notificationManager;
+           // _notificationManager = notificationManager;
             _globalEventAggregator = globalEventAggregator;
             
             LoadedUserControlCommand = new DelegateCommand(OnLoadedUserControl);
@@ -186,12 +180,12 @@ namespace UI.ViewModels.Consumables
                     {
                         workbook.SaveAs(stream);
                     }
-                    _notificationManager.Show("Таблицю успішно експортовано до Excel!", NotificationType.Success);
+                 //   _notificationManager.Show("Таблицю успішно експортовано до Excel!", NotificationType.Success);
                 }
             }
             catch (Exception e)
             {
-                _notificationManager.Show("Помилка експорту до Excel!", NotificationType.Error);
+              //  _notificationManager.Show("Помилка експорту до Excel!", NotificationType.Error);
                 _logger.LogError(e.Message, "Error exporting Excel");
                 throw;
             }
@@ -226,14 +220,14 @@ namespace UI.ViewModels.Consumables
                             document.Save(stream);
                         }
 
-                        _notificationManager.Show("Таблицю успішно експортовано в PDF!", NotificationType.Success);
+                       // _notificationManager.Show("Таблицю успішно експортовано в PDF!", NotificationType.Success);
                     }
                 }
 
             }
             catch (Exception e)
             {
-                _notificationManager.Show("Помилка експорту в PDF!", NotificationType.Error);
+               // _notificationManager.Show("Помилка експорту в PDF!", NotificationType.Error);
                 _logger.LogError(e.Message, "Error exporting PDF");
                 throw;
             }

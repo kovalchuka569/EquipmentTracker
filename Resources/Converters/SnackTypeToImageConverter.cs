@@ -6,7 +6,7 @@ using Common.Enums;
 
 namespace Resources.Converters;
 
-public class SnackbarStyleToImageConverter : IValueConverter
+public class SnackTypeToImageConverter : IValueConverter
 {
     public ImageSource? NoneImage { get; set; }
     public ImageSource? PrimaryImage { get; set; }
@@ -17,17 +17,17 @@ public class SnackbarStyleToImageConverter : IValueConverter
     
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        if(value is not SnackbarStyle snackbarStyle)
+        if(value is not SnackType snackType)
             return null;
 
-        return snackbarStyle switch
+        return snackType switch
         {
-            SnackbarStyle.None => NoneImage,
-            SnackbarStyle.Primary => PrimaryImage,
-            SnackbarStyle.Success => SuccessImage,
-            SnackbarStyle.Warning => WarningImage,
-            SnackbarStyle.Info => InfoImage,
-            SnackbarStyle.Caution => CautionImage,
+            SnackType.None => NoneImage,
+            SnackType.Primary => PrimaryImage,
+            SnackType.Success => SuccessImage,
+            SnackType.Warning => WarningImage,
+            SnackType.Info => InfoImage,
+            SnackType.Caution => CautionImage,
             _ => throw new ArgumentOutOfRangeException()
         };
     }

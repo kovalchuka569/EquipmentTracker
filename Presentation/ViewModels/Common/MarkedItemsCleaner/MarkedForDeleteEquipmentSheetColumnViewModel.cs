@@ -1,6 +1,4 @@
 ﻿using Common.Enums;
-using Common.Logging;
-using Notification.Wpf;
 
 namespace Presentation.ViewModels.Common.MarkedItemsCleaner;
 

@@ -1,0 +1,93 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<root>
+    <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+        <xsd:element name="root" msdata:IsDataSet="true">
+            
+        </xsd:element>
+    </xsd:schema>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <data name="Symbol_Singular" xml:space="preserve">
+        <value>symbol</value>
+    </data>
+    <data name="Symbol_Plural234" xml:space="preserve">
+        <value>symbols</value>
+    </data>
+    <data name="Symbol_PluralOther" xml:space="preserve">
+        <value>symbols</value>
+    </data>
+    <data name="Letter_Singular" xml:space="preserve">
+        <value>letter</value>
+    </data>
+    <data name="Letter_Plural234" xml:space="preserve">
+        <value>letters</value>
+    </data>
+    <data name="Letter_Other" xml:space="preserve">
+        <value>letters</value>
+    </data>
+    <data name="Digit_Singular" xml:space="preserve">
+        <value>digit</value>
+    </data>
+    <data name="Digit_Plural234" xml:space="preserve">
+        <value>digits</value>
+    </data>
+    <data name="Digit_Other" xml:space="preserve">
+        <value>digits</value>
+    </data>
+    <data name="Lowercase_Singular" xml:space="preserve">
+        <value>lowercase</value>
+    </data>
+    <data name="Lowercase_Plural234" xml:space="preserve">
+        <value>lowercases</value>
+    </data>
+    <data name="Lowercase_Other" xml:space="preserve">
+        <value>lowercases</value>
+    </data>
+    <data name="Uppercase_Singular" xml:space="preserve">
+        <value>uppercase</value>
+    </data>
+    <data name="Uppercase_Plural234" xml:space="preserve">
+        <value>uppercases</value>
+    </data>
+    <data name="Uppercase_Other" xml:space="preserve">
+        <value>uppercases</value>
+    </data>
+    <data name="SequentialChars_Singular" xml:space="preserve">
+        <value>sequential char</value>
+    </data>
+    <data name="SequentialChars_Plural234" xml:space="preserve">
+        <value>sequential chars</value>
+    </data>
+    <data name="SequentialChars_Other" xml:space="preserve">
+        <value>sequential chars</value>
+    </data>
+    <data name="Consecutive_Singular" xml:space="preserve">
+        <value>consecutive char</value>
+    </data>
+    <data name="Consecutive_Plural234" xml:space="preserve">
+        <value>consecutive chars</value>
+    </data>
+    <data name="Consecutive_Other" xml:space="preserve">
+        <value>consecutive chars</value>
+    </data>
+    <data name="SpecialChar_Singular" xml:space="preserve">
+        <value>special char</value>
+    </data>
+    <data name="SpecialChar_Plural234" xml:space="preserve">
+        <value>special chars</value>
+    </data>
+    <data name="SpecialChar_Other" xml:space="preserve">
+        <value>special chars</value>
+    </data>
+</root>

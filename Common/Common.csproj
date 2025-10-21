@@ -9,7 +9,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Extended.Wpf.Toolkit" Version="4.7.25104.5739" />
       <PackageReference Include="JetBrains.Annotations" Version="2025.2.0" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.7">
         <PrivateAssets>all</PrivateAssets>

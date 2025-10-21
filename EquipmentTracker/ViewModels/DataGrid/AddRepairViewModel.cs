@@ -1,23 +1,16 @@
 ﻿using System.Collections.ObjectModel;
-using System.Windows.Forms;
 using Core.Events.DataGrid;
-using Prism.Mvvm;
-using Prism.Commands;
 using Core.Events.DataGrid.Consumables;
 using Core.Events.TabControl;
 using Core.Services.RepairsDataGrid;
 using Models.RepairsDataGrid;
 using Models.RepairsDataGrid.AddRepair;
-using Notification.Wpf;
-using Prism.Events;
-using Syncfusion.UI.Xaml.Grid;
 
 namespace UI.ViewModels.DataGrid;
 
 public class AddRepairViewModel : BindableBase, INavigationAware
 {
     private IRegionManager _regionManager;
-    private NotificationManager _notificationManager;
     private readonly IAddRepairService _service;
     private EventAggregator _scopedEventAggregator;
     private IEventAggregator _globalEventAggregator;
@@ -134,11 +127,11 @@ public class AddRepairViewModel : BindableBase, INavigationAware
     public DelegateCommand SaveRepairCommand { get; }
     
     public AddRepairViewModel(IAddRepairService service,
-        NotificationManager notificationManager,
+       // NotificationManager notificationManager,
         IEventAggregator globalEventAggregator)
     {
         _service = service;
-        _notificationManager = notificationManager;
+       // _notificationManager = notificationManager;
         _globalEventAggregator = globalEventAggregator;
         
         UserControlLoadedCommand = new DelegateCommand(OnUserControlLoaded);
@@ -194,11 +187,11 @@ public class AddRepairViewModel : BindableBase, INavigationAware
             
                 // Close tab
                 _globalEventAggregator.GetEvent<CloseActiveTabEvent>().Publish();
-                _notificationManager.Show("Успішно збережено!", NotificationType.Success);
+               // _notificationManager.Show("Успішно збережено!", NotificationType.Success);
             }
             catch (Exception e)
             {
-                _notificationManager.Show($"Помилка додавання ремонту: {e.Message}", NotificationType.Error);
+               // _notificationManager.Show($"Помилка додавання ремонту: {e.Message}", NotificationType.Error);
                 throw;
             }
         }
@@ -216,11 +209,11 @@ public class AddRepairViewModel : BindableBase, INavigationAware
                 
                 // Close tab
                 _globalEventAggregator.GetEvent<CloseActiveTabEvent>().Publish();
-                _notificationManager.Show("Успішно збережено!", NotificationType.Success);
+               // _notificationManager.Show("Успішно збережено!", NotificationType.Success);
             }
             catch (Exception e)
             {
-                _notificationManager.Show($"Помилка збереження ремонту: {e.Message}", NotificationType.Error);
+               // _notificationManager.Show($"Помилка збереження ремонту: {e.Message}", NotificationType.Error);
                 throw;
             }
         }
@@ -234,27 +227,27 @@ public class AddRepairViewModel : BindableBase, INavigationAware
         
         if (SelectedEquipment is null)
         {
-            _notificationManager.Show("Об'єкт ремонту не може бути порожнім", NotificationType.Warning);
+           // _notificationManager.Show("Об'єкт ремонту не може бути порожнім", NotificationType.Warning);
             return true;
         }
         if (SelectedRepairStatus is null)
         {
-            _notificationManager.Show("Статус ремонту не може бути порожнім", NotificationType.Warning);
+           // _notificationManager.Show("Статус ремонту не може бути порожнім", NotificationType.Warning);
             return true;
         }
         if (!string.IsNullOrWhiteSpace(BreakDescription) && BreakDescription.Length > 2000)
         {
-            _notificationManager.Show("Масимальна довжина опису поломки - 2000 символів", NotificationType.Warning);
+          //  _notificationManager.Show("Масимальна довжина опису поломки - 2000 символів", NotificationType.Warning);
             return true;
         }
         if (quantityIsNull)
         {
-            _notificationManager.Show("Встановіть кількість витраченого матеріалу", NotificationType.Warning);
+           // _notificationManager.Show("Встановіть кількість витраченого матеріалу", NotificationType.Warning);
             return true;
         }
         if (SelectedRepairStatus.StatusName == "Заплановано" && !DateTimeStartRepair.HasValue)
         {
-            _notificationManager.Show("Для статусу \"Заплановано\" потрібно встановити дату початку ремонту", NotificationType.Warning);
+          //  _notificationManager.Show("Для статусу \"Заплановано\" потрібно встановити дату початку ремонту", NotificationType.Warning);
             return true;
         }
         return false;

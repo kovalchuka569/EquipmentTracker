@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-
+using Common.Enums;
 using Microsoft.Win32;
-
 using Syncfusion.UI.Xaml.Grid;
 using Syncfusion.UI.Xaml.Grid.Converter;
-
-using Notification.Wpf;
-
 using Presentation.Interfaces;
+using Presentation.Services.Interfaces;
+using Resources.Localization;
 
 
 namespace Presentation.Services;
@@ -17,11 +15,11 @@ namespace Presentation.Services;
 public class PdfExportManager : IPdfExportManager
 {
 
-    private static NotificationManager _notificationManager;
+    private static ISnackbarService _snackbarService;
     
-    public void ExportToPdf(SfDataGrid dataGrid, string fileName, NotificationManager notificationManager)
+    public void ExportToPdf(SfDataGrid dataGrid, string fileName, ISnackbarService snackbarService)
     {
-        _notificationManager = notificationManager;
+        _snackbarService = snackbarService;
         
         if(string.IsNullOrEmpty(fileName)) 
             fileName = "Експорт від " + DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss");
@@ -75,7 +73,7 @@ public class PdfExportManager : IPdfExportManager
         }
     }
     
-    private static string ShowSaveFileDialog(string defaultFileName)
+    private static string? ShowSaveFileDialog(string defaultFileName)
     {
         var saveFileDialog = new SaveFileDialog()
         {
@@ -89,15 +87,19 @@ public class PdfExportManager : IPdfExportManager
     
     private static void ShowSuccessMessage(string filePath)
     {
-        _notificationManager.Show(
-            $"Експорт завершено",
-            $"Дані успішно збережно в \n{filePath}", NotificationType.Success);
+        _snackbarService
+            .Show()
+            .WithMessage(string.Format(SnackbarMessages.ExportedIn_SuccessMessage_Format, filePath))
+            .OfType(SnackType.Warning)
+            .Now();
     }
     
     private static void ShowErrorMessage(Exception ex)
     {
-        _notificationManager.Show(
-            $"Помилка",
-            $"Помилка при експорту в \n{ex.Message}", NotificationType.Error);
+        _snackbarService
+            .Show()
+            .WithMessage(SnackbarMessages.Export_ErrorMessage)
+            .OfType(SnackType.Warning)
+            .Now();
     }
 }

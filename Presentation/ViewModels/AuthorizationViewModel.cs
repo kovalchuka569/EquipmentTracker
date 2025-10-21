@@ -6,7 +6,7 @@ using Core.Interfaces;
 using JetBrains.Annotations;
 using LocalSecure.Interfaces;
 using LocalSecure.Managers;
-using Notification.Wpf;
+using Presentation.Services.Interfaces;
 using Presentation.ViewModels.Common;
 using Presentation.ViewModels.DialogViewModels;
 using Presentation.Views;
@@ -33,12 +33,12 @@ public class AuthorizationViewModel : InteractiveViewModelBase
     public required IAuthService AuthService = null!;
     
     [Dependency]
-    public required NotificationManager NotificationManager = null!;
+    public required ISnackbarService SnackbarService = null!;
 
     #endregion
 
     #region Private fields
-
+    
     private bool _isConnectedToDatabase;
 
     private string _login = string.Empty;
@@ -135,13 +135,18 @@ public class AuthorizationViewModel : InteractiveViewModelBase
                     var connectionString = DbKeyService.LoadDbConnectionString();
 
                     // Testing this connection string
-                    await DbConnectionService.TestConnectionAsync(connectionString);
+                    await DbConnectionService
+                        .TestConnectionAsync(connectionString);
                 
                     // Warming up connection
-                    await DbConnectionService.PreheatConnectionAsync();
+                    await DbConnectionService
+                        .PreheatConnectionAsync();
 
-                    // Shows success snackbar
-                    NotificationManager.Show(Strings.SnackbarMessage_DbConnectionEstablished, NotificationType.Success);
+                    SnackbarService
+                        .Show()
+                        .WithMessage(Strings.SnackbarMessage_DbConnectionEstablished)
+                        .OfType(SnackType.Success)
+                        .Now();
                 });
 
             IsConnectedToDatabase = true;

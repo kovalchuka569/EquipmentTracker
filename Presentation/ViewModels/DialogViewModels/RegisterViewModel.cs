@@ -6,7 +6,7 @@ using Core.Interfaces;
 using JetBrains.Annotations;
 using LocalSecure.Managers;
 using Models.Users;
-using Notification.Wpf;
+using Presentation.Services.Interfaces;
 using Presentation.ViewModels.DialogViewModels.Common;
 using Prism.Commands;
 using Resources.Localization;
@@ -24,14 +24,11 @@ public class RegisterViewModel : DialogViewModelBase
     
     #region Dependecies
 
-    [Dependency] 
-    public required IAppLogger<RegisterViewModel> Logger { get; init; } = null!;
+    [Dependency] public required IAppLogger<RegisterViewModel> Logger = null!;
     
-    [Dependency]
-    public required IAuthService AuthService { get; init; } = null!;
+    [Dependency] public required IAuthService AuthService = null!;
     
-    [Dependency]
-    public required NotificationManager NotificationManager { get; init; } = null!;
+    [Dependency] public required ISnackbarService SnackbarService = null!;
     
     #endregion
     
@@ -123,13 +120,24 @@ public class RegisterViewModel : DialogViewModelBase
         await ExecuteWithErrorHandlingAsync(async () =>
         {
             await AuthService.AddUserAsync(newUser);
-            NotificationManager.Show(Strings.RegsiterFormSended_SnackbarMessage, NotificationType.Success);
+            
+            SnackbarService
+                .Show()
+                .WithMessage(Strings.RegsiterFormSended_SnackbarMessage)
+                .OfType(SnackType.Success)
+                .Now();
+
             OnDialogClosed();
         },
             onError: e =>
             {
                 Logger.LogError(e, SendingErrorLogMessage);
-                NotificationManager.Show(Strings.RegsiterFormSended_SnackbarMessage, NotificationType.Error);
+                
+                SnackbarService
+                    .Show()
+                    .WithMessage(Strings.ErrorWhileSendingRegisterForm_SnackbarMessage)
+                    .OfType(SnackType.Warning)
+                    .Now();
             });
     }
     

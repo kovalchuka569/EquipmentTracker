@@ -1,5 +1,4 @@
 ﻿using System.Collections.ObjectModel;
-using System.ComponentModel.DataAnnotations;
 using Core.Events.DataGrid;
 using Core.Events.DataGrid.Consumables;
 using Core.Events.TabControl;
@@ -7,10 +6,6 @@ using Core.Services.ServicesDataGrid;
 using Models.RepairsDataGrid.AddRepair;
 using Models.RepairsDataGrid.AddService;
 using Models.RepairsDataGrid.ServicesDataGrid;
-using Notification.Wpf;
-using Prism.Commands;
-using Prism.Events;
-using Prism.Mvvm;
 using Syncfusion.UI.Xaml.Grid;
 
 namespace EquipmentTracker.ViewModels.DataGrid.Services;
@@ -21,7 +16,6 @@ public class AddServiceViewModel : BindableBase, INavigationAware
     private EventAggregator _scopedEventAggregator;
     private readonly IRegionManager _globalRegionManager;
     private readonly IEventAggregator _globalEventAggregator;
-    private readonly NotificationManager _globalNotificationManager;
     private readonly IAddServiceService _service;
 
     private SfMultiColumnDropDownControl _equipmentSelector;
@@ -145,12 +139,12 @@ public class AddServiceViewModel : BindableBase, INavigationAware
     
     public AddServiceViewModel(IRegionManager globalRegionManager, 
         IEventAggregator globalEventAggregator, 
-        NotificationManager globalNotificationManager,
+       // NotificationManager globalNotificationManager,
         IAddServiceService service)
     {
         _globalRegionManager = globalRegionManager;
         _globalEventAggregator = globalEventAggregator;
-        _globalNotificationManager = globalNotificationManager;
+        //_globalNotificationManager = globalNotificationManager;
         _service = service;
 
         UserControlLoadedCommand = new DelegateCommand(OnUserControlLoaded);
@@ -197,11 +191,11 @@ public class AddServiceViewModel : BindableBase, INavigationAware
             
                 // Close tab
                 _globalEventAggregator.GetEvent<CloseActiveTabEvent>().Publish();
-                _globalNotificationManager.Show("Успішно збережено!", NotificationType.Success);
+               // _globalNotificationManager.Show("Успішно збережено!", NotificationType.Success);
             }
             catch (Exception e)
             {
-                _globalNotificationManager.Show($"Помилка додавання обслуговування: {e.Message}", NotificationType.Error);
+               // _globalNotificationManager.Show($"Помилка додавання обслуговування: {e.Message}", NotificationType.Error);
                 throw;
             }
         }
@@ -217,11 +211,11 @@ public class AddServiceViewModel : BindableBase, INavigationAware
                 }
                 
                 _globalEventAggregator.GetEvent<CloseActiveTabEvent>().Publish();
-                _globalNotificationManager.Show("Успішно збережено!", NotificationType.Success);
+               // _globalNotificationManager.Show("Успішно збережено!", NotificationType.Success);
             }
             catch (Exception e)
             {
-                _globalNotificationManager.Show($"Помилка збереження ремонту: {e.Message}", NotificationType.Error);
+               // _globalNotificationManager.Show($"Помилка збереження ремонту: {e.Message}", NotificationType.Error);
                 throw;
             }
         }
@@ -268,32 +262,32 @@ public class AddServiceViewModel : BindableBase, INavigationAware
         
         if (SelectedEquipment is null)
         {
-            _globalNotificationManager.Show("Об'єкт обслуговування не може бути порожнім", NotificationType.Warning);
+          //  _globalNotificationManager.Show("Об'єкт обслуговування не може бути порожнім", NotificationType.Warning);
             return true;
         }
         if (SelectedServiceType is null)
         {
-            _globalNotificationManager.Show("Тип обслуговування не може бути порожнім", NotificationType.Warning);
+           // _globalNotificationManager.Show("Тип обслуговування не може бути порожнім", NotificationType.Warning);
             return true;
         }
         if (SelectedServiceStatus is null)
         {
-            _globalNotificationManager.Show("Статус обслуговування не може бути порожнім", NotificationType.Warning);
+         //   _globalNotificationManager.Show("Статус обслуговування не може бути порожнім", NotificationType.Warning);
             return true;
         }
         if (!string.IsNullOrWhiteSpace(ServiceDescription) && ServiceDescription.Length > 2000)
         {
-            _globalNotificationManager.Show("Масимальна довжина опису осблуговування - 2000 символів", NotificationType.Warning);
+          //  _globalNotificationManager.Show("Масимальна довжина опису осблуговування - 2000 символів", NotificationType.Warning);
             return true;
         }
         if (quantityIsNull)
         {
-            _globalNotificationManager.Show("Встановіть кількість витраченого матеріалу", NotificationType.Warning);
+          //  _globalNotificationManager.Show("Встановіть кількість витраченого матеріалу", NotificationType.Warning);
             return true;
         }
         if (SelectedServiceStatus.StatusName == "Заплановано" && !DateTimeStartService.HasValue)
         {
-            _globalNotificationManager.Show("Для статусу \"Заплановано\" потрібно встановити дату початку обслуговування", NotificationType.Warning);
+         //   _globalNotificationManager.Show("Для статусу \"Заплановано\" потрібно встановити дату початку обслуговування", NotificationType.Warning);
             return true;
         }
         return false;

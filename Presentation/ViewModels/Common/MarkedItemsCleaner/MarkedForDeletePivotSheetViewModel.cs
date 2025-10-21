@@ -1,7 +1,4 @@
-﻿
-using Common.Enums;
-using Common.Logging;
-using Notification.Wpf;
+﻿using Common.Enums;
 
 namespace Presentation.ViewModels.Common.MarkedItemsCleaner;
 

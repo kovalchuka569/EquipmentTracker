@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Common.Logging;
 using Core.Interfaces;
 using JetBrains.Annotations;
-using Notification.Wpf;
 using Presentation.Interfaces;
 using Presentation.Models;
 using Presentation.ViewModels.Common;
@@ -25,9 +24,6 @@ public class UserManagerViewModel : InteractiveViewModelBase
     
     [Dependency]
     public required ISfDataGridExportManager SfDataGridExportManager { get; init; } = null!;
-    
-    [Dependency]
-    public required NotificationManager NotificationManager { get; init; } = null!;
 
     private ObservableCollection<DataGridUserViewModel> _users = [];
     

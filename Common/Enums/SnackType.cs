@@ -1,6 +1,6 @@
 ﻿namespace Common.Enums;
 
-public enum SnackbarStyle
+public enum SnackType
 {
     None,
     Primary,

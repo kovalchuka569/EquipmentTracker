@@ -5,7 +5,6 @@ using Common.Logging;
 using Core.Events.TabControl;
 using Core.Services.ServicesDataGrid;
 using Models.RepairsDataGrid.ServicesDataGrid;
-using Notification.Wpf;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
@@ -21,7 +20,6 @@ namespace UI.ViewModels.DataGrid.Services
     {
         private readonly IAppLogger<ServicesDataGridViewModel> _logger;
         private readonly IEventAggregator _globalEventAggregator;
-        private readonly NotificationManager _globalNotificationManager;
         private readonly IServicesDataGridService _service;
         
         private SfDataGrid _servicesDataGrid;
@@ -71,13 +69,14 @@ namespace UI.ViewModels.DataGrid.Services
         public ServicesDataGridViewModel(
             IEventAggregator globalEventAggregator,
             IServicesDataGridService service,
-            IAppLogger<ServicesDataGridViewModel> logger,
-            NotificationManager globalNotificationManager)
+            IAppLogger<ServicesDataGridViewModel> logger
+         //   NotificationManager globalNotificationManager
+         )
         {
             _globalEventAggregator = globalEventAggregator;
             _service = service;
             _logger = logger;
-            _globalNotificationManager = globalNotificationManager;
+          //  _globalNotificationManager = globalNotificationManager;
 
             ServicesDataGridLoadedCommand = new DelegateCommand<SfDataGrid>(OnServicesDataGridLoaded);
             ContextMenuLoadedCommand = new DelegateCommand(OnContextMenuLoaded);
@@ -157,12 +156,12 @@ namespace UI.ViewModels.DataGrid.Services
                     {
                         workbook.SaveAs(stream);
                     }
-                    _globalNotificationManager.Show("Таблицю успішно експортовано до Excel!", NotificationType.Success);
+                  //  _globalNotificationManager.Show("Таблицю успішно експортовано до Excel!", NotificationType.Success);
                 }
             }
             catch (Exception e)
             {
-                _globalNotificationManager.Show("Помилка експорту до Excel!", NotificationType.Error);
+              //  _globalNotificationManager.Show("Помилка експорту до Excel!", NotificationType.Error);
                 _logger.LogError(e.Message, "Error exporting Excel");
                 throw;
             }
@@ -198,14 +197,14 @@ namespace UI.ViewModels.DataGrid.Services
                             document.Save(stream);
                         }
 
-                        _globalNotificationManager.Show("Таблицю успішно експортовано в PDF!", NotificationType.Success);
+                       // _globalNotificationManager.Show("Таблицю успішно експортовано в PDF!", NotificationType.Success);
                     }
                 }
 
             }
             catch (Exception e)
             {
-                _globalNotificationManager.Show("Помилка експорту в PDF!", NotificationType.Error);
+              //  _globalNotificationManager.Show("Помилка експорту в PDF!", NotificationType.Error);
                 _logger.LogError(e.Message, "Error exporting PDF");
                 throw;
             }

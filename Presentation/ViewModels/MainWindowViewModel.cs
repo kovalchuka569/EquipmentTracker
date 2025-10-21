@@ -20,7 +20,6 @@ public class MainWindowViewModel : BindableBase
     #region Private fields
 
     private string _currentVersion = $"v{Assembly.GetExecutingAssembly().GetName().Version?.ToString(3)}";
-    private object? _snackbarContent;
     
     #endregion
 
@@ -31,12 +30,6 @@ public class MainWindowViewModel : BindableBase
         get => _currentVersion;
         set => SetProperty(ref _currentVersion, value);
     }
-
-    public object? SnackbarContent
-    {
-        get => _snackbarContent;
-        set => SetProperty(ref _snackbarContent, value);
-    }
     
     #endregion
     
@@ -44,8 +37,6 @@ public class MainWindowViewModel : BindableBase
     
     public MainWindowViewModel()
     {
-        SnackbarContent = new SnackbarView();
-        
         InitializeCommands();
     }
     
@@ -67,6 +58,7 @@ public class MainWindowViewModel : BindableBase
     private void OnMainWindowLoadedCommandExecute()
     {
         RegionManager.RequestNavigate("MainRegion", nameof(AuthorizationView));
+        RegionManager.RequestNavigate("SnackbarRegion", nameof(SnackbarView));
     }
     
     #endregion

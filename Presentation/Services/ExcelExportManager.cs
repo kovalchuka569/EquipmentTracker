@@ -1,24 +1,23 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
-
+using Common.Enums;
 using Microsoft.Win32;
-
 using Syncfusion.UI.Xaml.Grid;
 using Syncfusion.UI.Xaml.Grid.Converter;
 using Syncfusion.XlsIO;
-
-using Notification.Wpf;
 using Presentation.Interfaces;
+using Presentation.Services.Interfaces;
+using Resources.Localization;
 
 namespace Presentation.Services;
 
 public class ExcelExportManager : IExcelExportManager
 {
-    private static NotificationManager _notificationManager;
-    public void ExportToExcel(SfDataGrid dataGrid, string fileName, NotificationManager notificationManager)
+    private static ISnackbarService _snackbarService;
+    public void ExportToExcel(SfDataGrid dataGrid, string fileName, ISnackbarService snackbarService)
     {
-        _notificationManager = notificationManager;
+        _snackbarService = snackbarService;
         
         if(string.IsNullOrEmpty(fileName)) 
             fileName = "Експорт від " + DateTime.Now.ToString("yyyy-MM-dd HH-mm-ss");
@@ -81,15 +80,19 @@ public class ExcelExportManager : IExcelExportManager
     
     private static void ShowSuccessMessage(string filePath)
     {
-        _notificationManager.Show(
-            $"Експорт завершено",
-            $"Дані успішно збережено в \n{filePath}", NotificationType.Success);
+        _snackbarService
+            .Show()
+            .WithMessage(string.Format(SnackbarMessages.ExportedIn_SuccessMessage_Format, filePath))
+            .OfType(SnackType.Warning)
+            .Now();
     }
 
     private static void ShowErrorMessage(Exception ex)
     {
-        _notificationManager.Show(
-            $"Помилка",
-            $"Помилка експорту в \n{ex.Message}", NotificationType.Error);
+        _snackbarService
+            .Show()
+            .WithMessage(SnackbarMessages.Export_ErrorMessage)
+            .OfType(SnackType.Warning)
+            .Now();
     }
 }

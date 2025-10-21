@@ -54,10 +54,7 @@
 	</ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Extended.Wpf.Toolkit" Version="4.7.25104.5739" />
       <PackageReference Include="JetBrains.Annotations" Version="2025.2.0" />
-      <PackageReference Include="MaterialDesignColors" Version="5.2.1" />
-      <PackageReference Include="MaterialDesignThemes" Version="5.2.1" />
       <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.7" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.7">
         <PrivateAssets>all</PrivateAssets>
@@ -69,7 +66,6 @@
       <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.7" />
       <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
       <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-      <PackageReference Include="Notification.Wpf" Version="8.0.0" />
       <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
       <PackageReference Include="NuGet.CommandLine" Version="6.14.0">
         <PrivateAssets>all</PrivateAssets>

@@ -1,7 +1,7 @@
 ﻿<UserControl x:Class="Presentation.Views.SnackbarView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:sf="http://schemas.syncfusion.com/wpf"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              x:Name="Root">
 
     <UserControl.Resources>
@@ -11,38 +11,33 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
-    
-    <Grid>
-        
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-        
-        <StackPanel Grid.Row="0" Orientation="Horizontal"
-                    HorizontalAlignment="Right">
-            <Button 
-                    Command="{Binding AddItemCommand}"
-                    Content="Add +"/>
-            
-            <Button 
-                    Command="{Binding ClearItemsCommand}"
-                    Content="Clear x"/>
-            </StackPanel>
-    
-    <ItemsControl Grid.Row="1" 
-                  ItemsSource="{Binding ActiveSnackbarItems}"
-                  Margin="0,0,6,12"
-                  VerticalAlignment="Bottom"
-                  HorizontalAlignment="Right">
-        <ItemsControl.ItemTemplate>
-            <DataTemplate>
-                <ContentControl Content="{Binding}"
-                                ContentTemplate="{Binding SnackbarContainer, 
-                                Converter={StaticResource SnackbarContainerToTemplateConverter}}" />
-            </DataTemplate>
-        </ItemsControl.ItemTemplate>
+
+    <ItemsControl
+        BorderThickness="1"
+        ItemsSource="{Binding ActiveSnacks}"
+        Margin="0,0,6,12"
+        ItemTemplate="{StaticResource TextSnackTemplate}"
+        VerticalAlignment="Bottom"
+        HorizontalAlignment="Right">
+
+        <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+                <StackPanel HorizontalAlignment="Right" />
+            </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+
+        <ItemsControl.ItemContainerStyle>
+            <Style>
+                <Setter Property="FrameworkElement.HorizontalAlignment" Value="Right" />
+            </Style>
+        </ItemsControl.ItemContainerStyle>
+
     </ItemsControl>
-    </Grid>
-    
+
+    <i:Interaction.Triggers>
+        <i:EventTrigger EventName="Loaded">
+            <i:InvokeCommandAction Command="{Binding SnackbarLoadedCommand}" />
+        </i:EventTrigger>
+    </i:Interaction.Triggers>
+
 </UserControl>

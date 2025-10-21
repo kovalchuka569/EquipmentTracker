@@ -48,9 +48,8 @@
     </sf:ChromelessWindow.Resources>
     
     <Grid>
-        <TextBlock Text="{Binding FramesPerSeconds}" VerticalAlignment="Top" HorizontalAlignment="Left"/>
         <ContentControl prism:RegionManager.RegionName="MainRegion"/>
-        <ContentControl Content="{Binding SnackbarContent}"/>
+        <ContentControl prism:RegionManager.RegionName="SnackbarRegion"/>
     </Grid>
     
     <i:Interaction.Triggers>
